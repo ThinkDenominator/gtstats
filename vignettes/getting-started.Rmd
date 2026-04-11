@@ -1,0 +1,172 @@
+
+---
+title: "Getting Started"
+description: >
+  Learn the gtstats workflow: explore, compare, build Table 1, and export results.
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+```
+
+### Installation
+```{r install}
+# remotes::install_github("thinkdenominator/gtstats")
+install.packages("gtstats")
+library(gtstats)
+```
+
+
+⸻
+
+The gtstats philosophy
+
+gtstats is designed around a simple workflow:
+
+	•	User-friendly API and args.
+	•	Tidy outputs
+	•	Build a Table 1 and test hypotheses with minimal code
+	•	Export ready-to-use outputs
+
+⸻
+
+## Explore your data
+
+Start by understanding variable types and missingness.
+
+```{r describe}
+describe_data(mtcars)
+# tidy output
+describe_data(mtcars) |> tbl_stats() 
+```
+
+⸻
+
+## Summary statistics
+
+Get quick descriptive summaries:
+```{r summary}
+summary_stats(mtcars, by = am)
+
+Render as a table:
+
+summary_stats(mtcars, by = am) |> tbl_stats()
+```
+
+
+⸻
+
+## Compare groups
+
+Compare outcomes across groups with automatic test selection:
+
+```{r compare}
+compare_groups(mtcars, outcome = mpg, group = am) |>
+  tbl_stats()
+```
+👉 gtstats chooses the test for you
+👉 Output tells you which test was used
+
+⸻
+
+## Visualise comparisons
+
+Plots are essential for interpretation.
+
+```{r plot}
+plot_compare(
+  mtcars,
+  outcome = mpg,
+  group = am,
+  show_p = TRUE
+)
+```
+
+
+	•	Continuous → boxplot
+	•	Categorical → bar chart
+	•	Optional p-value overlay
+
+⸻
+
+## Build Table 1 
+
+This is the heart of gtstats.
+
+```{r table1}
+descriptive_table(mtcars, by = am, overall = TRUE) |>
+  add_summary(vars = c(mpg, wt, cyl))  |>
+  add_proportion(var = vs, ci = TRUE)  |>
+  add_total()                          |>
+  add_p()                              |>
+  tbl_stats()
+```
+
+✔ Continuous: mean (SD)
+✔ Categorical: n (%)
+✔ Proportions: with CI
+✔ Tests: automatically applied
+
+⸻
+
+## Style outputs
+
+```{r style}
+tbl_stats(
+  descriptive_table(mtcars, by = am) |>
+    add_summary(vars = c(mpg, wt)) |>
+    add_p()
+) |>
+  style_table(
+    theme = "journal",
+    accent_color = "#1C1C1E"
+  )
+```
+
+⸻
+
+## Export results
+
+
+### Save tables
+```{r export}
+res <- descriptive_table(mtcars, by = am) |>
+  add_summary(vars = c(mpg, wt)) |>
+  add_p()
+
+save_table(res, "table1.html")
+save_table(tbl_stats(res), "table1.png")
+
+```
+⸻
+
+### Save plots
+```{r export-plot}
+p <- plot_compare(mtcars, mpg, am, show_p = TRUE)
+
+save_plot(p, "mpg_by_am.png")
+```
+You can also control resolution:
+```{r export-plot-res}
+save_plot(p, "figure.png", width = 7, height = 5, dpi = 300)
+```
+
+⸻
+
+## Epidemiology helpers
+
+```{r epi}
+prop_ci(mtcars, var = vs, by = am)
+
+rate_stats(df, event = event, time = ptime, by = arm)
+
+twobytwo_table(mtcars, exposure = am, outcome = vs)
+```
+
+⸻
+

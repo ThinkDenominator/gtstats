@@ -1,0 +1,104 @@
+---
+title: "Package Overview"
+description: >
+  A quick tour of every function in gtstats and how they fit together.
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Package Overview}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+```
+
+```{r load}
+library(gtstats)
+```
+
+## Why gtstats?
+
+Most descriptive statistics tasks in clinical and public health work boil down to the same handful of steps: summarise your variables, check whether they are normally distributed, compare groups, test associations, and build a clean table for your report or paper. **gtstats** provides a single, consistent interface for all of these steps, with output that goes straight into a `gt` table or a Word document.
+
+---
+
+## Function map
+
+```
+Data exploration ─────── describe_data()
+
+Summary statistics ───── summary_stats()
+Distribution checks ──── check_distribution()
+Group comparisons ────── compare_groups()
+Correlations ─────────── correlate_vars()
+
+Proportions + CI ──────── prop_ci()
+Rates + Poisson CI ────── rate_stats()
+2×2 epi tables ─────────  twobytwo_table()
+
+Table builder ──────────  descriptive_table()
+                          ├─ add_summary()
+                          ├─ add_proportion()
+                          ├─ add_rate()
+                          ├─ add_total()
+                          ├─ add_p()
+                          └─ add_custom_row()
+
+Render ─────────────────  tbl_stats()
+Style ──────────────────  style_table()
+Export ─────────────────  to_flextable()
+```
+
+---
+
+## Typical usage patterns
+
+### Quick data check
+
+```{r}
+describe_data(mtcars)
+summary_stats(mtcars, by = am)
+```
+
+### One-step group comparison
+
+```{r}
+compare_groups(mtcars, outcome = mpg, group = am) |>
+  tbl_stats()
+```
+
+### Epidemiology helpers
+
+```{r}
+prop_ci(mtcars, var = vs, by = am)
+
+twobytwo_table(mtcars, exposure = am, outcome = vs) |>
+  tbl_stats()
+```
+
+### Full descriptive table
+
+```{r}
+descriptive_table(mtcars, by = am, overall = TRUE) |>
+  add_summary(vars = c(mpg, wt, cyl)) |>
+  add_proportion(var = vs) |>
+  add_total() |>
+  add_p() |>
+  tbl_stats() |>
+  style_table(theme = "journal", accent_color = "#123B7A")
+```
+
+---
+
+## Output formats
+
+Every analysis function returns a structured list with a class attribute. Printing it in the console gives a plain-text summary. Passing it to `tbl_stats()` renders a formatted `gt` table. The descriptive table builder also supports `to_flextable()` for Word-ready output.
+
+---
+
+## Getting help
+
+- See the [Getting Started](getting-started.html) article for a step-by-step introduction.
+- See the [Descriptive Tables](descriptive-tables.html) article for a deep dive on the table builder.
+- Browse the [Reference](../reference/index.html) for full argument documentation.

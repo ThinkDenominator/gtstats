@@ -1,0 +1,30 @@
+# system
+.DS_Store
+
+# R
+.Rhistory
+.RData
+.Ruserdata
+.Rprofile
+.Rproj.user
+.Renviron
+
+# build
+.Rcheck/
+*.Rcheck
+*.tar.gz
+
+# renv
+renv/
+renv.lock
+
+# pkgdown / docs
+docs/
+pkgdown/
+index.html
+index.md
+index.Rmd
+
+# misc
+*.html
+SETUP_GUIDE.md

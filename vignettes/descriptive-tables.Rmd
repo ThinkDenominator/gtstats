@@ -1,0 +1,280 @@
+---
+title: "Building Descriptive Tables with gtstats"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Building Descriptive Tables with gtstats}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  eval     = FALSE
+)
+```
+
+## Introduction
+
+The descriptive table builder is the centrepiece of **gtstats**. It lets you assemble a publication-ready "Table 1" — the standard baseline characteristics table used in clinical and epidemiological papers — through a simple, pipe-based workflow.
+
+The builder has five components:
+
+| Step | Function | What it does |
+|---|---|---|
+| 1 | `descriptive_table()` | Initialises the table, sets grouping |
+| 2 | `add_summary()` | Adds mean (SD) and median (IQR) rows for continuous variables |
+| 3 | `add_proportion()` | Adds n (%) rows for binary/categorical variables |
+| 4 | `add_rate()` | Adds event rate rows |
+| 5 | `add_total()` | Appends a Total (N) row |
+| 6 | `add_p()` | Appends a p-value column |
+| 7 | `add_custom_row()` | Appends a free-text row |
+| 8 | `tbl_stats()` | Renders the assembled table as a `gt` object |
+
+```{r load}
+library(gtstats)
+```
+
+---
+
+## A minimal table
+
+Start with `descriptive_table()`, then pipe in whichever row-builders you need.
+
+```{r minimal}
+descriptive_table(mtcars, by = am) |>
+  add_summary(vars = c(mpg, wt, cyl)) |>
+  tbl_stats()
+```
+
+`by = am` groups the table by the `am` variable (transmission type). Each level becomes a column.
+
+---
+
+## Adding an overall column
+
+Set `overall = TRUE` to include an additional column showing statistics for the full sample.
+
+```{r overall}
+descriptive_table(mtcars, by = am, overall = TRUE) |>
+  add_summary(vars = c(mpg, wt, cyl)) |>
+  tbl_stats()
+```
+
+---
+
+## Adding proportion rows
+
+`add_proportion()` adds a row displaying `n (%)` for a binary or categorical variable. Optionally add Wilson confidence intervals with `ci = TRUE`.
+
+```{r proportion}
+descriptive_table(mtcars, by = am, overall = TRUE) |>
+  add_summary(vars = c(mpg, wt, cyl)) |>
+  add_proportion(var = vs) |>
+  tbl_stats()
+```
+
+To display confidence intervals and pin the row to a specific level:
+
+```{r proportion-ci}
+descriptive_table(mtcars, by = am, overall = TRUE) |>
+  add_summary(vars = c(mpg, wt, cyl)) |>
+  add_proportion(var = vs, level = "1", ci = TRUE) |>
+  tbl_stats()
+```
+
+---
+
+## Adding a total row
+
+`add_total()` appends a row at the bottom showing the total N per group.
+
+```{r total}
+descriptive_table(mtcars, by = am, overall = TRUE) |>
+  add_summary(vars = c(mpg, wt, cyl)) |>
+  add_proportion(var = vs) |>
+  add_total() |>
+  tbl_stats()
+```
+
+---
+
+## Adding p-values
+
+`add_p()` appends a p-value column. By default, the test is selected automatically:
+
+- Continuous variables: Welch t-test (2 groups) or ANOVA (3+ groups)
+- Skewed distributions: Wilcoxon rank-sum or Kruskal-Wallis
+- Categorical variables: chi-squared test or Fisher's exact test
+
+```{r add-p}
+descriptive_table(mtcars, by = am) |>
+  add_summary(vars = c(mpg, wt, cyl)) |>
+  add_proportion(var = vs) |>
+  add_p() |>
+  tbl_stats()
+```
+
+### Specifying tests manually
+
+Pass a named character vector to `method` to override the automatic selection for specific variables:
+
+```{r add-p-manual}
+descriptive_table(mtcars, by = am) |>
+  add_summary(vars = c(mpg, wt, cyl)) |>
+  add_p(method = c(mpg = "welch_t", wt = "wilcox", cyl = "chisq")) |>
+  tbl_stats()
+```
+
+Supported methods: `"auto"`, `"welch_t"`, `"t_test"`, `"wilcox"`, `"anova"`, `"kruskal"`, `"chisq"`, `"fisher"`, `"mcnemar"`.
+
+### Paired tests
+
+For before/after or matched data, use `paired = TRUE`:
+
+```{r paired}
+dat <- data.frame(
+  period = c("before", "before", "before", "before",
+             "after",  "after",  "after",  "after"),
+  score  = c(10, 12, 9, 11, 13, 16, 11, 15)
+)
+
+descriptive_table(dat, by = period) |>
+  add_summary(vars = score) |>
+  add_p(paired = TRUE, method = "wilcox") |>
+  tbl_stats()
+```
+
+---
+
+## Adding rate rows
+
+`add_rate()` appends an event rate row calculated per a chosen multiplier, with exact Poisson confidence intervals. This is useful when your dataset contains event counts and person-time denominators.
+
+```{r rate}
+descriptive_table(mtcars, by = am, overall = TRUE) |>
+  add_rate(
+    events     = carb,
+    denom      = cyl,
+    label      = "Carburettor rate",
+    multiplier = 1000
+  ) |>
+  tbl_stats()
+```
+
+---
+
+## Adding custom rows
+
+`add_custom_row()` inserts a free-text row — useful for study period notes, data source annotations, or any label that does not come from a variable.
+
+```{r custom}
+descriptive_table(mtcars, by = am, overall = TRUE) |>
+  add_summary(vars = c(mpg, wt, cyl)) |>
+  add_custom_row(
+    label   = "Study period",
+    overall = "2020–2024",
+    values  = c("am = 1" = "2020–2024", "am = 0" = "2020–2024")
+  ) |>
+  tbl_stats()
+```
+
+---
+
+## The full workflow
+
+Putting it all together — a complete, publication-ready descriptive table:
+
+```{r full-workflow}
+descriptive_table(mtcars, by = am, overall = TRUE) |>
+  add_summary(vars = c(mpg, wt, cyl)) |>
+  add_proportion(var = vs, level = "1", ci = TRUE) |>
+  add_total() |>
+  add_p() |>
+  tbl_stats()
+```
+
+---
+
+## Styling the output
+
+`style_table()` applies a visual theme and relabels columns, rows, and factor levels. It operates on the `gt` object returned by `tbl_stats()`.
+
+```{r style}
+descriptive_table(mtcars, by = am, overall = TRUE) |>
+  add_summary(vars = c(mpg, wt, cyl)) |>
+  add_proportion(var = vs) |>
+  add_total() |>
+  add_p() |>
+  tbl_stats() |>
+  style_table(
+    theme      = "journal",
+    title      = "Table 1. Baseline characteristics by transmission type",
+    col_labels = c(
+      "Level"  = "",
+      "am = 1" = "Manual",
+      "am = 0" = "Automatic"
+    ),
+    row_labels = c(
+      "mpg"    = "Miles per gallon",
+      "wt"     = "Weight (1000 lbs)",
+      "cyl"    = "Cylinders",
+      "vs (1)" = "V-shaped engine"
+    ),
+    accent_color = "#123B7A"
+  )
+```
+
+Available themes: `"default"`, `"journal"`, `"classic"`, `"minimal"`, `"compact"`.
+
+You can also relabel factor levels within the table using `level_labels`:
+
+```{r level-labels}
+descriptive_table(mtcars, by = am, overall = TRUE) |>
+  add_summary(vars = cyl) |>
+  tbl_stats() |>
+  style_table(
+    level_labels = c(
+      "4" = "4-cylinder",
+      "6" = "6-cylinder",
+      "8" = "8-cylinder"
+    )
+  )
+```
+
+---
+
+## Exporting to Word
+
+Call `to_flextable()` on the `gt_desc_table` object (before rendering with `tbl_stats()`) to produce a `flextable` suitable for Word output.
+
+```{r export}
+res <- descriptive_table(mtcars, by = am, overall = TRUE) |>
+  add_summary(vars = c(mpg, wt, cyl)) |>
+  add_proportion(var = vs) |>
+  add_total() |>
+  add_p()
+
+ft <- to_flextable(res)
+```
+
+In an R Markdown or Quarto document targeting Word output, simply print `ft` in a chunk and it will appear as a formatted table in the document.
+
+---
+
+## Summary
+
+The gtstats table builder lets you assemble a complete "Table 1" with very little code:
+
+```
+descriptive_table(data, by = group, overall = TRUE)
+  |> add_summary(vars = c(...))
+  |> add_proportion(var = ...)
+  |> add_total()
+  |> add_p()
+  |> tbl_stats()
+  |> style_table(theme = "journal", ...)
+```
+
+Each `add_*()` function is independent — add only the rows your table needs, in any order that makes sense for your report.

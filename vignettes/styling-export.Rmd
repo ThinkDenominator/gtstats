@@ -1,0 +1,288 @@
+---
+title: "Styling and Exporting Tables"
+description: >
+  Apply themes, relabel columns and rows, and export to Word.
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Styling and Exporting Tables}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+```
+
+```{r load}
+library(gtstats)
+```
+
+## Overview
+
+Once you have built a table with the `descriptive_table()` workflow and rendered it with `tbl_stats()`, two functions handle the final presentation step:
+
+- **`style_table()`** — applies a theme, adds titles, and relabels columns, rows, and factor levels.
+- **`to_flextable()`** — converts the table to a `flextable` object for Word output.
+
+---
+
+## style_table()
+
+`style_table()` takes the `gt` object returned by `tbl_stats()` and layers on styling. Start with a theme and add options as needed.
+
+```{r base-table}
+tbl <- descriptive_table(mtcars, by = am, overall = TRUE) |>
+  add_summary(vars = c(mpg, wt, cyl)) |>
+  add_proportion(var = vs) |>
+  add_total() |>
+  add_p() |>
+  tbl_stats()
+```
+
+### Themes
+
+```{r journal}
+style_table(tbl, theme = "journal")
+```
+
+```{r minimal}
+style_table(tbl, theme = "minimal")
+```
+
+```{r compact}
+style_table(tbl, theme = "compact")
+```
+
+| Theme | Best for |
+|---|---|
+| `"default"` | Exploratory work, no strong preference |
+| `"journal"` | Academic manuscripts, journal submission |
+| `"classic"` | Reports with traditional table borders |
+| `"minimal"` | Slide decks, dashboards, modern reports |
+| `"compact"` | Dense tables where space is limited |
+
+---
+
+### Titles and notes
+
+```{r titles}
+style_table(
+  tbl,
+  theme       = "journal",
+  title       = "Table 1. Baseline characteristics",
+  subtitle    = "Stratified by transmission type",
+  source_note = "Data: mtcars (Motor Trend, 1974)."
+)
+```
+
+---
+
+### Relabelling columns
+
+Supply a named character vector — `"internal_name" = "Display label"`. Column names in `gtstats` tables follow the pattern `"am = 1"`, `"am = 0"`, `"Overall"`, `"Level"`.
+
+```{r col-labels}
+style_table(
+  tbl,
+  theme      = "journal",
+  col_labels = c(
+    "Level"   = "",
+    "am = 1"  = "Manual (n = 13)",
+    "am = 0"  = "Automatic (n = 19)",
+    "Overall" = "All vehicles (n = 32)"
+  )
+)
+```
+
+---
+
+### Relabelling rows
+
+Supply a named vector where names are the current row label values and values are the replacement labels.
+
+```{r row-labels}
+style_table(
+  tbl,
+  theme      = "journal",
+  row_labels = c(
+    "mpg"    = "Miles per gallon",
+    "wt"     = "Weight (1 000 lbs)",
+    "cyl"    = "Cylinders",
+    "vs (1)" = "V-shaped engine, n (%)",
+    "Total (N)" = "Total"
+  )
+)
+```
+
+---
+
+### Relabelling factor levels
+
+Use `level_labels` to rename values that appear in the `Level` column of the rendered table.
+
+```{r level-labels}
+style_table(
+  tbl,
+  level_labels = c(
+    "4" = "4-cylinder",
+    "6" = "6-cylinder",
+    "8" = "8-cylinder"
+  )
+)
+```
+
+---
+
+### Accent colour
+
+Apply a brand or journal colour to the table borders:
+
+```{r accent}
+style_table(tbl, theme = "journal", accent_color = "#123B7A")
+```
+
+---
+
+### Row striping
+
+```{r stripe}
+style_table(tbl, row_striping = TRUE, stripe_color = "#F0F4F8")
+```
+
+---
+
+### A fully styled table
+
+```{r full-style}
+descriptive_table(mtcars, by = am, overall = TRUE) |>
+  add_summary(vars = c(mpg, wt, cyl)) |>
+  add_proportion(var = vs) |>
+  add_total() |>
+  add_p() |>
+  tbl_stats() |>
+  style_table(
+    theme        = "journal",
+    title        = "Table 1. Baseline characteristics by transmission type",
+    source_note  = "SD = standard deviation; IQR = interquartile range; CI = confidence interval.",
+    col_labels   = c(
+      "Level"   = "",
+      "am = 1"  = "Manual",
+      "am = 0"  = "Automatic",
+      "Overall" = "All"
+    ),
+    row_labels   = c(
+      "mpg"       = "Miles per gallon",
+      "wt"        = "Weight (1 000 lbs)",
+      "cyl"       = "Cylinders",
+      "vs (1)"    = "V-shaped engine",
+      "Total (N)" = "Total"
+    ),
+    level_labels = c(
+      "4" = "4-cylinder",
+      "6" = "6-cylinder",
+      "8" = "8-cylinder"
+    ),
+    accent_color = "#123B7A"
+  )
+```
+
+---
+
+## to_flextable()
+
+`to_flextable()` converts a `gt_desc_table` object — the object **before** `tbl_stats()` — into a `flextable`. This is the recommended path for Word output via R Markdown or Quarto.
+
+```{r flextable}
+res <- descriptive_table(mtcars, by = am, overall = TRUE) |>
+  add_summary(vars = c(mpg, wt, cyl)) |>
+  add_proportion(var = vs) |>
+  add_total() |>
+  add_p()
+
+ft <- to_flextable(res)
+ft
+```
+
+In an R Markdown document with `output: word_document`, simply print `ft` in a code chunk and it will render as a formatted table in the Word file.
+
+## Saving tables and plots
+
+gtstats provides simple helpers to export tables and plots for reports, presentations, and manuscripts.
+
+### Save a table
+
+You can save either a `gtstats` object or a rendered `gt_tbl`.
+
+If a `gtstats` object is supplied, `save_table()` will internally render it using `tbl_stats()`.
+
+```{r}
+res <- descriptive_table(mtcars, by = am, overall = TRUE) |>
+  add_summary(vars = c(mpg, wt, cyl)) |>
+  add_proportion(var = vs) |>
+  add_total() |>
+  add_p()
+```
+
+Save directly from the gtstats object:
+
+```{r}
+save_table(res, "table1.html")
+```
+
+
+Save from a pre-rendered gt object:
+
+```{r}
+gt_obj <- tbl_stats(res)
+
+save_table(gt_obj, "table1.png")
+```
+
+Supported formats include:
+	•	"html"
+	•	"png"
+	•	"pdf"
+	•	"tiff"
+
+Files are written to a temporary directory by default. A message will display the saved file path.
+
+### Save a plot
+
+Plots created with plot_compare() can be saved using save_plot().
+
+```{r}
+p <- plot_compare(
+  mtcars,
+  outcome = mpg,
+  group = am,
+  show_p = TRUE
+)
+
+p
+```
+
+
+Save the plot:
+```{r}
+save_plot(p, "mpg_by_am.png")
+```
+
+You can control output size and resolution:
+```{r}
+save_plot(
+  p,
+  "mpg_by_am_highres.png",
+  width = 7,
+  height = 5,
+  dpi = 300
+)
+```
+
+
+---
+
+## Tips
+
+- `style_table()` only works on the `gt` object returned by `tbl_stats()`.
+- `to_flextable()` works on the `gt_desc_table` object, **not** on the gt output. Call it before `tbl_stats()`.
+- For the most control over Word output, combine `to_flextable()` with `flextable`'s own formatting functions.

@@ -1,0 +1,136 @@
+url: https://thinkdenominator.com/gtstats/, https://github.com/thinkdenominator/gtstats
+
+home:
+  title: "gtstats — Publication-Ready Statistics for R"
+  description: >
+    Beginner-friendly R package for descriptive and inferential statistics
+    with publication-ready gt and flextable output. Built for clinical,
+    epidemiological, and public health analysts.
+  strip_header: true
+  links:
+  - text: "ThinkDenominator"
+    href: https://thinkdenominator.com
+
+template:
+  bootstrap: 5
+  bootswatch: litera
+  bslib:
+    primary: "#C0392B"
+    link-color: "#C0392B"
+    navbar-bg: "#1C1C1E"
+    navbar-dark: true
+    body-bg: "#FAFAF8"
+    body-color: "#1C1C1E"
+    base_font:
+      google: "IBM Plex Sans"
+    heading_font:
+      google: "IBM Plex Serif"
+    code_font:
+      google: "IBM Plex Mono"
+  css: pkgdown/extra.css
+
+navbar:
+  structure:
+    left:  [intro, articles, reference]
+    right: [search, github]
+  components:
+    intro:
+      text: "Get started"
+      href: articles/getting-started.html
+    articles:
+      text: "Articles"
+      menu:
+        - text: "Package overview"
+          href: articles/overview.html
+        - text: "Getting started"
+          href: articles/getting-started.html
+        - text: "---"
+        - text: "Building descriptive tables"
+          href: articles/descriptive-tables.html
+        - text: "Epidemiology helpers"
+          href: articles/epi-helpers.html
+        - text: "Styling and exporting tables"
+          href: articles/styling-export.html
+    reference:
+      text: "Reference"
+      href: reference/index.html
+    github:
+      icon: fa-github
+      href: https://github.com/thinkdenominator/gtstats
+      aria-label: GitHub
+
+articles:
+  - title: "Start here"
+    navbar: ~
+    contents:
+      - overview
+      - getting-started
+  - title: "Deep dives"
+    navbar: "Deep dives"
+    contents:
+      - descriptive-tables
+      - epi-helpers
+      - styling-export
+
+reference:
+  - title: "Data exploration"
+    desc: "Understand variable types, missing data, and distributions before analysis."
+    contents:
+      - summary_stats
+      - check_distribution
+
+  - title: "Statistical tests"
+    desc: "Test whether groups differ and quantify associations."
+    contents:
+      - compare_groups
+      - correlate_vars
+  - title: "Visualisation"
+    desc: "Visualise group comparisons and statistical outputs."
+    contents:
+    - plot_compare
+
+  - title: "Epidemiology helpers"
+    desc: >
+      Proportions with Wilson confidence intervals, event rates with exact
+      Poisson confidence intervals, and 2x2 tables with RR, OR, and RD.
+    contents:
+      - prop_ci
+      - rate_stats
+      - twobytwo_table
+
+  - title: "Descriptive table builder"
+    desc: >
+      Modular pipe-based workflow for building publication-ready Table 1s.
+      Initialise with descriptive_table(), add rows with add_*(), render with tbl_stats().
+    contents:
+      - descriptive_table
+      - add_summary
+      - add_proportion
+      - add_rate
+      - add_total
+      - add_p
+      - add_custom_row
+
+  - title: "Rendering, styling and export"
+    desc: "Render as gt tables, apply journal themes, relabel columns, and export to Word."
+    contents:
+      - tbl_stats
+      - style_table
+      - to_flextable
+  - title: "Save outputs"
+    desc: "Save outputs without any effort"
+    contents:
+      - save_table
+      - save_plot
+  - title: "Print methods"
+    desc: "S3 print methods called automatically when printing gtstats objects to the console."
+    contents:
+      - starts_with("print.")
+
+footer:
+  structure:
+    left:  developed_by
+    right: built_with
+  components:
+    developed_by: >
+      Developed by <a href="https://thinkdenominator.com">ThinkDenominator</a>.

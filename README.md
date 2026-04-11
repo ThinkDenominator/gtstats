@@ -1,0 +1,167 @@
+
+<!-- README.md is generated from README.Rmd. Please edit that file. -->
+
+<!-- For pkgdown, this file doubles as the homepage.              -->
+
+<!-- HERO BANNER — rendered on pkgdown site -->
+
+<div style="background:linear-gradient(135deg,#0e2f63 0%,#123B7A 55%,#1a4d9e 100%);border-radius:14px;padding:3.5rem 2.5rem 3rem;margin:0 0 2.5rem;color:#fff;position:relative;overflow:hidden;">
+  <div style="position:absolute;top:-40px;right:-40px;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,.04);"></div>
+  <div style="position:absolute;bottom:-60px;right:80px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.03);"></div>
+  <p style="margin:0 0 .6rem;font-size:.8rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#e8c060;">R Package · v0.0.1</p>
+  <h1 style="margin:0 0 .75rem;font-size:2.6rem;font-weight:700;font-family:'Playfair Display',serif;line-height:1.15;color:#fff;">gtstats</h1>
+  <p style="margin:0 0 1.8rem;font-size:1.15rem;color:rgba(255,255,255,.82);max-width:560px;line-height:1.6;">Beginner-friendly descriptive &amp; inferential statistics with publication-ready <strong style="color:#e8c060;">gt</strong> tables — built for clinical and public health analysts.</p>
+  <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;margin-bottom:1.8rem;">
+    <a href="articles/getting-started.html" style="background:#e8c060;color:#0e2f63;padding:.55rem 1.3rem;border-radius:7px;text-decoration:none;font-weight:600;font-size:.9rem;">Get started →</a>
+    <a href="reference/index.html" style="background:rgba(255,255,255,.12);color:#fff;padding:.55rem 1.3rem;border-radius:7px;text-decoration:none;font-weight:500;font-size:.9rem;border:1px solid rgba(255,255,255,.25);">Reference</a>
+    <a href="articles/overview.html" style="background:rgba(255,255,255,.12);color:#fff;padding:.55rem 1.3rem;border-radius:7px;text-decoration:none;font-weight:500;font-size:.9rem;border:1px solid rgba(255,255,255,.25);">Package overview</a>
+  </div>
+  <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+    <img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="lifecycle">
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT">
+    <img src="https://img.shields.io/badge/R-%3E%3D4.1-blue.svg" alt="R">
+  </div>
+</div>
+
+## What is gtstats?
+
+**gtstats** gives epidemiologists, clinical researchers, and public
+health analysts a single, consistent toolkit for the most common
+descriptive and inferential statistics tasks — from a quick data
+overview through to a polished, publication-ready Table 1. No formula
+syntax, no complex setup.
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1.5rem 0;">
+  <div style="background:#f4f7fc;border:1px solid #d0daea;border-radius:10px;padding:1.1rem 1.2rem;border-top:3px solid #123B7A;">
+    <p style="margin:0 0 .4rem;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#5a6478;">Explore</p>
+    <p style="margin:0;font-size:.88rem;color:#1a1f2e;line-height:1.6;"><code>describe_data()</code><br><code>summary_stats()</code><br><code>check_distribution()</code></p>
+  </div>
+  <div style="background:#f4f7fc;border:1px solid #d0daea;border-radius:10px;padding:1.1rem 1.2rem;border-top:3px solid #123B7A;">
+    <p style="margin:0 0 .4rem;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#5a6478;">Compare &amp; correlate</p>
+    <p style="margin:0;font-size:.88rem;color:#1a1f2e;line-height:1.6;"><code>compare_groups()</code><br><code>correlate_vars()</code></p>
+  </div>
+  <div style="background:#f4f7fc;border:1px solid #d0daea;border-radius:10px;padding:1.1rem 1.2rem;border-top:3px solid #e8a020;">
+    <p style="margin:0 0 .4rem;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#5a6478;">Epi helpers</p>
+    <p style="margin:0;font-size:.88rem;color:#1a1f2e;line-height:1.6;"><code>prop_ci()</code><br><code>rate_stats()</code><br><code>twobytwo_table()</code></p>
+  </div>
+  <div style="background:#f4f7fc;border:1px solid #d0daea;border-radius:10px;padding:1.1rem 1.2rem;border-top:3px solid #e8a020;">
+    <p style="margin:0 0 .4rem;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#5a6478;">Table builder</p>
+    <p style="margin:0;font-size:.88rem;color:#1a1f2e;line-height:1.6;"><code>descriptive_table()</code><br><code>add_*()</code> functions<br><code>tbl_stats()</code> · <code>style_table()</code></p>
+  </div>
+</div>
+
+## Installation
+
+``` r
+remotes::install_github("thinkdenominator/gtstats")
+```
+
+## The descriptive table builder
+
+Build a complete Table 1 in one pipe:
+
+``` r
+library(gtstats)
+
+descriptive_table(mtcars, by = am, overall = TRUE) |>
+  add_summary(vars = c(mpg, wt, cyl))   |>
+  add_proportion(var = vs, ci = TRUE)   |>
+  add_total()                           |>
+  add_p()                               |>
+  tbl_stats()
+```
+
+<div style="background:#f4f7fc;border:1px solid #d0daea;border-radius:12px;padding:1.5rem;margin:1.25rem 0;overflow-x:auto;">
+  <p style="margin:0 0 1rem;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#123B7A;display:flex;align-items:center;gap:.4rem;">
+    <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#e8a020;"></span>
+    Rendered output — tbl_stats()
+  </p>
+  <table style="width:100%;border-collapse:collapse;font-size:.85rem;font-family:system-ui,sans-serif;">
+  <thead>
+    <tr>
+      <th style="background:#123B7A;color:#fff;padding:.55rem 1rem;text-align:left;font-weight:500;border-radius:6px 0 0 0;">Variable</th>
+      <th style="background:#123B7A;color:#fff;padding:.55rem .75rem;text-align:left;font-weight:500;min-width:50px;"></th>
+      <th style="background:#123B7A;color:#fff;padding:.55rem 1rem;text-align:right;font-weight:500;">Manual<br><span style="font-weight:300;font-size:.78rem;">am=1, n=13</span></th>
+      <th style="background:#123B7A;color:#fff;padding:.55rem 1rem;text-align:right;font-weight:500;">Automatic<br><span style="font-weight:300;font-size:.78rem;">am=0, n=19</span></th>
+      <th style="background:#123B7A;color:#fff;padding:.55rem 1rem;text-align:right;font-weight:500;">Overall<br><span style="font-weight:300;font-size:.78rem;">n=32</span></th>
+      <th style="background:#123B7A;color:#fff;padding:.55rem 1rem;text-align:right;font-weight:500;border-radius:0 6px 0 0;">p-value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td style="padding:.55rem 1rem;font-weight:600;color:#123B7A;border-bottom:1px solid #e8eef8;">Miles per gallon</td><td style="padding:.55rem .75rem;border-bottom:1px solid #e8eef8;"></td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">24.4 (6.2)</td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">17.1 (3.8)</td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">20.1 (6.0)</td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;font-weight:600;">&lt;0.001</td></tr>
+    <tr style="background:#f9fafc;"><td style="padding:.55rem 1rem;font-weight:600;color:#123B7A;border-bottom:1px solid #e8eef8;">Weight (1000 lbs)</td><td style="padding:.55rem .75rem;border-bottom:1px solid #e8eef8;"></td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">2.4 (0.6)</td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">3.8 (0.8)</td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">3.2 (1.0)</td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;font-weight:600;">&lt;0.001</td></tr>
+    <tr><td style="padding:.55rem 1rem;font-weight:600;color:#123B7A;border-bottom:1px solid #e8eef8;">Cylinders</td><td style="padding:.3rem .75rem;border-bottom:1px solid #e8eef8;font-size:.82rem;color:#5a6478;">4</td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">8 (61.5%)</td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">3 (15.8%)</td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">11 (34.4%)</td><td rowspan="3" style="padding:.55rem 1rem;text-align:right;vertical-align:middle;font-weight:600;">0.009</td></tr>
+    <tr style="background:#f9fafc;"><td></td><td style="padding:.3rem .75rem;font-size:.82rem;color:#5a6478;border-bottom:1px solid #e8eef8;">6</td><td style="padding:.3rem 1rem;text-align:right;color:#5a6478;border-bottom:1px solid #e8eef8;">4 (30.8%)</td><td style="padding:.3rem 1rem;text-align:right;color:#5a6478;border-bottom:1px solid #e8eef8;">4 (21.1%)</td><td style="padding:.3rem 1rem;text-align:right;color:#5a6478;border-bottom:1px solid #e8eef8;">7 (21.9%)</td></tr>
+    <tr><td></td><td style="padding:.3rem .75rem;font-size:.82rem;color:#5a6478;border-bottom:1px solid #e8eef8;">8</td><td style="padding:.3rem 1rem;text-align:right;color:#5a6478;border-bottom:1px solid #e8eef8;">1 (7.7%)</td><td style="padding:.3rem 1rem;text-align:right;color:#5a6478;border-bottom:1px solid #e8eef8;">12 (63.2%)</td><td style="padding:.3rem 1rem;text-align:right;color:#5a6478;border-bottom:1px solid #e8eef8;">14 (43.8%)</td></tr>
+    <tr style="background:#f9fafc;"><td style="padding:.55rem 1rem;font-weight:600;color:#123B7A;border-bottom:1px solid #e8eef8;">V-shaped engine</td><td style="padding:.55rem .75rem;font-size:.82rem;color:#5a6478;border-bottom:1px solid #e8eef8;">vs=1</td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">7 (53.8%)<br><small style="color:#5a6478;">[27–79%]</small></td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">7 (36.8%)<br><small style="color:#5a6478;">[19–60%]</small></td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">14 (43.8%)<br><small style="color:#5a6478;">[27–62%]</small></td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">0.357</td></tr>
+    <tr style="background:#e8eef8;"><td style="padding:.55rem 1rem;font-weight:600;color:#123B7A;" colspan="2">Total (N)</td><td style="padding:.55rem 1rem;text-align:right;font-weight:600;">13</td><td style="padding:.55rem 1rem;text-align:right;font-weight:600;">19</td><td style="padding:.55rem 1rem;text-align:right;font-weight:600;">32</td><td></td></tr>
+  </tbody>
+</table>
+  <p style="margin:.85rem 0 0;font-size:.75rem;color:#5a6478;">ᵃ Continuous: mean (SD). Categorical: n (%). Proportions: n (%) [95% Wilson CI]. ᵇ Welch t-test / chi-squared. Tests auto-selected.</p>
+</div>
+
+Then style it:
+
+``` r
+... |> tbl_stats() |>
+  style_table(theme = "journal", col_labels = c("am=1" = "Manual", "am=0" = "Automatic"), accent_color = "#123B7A")
+```
+
+## Save outputs
+
+Export polished tables and figures directly from your workflow.
+
+``` r
+save_table(res, "table1.html")
+save_table(tbl_stats(res), "table1.png")
+
+p <- plot_compare(mtcars, outcome = mpg, group = am, show_p = TRUE)
+save_plot(p, "mpg_by_am.png")
+```
+
+## Epidemiology helpers
+
+``` r
+prop_ci(mtcars, var = vs, by = am)
+rate_stats(df, event = event, time = ptime, by = arm)
+twobytwo_table(mtcars, exposure = am, outcome = vs)
+```
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.25rem 0;">
+  <div style="background:#f4f7fc;border:1px solid #d0daea;border-radius:10px;padding:1.2rem;overflow-x:auto;">
+    <p style="margin:0 0 .75rem;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#123B7A;">prop_ci() — grouped</p>
+    <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
+  <thead><tr><th style="background:#123B7A;color:#fff;padding:.4rem .75rem;text-align:left;font-weight:500;">Group</th><th style="background:#123B7A;color:#fff;padding:.4rem .75rem;text-align:right;font-weight:500;">n</th><th style="background:#123B7A;color:#fff;padding:.4rem .75rem;text-align:right;font-weight:500;">Proportion</th></tr></thead>
+  <tbody>
+    <tr><td style="padding:.4rem .75rem;border-bottom:1px solid #e8eef8;">am = 0</td><td style="padding:.4rem .75rem;text-align:right;border-bottom:1px solid #e8eef8;">19</td><td style="padding:.4rem .75rem;text-align:right;border-bottom:1px solid #e8eef8;">36.8% [18.7–59.5%]</td></tr>
+    <tr style="background:#f9fafc;"><td style="padding:.4rem .75rem;">am = 1</td><td style="padding:.4rem .75rem;text-align:right;">13</td><td style="padding:.4rem .75rem;text-align:right;">53.8% [27.0–78.7%]</td></tr>
+  </tbody>
+</table>
+  </div>
+  <div style="background:#f4f7fc;border:1px solid #d0daea;border-radius:10px;padding:1.2rem;overflow-x:auto;">
+    <p style="margin:0 0 .75rem;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#123B7A;">twobytwo_table()</p>
+    <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
+  <thead><tr><th style="background:#123B7A;color:#fff;padding:.4rem .75rem;text-align:left;font-weight:500;">Measure</th><th style="background:#123B7A;color:#fff;padding:.4rem .75rem;text-align:right;font-weight:500;">Value</th></tr></thead>
+  <tbody>
+    <tr><td style="padding:.4rem .75rem;border-bottom:1px solid #e8eef8;">Exposed (am=1)</td><td style="padding:.4rem .75rem;text-align:right;border-bottom:1px solid #e8eef8;">7/13</td></tr>
+    <tr style="background:#f9fafc;"><td style="padding:.4rem .75rem;border-bottom:1px solid #e8eef8;">Unexposed (am=0)</td><td style="padding:.4rem .75rem;text-align:right;border-bottom:1px solid #e8eef8;">7/19</td></tr>
+    <tr><td style="padding:.4rem .75rem;border-bottom:1px solid #e8eef8;">Risk ratio</td><td style="padding:.4rem .75rem;text-align:right;border-bottom:1px solid #e8eef8;">1.46 (0.65–3.27)</td></tr>
+    <tr style="background:#f9fafc;"><td style="padding:.4rem .75rem;border-bottom:1px solid #e8eef8;">Odds ratio</td><td style="padding:.4rem .75rem;text-align:right;border-bottom:1px solid #e8eef8;">2.00 (0.52–7.69)</td></tr>
+    <tr><td style="padding:.4rem .75rem;">p-value</td><td style="padding:.4rem .75rem;text-align:right;">0.357</td></tr>
+  </tbody>
+</table>
+  </div>
+</div>
+
+## Getting help
+
+- **Website:**
+  [thinkdenominator.github.io/gtstats](https://thinkdenominator.github.io/gtstats/)
+- **Bugs / ideas:** [GitHub
+  Issues](https://github.com/thinkdenominator/gtstats/issues)
+- **Start here:** `vignette("getting-started", package = "gtstats")`
+
+------------------------------------------------------------------------
+
+*MIT License · © Rubeshkumar Polani Chandrasekar ·
+[thinkdenominator.com](https://thinkdenominator.com)*

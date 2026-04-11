@@ -1,0 +1,137 @@
+---
+title: "Epidemiology Helpers"
+description: >
+  Proportions with CIs, event rates with Poisson CIs, and 2x2 tables.
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Epidemiology Helpers}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+```
+
+```{r load}
+library(gtstats)
+```
+
+## Overview
+
+gtstats includes three standalone helper functions aimed specifically at clinical and epidemiological analysis:
+
+| Function | Purpose |
+|---|---|
+| `prop_ci()` | Proportions with Wilson confidence intervals |
+| `rate_stats()` | Event rates with exact Poisson confidence intervals |
+| `twobytwo_table()` | 2×2 table with risk ratio, odds ratio, and CIs |
+
+All three follow the same pattern: pass in your data frame, name the relevant variables, and optionally supply a grouping variable with `by =`. Pipe to `tbl_stats()` for a formatted `gt` table.
+
+---
+
+## prop_ci() — Proportions
+
+`prop_ci()` calculates the proportion of a binary variable that equals a specified level (default: the first non-NA value), together with a Wilson confidence interval.
+
+```{r prop-basic}
+# Overall proportion
+prop_ci(mtcars, var = vs)
+```
+
+```{r prop-grouped}
+# Grouped by transmission type
+prop_ci(mtcars, var = vs, by = am)
+```
+
+```{r prop-level}
+# Pin to a specific level
+prop_ci(mtcars, var = vs, by = am, level = "1")
+```
+
+```{r prop-gt}
+tbl_stats(prop_ci(mtcars, var = vs, by = am))
+```
+
+### In a descriptive table
+
+`add_proportion()` embeds the same calculation inside the table builder:
+
+```{r prop-table}
+descriptive_table(mtcars, by = am, overall = TRUE) |>
+  add_proportion(var = vs, level = "1", ci = TRUE) |>
+  add_total() |>
+  tbl_stats()
+```
+
+---
+
+## rate_stats() — Event rates
+
+`rate_stats()` divides the total number of events by the total person-time and multiplies by a chosen denominator (e.g. 1 000 person-years). Confidence intervals are calculated using the exact Poisson method.
+
+```{r rate-data}
+df <- data.frame(
+  event = c(1, 0, 1, 0, 1, 1),
+  ptime = c(10, 12, 8, 9, 11, 7),
+  arm   = c("A", "A", "A", "B", "B", "B")
+)
+```
+
+```{r rate-basic}
+# Overall rate
+rate_stats(df, event = event, time = ptime)
+```
+
+```{r rate-grouped}
+# Grouped by study arm
+rate_stats(df, event = event, time = ptime, by = arm)
+```
+
+```{r rate-gt}
+rate_stats(df, event = event, time = ptime, by = arm) |>
+  tbl_stats()
+```
+
+### In a descriptive table
+
+`add_rate()` embeds rate rows in the table builder:
+
+```{r rate-table}
+descriptive_table(mtcars, by = am, overall = TRUE) |>
+  add_rate(
+    events     = carb,
+    denom      = cyl,
+    label      = "Carburettor rate (per 1 000)",
+    multiplier = 1000
+  ) |>
+  tbl_stats()
+```
+
+---
+
+## twobytwo_table() — 2×2 epi tables
+
+`twobytwo_table()` takes an exposure variable and a binary outcome, constructs the 2×2 table, and calculates:
+
+- Cell counts (a, b, c, d)
+- Risk ratio (RR) with 95% CI
+- Odds ratio (OR) with 95% CI
+- Chi-squared p-value
+
+```{r twobytwo}
+twobytwo_table(mtcars, exposure = am, outcome = vs)
+```
+
+```{r twobytwo-gt}
+tbl_stats(twobytwo_table(mtcars, exposure = am, outcome = vs))
+```
+
+---
+
+## Tips
+
+- For small cell counts (fewer than 5), consider reporting Fisher's exact p-value from `compare_groups()` alongside the 2×2 table.
+- `prop_ci()`, `rate_stats()`, and `twobytwo_table()` all return structured objects that can be rendered with `tbl_stats()` or inspected as plain lists.
+- Inside a descriptive table, use `add_proportion()` and `add_rate()` rather than standalone helpers to keep everything in one table.
