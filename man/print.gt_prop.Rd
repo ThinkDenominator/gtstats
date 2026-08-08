@@ -22,7 +22,7 @@ The print method shows the dataset name, variable, selected level,
 optional grouping variable, and the display-ready proportion table.
 }
 \examples{
-x <- prop_ci(mtcars, var = vs, by = am)
+x <- proportion_stats(mtcars, var = vs, by = am)
 print(x)
 
 }

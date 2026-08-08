@@ -7,52 +7,48 @@
 #' show the number of observations contributing to each column. When the table
 #' includes an `Overall` column, the total number of rows in the source data is
 #' shown there. When the table is grouped, totals are calculated within each
-#' displayed group.
+#' displayed group. Publication-table headers already display these cohort
+#' denominators automatically, so this row is optional.
 #'
 #' This helper can be used only with descriptive tables created in
 #' `mode = "summary"`.
 #'
-#' @param x A `gt_desc_table` object created with [descriptive_table()].
+#' @param x A `gt_desc_table` object created with [summary_table()].
 #' @param label Row label to display in the `Variable` column. Defaults to
 #'   `"Total (N)"`.
+#' @param position Position of the total row. Use `"first"` to place sample
+#'   sizes at the top of the table or `"last"` to append them.
 #'
 #' @return An updated `gt_desc_table` object with a total row appended.
 #'
 #' @examples
-#' descriptive_table(mtcars, by = am) |>
+#' summary_table(mtcars, by = am) |>
 #'   add_summary(vars = c(mpg, wt, cyl)) |>
 #'   add_total()
 #'
-#' descriptive_table(mtcars, by = am, overall = TRUE) |>
+#' summary_table(mtcars, by = am, overall = TRUE) |>
 #'   add_summary(vars = c(mpg, wt)) |>
 #'   add_total()
 #'
-#' descriptive_table(mtcars) |>
+#' summary_table(mtcars) |>
 #'   add_total()
 #'
 #' @export
 add_total <- function(
     x,
-    label = "Total (N)"
+    label = "Total (N)",
+    position = c("last", "first")
 ) {
-  # Validate table object and restrict use to summary-mode descriptive tables
-  if (!inherits(x, "gt_desc_table")) {
-    stop("`x` must be a `gt_desc_table` object.", call. = FALSE)
-  }
-
-  if (!identical(x$mode, "summary")) {
-    stop(
-      paste0(
-        "`add_total()` can only be used with descriptive tables ",
-        "created with `mode = \"summary\"`."
-      ),
-      call. = FALSE
-    )
-  }
+  position <- match.arg(position)
+  .validate_summary_builder(x, "add_total", mode = "summary")
 
   # Validate row label
-  if (!is.character(label) || length(label) != 1) {
-    stop("`label` must be a single character string.", call. = FALSE)
+  if (!is.character(label) || length(label) != 1L || is.na(label) ||
+      !nzchar(label)) {
+    stop("`label` must be a single non-empty character string.", call. = FALSE)
+  }
+  if ("total" %in% (x$components %||% character())) {
+    stop("A total row has already been added to this table.", call. = FALSE)
   }
 
   # Start the total row
@@ -68,11 +64,8 @@ add_total <- function(
 
   # Add group-specific totals when the table is grouped
   if (!is.null(x$by)) {
-    group_values <- unique(x$data[[x$by]])
-    group_values <- group_values[!is.na(group_values)]
-    group_values_chr <- as.character(group_values)
-    group_labels <- paste0(x$by, " = ", group_values_chr)
-    names(group_labels) <- group_values_chr
+    group_values_chr <- .builder_group_values(x)
+    group_labels <- .builder_group_columns(x)
 
     for (g in group_values_chr) {
       n_g <- sum(!is.na(x$data[[x$by]]) & as.character(x$data[[x$by]]) == g)
@@ -84,24 +77,9 @@ add_total <- function(
   }
 
   total_row <- tibble::as_tibble(total_row)
+  total_row <- .builder_order_display_columns(x, total_row)
 
-  # Align the new row to the current table structure before appending
-  if (is.null(x$table)) {
-    x$table <- total_row
-  } else {
-    missing_cols <- setdiff(names(x$table), names(total_row))
-    for (col in missing_cols) {
-      total_row[[col]] <- ""
-    }
-
-    extra_cols <- setdiff(names(total_row), names(x$table))
-    for (col in extra_cols) {
-      x$table[[col]] <- ""
-    }
-
-    total_row <- total_row[, names(x$table), drop = FALSE]
-    x$table <- dplyr::bind_rows(x$table, total_row)
-  }
+  x <- .append_builder_rows(x, total_row, position = position)
 
   # Record component type and explanatory footnote
   x$components <- unique(c(x$components, "total"))

@@ -23,35 +23,35 @@ gtstats includes three standalone helper functions aimed specifically at clinica
 
 | Function | Purpose |
 |---|---|
-| `prop_ci()` | Proportions with Wilson confidence intervals |
+| `proportion_stats()` | Proportions with Wilson or exact confidence intervals |
 | `rate_stats()` | Event rates with exact Poisson confidence intervals |
-| `twobytwo_table()` | 2×2 table with risk ratio, odds ratio, and CIs |
+| `crosstabs()` | Publication-ready categorical cross-tabs; 2×2 tables also give RR, OR and RD |
 
 All three follow the same pattern: pass in your data frame, name the relevant variables, and optionally supply a grouping variable with `by =`. Pipe to `tbl_stats()` for a formatted `gt` table.
 
 ---
 
-## prop_ci() — Proportions
+## proportion_stats() — Proportions
 
-`prop_ci()` calculates the proportion of a binary variable that equals a specified level (default: the first non-NA value), together with a Wilson confidence interval.
+`proportion_stats()` calculates the proportion of a selected level together with a Wilson score confidence interval by default. Exact binomial intervals remain available with `ci_method = "exact"`.
 
 ```{r prop-basic}
 # Overall proportion
-prop_ci(mtcars, var = vs)
+proportion_stats(mtcars, var = vs)
 ```
 
 ```{r prop-grouped}
 # Grouped by transmission type
-prop_ci(mtcars, var = vs, by = am)
+proportion_stats(mtcars, var = vs, by = am)
 ```
 
 ```{r prop-level}
 # Pin to a specific level
-prop_ci(mtcars, var = vs, by = am, level = "1")
+proportion_stats(mtcars, var = vs, by = am, level = "1")
 ```
 
 ```{r prop-gt}
-tbl_stats(prop_ci(mtcars, var = vs, by = am))
+tbl_stats(proportion_stats(mtcars, var = vs, by = am))
 ```
 
 ### In a descriptive table
@@ -59,7 +59,7 @@ tbl_stats(prop_ci(mtcars, var = vs, by = am))
 `add_proportion()` embeds the same calculation inside the table builder:
 
 ```{r prop-table}
-descriptive_table(mtcars, by = am, overall = TRUE) |>
+summary_table(mtcars, by = am, overall = TRUE) |>
   add_proportion(var = vs, level = "1", ci = TRUE) |>
   add_total() |>
   tbl_stats()
@@ -99,10 +99,10 @@ rate_stats(df, event = event, time = ptime, by = arm) |>
 `add_rate()` embeds rate rows in the table builder:
 
 ```{r rate-table}
-descriptive_table(mtcars, by = am, overall = TRUE) |>
+summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
   add_rate(
-    events     = carb,
-    denom      = cyl,
+    event      = carb,
+    time       = cyl,
     label      = "Carburettor rate (per 1 000)",
     multiplier = 1000
   ) |>
@@ -111,27 +111,98 @@ descriptive_table(mtcars, by = am, overall = TRUE) |>
 
 ---
 
-## twobytwo_table() — 2×2 epi tables
+## crosstabs() — categorical tables and 2×2 epidemiology
 
-`twobytwo_table()` takes an exposure variable and a binary outcome, constructs the 2×2 table, and calculates:
+`crosstabs()` takes any two categorical variables. When both are binary, `row`
+defines the exposure/reference axis and `col` the outcome/event axis, so risks
+and ratios retain an explicit direction. The 2×2 output additionally calculates:
 
-- Cell counts (a, b, c, d)
+- Risk in the exposed and unexposed groups, with Wilson 95% CIs
 - Risk ratio (RR) with 95% CI
-- Odds ratio (OR) with 95% CI
-- Chi-squared p-value
+- Risk difference with a Newcombe hybrid-score CI
+- An automatically selected association test: Fisher's exact test when
+  expected counts are sparse, otherwise the chi-squared test
+
+It also supports any categorical table size. By default cells show `n` and
+column percentages, with row/column/grand totals. Use `percent = "row"` for
+within-row outcome frequencies, or `percent = c("row", "column")` when both
+denominators are useful in an exploratory or supplementary table.
+
+```{r crosstabs-multilevel}
+crosstabs(mtcars, row = cyl, col = am)
+crosstabs(mtcars, row = cyl, col = gear, percent = c("row", "column"))
+```
+
+For tables larger than 2×2, the footer reports the association test and
+Cramér's V. Risk ratio, odds ratio, and risk difference are intentionally only
+available for a binary 2×2 contrast.
+
+The odds ratio is available when it is the effect measure the study needs,
+but is deliberately not part of the routine default.
 
 ```{r twobytwo}
-twobytwo_table(mtcars, exposure = am, outcome = vs)
+crosstabs(mtcars, row = am, col = vs)
 ```
 
 ```{r twobytwo-gt}
-tbl_stats(twobytwo_table(mtcars, exposure = am, outcome = vs))
+tbl_stats(crosstabs(mtcars, row = am, col = vs))
 ```
+
+Choose the direction explicitly when the coding or factor order does not
+express the scientific question:
+
+```{r twobytwo-direction}
+crosstabs(
+  mtcars,
+  row = am,
+  col = vs,
+  row_level = 1,
+  col_level = 1
+)
+```
+
+Whether levels are supplied or selected automatically, inspect
+`result$inputs$row_level` and `result$inputs$col_level` before reporting a
+2×2 measure. The audit retains the selected exposure/event direction,
+expected-count rule, zero-cell strategy, and complete-pair denominators while
+the publication table stays concise.
+
+For a case-control analysis, request the odds ratio. The association test can
+also be omitted when the table is intended to report effects and confidence
+intervals only:
+
+```{r twobytwo-or}
+crosstabs(
+  mtcars,
+  row = am,
+  col = vs,
+  measures = "or",
+  test = "none"
+)
+```
+
+When a cell is zero, log-scale ratio intervals use the Haldane–Anscombe
+correction by default. The strategy is explicit and configurable:
+
+```{r zero-cell}
+crosstabs(
+  mtcars,
+  row = am,
+  col = vs,
+  zero_correction = "none"
+)
+```
+
+Without correction, an infinite or zero ratio may be reported and its
+log-scale confidence interval may be unavailable.
 
 ---
 
 ## Tips
 
-- For small cell counts (fewer than 5), consider reporting Fisher's exact p-value from `compare_groups()` alongside the 2×2 table.
-- `prop_ci()`, `rate_stats()`, and `twobytwo_table()` all return structured objects that can be rendered with `tbl_stats()` or inspected as plain lists.
+- Use `risk_ci = "exact"` when an exact binomial interval is required by the
+  reporting convention; Wilson is the routine default.
+- `test = "auto"` checks expected counts and chooses Fisher's exact test for a
+  sparse table.
+- `proportion_stats()`, `rate_stats()`, and `crosstabs()` all return structured objects that can be rendered with `tbl_stats()` or inspected as plain lists.
 - Inside a descriptive table, use `add_proportion()` and `add_rate()` rather than standalone helpers to keep everything in one table.

@@ -15,12 +15,11 @@
 The input object, invisibly.
 }
 \description{
-Print a compact console preview of a \code{gt_describe} object.
+Print the publication-ready table stored by a \code{gt_describe} object.
 }
 \details{
-The print method shows the dataset name, the first few rows of the
-display-ready table, and a short reminder of the main object
-components available for further use.
+The underlying concise tibble remains available in \verb{$summary}, and focused
+data-quality findings are available in \verb{$issues}.
 }
 \examples{
 x <- describe_data(mtcars)

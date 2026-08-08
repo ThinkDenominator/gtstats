@@ -10,10 +10,9 @@ rate_stats(
   time,
   by = NULL,
   multiplier = 1000,
+  time_label = NULL,
   conf.level = 0.95,
-  digits = 1,
-  output = c("table", "tibble", "both"),
-  quiet = FALSE
+  digits = 1
 )
 }
 \arguments{
@@ -32,15 +31,14 @@ or as a character string.}
 \item{multiplier}{Numeric multiplier used to scale the rate, for
 example \code{1000} or \code{100000}. Default is \code{1000}.}
 
+\item{time_label}{Optional readable unit for accumulated time, such as
+\code{"person-years"} or \code{"catheter-days"}. Defaults to \code{"person-time"}.}
+
 \item{conf.level}{Confidence level for the interval. Default is
 \code{0.95}.}
 
 \item{digits}{Number of decimal places used when formatting rates.
 Default is \code{1}.}
-
-\item{output}{Output style. Currently stored in the returned object.}
-
-\item{quiet}{Logical; suppress messages.}
 }
 \value{
 A \code{gt_rate} object containing:
@@ -61,7 +59,9 @@ variable.
 This function is designed for simple epidemiological summaries where
 events are counted over a denominator of person-time. The \code{event}
 variable may be a binary indicator, a logical variable, or a count
-variable. The \code{time} variable must be numeric and non-negative.
+variable. The \code{time} variable must be numeric, finite, and non-negative.
+A zero accumulated person-time denominator is retained and clearly marked as
+not estimable rather than silently converted to a rate.
 
 When a grouping variable is supplied, rates are calculated
 separately within each group. Confidence intervals are calculated

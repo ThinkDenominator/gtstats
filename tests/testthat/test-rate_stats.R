@@ -10,6 +10,8 @@ test_that("rate_stats() works without grouping", {
   expect_true(is.list(res))
   expect_true(all(c("summary", "table", "inputs", "notes") %in% names(res)))
   expect_equal(nrow(res$table), 1)
+  expect_true(any(grepl("Poisson process", res$notes)))
+  expect_true(any(grepl("person-time", res$notes)))
 })
 
 test_that("rate_stats() works with grouping", {
@@ -49,8 +51,9 @@ test_that("rate_stats() returns formatted rate strings", {
 
   res <- rate_stats(df, event = event, time = ptime)
 
-  expect_true("Rate" %in% names(res$table))
-  expect_true(any(grepl("\\(", res$table$Rate)))
+  rate_column <- names(res$table)[ncol(res$table)]
+  expect_match(rate_column, "Rate per 1,000", fixed = TRUE)
+  expect_true(any(grepl("\\(", res$table[[rate_column]])))
 })
 
 test_that("rate_stats() grouped output includes Group column", {
@@ -76,7 +79,10 @@ test_that("rate_stats() respects multiplier", {
 
   expect_s3_class(res1, "gt_rate")
   expect_s3_class(res2, "gt_rate")
-  expect_false(identical(res1$table$Rate, res2$table$Rate))
+  expect_false(identical(
+    res1$table[[ncol(res1$table)]],
+    res2$table[[ncol(res2$table)]]
+  ))
 })
 
 test_that("tbl_stats() works on rate_stats output", {
@@ -163,7 +169,23 @@ test_that("rate_stats() returns NA rate for zero total person-time", {
 
   expect_s3_class(res, "gt_rate")
   expect_equal(res$table$`Person-time`[1], 0)
-  expect_true(is.na(res$table$Rate[1]) || identical(res$table$Rate[1], "NA"))
+  expect_true(is.na(res$table[[ncol(res$table)]][1]))
+  expect_identical(
+    res$diagnostics$result[res$diagnostics$check == "Accumulated person-time"],
+    "not_estimable"
+  )
+  expect_true(any(grepl("not estimable", res$notes, fixed = TRUE)))
+})
+
+test_that("rate_stats() rejects non-finite event and time values", {
+  expect_error(
+    rate_stats(data.frame(event = c(1, Inf), time = c(1, 2)), event, time),
+    "event.*finite"
+  )
+  expect_error(
+    rate_stats(data.frame(event = c(1, 0), time = c(1, Inf)), event, time),
+    "time.*finite"
+  )
 })
 
 test_that("rate_stats() errors for negative events", {
@@ -176,4 +198,64 @@ test_that("rate_stats() errors for negative events", {
     rate_stats(df, event = event, time = ptime),
     regexp = "`event` must not contain negative values"
   )
+})
+test_that("rate_stats() rejects fractional event counts", {
+  dat <- data.frame(events = c(0.5, 1), time = c(10, 12))
+
+  expect_error(
+    rate_stats(dat, event = events, time = time),
+    "integer counts"
+  )
+})
+
+test_that("rate_stats() flags proportion-like input", {
+  dat <- data.frame(events = c(0, 1, 1), time = c(1, 1, 1))
+  result <- rate_stats(dat, event = events, time = time)
+
+  expect_true(any(result$diagnostics$check == "Possible proportion-like input"))
+  expect_true(any(result$diagnostics$result == "review"))
+})
+
+test_that("rate_stats() respects factor order and custom time label", {
+  dat <- data.frame(
+    event = c(1, 0, 2, 1),
+    time = c(10, 12, 9, 11),
+    arm = factor(c("B", "B", "A", "A"), levels = c("A", "B"))
+  )
+  result <- rate_stats(
+    dat,
+    event,
+    time,
+    by = arm,
+    time_label = "person-years"
+  )
+
+  expect_identical(result$table$Group, c("A", "B"))
+  expect_true("Person-years" %in% names(result$table))
+  expect_match(names(result$table)[ncol(result$table)], "Rate per 1,000")
+  expect_identical(result$inputs$time_label, "person-years")
+})
+
+test_that("rate_stats() uses complete event-time pairs", {
+  dat <- data.frame(
+    event = c(1, 2, NA, 4),
+    time = c(10, NA, 30, 40)
+  )
+  result <- rate_stats(dat, event, time, multiplier = 100)
+
+  expect_equal(result$summary$events, 5)
+  expect_equal(result$summary$person_time, 50)
+  expect_equal(result$summary$n, 2)
+  expect_equal(result$denominators$n_missing, 2)
+})
+
+test_that("rate_stats() flags events recorded with zero time", {
+  dat <- data.frame(event = c(1, 0, 2), time = c(0, 10, 5))
+  result <- rate_stats(dat, event, time)
+  diagnostic <- result$diagnostics[
+    result$diagnostics$check == "Events recorded with zero time",
+  ]
+
+  expect_identical(diagnostic$result, "review")
+  expect_equal(as.numeric(diagnostic$value), 1)
 })

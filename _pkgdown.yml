@@ -1,12 +1,10 @@
-url: https://thinkdenominator.com/gtstats/, git statushttps://github.com/thinkdenominator/gtstats
+url: https://gtstats.thinkdenominator.com/
 
 home:
-  title: "gtstats — Publication-Ready Statistics for R"
+  title: "gtstats — Descriptive and Inferential Statistics to Publication-Ready Tables"
   description: >
-    Beginner-friendly R package for descriptive and inferential statistics
-    with publication-ready gt and flextable output. Built for clinical,
-    epidemiological, and public health analysts.
-  strip_header: true
+    A beginner-friendly R workflow for understanding data, creating Table 1,
+    and comparing groups with transparent, publication-ready output.
   links:
   - text: "ThinkDenominator"
     href: https://thinkdenominator.com
@@ -21,32 +19,42 @@ template:
     navbar-dark: true
     body-bg: "#FAFAF8"
     body-color: "#1C1C1E"
-    base_font:
-      google: "IBM Plex Sans"
-    heading_font:
-      google: "IBM Plex Serif"
-    code_font:
-      google: "IBM Plex Mono"
+    base_font: "system-ui"
+    heading_font: "Georgia"
+    code_font: "monospace"
   css: pkgdown/extra.css
 
 navbar:
   structure:
-    left:  [intro, articles, reference]
+    left:  [intro, workflow, articles, reference]
     right: [search, github]
   components:
     intro:
-      text: "Get started"
+      text: "Start here"
       href: articles/getting-started.html
+    workflow:
+      text: "Case study"
+      href: articles/birthweight-case-study.html
     articles:
       text: "Articles"
       menu:
-        - text: "Package overview"
-          href: articles/overview.html
         - text: "Getting started"
           href: articles/getting-started.html
+        - text: "Birth-weight case study"
+          href: articles/birthweight-case-study.html
+        - text: "Function map"
+          href: articles/overview.html
+        - text: "Function options"
+          href: articles/function-options.html
+        - text: "Teaching datasets"
+          href: articles/teaching-datasets.html
+        - text: "Missing data and denominators"
+          href: articles/missing-data-denominators.html
         - text: "---"
         - text: "Building descriptive tables"
           href: articles/descriptive-tables.html
+        - text: "Inferential tests and assumptions"
+          href: articles/inferential-tests.html
         - text: "Epidemiology helpers"
           href: articles/epi-helpers.html
         - text: "Styling and exporting tables"
@@ -63,65 +71,82 @@ articles:
   - title: "Start here"
     navbar: ~
     contents:
-      - overview
       - getting-started
-  - title: "Deep dives"
+      - birthweight-case-study
+      - overview
+      - function-options
+      - teaching-datasets
+      - missing-data-denominators
+  - title: "Workflows and details"
     navbar: "Deep dives"
     contents:
       - descriptive-tables
+      - inferential-tests
       - epi-helpers
       - styling-export
 
 reference:
-  - title: "Data exploration"
+  - title: "Teaching datasets"
+    desc: "Built-in, labelled datasets for reproducible learning and examples."
+    contents:
+      - birthwt
+      - trial_data
+      - paired_data
+
+  - title: "1. Understand the data"
     desc: "Understand variable types, missing data, and distributions before analysis."
     contents:
-      - summary_stats
-      - check_distribution
+      - describe_data
+      - assess_distribution
+      - assess_variance
 
-  - title: "Statistical tests"
+  - title: "2. Describe and compare"
     desc: "Test whether groups differ and quantify associations."
     contents:
       - compare_groups
-      - correlate_vars
-  - title: "Visualisation"
+      - effect_size
+      - correlation
+  - title: "3. Inspect decisions"
+    desc: "Inspect assumptions, diagnostic checks, and every analysis denominator."
+    contents:
+      - assumptions_stats
+      - diagnostics_stats
+      - denominators_stats
+  - title: "Plots"
     desc: "Visualise group comparisons and statistical outputs."
     contents:
     - plot_compare
+    - plot_correlation
 
-  - title: "Epidemiology helpers"
+  - title: "Epidemiology"
     desc: >
-      Proportions with Wilson confidence intervals, event rates with exact
+      Proportions with exact binomial confidence intervals, event rates with exact
       Poisson confidence intervals, and 2x2 tables with RR, OR, and RD.
     contents:
-      - prop_ci
+      - proportion_stats
       - rate_stats
-      - twobytwo_table
+      - crosstabs
 
-  - title: "Descriptive table builder"
+  - title: "Build a descriptive table"
     desc: >
       Modular pipe-based workflow for building publication-ready Table 1s.
-      Initialise with descriptive_table(), add rows with add_*(), render with tbl_stats().
+      Initialise with summary_table(), add rows with add_*(), render with tbl_stats().
     contents:
-      - descriptive_table
+      - summary_table
       - add_summary
       - add_proportion
       - add_rate
       - add_total
       - add_p
-      - add_custom_row
+      - add_row
 
-  - title: "Rendering, styling and export"
+  - title: "Render, style, and export"
     desc: "Render as gt tables, apply journal themes, relabel columns, and export to Word."
     contents:
       - tbl_stats
-      - style_table
+      - customise_table
       - to_flextable
-  - title: "Save outputs"
-    desc: "Save outputs without any effort"
-    contents:
-      - save_table
-      - save_plot
+      - save_output
   - title: "Print methods"
     desc: "S3 print methods called automatically when printing gtstats objects to the console."
     contents:

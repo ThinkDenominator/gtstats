@@ -7,7 +7,9 @@
 #' This function is designed for simple epidemiological summaries where
 #' events are counted over a denominator of person-time. The `event`
 #' variable may be a binary indicator, a logical variable, or a count
-#' variable. The `time` variable must be numeric and non-negative.
+#' variable. The `time` variable must be numeric, finite, and non-negative.
+#' A zero accumulated person-time denominator is retained and clearly marked as
+#' not estimable rather than silently converted to a rate.
 #'
 #' When a grouping variable is supplied, rates are calculated
 #' separately within each group. Confidence intervals are calculated
@@ -23,12 +25,12 @@
 #'   or as a character string.
 #' @param multiplier Numeric multiplier used to scale the rate, for
 #'   example `1000` or `100000`. Default is `1000`.
+#' @param time_label Optional readable unit for accumulated time, such as
+#'   `"person-years"` or `"catheter-days"`. Defaults to `"person-time"`.
 #' @param conf.level Confidence level for the interval. Default is
 #'   `0.95`.
 #' @param digits Number of decimal places used when formatting rates.
 #'   Default is `1`.
-#' @param output Output style. Currently stored in the returned object.
-#' @param quiet Logical; suppress messages.
 #'
 #' @return A `gt_rate` object containing:
 #' \itemize{
@@ -59,13 +61,10 @@ rate_stats <- function(
     time,
     by = NULL,
     multiplier = 1000,
+    time_label = NULL,
     conf.level = 0.95,
-    digits = 1,
-    output = c("table", "tibble", "both"),
-    quiet = FALSE
+    digits = 1
 ) {
-  output <- match.arg(output)
-
   # Validate input data
   if (!is.data.frame(data)) {
     stop("`data` must be a data frame.", call. = FALSE)
@@ -150,13 +149,28 @@ rate_stats <- function(
     df[[event_name]] <- as.numeric(df[[event_name]])
   }
 
+  if (any(!is.finite(df[[event_name]]))) {
+    stop("`event` must contain finite values.", call. = FALSE)
+  }
+
   if (any(df[[event_name]] < 0, na.rm = TRUE)) {
     stop("`event` must not contain negative values.", call. = FALSE)
+  }
+  if (any(
+    abs(df[[event_name]] - round(df[[event_name]])) >
+      sqrt(.Machine$double.eps),
+    na.rm = TRUE
+  )) {
+    stop("`event` must contain non-negative integer counts.", call. = FALSE)
   }
 
   # Validate person-time variable
   if (!is.numeric(df[[time_name]])) {
     stop("`time` must be numeric.", call. = FALSE)
+  }
+
+  if (any(!is.finite(df[[time_name]]))) {
+    stop("`time` must contain finite values.", call. = FALSE)
   }
 
   if (any(df[[time_name]] < 0, na.rm = TRUE)) {
@@ -188,61 +202,33 @@ rate_stats <- function(
       call. = FALSE
     )
   }
-
-  if (!is.numeric(conf.level) ||
-      length(conf.level) != 1 ||
-      is.na(conf.level) ||
-      conf.level <= 0 ||
-      conf.level >= 1) {
-    stop(
-      "`conf.level` must be a single number between 0 and 1.",
-      call. = FALSE
-    )
+  if (!is.null(time_label) &&
+      (!is.character(time_label) || length(time_label) != 1L ||
+       is.na(time_label) || !nzchar(time_label))) {
+    stop("`time_label` must be NULL or one non-empty string.", call. = FALSE)
   }
+  display_time_label <- time_label %||% "person-time"
 
-  if (!is.numeric(digits) ||
-      length(digits) != 1 ||
-      is.na(digits) ||
-      digits < 0) {
-    stop(
-      "`digits` must be a single non-negative number.",
-      call. = FALSE
-    )
-  }
+  .validate_conf_level(conf.level)
+  .validate_digits(digits)
 
   # Helper to format numeric values
   .fmt_num <- function(x, digits = 1) {
-    ifelse(
-      is.na(x),
-      NA_character_,
-      sprintf(paste0("%.", digits, "f"), x)
-    )
+    .format_number(x, digits)
   }
 
   # Build one summary row for one group or for the overall sample
   .make_rate_row <- function(group_label, events, person_time, n_obs) {
-    if (is.na(person_time) || person_time <= 0) {
-      rate_est <- NA_real_
-      rate_low <- NA_real_
-      rate_high <- NA_real_
-      display <- NA_character_
-    } else {
-      pt <- stats::poisson.test(
-        x = events,
-        T = person_time,
-        conf.level = conf.level
-      )
-
-      rate_est <- unname(pt$estimate) * multiplier
-      rate_low <- unname(pt$conf.int[1]) * multiplier
-      rate_high <- unname(pt$conf.int[2]) * multiplier
-
-      display <- paste0(
-        .fmt_num(rate_est, digits), " (",
-        .fmt_num(rate_low, digits), "\u2013",
-        .fmt_num(rate_high, digits), ")"
-      )
-    }
+    rate_result <- .poisson_rate_summary(
+      events = events,
+      person_time = person_time,
+      multiplier = multiplier,
+      conf.level = conf.level
+    )
+    rate_est <- rate_result$rate
+    rate_low <- rate_result$conf_low
+    rate_high <- rate_result$conf_high
+    display <- .format_rate_summary(rate_result, digits = digits)
 
     tibble::tibble(
       variable = event_name,
@@ -272,22 +258,31 @@ rate_stats <- function(
     )
 
     table_tbl <- tibble::tibble(
-      Variable = .get_var_label(data, event_name),
-      n = summary_tbl$n,
-      Events = summary_tbl$events,
-      `Person-time` = summary_tbl$person_time,
-      Rate = summary_tbl$display
+      Group = "Overall",
+      Observations = summary_tbl$n,
+      Events = summary_tbl$events
     )
+    table_tbl[[.sentence_case(display_time_label)]] <- summary_tbl$person_time
+    table_tbl[[paste0(
+      "Rate per ",
+      format(multiplier, scientific = FALSE, trim = TRUE, big.mark = ","),
+      " (",
+      .conf_level_label(conf.level),
+      ")"
+    )]] <- summary_tbl$display
   } else {
-    group_values <- unique(df[[by_name]])
-    group_values <- group_values[!is.na(group_values)]
-    group_values_chr <- as.character(group_values)
+    observed_groups <- unique(as.character(stats::na.omit(df[[by_name]])))
+    group_values_chr <- if (is.factor(data[[by_name]])) {
+      levels(data[[by_name]])[levels(data[[by_name]]) %in% observed_groups]
+    } else {
+      observed_groups
+    }
 
     summary_list <- lapply(group_values_chr, function(g) {
       idx <- as.character(df[[by_name]]) == g
 
       .make_rate_row(
-        group_label = paste0(by_name, " = ", g),
+        group_label = g,
         events = sum(df[[event_name]][idx], na.rm = TRUE),
         person_time = sum(df[[time_name]][idx], na.rm = TRUE),
         n_obs = sum(idx)
@@ -306,14 +301,58 @@ rate_stats <- function(
 
     names(table_tbl) <- c(
       "Group",
-      "n",
+      "Observations",
       "Events",
-      "Person-time",
-      "Rate"
+      .sentence_case(display_time_label),
+      paste0(
+        "Rate per ",
+        format(multiplier, scientific = FALSE, trim = TRUE, big.mark = ","),
+        " (",
+        .conf_level_label(conf.level),
+        ")"
+      )
     )
 
     table_tbl <- tibble::as_tibble(table_tbl)
   }
+
+  audit_groups <- if (is.null(by_name)) {
+    list(Overall = rep(TRUE, nrow(data)))
+  } else {
+    observed_groups <- unique(as.character(stats::na.omit(data[[by_name]])))
+    if (is.factor(data[[by_name]])) {
+      observed_groups <- levels(data[[by_name]])[
+        levels(data[[by_name]]) %in% observed_groups
+      ]
+    }
+    stats::setNames(
+      lapply(
+        observed_groups,
+        function(g) !is.na(data[[by_name]]) &
+          as.character(data[[by_name]]) == g
+      ),
+      observed_groups
+    )
+  }
+  denominator_audit <- dplyr::bind_rows(lapply(
+    names(audit_groups),
+    function(group_label) {
+      idx <- audit_groups[[group_label]]
+      complete <- !is.na(data[[event_name]][idx]) &
+        !is.na(data[[time_name]][idx])
+      summary_row <- summary_tbl[summary_tbl$group == group_label, ]
+      .denominators_tbl(
+        variable = event_name,
+        group = group_label,
+        n_total = sum(idx),
+        n_nonmissing = sum(complete),
+        n_missing = sum(!complete),
+        numerator = summary_row$events,
+        denominator = summary_row$person_time,
+        rule = paste0("Accumulated person-time; rate per ", multiplier)
+      )
+    }
+  ))
 
   result <- list(
     inputs = list(
@@ -322,22 +361,120 @@ rate_stats <- function(
       time = time_name,
       by = by_name,
       multiplier = multiplier,
+      time_label = display_time_label,
       conf.level = conf.level,
-      digits = digits,
-      output = output
+      digits = digits
     ),
     summary = summary_tbl,
     table = table_tbl,
-    notes = paste0(
-      "Rates are shown per ",
-      format(multiplier, scientific = FALSE, trim = TRUE),
-      " person-time with ",
-      round(conf.level * 100),
-      "% exact Poisson confidence intervals."
+    method = list(
+      estimate = "Event rate",
+      interval = "Exact Poisson",
+      multiplier = multiplier
+    ),
+    assumptions = .assumptions_tbl(
+      assumption = c(
+        "Valid person-time denominator",
+        "Poisson event process",
+        "Independent event counts"
+      ),
+      status = c("partly_checked", "user_check", "user_check"),
+      result = c(
+        if (any(summary_tbl$person_time <= 0)) {
+          "zero_total_time"
+        } else {
+          "positive_total_time"
+        },
+        "not_checked", "not_checked"
+      ),
+      detail = c(
+        if (any(summary_tbl$person_time <= 0)) {
+          "At least one displayed group has zero accumulated time, so its rate is not estimable. Confirm the intended exposure denominator."
+        } else {
+          "Numeric positive accumulated time is checked; confirm that it represents genuine exposure time."
+        },
+        "Confirm that a Poisson process is a reasonable approximation.",
+        "Consider recurrent-event or clustered methods when event counts are dependent."
+      )
+    ),
+    diagnostics = dplyr::bind_rows(
+      .diagnostics_tbl(
+        check = "Accumulated person-time",
+        result = if (any(summary_tbl$person_time <= 0)) {
+          "not_estimable"
+        } else {
+          "positive"
+        },
+        value = paste(.format_number(summary_tbl$person_time, 2), collapse = "; "),
+        threshold = "Greater than 0",
+        detail = if (any(summary_tbl$person_time <= 0)) {
+          "At least one displayed group has zero accumulated person-time; its rate and interval are unavailable."
+        } else {
+          "Person-time is reported for every displayed group."
+        }
+      ),
+      .diagnostics_tbl(
+        check = "Possible proportion-like input",
+        result = if (
+          all(df[[time_name]] == 1) &&
+          all(df[[event_name]] %in% c(0, 1))
+        ) "review" else "not_flagged",
+        value = if (all(df[[time_name]] == 1)) "All time values equal 1" else "Time varies",
+        threshold = "Binary event plus one unit per row",
+        detail = if (
+          all(df[[time_name]] == 1) &&
+          all(df[[event_name]] %in% c(0, 1))
+        ) {
+          "This input may represent a proportion rather than a genuine person-time rate; confirm the estimand."
+        } else {
+          "No simple proportion-like pattern was detected."
+        }
+      ),
+      .diagnostics_tbl(
+        check = "Events recorded with zero time",
+        result = if (any(df[[event_name]] > 0 & df[[time_name]] == 0)) {
+          "review"
+        } else {
+          "not_flagged"
+        },
+        value = sum(df[[event_name]] > 0 & df[[time_name]] == 0),
+        threshold = "0 records",
+        detail = paste0(
+          "Positive events with zero contributed time require review; ",
+          "the record remains in the accumulated totals."
+        )
+      )
+    ),
+    denominators = denominator_audit,
+    notes = c(
+      paste0(
+        "Rates are shown per ",
+        format(multiplier, scientific = FALSE, trim = TRUE),
+        " ",
+        display_time_label,
+        " using complete event-time pairs and ",
+        round(conf.level * 100),
+        "% exact Poisson confidence intervals."
+      ),
+      "Confirm that the denominator represents positive person-time or exposure time.",
+      if (any(summary_tbl$person_time <= 0)) {
+        "A displayed group has zero accumulated person-time; its rate is not estimable."
+      } else {
+        character()
+      },
+      "Exact Poisson intervals assume independent event counts arising from a Poisson process.",
+      if (
+        all(df[[time_name]] == 1) &&
+        all(df[[event_name]] %in% c(0, 1))
+      ) {
+        "All time values equal 1 with a binary event; confirm whether a proportion is more appropriate."
+      } else {
+        character()
+      }
     ),
     call = match.call()
   )
 
-  class(result) <- "gt_rate"
+  class(result) <- c("gt_rate", "gtstats", "list")
   result
 }

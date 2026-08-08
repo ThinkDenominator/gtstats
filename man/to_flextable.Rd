@@ -4,19 +4,29 @@
 \alias{to_flextable}
 \title{Convert a gtstats object to flextable}
 \usage{
-to_flextable(x, font_size = 10, autofit = TRUE)
+to_flextable(
+  x,
+  font_size = 10,
+  font = NULL,
+  autofit = TRUE,
+  show_footnotes = TRUE
+)
 }
 \arguments{
 \item{x}{A supported \code{gtstats} object containing a \verb{$table}
-component, such as an object returned by \code{\link[=descriptive_table]{descriptive_table()}},
-\code{\link[=summary_stats]{summary_stats()}}, \code{\link[=compare_groups]{compare_groups()}}, \code{\link[=prop_ci]{prop_ci()}}, or related
+component, such as an object returned by \code{\link[=summary_table]{summary_table()}},
+\code{\link[=summary_table]{summary_table()}}, \code{\link[=compare_groups]{compare_groups()}}, \code{\link[=proportion_stats]{proportion_stats()}}, or related
 functions.}
 
 \item{font_size}{Font size applied to the whole table. Default is
 \code{10}.}
 
+\item{font}{Optional font family applied to the whole table.}
+
 \item{autofit}{Logical; whether column widths should be adjusted
 automatically using \code{\link[flextable:autofit]{flextable::autofit()}}.}
+
+\item{show_footnotes}{Logical; include concise explanatory footnotes.}
 }
 \value{
 A \code{flextable} object.
@@ -36,7 +46,7 @@ Notes, footnotes, and p-value method footnotes are appended to the
 footer when available.
 }
 \examples{
-res <- descriptive_table(mtcars, by = am, overall = TRUE) |>
+res <- summary_table(mtcars, by = am, overall = TRUE) |>
   add_summary(vars = c(mpg, wt, cyl)) |>
   add_total() |>
   add_p()

@@ -4,10 +4,20 @@
 \alias{add_p}
 \title{Add p-values to a descriptive table}
 \usage{
-add_p(x, method = "auto", paired = FALSE, digits = 3)
+add_p(
+  x,
+  method = "auto",
+  paired = FALSE,
+  id = NULL,
+  normality_check = TRUE,
+  var_equal = FALSE,
+  correction = TRUE,
+  p_adjust = c("none", setdiff(stats::p.adjust.methods, "none")),
+  digits = 3
+)
 }
 \arguments{
-\item{x}{A \code{gt_desc_table} object created with \code{\link[=descriptive_table]{descriptive_table()}}.}
+\item{x}{A \code{gt_desc_table} object created with \code{\link[=summary_table]{summary_table()}}.}
 
 \item{method}{Statistical test to use. Either a single method string, or a
 named character vector/list specifying methods for individual variables.
@@ -15,6 +25,22 @@ Names may match either displayed variable labels or underlying variable
 names.}
 
 \item{paired}{Logical; whether comparisons should be treated as paired.}
+
+\item{id}{Pair or participant identifier required when \code{paired = TRUE}.}
+
+\item{normality_check}{Logical; when \code{method = "auto"}, use distribution
+guidance to choose parametric or rank-based tests. This guidance is based
+on skewness; Shapiro-Wilk is supporting information only. For paired
+analyses the check is applied to within-pair differences.}
+
+\item{var_equal}{Logical; use equal-variance Student t-tests when appropriate.
+The default is \code{FALSE}, giving Welch tests.}
+
+\item{correction}{Logical; apply continuity correction to chi-square and
+McNemar tests where applicable.}
+
+\item{p_adjust}{Multiplicity adjustment applied across displayed variable
+tests. One of \link[stats:p.adjust.methods]{stats::p.adjust.methods}; default \code{"none"}.}
 
 \item{digits}{Number of decimal places used when formatting p-values.}
 }
@@ -29,7 +55,7 @@ markers indicating which statistical test was used.
 }
 \details{
 This function works only for descriptive tables created in \code{mode = "summary"}
-and requires a grouping variable supplied via \code{\link[=descriptive_table]{descriptive_table()}}.
+and requires a grouping variable supplied via \code{\link[=summary_table]{summary_table()}}.
 
 Supported methods include:
 \itemize{
@@ -38,6 +64,7 @@ Supported methods include:
 \item \code{"t_test"}
 \item \code{"wilcox"}
 \item \code{"anova"}
+\item \code{"welch_anova"}
 \item \code{"kruskal"}
 \item \code{"chisq"}
 \item \code{"fisher"}
@@ -46,13 +73,31 @@ Supported methods include:
 
 You may also provide a named character vector or named list to specify
 different methods for individual variables.
+\subsection{Automatic selection and audit trail}{
+
+With \code{method = "auto"}, \code{add_p()} delegates each comparison to
+\code{\link[=compare_groups]{compare_groups()}} using the same fixed selection policy: Welch t-test or
+Welch ANOVA when distribution guidance does not flag skewness, rank-based
+tests when it does, and chi-square or Fisher's exact test according to
+expected cell counts. Shapiro-Wilk is supporting information only and does
+not itself select a test.
+
+The publication table contains only the p-value and compact test markers.
+The full per-variable audit trail is retained in \verb{$assumptions},
+\verb{$diagnostics}, \verb{$p_values}, and \verb{$denominators}. In particular,
+\code{diagnostics_stats(x)} records automatic selection, distribution guidance,
+expected cell counts where relevant, and observed group spread for
+independent continuous comparisons. Observed spread is descriptive context,
+not a variance-test gatekeeper; Welch methods do not require equal
+variances.
+}
 }
 \examples{
-descriptive_table(mtcars, by = am) |>
+summary_table(mtcars, by = am) |>
   add_summary(vars = c(mpg, wt, cyl)) |>
   add_p()
 
-descriptive_table(mtcars, by = am) |>
+summary_table(mtcars, by = am) |>
   add_summary(vars = c(mpg, wt, cyl)) |>
   add_p(method = c(mpg = "welch_t", wt = "wilcox", cyl = "chisq"))
 

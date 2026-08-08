@@ -1,37 +1,23 @@
 Package: gtstats
 Type: Package
-Title: Hypothesis testing and publication ready tables
+Title: Beginner-Friendly Statistics and Publication-Ready Tables
 Version: 1.0.0
 Authors@R: c(
     person(given = "Rubeshkumar", family = "Polani",
     email = "rubesh@thinkdenominator.com", 
-    role = c("aut", "cre"), comment = c(ORCID = "0000-0002-0418-7592")),
-    person(given = "Manikandanesan", family = "Sakthivel", 
-    email = "nesanmbbs@gmail.com", role = "aut", 
-    comment = c(ORCID = "0000-0002-5438-3970")),
-    person(given = "Mogan", family = "Kaviprawin", 
-    email = "moganka1994@gmail.com", role = "aut", 
-    comment = c(ORCID = "0000-0002-1659-059X")),
-    person(given = "Salin K", family = "Eliyas", 
-    email = "salins13@gmail.com", role = "aut", 
-    comment = c(ORCID = "0000-0002-8020-5860")),
-    person(given = "Yuvaraj", family = "Krishnamoorthy",
-    email = "yuvaraj@propulevidence.org", role = "aut",
-    comment = c(ORCID = "0000-0003-4688-510X"))
-  )
-Description: Provides beginner-friendly functions for common descriptive and 
-    inferential statistical analyses, together with tools for creating 
-    publication-ready tables. The package includes summary statistics, 
-    distribution checks, group comparisons, correlations, proportions with 
-    confidence intervals, rates with confidence intervals, 2x2 tables, and 
-    modular table-building workflows. Outputs can be rendered as publication 
-    ready  tables.
-URL: https://thinkdenominator.com/gtstats/, https://github.com/thinkdenominator/gtstats
+    role = c("aut", "cre"), comment = c(ORCID = "0000-0002-0418-7592")))
+Description: Provides beginner-friendly functions for common descriptive and
+    inferential statistical analyses, together with tools for creating
+    publication-ready tables. The package includes data description, summary
+    statistics, distribution assessment, group comparisons, effect sizes,
+    correlations, proportions and rates with confidence intervals, crosstabs for
+    epidemiological measures, plots, and modular table-building workflows.
+URL: https://github.com/thinkdenominator/gtstats
 BugReports: https://github.com/thinkdenominator/gtstats/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
+LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Depends: 
     R (>= 4.1.0)
 Imports:
@@ -44,7 +30,9 @@ Imports:
 Suggests:
     testthat (>= 3.0.0),
     knitr,
-    rmarkdown
+    rmarkdown,
+    pkgdown,
+    webshot2
 Config/testthat/edition: 3
-LazyData: true
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.0.0

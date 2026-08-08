@@ -2,60 +2,41 @@
 % Please edit documentation in R/describe_data.R
 \name{describe_data}
 \alias{describe_data}
-\title{Describe dataset structure and variable types}
+\title{Understand a dataset before analysis}
 \usage{
-describe_data(
-  data,
-  vars = NULL,
-  missing = TRUE,
-  detect_ordinal = TRUE,
-  output = c("table", "tibble"),
-  quiet = FALSE
-)
+describe_data(data, vars = NULL, digits = 2, output = c("table", "tibble"))
 }
 \arguments{
 \item{data}{A data.frame.}
 
-\item{vars}{Optional character vector of variables to describe.
-Default is all variables in \code{data}.}
+\item{vars}{Optional character vector of variables. Default is all variables.}
 
-\item{missing}{Logical; currently stored in the returned object for
-future use.}
+\item{digits}{Number of decimal places in concise numeric summaries.}
 
-\item{detect_ordinal}{Logical; whether ordered factors should be
-classified as \code{"ordinal"}.}
-
-\item{output}{Output style. Currently stored in the returned
-object.}
-
-\item{quiet}{Logical; suppress messages.}
+\item{output}{Requested output route, retained for consistency with other
+gtstats functions.}
 }
 \value{
-A \code{gt_describe} object containing:
-\itemize{
-\item \code{inputs} — function inputs and settings
-\item \code{summary} — detailed variable summary
-\item \code{table} — display-ready table
-\item \code{notes} — explanatory notes
-\item \code{call} — matched function call
-}
+With \code{output = "table"}, a \code{gt_describe} object that prints as a
+publication-ready table. \verb{$summary} is the concise variable overview and
+\verb{$issues} contains only findings requiring review. With
+\code{output = "tibble"}, the concise summary tibble is returned directly.
 }
 \description{
-Provide a quick overview of variables in a dataset, including
-variable labels, detected types, missingness, number of unique
-values, simple value ranges, and suggested summaries or plots.
+Create a concise, clinically oriented first look at a dataset. One row is
+returned per variable, combining its label, detected type, completeness,
+cardinality, a type-specific overview, and range or levels. Potential
+data-quality findings are kept separately in \verb{$issues}.
 }
 \details{
-This function is intended as a first-step data check before moving
-to descriptive or inferential analysis. Variable types are detected
-automatically using simple rules suitable for teaching and applied
-statistical workflows.
+\code{describe_data()} deliberately does not assess distributional assumptions
+or recommend inferential tests. Use \code{\link[=assess_distribution]{assess_distribution()}} for the shape of
+selected continuous variables, \code{\link[=summary_table]{summary_table()}} for detailed descriptive
+statistics, and \code{\link[=compare_groups]{compare_groups()}} for inferential comparisons.
 }
 \examples{
 describe_data(mtcars)
-
 describe_data(mtcars, vars = c("mpg", "cyl", "am"))
-
 tbl_stats(describe_data(mtcars))
 
 }

@@ -1,10 +1,9 @@
 #' Print a gtstats describe object
 #'
-#' Print a compact console preview of a `gt_describe` object.
+#' Print the publication-ready table stored by a `gt_describe` object.
 #'
-#' The print method shows the dataset name, the first few rows of the
-#' display-ready table, and a short reminder of the main object
-#' components available for further use.
+#' The underlying concise tibble remains available in `$summary`, and focused
+#' data-quality findings are available in `$issues`.
 #'
 #' @param x A `gt_describe` object.
 #' @param ... Further arguments passed to methods.
@@ -17,127 +16,18 @@
 #'
 #' @export
 print.gt_describe <- function(x, ...) {
-  cat("GTstats: Dataset overview\n")
-  cat("Data:", x$inputs$data_name, "\n\n")
-
-  print(utils::head(x$table, 10))
-
-  if (nrow(x$table) > 10) {
-    cat("\nShowing first 10 variables only.\n")
-  }
-
-  cat("\nObject contains: $summary, $table, $inputs, $notes\n")
-  cat("Use tbl_stats(x) for a formatted table.\n")
-
-  invisible(x)
-}
-
-#' Print a gtstats summary object
-#'
-#' Print a compact console preview of a `gt_summary` object.
-#'
-#' The print method shows the dataset name, optional grouping variable,
-#' the first few rows of the summary table, and a short description of
-#' the summary format used for continuous and categorical variables.
-#'
-#' @param x A `gt_summary` object.
-#' @param ... Further arguments passed to methods.
-#'
-#' @return The input object, invisibly.
-#'
-#' @examples
-#' x <- summary_stats(mtcars, by = am)
-#' print(x)
-#'
-#' @export
-print.gt_summary <- function(x, ...) {
-  cat("GTstats: Summary statistics\n")
-  cat("Data:", x$inputs$data_name, "\n")
-
-  if (!is.null(x$inputs$by)) {
-    cat("Grouped by:", x$inputs$by, "\n")
-  }
-
-  cat("\n")
-  print(utils::head(x$table, 10))
-
-  if (nrow(x$table) > 10) {
-    cat("\nShowing first 10 rows only.\n")
-  }
-
-  footnote_text <- if (x$inputs$continuous_format == "mean_sd") {
-    if (!is.null(x$inputs$by)) {
-      paste0(
-        "Continuous summaries are shown as mean (SD). ",
-        "Categorical summaries are shown as n (%) within each ",
-        "group."
-      )
-    } else {
-      paste0(
-        "Continuous summaries are shown as mean (SD). ",
-        "Categorical summaries are shown as n (%)."
-      )
-    }
-  } else if (x$inputs$continuous_format == "median_iqr") {
-    if (!is.null(x$inputs$by)) {
-      paste0(
-        "Continuous summaries are shown as median (IQR). ",
-        "Categorical summaries are shown as n (%) within each ",
-        "group."
-      )
-    } else {
-      paste0(
-        "Continuous summaries are shown as median (IQR). ",
-        "Categorical summaries are shown as n (%)."
-      )
-    }
-  } else if (x$inputs$continuous_format == "recommended") {
-    if (!is.null(x$inputs$by)) {
-      paste0(
-        "Continuous summaries are shown as mean (SD) or median ",
-        "(IQR) as appropriate. Categorical summaries are shown ",
-        "as n (%) within each group."
-      )
-    } else {
-      paste0(
-        "Continuous summaries are shown as mean (SD) or median ",
-        "(IQR) as appropriate. Categorical summaries are shown ",
-        "as n (%)."
-      )
-    }
-  } else {
-    if (!is.null(x$inputs$by)) {
-      paste0(
-        "Continuous summaries are shown as mean (SD); median ",
-        "(IQR). Categorical summaries are shown as n (%) ",
-        "within each group."
-      )
-    } else {
-      paste0(
-        "Continuous summaries are shown as mean (SD); median ",
-        "(IQR). Categorical summaries are shown as n (%)."
-      )
-    }
-  }
-
-  cat("\n", footnote_text, "\n", sep = "")
-  cat(
-    "Object contains: $summary, $table, $variable_info, ",
-    "$inputs, $notes\n",
-    sep = ""
-  )
-  cat("Use tbl_stats(x) for a formatted table.\n")
-
+  print(tbl_stats(x, ...))
   invisible(x)
 }
 
 #' Print a gtstats distribution object
 #'
-#' Print a compact console preview of a `gt_distribution` object.
+#' Print publication-ready distribution diagnostics and recommendations.
 #'
-#' The print method shows the dataset name, optional grouping variable,
-#' the first few rows of the distribution table, and a short reminder of
-#' the practical guidance used for symmetric and skewed variables.
+#' The detailed diagnostic table includes the suggested presentation beside the
+#' numerical diagnostics. With groups, the common variable-level suggestion is
+#' shown once beside the first group row. Machine-readable results remain
+#' available in `$summary` and `$recommendations`.
 #'
 #' @param x A `gt_distribution` object.
 #' @param ... Further arguments passed to methods.
@@ -145,41 +35,42 @@ print.gt_summary <- function(x, ...) {
 #' @return The input object, invisibly.
 #'
 #' @examples
-#' x <- check_distribution(mtcars)
+#' x <- assess_distribution(mtcars, vars = c("mpg", "wt"))
 #' print(x)
 #'
 #' @export
 print.gt_distribution <- function(x, ...) {
-  cat("GTstats: Distribution check\n")
-  cat("Data:", x$inputs$data_name, "\n")
+  print(tbl_stats(x, ...))
+  invisible(x)
+}
 
-  if (!is.null(x$inputs$by)) {
-    cat("Grouped by:", x$inputs$by, "\n")
-  }
-
-  cat("\n")
-  print(utils::head(x$table, 10))
-
-  if (nrow(x$table) > 10) {
-    cat("\nShowing first 10 rows only.\n")
-  }
-
-  cat("\nGuidance:\n")
-  cat("- Approximately symmetric -> Mean (SD), t-test, ANOVA\n")
-  cat("- Skewed -> Median (IQR), Wilcoxon, Kruskal-Wallis\n")
-  cat("Object contains: $summary, $table, $inputs, $notes\n")
-  cat("Use tbl_stats(x) for a formatted table.\n")
-
+#' Print a gtstats variance object
+#'
+#' Print publication-ready variance diagnostics. Group-level standard deviations
+#' and variances remain in `$summary`; variable-level ratios and explanatory
+#' text remain available in `$diagnostics`.
+#'
+#' @param x A `gt_variance` object.
+#' @param ... Further arguments passed to methods.
+#'
+#' @return The input object, invisibly.
+#'
+#' @examples
+#' x <- assess_variance(mtcars, vars = c(mpg, wt), by = am)
+#' print(x)
+#'
+#' @export
+print.gt_variance <- function(x, ...) {
+  print(tbl_stats(x, ...))
   invisible(x)
 }
 
 #' Print a gtstats compare object
 #'
-#' Print a compact console preview of a `gt_compare` object.
+#' Print a publication-ready comparison table.
 #'
-#' The print method shows the dataset name, outcome, grouping variable,
-#' a brief descriptive summary, and the display-ready inferential
-#' results table.
+#' The print method renders the concise publication table. Detailed numerical
+#' results and audit information remain available in the object components.
 #'
 #' @param x A `gt_compare` object.
 #' @param ... Further arguments passed to methods.
@@ -187,56 +78,21 @@ print.gt_distribution <- function(x, ...) {
 #' @return The input object, invisibly.
 #'
 #' @examples
-#' x <- compare_groups(mtcars, outcome = mpg, group = am)
+#' x <- compare_groups(mtcars, variable = mpg, group = am)
 #' print(x)
 #'
 #' @export
 print.gt_compare <- function(x, ...) {
-  cat("GTstats: Group comparison\n")
-  cat("Data:", x$inputs$data_name, "\n")
-  cat("Outcome:", x$inputs$outcome, "\n")
-  cat("Group:", x$inputs$group, "\n\n")
-
-  if (!is.null(x$descriptives) && nrow(x$descriptives) > 0) {
-    cat("Descriptive summary\n")
-
-    desc <- x$descriptives
-
-    if (all(is.na(desc$level))) {
-      desc_show <- desc[, c("group_level", "n", "display_value")]
-      names(desc_show) <- c("Group", "n", "Summary")
-      print(desc_show)
-    } else {
-      desc_show <- desc[, c("group_level", "level", "display_value")]
-      names(desc_show) <- c("Group", "Level", "Summary")
-      print(utils::head(desc_show, 10))
-
-      if (nrow(desc_show) > 10) {
-        cat("\nShowing first 10 descriptive rows only.\n")
-      }
-    }
-
-    cat("\nInferential result\n")
-  }
-
-  print(x$table)
-
-  cat(
-    "\nObject contains: $descriptives, $inferential, $table, ",
-    "$inputs, $notes\n",
-    sep = ""
-  )
-  cat("Use tbl_stats(x) for a formatted table.\n")
-
+  print(tbl_stats(x, ...))
   invisible(x)
 }
 
 #' Print a gtstats correlation object
 #'
-#' Print a compact console preview of a `gt_correlation` object.
+#' Print a publication-ready correlation table.
 #'
-#' The print method shows the dataset name, the two variables analysed,
-#' and the display-ready correlation results table.
+#' Detailed numerical results and audit information remain available in the
+#' object components.
 #'
 #' @param x A `gt_correlation` object.
 #' @param ... Further arguments passed to methods.
@@ -244,27 +100,39 @@ print.gt_compare <- function(x, ...) {
 #' @return The input object, invisibly.
 #'
 #' @examples
-#' x <- correlate_vars(mtcars, x = mpg, y = wt)
+#' x <- correlation(mtcars, x = mpg, y = wt)
 #' print(x)
 #'
 #' @export
 print.gt_correlation <- function(x, ...) {
-  cat("GTstats: Correlation analysis\n")
-  cat("Data:", x$inputs$data_name, "\n")
-  cat("X:", x$inputs$x, "\n")
-  cat("Y:", x$inputs$y, "\n\n")
-
-  print(x$table)
-
-  cat("\nObject contains: $summary, $table, $inputs, $notes\n")
-  cat("Use tbl_stats(x) for a formatted table.\n")
-
+  print(tbl_stats(x, ...))
   invisible(x)
 }
 
-#' Print a descriptive table builder
+#' Print a gtstats effect-size object
 #'
-#' Print a compact console preview of a `gt_desc_table` object.
+#' Print the publication-ready table stored by a `gt_effect` object.
+#'
+#' @param x A `gt_effect` object.
+#' @param ... Further arguments passed to [tbl_stats()].
+#'
+#' @return The input object, invisibly.
+#'
+#' @examples
+#' x <- effect_size(mtcars, outcome = mpg, by = am)
+#' print(x)
+#'
+#' @export
+print.gt_effect <- function(x, ...) {
+  print(tbl_stats(x, ...))
+  invisible(x)
+}
+
+#' Print a descriptive table
+#'
+#' Print a completed `gt_desc_table` as a publication-ready `gt` table.
+#' An empty builder instead prints a short instruction explaining how to add
+#' rows.
 #'
 #' The print method shows the table mode, source data, grouping status,
 #' whether an overall column is requested, and the first few rows of the
@@ -276,46 +144,21 @@ print.gt_correlation <- function(x, ...) {
 #' @return The input object, invisibly.
 #'
 #' @examples
-#' x <- descriptive_table(mtcars, by = am, overall = TRUE)
+#' x <- summary_table(mtcars, by = am, overall = TRUE)
 #' print(x)
 #'
 #' @export
 print.gt_desc_table <- function(x, ...) {
-  cat("GTstats: Descriptive table builder\n")
-  cat("Mode:", x$mode, "\n")
-  cat("Data:", deparse(x$call$data), "\n")
-
-  if (!is.null(x$by)) {
-    cat("Grouped by:", x$by, "\n")
-  }
-
-  cat(
-    "Overall column:",
-    if (isTRUE(x$overall)) "Yes" else "No",
-    "\n"
-  )
-
-  cat(
-    "Components added:",
-    if (length(x$components) == 0) {
-      "None"
-    } else {
-      paste(x$components, collapse = ", ")
-    },
-    "\n\n"
-  )
-
   if (is.null(x$table)) {
-    cat("No rows have been added yet.\n")
+    cat("Empty summary table. No rows have been added yet.\n")
+    cat(
+      "Add variables with add_summary(), or add a total, proportion, ",
+      "rate, or custom row.\n",
+      sep = ""
+    )
   } else {
-    print(utils::head(x$table, 10))
-
-    if (nrow(x$table) > 10) {
-      cat("\nShowing first 10 rows only.\n")
-    }
+    print(tbl_stats(x, ...))
   }
-
-  cat("\nUse tbl_stats(x) for a formatted table.\n")
 
   invisible(x)
 }
@@ -333,27 +176,12 @@ print.gt_desc_table <- function(x, ...) {
 #' @return The input object, invisibly.
 #'
 #' @examples
-#' x <- prop_ci(mtcars, var = vs, by = am)
+#' x <- proportion_stats(mtcars, var = vs, by = am)
 #' print(x)
 #'
 #' @export
 print.gt_prop <- function(x, ...) {
-  cat("GTstats: Proportion with confidence interval\n")
-  cat("Data:", x$inputs$data_name, "\n")
-  cat("Variable:", x$inputs$var, "\n")
-  cat("Level:", x$inputs$level, "\n")
-
-  if (!is.null(x$inputs$by)) {
-    cat("Grouped by:", x$inputs$by, "\n")
-  }
-
-  cat("\n")
-  print(x$table)
-
-  cat("\n", x$notes, "\n", sep = "")
-  cat("Object contains: $summary, $table, $inputs, $notes\n")
-  cat("Use tbl_stats(x) for a formatted table.\n")
-
+  print(tbl_stats(x, ...))
   invisible(x)
 }
 
@@ -381,22 +209,7 @@ print.gt_prop <- function(x, ...) {
 #'
 #' @export
 print.gt_rate <- function(x, ...) {
-  cat("GTstats: Rate with confidence interval\n")
-  cat("Data:", x$inputs$data_name, "\n")
-  cat("Event:", x$inputs$event, "\n")
-  cat("Person-time:", x$inputs$time, "\n")
-
-  if (!is.null(x$inputs$by)) {
-    cat("Grouped by:", x$inputs$by, "\n")
-  }
-
-  cat("\n")
-  print(x$table)
-
-  cat("\n", x$notes, "\n", sep = "")
-  cat("Object contains: $summary, $table, $inputs, $notes\n")
-  cat("Use tbl_stats(x) for a formatted table.\n")
-
+  print(tbl_stats(x, ...))
   invisible(x)
 }
 
@@ -404,8 +217,8 @@ print.gt_rate <- function(x, ...) {
 #'
 #' Print a compact console preview of a `gt_twobytwo` object.
 #'
-#' The print method shows the dataset name, exposure definition,
-#' outcome definition, and the display-ready 2x2 epidemiology table.
+#' The print method shows the dataset name, row/reference definition,
+#' column/event definition, and the display-ready 2x2 epidemiology table.
 #'
 #' @param x A `gt_twobytwo` object.
 #' @param ... Further arguments passed to methods.
@@ -413,39 +226,11 @@ print.gt_rate <- function(x, ...) {
 #' @return The input object, invisibly.
 #'
 #' @examples
-#' x <- twobytwo_table(mtcars, exposure = am, outcome = vs)
+#' x <- crosstabs(mtcars, row = am, col = vs)
 #' print(x)
 #'
 #' @export
 print.gt_twobytwo <- function(x, ...) {
-  cat("GTstats: 2x2 epidemiology table\n")
-  cat("Data:", x$inputs$data_name, "\n")
-  cat(
-    "Exposure:",
-    paste0(
-      x$inputs$exposure,
-      " (",
-      x$inputs$exposed_level,
-      ")"
-    ),
-    "\n"
-  )
-  cat(
-    "Outcome:",
-    paste0(
-      x$inputs$outcome,
-      " (",
-      x$inputs$outcome_level,
-      ")"
-    ),
-    "\n\n"
-  )
-
-  print(x$table)
-
-  cat("\n", paste(x$notes, collapse = " "), "\n", sep = "")
-  cat("Object contains: $summary, $table, $inputs, $notes\n")
-  cat("Use tbl_stats(x) for a formatted table.\n")
-
+  print(tbl_stats(x, ...))
   invisible(x)
 }

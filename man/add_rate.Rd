@@ -2,74 +2,62 @@
 % Please edit documentation in R/add_rate.R
 \name{add_rate}
 \alias{add_rate}
-\title{Add a rate row to a descriptive table}
+\title{Add an event-rate row}
 \usage{
 add_rate(
   x,
-  events,
-  denom,
-  label = paste0("Rate (per ", multiplier, ")"),
-  multiplier = 1e+05,
+  event,
+  time,
+  label = NULL,
+  multiplier = 1000,
+  time_label = NULL,
   ci = TRUE,
   conf.level = 0.95,
   digits = 1
 )
 }
 \arguments{
-\item{x}{A \code{gt_desc_table} object created with \code{\link[=descriptive_table]{descriptive_table()}}.}
+\item{x}{A rate-mode \code{gt_desc_table} created with \code{\link[=summary_table]{summary_table()}}.}
 
-\item{events}{Event count variable. Can be supplied as a bare name or as a
-character string.}
+\item{event}{Non-negative integer event count, supplied as a bare name or
+character string. Logical values are accepted as binary event indicators.}
 
-\item{denom}{Denominator variable. Can be supplied as a bare name or as a
-character string.}
+\item{time}{Non-negative numeric person-time or exposure-time variable.}
 
-\item{label}{Row label to display. Defaults to \code{"Rate (per <multiplier>)"}.}
+\item{label}{Optional row label.}
 
-\item{multiplier}{Multiplier used to scale the rate, for example \code{1000} or
-\code{100000}.}
+\item{multiplier}{Positive rate multiplier. Default is \code{1000}.}
 
-\item{ci}{Logical; whether to display an exact Poisson confidence interval.}
+\item{time_label}{Optional readable time unit such as \code{"person-years"} or
+\code{"catheter-days"}. Defaults to \code{"person-time"}.}
 
-\item{conf.level}{Confidence level for the interval. Default is \code{0.95}.}
+\item{ci}{Logical; display an exact Poisson confidence interval.}
 
-\item{digits}{Number of decimal places used when formatting rates.}
+\item{conf.level}{Confidence level.}
+
+\item{digits}{Number of decimal places.}
 }
 \value{
-An updated \code{gt_desc_table} object with a rate row appended.
+The updated \code{gt_desc_table}.
 }
 \description{
-Add a rate row to a \code{gtstats} descriptive table using event counts and
-denominators, with optional exact Poisson confidence intervals.
+Add an event rate to a rate-mode table created with \code{\link[=summary_table]{summary_table()}}.
+Event counts and accumulated time are calculated from complete event-time
+pairs only. Event counts and time values must be finite. Exact Poisson
+confidence intervals are shown by default. A row with zero accumulated time
+is retained as \verb{\\u2014} and recorded as not estimable in the audit.
 }
 \details{
-This helper is intended for rate-style descriptive tables, for example
-incidence rates, event rates, or counts per population/person-time. Rates
-may be displayed overall, by groups, or both, depending on how the
-descriptive table was created.
-
-Confidence intervals are calculated using an exact Poisson method based on
-the chi-squared distribution.
-
-This helper should not be combined with summary-style components such as
-\code{add_summary()}, \code{add_proportion()}, \code{add_total()}, or \code{add_p()} in the same
-descriptive table.
+\code{add_rate()} cannot be combined with summary-style components in the same
+builder because rate denominators have a different meaning.
 }
 \examples{
-descriptive_table(mtcars, by = am, overall = TRUE) |>
+summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
   add_rate(
-    events = carb,
-    denom = cyl,
+    event = carb,
+    time = cyl,
     label = "Carburettor rate",
     multiplier = 1000
-  )
-
-descriptive_table(mtcars) |>
-  add_rate(
-    events = carb,
-    denom = cyl,
-    multiplier = 1000,
-    ci = FALSE
   )
 
 }

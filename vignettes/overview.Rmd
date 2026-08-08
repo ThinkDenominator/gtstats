@@ -1,10 +1,9 @@
 ---
-title: "Package Overview"
-description: >
-  A quick tour of every function in gtstats and how they fit together.
+title: "Function map"
+description: "Choose the gtstats function that fits your analytical task."
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Package Overview}
+  %\VignetteIndexEntry{Function map}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,92 +12,57 @@ vignette: >
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
 ```
 
-```{r load}
-library(gtstats)
+# Choose by task
+
+| Question | Start with | Use next when needed |
+|---|---|---|
+| What is in my dataset? | `describe_data()` | `assess_distribution()` and `assess_variance()` for selected continuous variables |
+| How do I describe participants by group? | `summary_table()` | `add_p()`, `add_total()`, or `add_proportion()` only when justified |
+| Do groups differ for one variable? | `compare_groups()` | `effect_size()` for magnitude; audit helpers for review |
+| Are two continuous variables associated? | `correlation()` | `plot_correlation()` |
+| What is a proportion or rate? | `proportion_stats()` or `rate_stats()` | — |
+| What are RR, OR, and risk difference? | `crosstabs()` | — |
+| How do I change the finished table? | `tbl_stats()` | `customise_table()`, `to_flextable()`, `save_output()` |
+
+## The core distinction
+
+`summary_table()` describes **many variables** for a descriptive table.
+`compare_groups()` tests **one variable** across one group variable.
+`assess_distribution()` describes the empirical shape of selected continuous
+variables, not an inferential test choice.
+
+`assess_variance()` describes group SDs, variances, and spread ratios for
+selected continuous variables. It is diagnostic only: Welch methods do not
+require equal variances, and the function does not select an inferential test.
+
+## Objects remain inspectable
+
+Every main function returns an object containing the data behind the display.
+The default print method is the publication-ready table. Components such as
+`$summary`, `$inferential`, `$recommendations`, and `$notes` are available for
+programming and review; they are not extra steps required for routine use.
+
+```{r example}
+result <- compare_groups(mtcars, variable = mpg, group = am)
+result$inferential
+diagnostics_stats(result)
 ```
 
-## Why gtstats?
+## A minimal decision tree
 
-Most descriptive statistics tasks in clinical and public health work boil down to the same handful of steps: summarise your variables, check whether they are normally distributed, compare groups, test associations, and build a clean table for your report or paper. **gtstats** provides a single, consistent interface for all of these steps, with output that goes straight into a `gt` table or a Word document.
-
----
-
-## Function map
-
-```
-Data exploration ─────── describe_data()
-
-Summary statistics ───── summary_stats()
-Distribution checks ──── check_distribution()
-Group comparisons ────── compare_groups()
-Correlations ─────────── correlate_vars()
-
-Proportions + CI ──────── prop_ci()
-Rates + Poisson CI ────── rate_stats()
-2×2 epi tables ─────────  twobytwo_table()
-
-Table builder ──────────  descriptive_table()
-                          ├─ add_summary()
-                          ├─ add_proportion()
-                          ├─ add_rate()
-                          ├─ add_total()
-                          ├─ add_p()
-                          └─ add_custom_row()
-
-Render ─────────────────  tbl_stats()
-Style ──────────────────  style_table()
-Export ─────────────────  to_flextable()
+```text
+Raw dataset
+  └─ describe_data()
+      ├─ assess_distribution()  → how to present selected continuous variables
+      ├─ assess_variance()      → how observed spread differs across groups
+      ├─ summary_table()        → Table 1 / participant characteristics
+      └─ compare_groups()       → one inferential question
 ```
 
----
+The [Start here](getting-started.html) article explains the minimal workflow;
+the [birth-weight case study](birthweight-case-study.html) applies it end to
+end. [Missing data and denominators](missing-data-denominators.html) explains
+how every analysis population and displayed percentage is formed.
 
-## Typical usage patterns
-
-### Quick data check
-
-```{r}
-describe_data(mtcars)
-summary_stats(mtcars, by = am)
-```
-
-### One-step group comparison
-
-```{r}
-compare_groups(mtcars, outcome = mpg, group = am) |>
-  tbl_stats()
-```
-
-### Epidemiology helpers
-
-```{r}
-prop_ci(mtcars, var = vs, by = am)
-
-twobytwo_table(mtcars, exposure = am, outcome = vs) |>
-  tbl_stats()
-```
-
-### Full descriptive table
-
-```{r}
-descriptive_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(vars = c(mpg, wt, cyl)) |>
-  add_proportion(var = vs) |>
-  add_total() |>
-  add_p() |>
-  tbl_stats() |>
-  style_table(theme = "journal", accent_color = "#123B7A")
-```
-
----
-
-## Output formats
-
-Every analysis function returns a structured list with a class attribute. Printing it in the console gives a plain-text summary. Passing it to `tbl_stats()` renders a formatted `gt` table. The descriptive table builder also supports `to_flextable()` for Word-ready output.
-
----
-
-## Getting help
-
-- See the [Getting Started](getting-started.html) article for a step-by-step introduction.
-- See the [Descriptive Tables](descriptive-tables.html) article for a deep dive on the table builder.
-- Browse the [Reference](../reference/index.html) for full argument documentation.
+For a compact, user-facing table of arguments and defaults for every exported
+function, see [Function options](function-options.html).

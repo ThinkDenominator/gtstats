@@ -15,15 +15,16 @@
 The input object, invisibly.
 }
 \description{
-Print a compact console preview of a \code{gt_distribution} object.
+Print publication-ready distribution diagnostics and recommendations.
 }
 \details{
-The print method shows the dataset name, optional grouping variable,
-the first few rows of the distribution table, and a short reminder of
-the practical guidance used for symmetric and skewed variables.
+The detailed diagnostic table includes the suggested presentation beside the
+numerical diagnostics. With groups, the common variable-level suggestion is
+shown once beside the first group row. Machine-readable results remain
+available in \verb{$summary} and \verb{$recommendations}.
 }
 \examples{
-x <- check_distribution(mtcars)
+x <- assess_distribution(mtcars, vars = c("mpg", "wt"))
 print(x)
 
 }

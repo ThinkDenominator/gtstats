@@ -149,7 +149,19 @@ test_that(".compute_effect_size() returns rank-biserial correlation for Wilcoxon
 
   expect_true(is.numeric(out))
   expect_length(out, 1)
-  expect_false(is.na(out))
+  expect_equal(out, 1)
+  expect_lte(abs(out), 1)
+})
+
+test_that("rank-biserial correlation remains within its mathematical bounds", {
+  out <- .compute_effect_size(
+    x1 = c(80, 90, 100, 110, 250),
+    x2 = c(70, 85, 95),
+    test_used = "Wilcoxon rank-sum test"
+  )
+
+  expect_gte(out, -1)
+  expect_lte(out, 1)
 })
 
 test_that(".compute_effect_size() returns NA for Wilcoxon rank-sum when x1 or x2 missing", {
@@ -348,4 +360,71 @@ test_that(".interpret_effect_size() returns NA for unsupported type", {
   out <- .interpret_effect_size(0.5, "Unknown effect size")
 
   expect_true(is.na(out))
+})
+
+test_that(".hedges_g_result() returns an independent-groups estimate and CI", {
+  out <- .hedges_g_result(
+    x1 = c(10, 12, 14, 16, 18),
+    x2 = c(7, 8, 9, 10, 11),
+    conf.level = 0.95
+  )
+
+  expect_equal(out$type, "Hedges' g")
+  expect_equal(out$symbol, "g")
+  expect_false(is.na(out$estimate))
+  expect_lt(out$conf_low, out$estimate)
+  expect_gt(out$conf_high, out$estimate)
+  expect_equal(out$interval_method, "Approximate large-sample normal interval")
+})
+
+test_that(".hedges_g_result() supports paired measurements", {
+  out <- .hedges_g_result(
+    x1 = c(12, 15, 18, 20, 25),
+    x2 = c(10, 12, 15, 18, 21),
+    paired = TRUE
+  )
+
+  expect_equal(out$type, "Paired Hedges' g")
+  expect_false(is.na(out$estimate))
+  expect_lt(out$conf_low, out$estimate)
+  expect_gt(out$conf_high, out$estimate)
+})
+
+test_that(".hedges_g_result() rejects insufficient or invariant data", {
+  expect_true(is.na(.hedges_g_result(1, c(1, 2))$estimate))
+  expect_true(is.na(
+    .hedges_g_result(c(1, 1, 1), c(1, 1, 1))$estimate
+  ))
+  expect_true(is.na(
+    .hedges_g_result(c(1, 2), c(0, 1), paired = TRUE)$estimate
+  ))
+})
+
+test_that("omnibus effect-size helpers return bounded estimates", {
+  omega <- .omega_squared_result(
+    statistic = 8,
+    df1 = 2,
+    df2 = 40
+  )
+  epsilon <- .epsilon_squared_result(
+    statistic = 10,
+    n = 50,
+    groups = 3
+  )
+
+  expect_equal(omega$type, "Omega-squared")
+  expect_gte(omega$estimate, 0)
+  expect_lte(omega$estimate, 1)
+  expect_equal(epsilon$type, "Epsilon-squared")
+  expect_gte(epsilon$estimate, 0)
+  expect_lte(epsilon$estimate, 1)
+})
+
+test_that("omnibus helpers return NA records for invalid inputs", {
+  expect_true(is.na(
+    .omega_squared_result(NA_real_, 2, 20)$estimate
+  ))
+  expect_true(is.na(
+    .epsilon_squared_result(4, n = 3, groups = 3)$estimate
+  ))
 })

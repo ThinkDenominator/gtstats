@@ -48,10 +48,11 @@ style using \code{gt}.
 Supported inputs include:
 \itemize{
 \item \code{gt_describe}
-\item \code{gt_summary}
 \item \code{gt_distribution}
+\item \code{gt_variance}
 \item \code{gt_compare}
 \item \code{gt_correlation}
+\item \code{gt_effect}
 \item \code{gt_prop}
 \item \code{gt_rate}
 \item \code{gt_twobytwo}
@@ -61,12 +62,12 @@ Supported inputs include:
 \examples{
 tbl_stats(describe_data(mtcars))
 
-tbl_stats(summary_stats(mtcars, by = am))
+tbl_stats(summary_table(mtcars, by = am, include = c(mpg, wt)))
 
-tbl_stats(compare_groups(mtcars, outcome = mpg, group = am))
+tbl_stats(compare_groups(mtcars, variable = mpg, group = am))
 
 tbl_stats(
-  descriptive_table(mtcars, by = am, overall = TRUE) |>
+  summary_table(mtcars, by = am, overall = TRUE) |>
     add_summary(vars = c(mpg, wt, cyl)) |>
     add_total() |>
     add_p()

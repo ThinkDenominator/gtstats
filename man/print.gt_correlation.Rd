@@ -15,14 +15,14 @@
 The input object, invisibly.
 }
 \description{
-Print a compact console preview of a \code{gt_correlation} object.
+Print a publication-ready correlation table.
 }
 \details{
-The print method shows the dataset name, the two variables analysed,
-and the display-ready correlation results table.
+Detailed numerical results and audit information remain available in the
+object components.
 }
 \examples{
-x <- correlate_vars(mtcars, x = mpg, y = wt)
+x <- correlation(mtcars, x = mpg, y = wt)
 print(x)
 
 }

@@ -10,12 +10,14 @@ add_proportion(
   level = NULL,
   ci = TRUE,
   conf.level = 0.95,
+  ci_method = c("wilson", "exact"),
+  display = c("n_percent", "percent", "n_over_N_percent"),
   digits = 1,
   label = NULL
 )
 }
 \arguments{
-\item{x}{A \code{gt_desc_table} object created with \code{\link[=descriptive_table]{descriptive_table()}}.}
+\item{x}{A \code{gt_desc_table} object created with \code{\link[=summary_table]{summary_table()}}.}
 
 \item{var}{Variable to summarise as a proportion. Can be supplied as a bare
 name or as a character string.}
@@ -26,6 +28,11 @@ automatically.}
 \item{ci}{Logical; whether to display a confidence interval.}
 
 \item{conf.level}{Confidence level for the interval. Default is \code{0.95}.}
+
+\item{ci_method}{Confidence-interval method: \code{"wilson"} or \code{"exact"}.}
+
+\item{display}{Cell display: \code{"n_percent"}, \code{"percent"}, or
+\code{"n_over_N_percent"}.}
 
 \item{digits}{Number of decimal places used when formatting percentages.}
 
@@ -55,17 +62,17 @@ order:
 \item otherwise the first available non-missing level
 }
 
-Confidence intervals are calculated using an exact binomial method via
-\code{\link[stats:binom.test]{stats::binom.test()}}.
+Wilson confidence intervals are used by default. Exact binomial intervals
+are available with \code{ci_method = "exact"}.
 }
 \examples{
-descriptive_table(mtcars, by = am, overall = TRUE) |>
+summary_table(mtcars, by = am, overall = TRUE) |>
   add_proportion(var = vs)
 
-descriptive_table(mtcars, by = am, overall = TRUE) |>
+summary_table(mtcars, by = am, overall = TRUE) |>
   add_proportion(var = vs, level = "1", ci = TRUE)
 
-descriptive_table(mtcars) |>
+summary_table(mtcars) |>
   add_proportion(var = vs, ci = FALSE)
 
 }

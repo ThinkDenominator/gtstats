@@ -4,13 +4,16 @@
 \alias{add_total}
 \title{Add total counts to a descriptive table}
 \usage{
-add_total(x, label = "Total (N)")
+add_total(x, label = "Total (N)", position = c("last", "first"))
 }
 \arguments{
-\item{x}{A \code{gt_desc_table} object created with \code{\link[=descriptive_table]{descriptive_table()}}.}
+\item{x}{A \code{gt_desc_table} object created with \code{\link[=summary_table]{summary_table()}}.}
 
 \item{label}{Row label to display in the \code{Variable} column. Defaults to
 \code{"Total (N)"}.}
+
+\item{position}{Position of the total row. Use \code{"first"} to place sample
+sizes at the top of the table or \code{"last"} to append them.}
 }
 \value{
 An updated \code{gt_desc_table} object with a total row appended.
@@ -24,21 +27,22 @@ This helper is useful in Table 1 workflows where a final row is needed to
 show the number of observations contributing to each column. When the table
 includes an \code{Overall} column, the total number of rows in the source data is
 shown there. When the table is grouped, totals are calculated within each
-displayed group.
+displayed group. Publication-table headers already display these cohort
+denominators automatically, so this row is optional.
 
 This helper can be used only with descriptive tables created in
 \code{mode = "summary"}.
 }
 \examples{
-descriptive_table(mtcars, by = am) |>
+summary_table(mtcars, by = am) |>
   add_summary(vars = c(mpg, wt, cyl)) |>
   add_total()
 
-descriptive_table(mtcars, by = am, overall = TRUE) |>
+summary_table(mtcars, by = am, overall = TRUE) |>
   add_summary(vars = c(mpg, wt)) |>
   add_total()
 
-descriptive_table(mtcars) |>
+summary_table(mtcars) |>
   add_total()
 
 }

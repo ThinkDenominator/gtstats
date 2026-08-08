@@ -1,167 +1,230 @@
 
-<!-- README.md is generated from README.Rmd. Please edit that file. -->
+<!-- README.md is generated from README.Rmd. -->
 
-<!-- For pkgdown, this file doubles as the homepage.              -->
+<div class="gs-hero">
 
-<!-- HERO BANNER — rendered on pkgdown site -->
+<p class="gs-kicker">
 
-<div style="background:linear-gradient(135deg,#0e2f63 0%,#123B7A 55%,#1a4d9e 100%);border-radius:14px;padding:3.5rem 2.5rem 3rem;margin:0 0 2.5rem;color:#fff;position:relative;overflow:hidden;">
-  <div style="position:absolute;top:-40px;right:-40px;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,.04);"></div>
-  <div style="position:absolute;bottom:-60px;right:80px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.03);"></div>
-  <p style="margin:0 0 .6rem;font-size:.8rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#e8c060;">R Package · v0.0.1</p>
-  <h1 style="margin:0 0 .75rem;font-size:2.6rem;font-weight:700;font-family:'Playfair Display',serif;line-height:1.15;color:#fff;">gtstats</h1>
-  <p style="margin:0 0 1.8rem;font-size:1.15rem;color:rgba(255,255,255,.82);max-width:560px;line-height:1.6;">Beginner-friendly descriptive &amp; inferential statistics with publication-ready <strong style="color:#e8c060;">gt</strong> tables — built for clinical and public health analysts.</p>
-  <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;margin-bottom:1.8rem;">
-    <a href="articles/getting-started.html" style="background:#e8c060;color:#0e2f63;padding:.55rem 1.3rem;border-radius:7px;text-decoration:none;font-weight:600;font-size:.9rem;">Get started →</a>
-    <a href="reference/index.html" style="background:rgba(255,255,255,.12);color:#fff;padding:.55rem 1.3rem;border-radius:7px;text-decoration:none;font-weight:500;font-size:.9rem;border:1px solid rgba(255,255,255,.25);">Reference</a>
-    <a href="articles/overview.html" style="background:rgba(255,255,255,.12);color:#fff;padding:.55rem 1.3rem;border-radius:7px;text-decoration:none;font-weight:500;font-size:.9rem;border:1px solid rgba(255,255,255,.25);">Package overview</a>
-  </div>
-  <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
-    <img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="lifecycle">
-    <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT">
-    <img src="https://img.shields.io/badge/R-%3E%3D4.1-blue.svg" alt="R">
-  </div>
+R package for clinical, epidemiological, and public-health analysis
+</p>
+
+<h1>
+
+gtstats
+</h1>
+
+<p>
+
+Understand your data, build a publication-ready Table 1, and answer
+focused statistical questions without hand-formatting every output.
+</p>
+
+<p>
+
+<a class="gs-button" href="https://gtstats.thinkdenominator.com/articles/getting-started.html">Start
+the workflow</a>
+<a class="gs-button gs-button-secondary" href="https://gtstats.thinkdenominator.com/articles/birthweight-case-study.html">View
+the case study</a>
+</p>
+
 </div>
 
-## What is gtstats?
+<!-- badges: start -->
 
-**gtstats** gives epidemiologists, clinical researchers, and public
-health analysts a single, consistent toolkit for the most common
-descriptive and inferential statistics tasks — from a quick data
-overview through to a polished, publication-ready Table 1. No formula
-syntax, no complex setup.
+[![R-CMD-check](https://github.com/ThinkDenominator/gtstats/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ThinkDenominator/gtstats/actions/workflows/R-CMD-check.yaml)
+[![pkgdown](https://github.com/ThinkDenominator/gtstats/actions/workflows/pkgdown.yaml/badge.svg)](https://gtstats.thinkdenominator.com/)
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![License:
+MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
+[![R: \>=
+4.1](https://img.shields.io/badge/R-%3E%3D4.1-276DC3?logo=r)](https://www.r-project.org/)
 
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1.5rem 0;">
-  <div style="background:#f4f7fc;border:1px solid #d0daea;border-radius:10px;padding:1.1rem 1.2rem;border-top:3px solid #123B7A;">
-    <p style="margin:0 0 .4rem;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#5a6478;">Explore</p>
-    <p style="margin:0;font-size:.88rem;color:#1a1f2e;line-height:1.6;"><code>describe_data()</code><br><code>summary_stats()</code><br><code>check_distribution()</code></p>
-  </div>
-  <div style="background:#f4f7fc;border:1px solid #d0daea;border-radius:10px;padding:1.1rem 1.2rem;border-top:3px solid #123B7A;">
-    <p style="margin:0 0 .4rem;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#5a6478;">Compare &amp; correlate</p>
-    <p style="margin:0;font-size:.88rem;color:#1a1f2e;line-height:1.6;"><code>compare_groups()</code><br><code>correlate_vars()</code></p>
-  </div>
-  <div style="background:#f4f7fc;border:1px solid #d0daea;border-radius:10px;padding:1.1rem 1.2rem;border-top:3px solid #e8a020;">
-    <p style="margin:0 0 .4rem;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#5a6478;">Epi helpers</p>
-    <p style="margin:0;font-size:.88rem;color:#1a1f2e;line-height:1.6;"><code>prop_ci()</code><br><code>rate_stats()</code><br><code>twobytwo_table()</code></p>
-  </div>
-  <div style="background:#f4f7fc;border:1px solid #d0daea;border-radius:10px;padding:1.1rem 1.2rem;border-top:3px solid #e8a020;">
-    <p style="margin:0 0 .4rem;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#5a6478;">Table builder</p>
-    <p style="margin:0;font-size:.88rem;color:#1a1f2e;line-height:1.6;"><code>descriptive_table()</code><br><code>add_*()</code> functions<br><code>tbl_stats()</code> · <code>style_table()</code></p>
-  </div>
+<!-- badges: end -->
+
+## Publication-ready descriptive and inferential statistics
+
+`gtstats` helps students, researchers, and public-health analysts move
+from a new dataset to clear descriptive results, focused comparisons,
+and a publication-ready Table 1. It keeps the R syntax approachable
+while retaining the underlying results, denominators, assumptions, and
+automatic decisions for review.
+
+| Stage | Start with | What you get |
+|----|----|----|
+| Understand | `describe_data()` | Variable type, completeness, levels/range, and concise data overview |
+| Assess | `assess_distribution()` | Distribution diagnostics and descriptive guidance for continuous variables |
+| Assess | `assess_variance()` | Group SDs, variances, and descriptive spread ratios |
+| Describe | `summary_table()` | Publication-ready participant-characteristics table |
+| Compare | `compare_groups()` | One focused group comparison with a clearly identified test and automatic-selection rule |
+| Audit | `assumptions_stats()`, `diagnostics_stats()`, `denominators_stats()` | Transparent decisions and analysis population |
+| Export | `tbl_stats()`, `customise_table()`, `save_output()` | A modifiable, report-ready table |
+
+<div class="gs-strip">
+
+<div class="gs-strip-item">
+
+<p class="gs-strip-label">
+
+Understand
+</p>
+
+<p class="gs-strip-fns">
+
+describe_data()<br>assess_distribution()
+</p>
+
 </div>
 
-## Installation
+<div class="gs-strip-item">
+
+<p class="gs-strip-label">
+
+Describe
+</p>
+
+<p class="gs-strip-fns">
+
+summary_table()<br>add\_\*()
+</p>
+
+</div>
+
+<div class="gs-strip-item">
+
+<p class="gs-strip-label">
+
+Compare
+</p>
+
+<p class="gs-strip-fns">
+
+compare_groups()<br>correlation()
+</p>
+
+</div>
+
+<div class="gs-strip-item">
+
+<p class="gs-strip-label">
+
+Report
+</p>
+
+<p class="gs-strip-fns">
+
+tbl_stats()<br>save_output()
+</p>
+
+</div>
+
+</div>
+
+## Why it exists
+
+Statistics packages often make a user choose between an oversimplified
+default and a highly technical workflow. `gtstats` is designed to bridge
+that gap:
+
+- publication-ready tables are the default, not an extra formatting
+  task;
+- automatic test selection is visible and can always be overridden;
+- distribution, variance, assumptions, and denominators are inspectable;
+- the table builder offers simple defaults with optional layers of
+  control.
+
+`gtstats` uses established R statistical engines such as `stats`,
+`dplyr`, `ggplot2`, `gt`, and `flextable`; it provides a coherent
+teaching and reporting workflow around them.
+
+## Install
 
 ``` r
-remotes::install_github("thinkdenominator/gtstats")
-```
-
-## The descriptive table builder
-
-Build a complete Table 1 in one pipe:
-
-``` r
+# Development version until gtstats is available on CRAN
+remotes::install_github("ThinkDenominator/gtstats")
 library(gtstats)
-
-descriptive_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(vars = c(mpg, wt, cyl))   |>
-  add_proportion(var = vs, ci = TRUE)   |>
-  add_total()                           |>
-  add_p()                               |>
-  tbl_stats()
 ```
 
-<div style="background:#f4f7fc;border:1px solid #d0daea;border-radius:12px;padding:1.5rem;margin:1.25rem 0;overflow-x:auto;">
-  <p style="margin:0 0 1rem;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#123B7A;display:flex;align-items:center;gap:.4rem;">
-    <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#e8a020;"></span>
-    Rendered output — tbl_stats()
-  </p>
-  <table style="width:100%;border-collapse:collapse;font-size:.85rem;font-family:system-ui,sans-serif;">
-  <thead>
-    <tr>
-      <th style="background:#123B7A;color:#fff;padding:.55rem 1rem;text-align:left;font-weight:500;border-radius:6px 0 0 0;">Variable</th>
-      <th style="background:#123B7A;color:#fff;padding:.55rem .75rem;text-align:left;font-weight:500;min-width:50px;"></th>
-      <th style="background:#123B7A;color:#fff;padding:.55rem 1rem;text-align:right;font-weight:500;">Manual<br><span style="font-weight:300;font-size:.78rem;">am=1, n=13</span></th>
-      <th style="background:#123B7A;color:#fff;padding:.55rem 1rem;text-align:right;font-weight:500;">Automatic<br><span style="font-weight:300;font-size:.78rem;">am=0, n=19</span></th>
-      <th style="background:#123B7A;color:#fff;padding:.55rem 1rem;text-align:right;font-weight:500;">Overall<br><span style="font-weight:300;font-size:.78rem;">n=32</span></th>
-      <th style="background:#123B7A;color:#fff;padding:.55rem 1rem;text-align:right;font-weight:500;border-radius:0 6px 0 0;">p-value</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr><td style="padding:.55rem 1rem;font-weight:600;color:#123B7A;border-bottom:1px solid #e8eef8;">Miles per gallon</td><td style="padding:.55rem .75rem;border-bottom:1px solid #e8eef8;"></td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">24.4 (6.2)</td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">17.1 (3.8)</td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">20.1 (6.0)</td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;font-weight:600;">&lt;0.001</td></tr>
-    <tr style="background:#f9fafc;"><td style="padding:.55rem 1rem;font-weight:600;color:#123B7A;border-bottom:1px solid #e8eef8;">Weight (1000 lbs)</td><td style="padding:.55rem .75rem;border-bottom:1px solid #e8eef8;"></td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">2.4 (0.6)</td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">3.8 (0.8)</td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">3.2 (1.0)</td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;font-weight:600;">&lt;0.001</td></tr>
-    <tr><td style="padding:.55rem 1rem;font-weight:600;color:#123B7A;border-bottom:1px solid #e8eef8;">Cylinders</td><td style="padding:.3rem .75rem;border-bottom:1px solid #e8eef8;font-size:.82rem;color:#5a6478;">4</td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">8 (61.5%)</td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">3 (15.8%)</td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">11 (34.4%)</td><td rowspan="3" style="padding:.55rem 1rem;text-align:right;vertical-align:middle;font-weight:600;">0.009</td></tr>
-    <tr style="background:#f9fafc;"><td></td><td style="padding:.3rem .75rem;font-size:.82rem;color:#5a6478;border-bottom:1px solid #e8eef8;">6</td><td style="padding:.3rem 1rem;text-align:right;color:#5a6478;border-bottom:1px solid #e8eef8;">4 (30.8%)</td><td style="padding:.3rem 1rem;text-align:right;color:#5a6478;border-bottom:1px solid #e8eef8;">4 (21.1%)</td><td style="padding:.3rem 1rem;text-align:right;color:#5a6478;border-bottom:1px solid #e8eef8;">7 (21.9%)</td></tr>
-    <tr><td></td><td style="padding:.3rem .75rem;font-size:.82rem;color:#5a6478;border-bottom:1px solid #e8eef8;">8</td><td style="padding:.3rem 1rem;text-align:right;color:#5a6478;border-bottom:1px solid #e8eef8;">1 (7.7%)</td><td style="padding:.3rem 1rem;text-align:right;color:#5a6478;border-bottom:1px solid #e8eef8;">12 (63.2%)</td><td style="padding:.3rem 1rem;text-align:right;color:#5a6478;border-bottom:1px solid #e8eef8;">14 (43.8%)</td></tr>
-    <tr style="background:#f9fafc;"><td style="padding:.55rem 1rem;font-weight:600;color:#123B7A;border-bottom:1px solid #e8eef8;">V-shaped engine</td><td style="padding:.55rem .75rem;font-size:.82rem;color:#5a6478;border-bottom:1px solid #e8eef8;">vs=1</td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">7 (53.8%)<br><small style="color:#5a6478;">[27–79%]</small></td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">7 (36.8%)<br><small style="color:#5a6478;">[19–60%]</small></td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">14 (43.8%)<br><small style="color:#5a6478;">[27–62%]</small></td><td style="padding:.55rem 1rem;text-align:right;border-bottom:1px solid #e8eef8;">0.357</td></tr>
-    <tr style="background:#e8eef8;"><td style="padding:.55rem 1rem;font-weight:600;color:#123B7A;" colspan="2">Total (N)</td><td style="padding:.55rem 1rem;text-align:right;font-weight:600;">13</td><td style="padding:.55rem 1rem;text-align:right;font-weight:600;">19</td><td style="padding:.55rem 1rem;text-align:right;font-weight:600;">32</td><td></td></tr>
-  </tbody>
-</table>
-  <p style="margin:.85rem 0 0;font-size:.75rem;color:#5a6478;">ᵃ Continuous: mean (SD). Categorical: n (%). Proportions: n (%) [95% Wilson CI]. ᵇ Welch t-test / chi-squared. Tests auto-selected.</p>
-</div>
+## Built-in teaching data
 
-Then style it:
+gtstats includes three labelled datasets, so examples work without
+installing other packages:
 
 ``` r
-... |> tbl_stats() |>
-  style_table(theme = "journal", col_labels = c("am=1" = "Manual", "am=0" = "Automatic"), accent_color = "#123B7A")
+data("birthwt", "trial_data", "paired_data", package = "gtstats")
 ```
 
-## Save outputs
+- `birthwt`: real low-birth-weight clinical data for descriptive tables,
+  independent comparisons, and epidemiology.
+- `trial_data`: a three-arm synthetic trial for Welch ANOVA,
+  Kruskal-Wallis, chi-square, Fisher exact, correlations, and rates.
+- `paired_data`: long-format paired follow-up data for paired t-tests,
+  Wilcoxon signed-rank, and McNemar tests.
 
-Export polished tables and figures directly from your workflow.
+## Five-minute workflow
 
 ``` r
-save_table(res, "table1.html")
-save_table(tbl_stats(res), "table1.png")
+data("birthwt", package = "gtstats")
 
-p <- plot_compare(mtcars, outcome = mpg, group = am, show_p = TRUE)
-save_plot(p, "mpg_by_am.png")
+overview <- describe_data(birthwt)
+
+distribution <- assess_distribution(birthwt, vars = c(age, lwt), by = low)
+variance <- assess_variance(birthwt, vars = c(age, lwt), by = low)
+
+table_one <- summary_table(
+  birthwt,
+  by = low,
+  include = c(age, lwt, race, smoke),
+  overall = "last"
+) |>
+  add_p()
+
+comparison <- compare_groups(birthwt, variable = lwt, group = low)
+comparison$method$selection_rule
+diagnostics_stats(comparison)
 ```
 
-## Epidemiology helpers
+Each object prints as a publication-ready table. `tbl_stats()` is
+optional: use it when you want to add a title, customise the appearance,
+or export a `gt` table.
 
 ``` r
-prop_ci(mtcars, var = vs, by = am)
-rate_stats(df, event = event, time = ptime, by = arm)
-twobytwo_table(mtcars, exposure = am, outcome = vs)
+table_one |>
+  tbl_stats(title = "Table 1. Vehicle characteristics") |>
+  customise_table(theme = "journal") |>
+  save_output("table-1.docx")
 ```
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.25rem 0;">
-  <div style="background:#f4f7fc;border:1px solid #d0daea;border-radius:10px;padding:1.2rem;overflow-x:auto;">
-    <p style="margin:0 0 .75rem;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#123B7A;">prop_ci() — grouped</p>
-    <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
-  <thead><tr><th style="background:#123B7A;color:#fff;padding:.4rem .75rem;text-align:left;font-weight:500;">Group</th><th style="background:#123B7A;color:#fff;padding:.4rem .75rem;text-align:right;font-weight:500;">n</th><th style="background:#123B7A;color:#fff;padding:.4rem .75rem;text-align:right;font-weight:500;">Proportion</th></tr></thead>
-  <tbody>
-    <tr><td style="padding:.4rem .75rem;border-bottom:1px solid #e8eef8;">am = 0</td><td style="padding:.4rem .75rem;text-align:right;border-bottom:1px solid #e8eef8;">19</td><td style="padding:.4rem .75rem;text-align:right;border-bottom:1px solid #e8eef8;">36.8% [18.7–59.5%]</td></tr>
-    <tr style="background:#f9fafc;"><td style="padding:.4rem .75rem;">am = 1</td><td style="padding:.4rem .75rem;text-align:right;">13</td><td style="padding:.4rem .75rem;text-align:right;">53.8% [27.0–78.7%]</td></tr>
-  </tbody>
-</table>
-  </div>
-  <div style="background:#f4f7fc;border:1px solid #d0daea;border-radius:10px;padding:1.2rem;overflow-x:auto;">
-    <p style="margin:0 0 .75rem;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#123B7A;">twobytwo_table()</p>
-    <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
-  <thead><tr><th style="background:#123B7A;color:#fff;padding:.4rem .75rem;text-align:left;font-weight:500;">Measure</th><th style="background:#123B7A;color:#fff;padding:.4rem .75rem;text-align:right;font-weight:500;">Value</th></tr></thead>
-  <tbody>
-    <tr><td style="padding:.4rem .75rem;border-bottom:1px solid #e8eef8;">Exposed (am=1)</td><td style="padding:.4rem .75rem;text-align:right;border-bottom:1px solid #e8eef8;">7/13</td></tr>
-    <tr style="background:#f9fafc;"><td style="padding:.4rem .75rem;border-bottom:1px solid #e8eef8;">Unexposed (am=0)</td><td style="padding:.4rem .75rem;text-align:right;border-bottom:1px solid #e8eef8;">7/19</td></tr>
-    <tr><td style="padding:.4rem .75rem;border-bottom:1px solid #e8eef8;">Risk ratio</td><td style="padding:.4rem .75rem;text-align:right;border-bottom:1px solid #e8eef8;">1.46 (0.65–3.27)</td></tr>
-    <tr style="background:#f9fafc;"><td style="padding:.4rem .75rem;border-bottom:1px solid #e8eef8;">Odds ratio</td><td style="padding:.4rem .75rem;text-align:right;border-bottom:1px solid #e8eef8;">2.00 (0.52–7.69)</td></tr>
-    <tr><td style="padding:.4rem .75rem;">p-value</td><td style="padding:.4rem .75rem;text-align:right;">0.357</td></tr>
-  </tbody>
-</table>
-  </div>
-</div>
+## Browse by task
 
-## Getting help
+| Task | Start here |
+|----|----|
+| First workflow | [Getting started](https://gtstats.thinkdenominator.com/articles/getting-started.html) |
+| Complete worked example | [Birth-weight case study](https://gtstats.thinkdenominator.com/articles/birthweight-case-study.html) |
+| Build Table 1 | [Descriptive tables](https://gtstats.thinkdenominator.com/articles/descriptive-tables.html) |
+| Select and interpret comparisons | [Inferential tests and assumptions](https://gtstats.thinkdenominator.com/articles/inferential-tests.html) |
+| Missingness and denominators | [Missing data and denominators](https://gtstats.thinkdenominator.com/articles/missing-data-denominators.html) |
+| Confidence intervals and 2x2 tables | [Epidemiology helpers](https://gtstats.thinkdenominator.com/articles/epi-helpers.html) |
+| Every argument and default | [Function options](https://gtstats.thinkdenominator.com/articles/function-options.html) |
+| All functions | [Reference index](https://gtstats.thinkdenominator.com/reference/index.html) |
 
-- **Website:**
-  [thinkdenominator.github.io/gtstats](https://thinkdenominator.github.io/gtstats/)
-- **Bugs / ideas:** [GitHub
-  Issues](https://github.com/thinkdenominator/gtstats/issues)
-- **Start here:** `vignette("getting-started", package = "gtstats")`
+## Function map
 
-------------------------------------------------------------------------
+| Workflow | Functions |
+|----|----|
+| Understand | `describe_data()`, `assess_distribution()`, `assess_variance()` |
+| Build Table 1 | `summary_table()`, `add_summary()`, `add_proportion()`, `add_rate()`, `add_total()`, `add_p()`, `add_row()` |
+| Compare | `compare_groups()`, `effect_size()`, `correlation()` |
+| Epidemiology | `proportion_stats()`, `rate_stats()`, `crosstabs()` |
+| Inspect decisions | `assumptions_stats()`, `diagnostics_stats()`, `denominators_stats()` |
+| Visualise | `plot_compare()`, `plot_correlation()` |
+| Polish and export | `tbl_stats()`, `customise_table()`, `to_flextable()`, `save_output()` |
 
-*MIT License · © Rubeshkumar Polani Chandrasekar ·
-[thinkdenominator.com](https://thinkdenominator.com)*
+## Citation
+
+Until the package is on CRAN or has a DOI, use the package citation
+generated by R:
+
+``` r
+citation("gtstats")
+```

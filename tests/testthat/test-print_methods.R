@@ -1,55 +1,47 @@
-test_that("print.gt_describe() returns invisibly and prints expected text", {
+test_that("print.gt_describe() returns the object invisibly", {
   obj <- describe_data(mtcars)
 
-  expect_output(
-    out <- print(obj),
-    regexp = "GTstats: Dataset overview"
-  )
+  out <- print(obj)
   expect_identical(out, obj)
 })
 
-test_that("print.gt_summary() returns invisibly and prints expected text", {
-  obj <- summary_stats(mtcars, by = am)
+test_that("summary_table() prints through the publication-ready builder", {
+  obj <- summary_table(mtcars, by = am, include = c(mpg, wt))
 
-  expect_output(
-    out <- print(obj),
-    regexp = "GTstats: Summary statistics"
-  )
+  capture.output(out <- print(obj))
   expect_identical(out, obj)
 })
 
-test_that("print.gt_distribution() returns invisibly and prints expected text", {
-  obj <- check_distribution(mtcars, vars = c("mpg", "wt"))
+test_that("print.gt_distribution() returns the object invisibly", {
+  obj <- assess_distribution(mtcars, vars = c("mpg", "wt"))
 
-  expect_output(
-    out <- print(obj),
-    regexp = "GTstats: Distribution check"
-  )
+  out <- print(obj)
   expect_identical(out, obj)
 })
 
-test_that("print.gt_compare() returns invisibly and prints expected text", {
-  obj <- compare_groups(mtcars, outcome = mpg, group = am)
+test_that("print.gt_variance() returns the object invisibly", {
+  obj <- assess_variance(mtcars, vars = c("mpg", "wt"), by = am)
 
-  expect_output(
-    out <- print(obj),
-    regexp = "GTstats: Group comparison"
-  )
+  out <- print(obj)
   expect_identical(out, obj)
 })
 
-test_that("print.gt_correlation() returns invisibly and prints expected text", {
-  obj <- correlate_vars(mtcars, x = mpg, y = wt)
+test_that("print.gt_compare() returns invisibly and renders the table", {
+  obj <- compare_groups(mtcars, variable = mpg, group = am)
 
-  expect_output(
-    out <- print(obj),
-    regexp = "GTstats: Correlation analysis"
-  )
+  capture.output(out <- print(obj))
+  expect_identical(out, obj)
+})
+
+test_that("print.gt_correlation() returns invisibly and renders the table", {
+  obj <- correlation(mtcars, x = mpg, y = wt)
+
+  capture.output(out <- print(obj))
   expect_identical(out, obj)
 })
 
 test_that("print.gt_desc_table() works when table is empty", {
-  obj <- descriptive_table(mtcars, by = am)
+  obj <- summary_table(mtcars, by = am)
 
   expect_output(
     out <- print(obj),
@@ -59,27 +51,24 @@ test_that("print.gt_desc_table() works when table is empty", {
 })
 
 test_that("print.gt_desc_table() works when table has rows", {
-  obj <- descriptive_table(mtcars, by = am) |>
+  obj <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt))
 
+  capture.output(out <- print(obj))
+  expect_identical(out, obj)
+})
+
+test_that("print.gt_prop() returns invisibly and prints a gt table", {
+  obj <- proportion_stats(mtcars, var = vs, by = am)
+
   expect_output(
     out <- print(obj),
-    regexp = "GTstats: Descriptive table builder"
+    regexp = "gt_table"
   )
   expect_identical(out, obj)
 })
 
-test_that("print.gt_prop() returns invisibly and prints expected text", {
-  obj <- prop_ci(mtcars, var = vs, by = am)
-
-  expect_output(
-    out <- print(obj),
-    regexp = "GTstats: Proportion with confidence interval"
-  )
-  expect_identical(out, obj)
-})
-
-test_that("print.gt_rate() returns invisibly and prints expected text", {
+test_that("print.gt_rate() returns invisibly and prints a gt table", {
   df <- data.frame(
     event = c(1, 0, 1, 0, 1, 1),
     ptime = c(10, 12, 8, 9, 11, 7),
@@ -90,43 +79,32 @@ test_that("print.gt_rate() returns invisibly and prints expected text", {
 
   expect_output(
     out <- print(obj),
-    regexp = "GTstats: Rate with confidence interval"
+    regexp = "gt_table"
   )
   expect_identical(out, obj)
 })
 
-test_that("print.gt_twobytwo() returns invisibly and prints expected text", {
-  obj <- twobytwo_table(mtcars, exposure = am, outcome = vs)
+test_that("print.gt_twobytwo() returns invisibly and prints a gt table", {
+  obj <- crosstabs(mtcars, row = am, col = vs)
 
   expect_output(
     out <- print(obj),
-    regexp = "GTstats: 2x2 epidemiology table"
+    regexp = "gt_table"
   )
   expect_identical(out, obj)
 })
 
-test_that("print.gt_summary() handles long tables", {
-  obj <- summary_stats(mtcars)
-
-  expect_output(
-    print(obj),
-    regexp = "Showing first 10 rows only|Showing first 10 variables only"
-  )
+test_that("print.gt_compare() has a publication-ready gt representation", {
+  obj <- compare_groups(mtcars, variable = mpg, group = am)
+  expect_s3_class(tbl_stats(obj), "gt_tbl")
 })
 
-test_that("print.gt_compare() prints inferential section", {
-  obj <- compare_groups(mtcars, outcome = mpg, group = am)
+test_that("direct and incremental summary tables both render", {
+  obj1 <- summary_table(mtcars, include = c(mpg, wt))
+  obj2 <- summary_table(mtcars, by = am) |> add_summary(vars = c(mpg))
 
-  expect_output(
-    print(obj),
-    regexp = "Inferential result"
-  )
-})
-
-test_that("print methods mention tbl_stats helper where appropriate", {
-  obj1 <- summary_stats(mtcars)
-  obj2 <- descriptive_table(mtcars, by = am) |> add_summary(vars = c(mpg))
-
-  expect_output(print(obj1), regexp = "Use tbl_stats\\(x\\) for a formatted table")
-  expect_output(print(obj2), regexp = "Use tbl_stats\\(x\\) for a formatted table")
+  capture.output(out1 <- print(obj1))
+  expect_identical(out1, obj1)
+  capture.output(out <- print(obj2))
+  expect_identical(out, obj2)
 })

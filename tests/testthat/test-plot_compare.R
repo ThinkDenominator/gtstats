@@ -1,343 +1,270 @@
-test_that("plot_compare() returns ggplot for continuous outcome with auto type", {
-  p <- plot_compare(
-    mtcars,
-    outcome = mpg,
-    group = am,
-    quiet = TRUE
-  )
+test_that("plot_compare() uses the minimal continuous interface", {
+  p <- plot_compare(mtcars, outcome = mpg, by = am)
+
+  expect_s3_class(p, "ggplot")
+  expect_equal(attr(p, "source"), "plot_compare")
+  expect_equal(attr(p, "plot_type"), "box")
+  expect_equal(length(p$layers), 2L)
+  expect_match(p$scales$get_scales("x")$labels[["0"]], "N = 19")
+})
+
+test_that("plot_compare() accepts character variable names", {
+  p <- plot_compare(mtcars, outcome = "mpg", by = "am")
 
   expect_s3_class(p, "ggplot")
 })
 
-test_that("plot_compare() returns ggplot for continuous outcome with explicit box type", {
+test_that("continuous plots support labels, palette, size, and hidden points", {
   p <- plot_compare(
     mtcars,
     outcome = mpg,
-    group = am,
-    type = "box",
-    quiet = TRUE
-  )
-
-  expect_s3_class(p, "ggplot")
-})
-
-test_that("plot_compare() supports character input for outcome and group", {
-  p <- plot_compare(
-    mtcars,
-    outcome = "mpg",
-    group = "am",
-    quiet = TRUE
-  )
-
-  expect_s3_class(p, "ggplot")
-})
-
-test_that("plot_compare() supports custom title and labels", {
-  p <- plot_compare(
-    mtcars,
-    outcome = mpg,
-    group = am,
-    title = "My title",
+    by = am,
+    show_points = FALSE,
+    palette = c("#111111", "#999999"),
+    base_size = 12,
+    title = "Fuel economy",
+    caption = "Complete observations",
     xlab = "Transmission",
-    ylab = "Miles per gallon",
-    quiet = TRUE
+    ylab = "Miles per gallon"
   )
 
-  expect_s3_class(p, "ggplot")
-  expect_identical(p$labels$title, "My title")
+  expect_equal(length(p$layers), 1L)
+  expect_identical(p$labels$title, "Fuel economy")
+  expect_identical(p$labels$caption, "Complete observations")
   expect_identical(p$labels$x, "Transmission")
   expect_identical(p$labels$y, "Miles per gallon")
 })
 
-test_that("plot_compare() supports boxplot without jitter", {
+test_that("continuous p-value caption identifies the selected test", {
   p <- plot_compare(
     mtcars,
     outcome = mpg,
-    group = am,
-    jitter = FALSE,
-    quiet = TRUE
+    by = am,
+    show_p = TRUE,
+    test = "wilcox"
   )
 
-  expect_s3_class(p, "ggplot")
+  expect_match(p$labels$caption, "Wilcoxon rank-sum test")
+  expect_match(p$labels$caption, "p")
 })
 
-test_that("plot_compare() adds p-value annotation for continuous outcome", {
+test_that("a user caption is retained with the test annotation", {
   p <- plot_compare(
     mtcars,
     outcome = mpg,
-    group = am,
+    by = am,
     show_p = TRUE,
-    quiet = TRUE
+    caption = "Primary analysis"
   )
 
-  expect_s3_class(p, "ggplot")
-  expect_true(inherits(p$coordinates, "CoordCartesian"))
+  expect_match(p$labels$caption, "^Primary analysis \\| ")
 })
 
-test_that("plot_compare() handles zero-range continuous outcome when showing p-value", {
-  dat <- data.frame(
-    grp = c(rep(NA, 10), "A", "A", "B", "B"),
-    y   = c(1:10, 5, 5, 5, 5)
-  )
-
-  p <- plot_compare(
-    dat,
-    outcome = y,
-    group = grp,
-    type = "box",
-    show_p = TRUE,
-    quiet = TRUE
-  )
+test_that("categorical auto plot shows proportions and complete-case Ns", {
+  p <- plot_compare(mtcars, outcome = vs, by = am)
 
   expect_s3_class(p, "ggplot")
-})
-
-test_that("plot_compare() returns ggplot for binary categorical outcome with auto type", {
-  p <- plot_compare(
-    mtcars,
-    outcome = vs,
-    group = am,
-    quiet = TRUE
-  )
-
-  expect_s3_class(p, "ggplot")
-})
-
-test_that("plot_compare() returns ggplot for categorical outcome with proportions", {
-  p <- plot_compare(
-    mtcars,
-    outcome = cyl,
-    group = am,
-    type = "bar",
-    proportions = TRUE,
-    quiet = TRUE
-  )
-
-  expect_s3_class(p, "ggplot")
-})
-
-test_that("plot_compare() returns ggplot for categorical outcome with counts", {
-  p <- plot_compare(
-    mtcars,
-    outcome = cyl,
-    group = am,
-    type = "bar",
-    proportions = FALSE,
-    quiet = TRUE
-  )
-
-  expect_s3_class(p, "ggplot")
-})
-
-test_that("plot_compare() adds p-value annotation for proportional bar plot", {
-  p <- plot_compare(
-    mtcars,
-    outcome = vs,
-    group = am,
-    type = "bar",
-    proportions = TRUE,
-    show_p = TRUE,
-    quiet = TRUE
-  )
-
-  expect_s3_class(p, "ggplot")
-  expect_true(inherits(p$coordinates, "CoordCartesian"))
-})
-
-test_that("plot_compare() adds p-value annotation for count bar plot", {
-  p <- plot_compare(
-    mtcars,
-    outcome = vs,
-    group = am,
-    type = "bar",
-    proportions = FALSE,
-    show_p = TRUE,
-    quiet = TRUE
-  )
-
-  expect_s3_class(p, "ggplot")
-  expect_true(inherits(p$coordinates, "CoordCartesian"))
-})
-
-test_that("plot_compare() sets default y label for proportions", {
-  p <- plot_compare(
-    mtcars,
-    outcome = vs,
-    group = am,
-    type = "bar",
-    proportions = TRUE,
-    quiet = TRUE
-  )
-
+  expect_equal(attr(p, "plot_type"), "bar")
   expect_identical(p$labels$y, "Proportion")
+  expect_match(p$scales$get_scales("x")$labels[["0"]], "N = 19")
+  expect_equal(p$scales$get_scales("y")$labels(c(0, 0.5, 1)),
+               c("0%", "50%", "100%"))
 })
 
-test_that("plot_compare() sets default y label for counts", {
+test_that("categorical plots support counts and custom legend", {
   p <- plot_compare(
     mtcars,
     outcome = vs,
-    group = am,
-    type = "bar",
-    proportions = FALSE,
-    quiet = TRUE
+    by = am,
+    display = "count",
+    legend_title = "Engine",
+    palette = c("#336699", "#CC6633")
   )
 
   expect_identical(p$labels$y, "Count")
+  expect_identical(p$labels$fill, "Engine")
 })
 
-test_that("plot_compare() respects explicit legend title argument indirectly through fill label logic", {
+test_that("categorical p-value caption uses compare_groups()", {
   p <- plot_compare(
     mtcars,
     outcome = vs,
-    group = am,
-    type = "bar",
-    quiet = TRUE
+    by = am,
+    show_p = TRUE,
+    test = "chisq"
   )
 
-  expect_s3_class(p, "ggplot")
-  expect_false(is.null(p$labels$fill))
+  expect_match(p$labels$caption, "Chi-square test")
 })
 
-test_that("plot_compare() works when data contain missing values", {
-  dat <- mtcars
-  dat$mpg[c(1, 2)] <- NA
-  dat$am[c(3, 4)] <- NA
+test_that("ordinal plots preserve declared level order", {
+  dat <- data.frame(
+    arm = factor(rep(c("A", "B"), each = 5)),
+    response = ordered(
+      c("None", "Mild", "Mild", "Severe", "None",
+        "Mild", "Severe", "Severe", "None", "Mild"),
+      levels = c("None", "Mild", "Severe")
+    )
+  )
+
+  p <- plot_compare(dat, outcome = response, by = arm)
+
+  expect_equal(attr(p, "plot_type"), "ordinal_bar")
+  expect_identical(levels(p$data$outcome), c("None", "Mild", "Severe"))
+})
+
+test_that("paired continuous plots retain complete pairs only", {
+  dat <- data.frame(
+    id = rep(1:6, 2),
+    visit = factor(rep(c("Before", "After"), each = 6)),
+    score = c(8, 11, 10, 13, 9, 14, 10, 12, 13, 15, NA, 18)
+  )
 
   p <- plot_compare(
     dat,
-    outcome = mpg,
-    group = am,
-    quiet = TRUE
+    outcome = score,
+    by = visit,
+    paired = TRUE,
+    id = id
   )
 
   expect_s3_class(p, "ggplot")
+  expect_equal(attr(p, "plot_type"), "paired")
+  expect_equal(length(unique(p$data$id)), 5L)
+  expect_match(p$scales$get_scales("x")$labels[["Before"]], "N = 5")
 })
 
-test_that("plot_compare() errors when data is not a data.frame", {
+test_that("paired p-value uses the paired test", {
+  dat <- data.frame(
+    id = rep(1:8, 2),
+    visit = factor(rep(c("Before", "After"), each = 8)),
+    score = c(8, 11, 10, 13, 9, 14, 12, 16,
+              10, 12, 13, 14, 12, 15, 16, 19)
+  )
+
+  p <- plot_compare(
+    dat,
+    outcome = score,
+    by = visit,
+    paired = TRUE,
+    id = id,
+    show_p = TRUE,
+    test = "t_test"
+  )
+
+  expect_match(p$labels$caption, "Paired t-test")
+})
+
+test_that("missing observations are reflected in displayed denominators", {
+  dat <- mtcars
+  dat$mpg[c(1, 2)] <- NA_real_
+  dat$am[c(3, 4)] <- NA_real_
+
+  p <- plot_compare(dat, outcome = mpg, by = am)
+  labels <- unname(unlist(p$scales$get_scales("x")$labels))
+
+  expect_true(any(grepl("N = 18", labels)))
+  expect_true(any(grepl("N = 10", labels)))
+})
+
+test_that("non-finite continuous observations are excluded consistently", {
+  dat <- mtcars
+  dat$mpg[1] <- Inf
+
+  p <- plot_compare(dat, outcome = mpg, by = am, show_p = TRUE)
+  labels <- unname(unlist(p$scales$get_scales("x")$labels))
+
+  expect_true(any(grepl("N = 12", labels)))
+  expect_match(p$labels$caption, "p")
+})
+
+test_that("plot_compare() validates data and variable structure", {
   expect_error(
-    plot_compare(1:10, outcome = mpg, group = am, quiet = TRUE),
+    plot_compare(1:10, outcome = mpg, by = am),
     "`data` must be a data.frame."
   )
-})
-
-test_that("plot_compare() errors when outcome is not found", {
   expect_error(
-    plot_compare(mtcars, outcome = not_a_var, group = am, quiet = TRUE),
-    "`outcome` was not found in `data`."
+    plot_compare(mtcars, outcome = absent, by = am),
+    "`absent` was not found"
   )
-})
-
-test_that("plot_compare() errors when group is not found", {
   expect_error(
-    plot_compare(mtcars, outcome = mpg, group = not_a_var, quiet = TRUE),
-    "`group` was not found in `data`."
+    plot_compare(mtcars, outcome = mpg, by = absent),
+    "`absent` was not found"
   )
-})
-
-test_that("plot_compare() errors when outcome and group are the same", {
   expect_error(
-    plot_compare(mtcars, outcome = mpg, group = mpg, quiet = TRUE),
-    "`outcome` and `group` must be different variables."
+    plot_compare(mtcars, outcome = mpg, by = mpg),
+    "must be different"
   )
-})
-
-test_that("plot_compare() errors when group is continuous", {
   expect_error(
-    plot_compare(mtcars, outcome = mpg, group = wt, quiet = TRUE),
-    "`group` should be a categorical, binary, or ordinal variable."
+    plot_compare(mtcars, outcome = mpg, by = wt),
+    "categorical"
   )
 })
 
-test_that("plot_compare() errors when no complete cases are available", {
-  dat <- data.frame(
-    outcome = c(NA, NA),
-    group = c(NA, NA)
+test_that("plot_compare() validates plot choices", {
+  expect_error(
+    plot_compare(mtcars, outcome = vs, by = am, type = "box"),
+    "continuous outcome"
+  )
+  expect_error(
+    plot_compare(mtcars, outcome = mpg, by = am, type = "bar"),
+    "categorical"
+  )
+  expect_error(
+    plot_compare(mtcars, outcome = mpg, by = am, palette = "red"),
+    "palette"
+  )
+  expect_error(
+    plot_compare(mtcars, outcome = mpg, by = am, base_size = 0),
+    "base_size"
+  )
+})
+
+test_that("paired plotting validates IDs and supported outcomes", {
+  paired <- data.frame(
+    id = rep(1:3, 2),
+    visit = rep(c("Before", "After"), each = 3),
+    score = 1:6,
+    result = factor(rep(c("No", "Yes"), 3))
   )
 
   expect_error(
-    plot_compare(dat, outcome = outcome, group = group, quiet = TRUE),
-    "No complete cases available for `outcome` and `group`."
+    plot_compare(paired, score, visit, paired = TRUE),
+    "`id` is required"
   )
-})
-
-test_that("plot_compare() errors when type box is used with categorical outcome", {
   expect_error(
-    plot_compare(mtcars, outcome = vs, group = am, type = "box", quiet = TRUE),
-    "`type = \"box\"` requires a continuous outcome."
+    plot_compare(paired, result, visit, paired = TRUE, id = id),
+    "continuous outcomes only"
   )
-})
 
-test_that("plot_compare() errors when type bar is used with continuous outcome", {
+  duplicated_data <- rbind(paired, paired[1, ])
   expect_error(
-    plot_compare(mtcars, outcome = mpg, group = am, type = "bar", quiet = TRUE),
-    "`type = \"bar\"` requires a categorical, binary, or ordinal outcome."
-  )
-})
-
-test_that("plot_compare() emits message for continuous outcome when quiet is FALSE", {
-  expect_message(
-    plot_compare(mtcars, outcome = mpg, group = am, quiet = FALSE),
-    "Continuous outcome detected: showing boxplot by group."
-  )
-})
-
-test_that("plot_compare() emits message for proportional bar plot when quiet is FALSE", {
-  expect_message(
     plot_compare(
-      mtcars,
-      outcome = vs,
-      group = am,
-      type = "bar",
-      proportions = TRUE,
-      quiet = FALSE
+      duplicated_data,
+      score,
+      visit,
+      paired = TRUE,
+      id = id
     ),
-    "Categorical outcome detected: showing within-group proportions."
+    "at most one observation"
   )
 })
 
-test_that("plot_compare() emits message for count bar plot when quiet is FALSE", {
-  expect_message(
-    plot_compare(
-      mtcars,
-      outcome = vs,
-      group = am,
-      type = "bar",
-      proportions = FALSE,
-      quiet = FALSE
-    ),
-    "Categorical outcome detected: showing counts by group."
+test_that("retired plotting arguments are rejected", {
+  expect_error(
+    plot_compare(mtcars, mpg, group = am),
+    "unused argument"
   )
-})
-
-test_that("plot_compare() supports grouped variable supplied as character string", {
-  p <- plot_compare(
-    mtcars,
-    outcome = "vs",
-    group = "am",
-    type = "bar",
-    proportions = FALSE,
-    quiet = TRUE
+  expect_error(
+    plot_compare(mtcars, mpg, am, quiet = TRUE),
+    "unused argument"
   )
-
-  expect_s3_class(p, "ggplot")
-})
-
-test_that("plot_compare() handles ordinal-like outcome as bar plot", {
-  dat <- data.frame(
-    grp = c("A", "A", "B", "B", "B"),
-    ord = factor(c("low", "medium", "low", "high", "medium"),
-                 ordered = TRUE,
-                 levels = c("low", "medium", "high"))
+  expect_error(
+    plot_compare(mtcars, mpg, am, jitter = FALSE),
+    "unused argument"
   )
-
-  p <- plot_compare(
-    dat,
-    outcome = ord,
-    group = grp,
-    type = "bar",
-    proportions = TRUE,
-    quiet = TRUE
+  expect_error(
+    plot_compare(mtcars, vs, am, proportions = FALSE),
+    "unused argument"
   )
-
-  expect_s3_class(p, "ggplot")
 })

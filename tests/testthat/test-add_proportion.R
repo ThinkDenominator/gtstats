@@ -1,16 +1,16 @@
 test_that("add_proportion() adds proportion row to ungrouped descriptive table", {
-  res <- descriptive_table(mtcars) |>
+  res <- summary_table(mtcars) |>
     add_proportion(var = vs)
 
   expect_s3_class(res, "gt_desc_table")
   expect_true(any(grepl("^vs", res$table$Variable)))
   expect_true("Value" %in% names(res$table))
   expect_true("proportion" %in% res$components)
-  expect_true(any(grepl("Proportions are shown as %", res$footnotes)))
+  expect_true(any(grepl("Wilson score", res$footnotes)))
 })
 
 test_that("add_proportion() adds proportion row to grouped descriptive table", {
-  res <- descriptive_table(mtcars, by = am) |>
+  res <- summary_table(mtcars, by = am) |>
     add_proportion(var = vs)
 
   expect_s3_class(res, "gt_desc_table")
@@ -19,7 +19,7 @@ test_that("add_proportion() adds proportion row to grouped descriptive table", {
 })
 
 test_that("add_proportion() adds proportion row to grouped table with overall", {
-  res <- descriptive_table(mtcars, by = am, overall = TRUE) |>
+  res <- summary_table(mtcars, by = am, overall = TRUE) |>
     add_proportion(var = vs)
 
   expect_s3_class(res, "gt_desc_table")
@@ -28,7 +28,7 @@ test_that("add_proportion() adds proportion row to grouped table with overall", 
 })
 
 test_that("add_proportion() accepts character variable name", {
-  res <- descriptive_table(mtcars, by = am) |>
+  res <- summary_table(mtcars, by = am) |>
     add_proportion(var = "vs")
 
   expect_s3_class(res, "gt_desc_table")
@@ -36,7 +36,7 @@ test_that("add_proportion() accepts character variable name", {
 })
 
 test_that("add_proportion() supports explicit level", {
-  res <- descriptive_table(mtcars, by = am) |>
+  res <- summary_table(mtcars, by = am) |>
     add_proportion(var = vs, level = "1")
 
   expect_s3_class(res, "gt_desc_table")
@@ -44,23 +44,36 @@ test_that("add_proportion() supports explicit level", {
 })
 
 test_that("add_proportion() supports custom label", {
-  res <- descriptive_table(mtcars, by = am) |>
+  res <- summary_table(mtcars, by = am) |>
     add_proportion(var = vs, label = "Engine shape")
 
   expect_s3_class(res, "gt_desc_table")
   expect_true(any(grepl("^Engine shape", res$table$Variable)))
 })
 
+test_that("add_proportion() validates a custom label", {
+  builder <- summary_table(mtcars, by = am)
+
+  expect_error(
+    add_proportion(builder, var = vs, label = ""),
+    "single non-empty"
+  )
+  expect_error(
+    add_proportion(builder, var = vs, label = c("Smoking", "status")),
+    "single non-empty"
+  )
+})
+
 test_that("add_proportion() supports ci = FALSE", {
-  res <- descriptive_table(mtcars, by = am) |>
+  res <- summary_table(mtcars, by = am) |>
     add_proportion(var = vs, ci = FALSE)
 
   expect_s3_class(res, "gt_desc_table")
-  expect_true(any(grepl("Proportions are shown as %\\.", res$footnotes)))
+  expect_true(any(grepl("Selected event", res$footnotes)))
 })
 
 test_that("add_proportion() works for categorical variable", {
-  res <- descriptive_table(mtcars, by = am) |>
+  res <- summary_table(mtcars, by = am) |>
     add_proportion(var = cyl)
 
   expect_s3_class(res, "gt_desc_table")
@@ -68,7 +81,7 @@ test_that("add_proportion() works for categorical variable", {
 })
 
 test_that("add_proportion() chooses level automatically for binary variable", {
-  res <- descriptive_table(mtcars, by = am) |>
+  res <- summary_table(mtcars, by = am) |>
     add_proportion(var = vs)
 
   expect_s3_class(res, "gt_desc_table")
@@ -76,7 +89,7 @@ test_that("add_proportion() chooses level automatically for binary variable", {
 })
 
 test_that("add_proportion() can be followed by tbl_stats()", {
-  gt_obj <- descriptive_table(mtcars, by = am, overall = TRUE) |>
+  gt_obj <- summary_table(mtcars, by = am, overall = TRUE) |>
     add_proportion(var = vs) |>
     tbl_stats()
 
@@ -91,7 +104,7 @@ test_that("add_proportion() errors if x is not gt_desc_table", {
 })
 
 test_that("add_proportion() errors in non-summary mode", {
-  res <- descriptive_table(mtcars, by = am, mode = "rate")
+  res <- summary_table(mtcars, by = am, mode = "rate")
 
   expect_error(
     add_proportion(res, var = vs),
@@ -100,7 +113,7 @@ test_that("add_proportion() errors in non-summary mode", {
 })
 
 test_that("add_proportion() errors if variable is missing", {
-  res <- descriptive_table(mtcars, by = am)
+  res <- summary_table(mtcars, by = am)
 
   expect_error(
     add_proportion(res, var = not_a_var),
@@ -109,7 +122,7 @@ test_that("add_proportion() errors if variable is missing", {
 })
 
 test_that("add_proportion() errors for continuous variable", {
-  res <- descriptive_table(mtcars, by = am)
+  res <- summary_table(mtcars, by = am)
 
   expect_error(
     add_proportion(res, var = mpg),
@@ -118,7 +131,7 @@ test_that("add_proportion() errors for continuous variable", {
 })
 
 test_that("add_proportion() errors when requested level is absent", {
-  res <- descriptive_table(mtcars, by = am)
+  res <- summary_table(mtcars, by = am)
 
   expect_error(
     add_proportion(res, var = vs, level = "not_a_level"),
@@ -132,10 +145,42 @@ test_that("add_proportion() errors when variable has no non-missing values", {
     grp = c("a", "a", "b")
   )
 
-  res <- descriptive_table(df, by = grp)
+  res <- summary_table(df, by = grp)
 
   expect_error(
     add_proportion(res, var = x),
     regexp = "has no non-missing values"
   )
+})
+
+test_that("add_proportion() validates confidence level and digits", {
+  builder <- summary_table(mtcars)
+
+  expect_error(
+    add_proportion(builder, var = vs, conf.level = 2),
+    "between 0 and 1"
+  )
+  expect_error(
+    add_proportion(builder, var = vs, digits = 1.5),
+    "whole number"
+  )
+})
+
+test_that("add_proportion() shares interval and display choices", {
+  wilson <- summary_table(mtcars) |>
+    add_proportion(vs, ci_method = "wilson", display = "n_percent")
+  exact <- summary_table(mtcars) |>
+    add_proportion(
+      vs,
+      ci_method = "exact",
+      display = "n_over_N_percent"
+    )
+  percent <- summary_table(mtcars) |>
+    add_proportion(vs, display = "percent", ci = FALSE)
+
+  expect_match(wilson$table$Value, "^14 \\(43.8%\\)")
+  expect_match(exact$table$Value, "^14/32 \\(43.8%\\)")
+  expect_match(exact$footnotes, "exact binomial")
+  expect_match(exact$footnotes, "range after the semicolon")
+  expect_identical(percent$table$Value, "43.8%")
 })

@@ -18,11 +18,11 @@ The input object, invisibly.
 Print a compact console preview of a \code{gt_twobytwo} object.
 }
 \details{
-The print method shows the dataset name, exposure definition,
-outcome definition, and the display-ready 2x2 epidemiology table.
+The print method shows the dataset name, row/reference definition,
+column/event definition, and the display-ready 2x2 epidemiology table.
 }
 \examples{
-x <- twobytwo_table(mtcars, exposure = am, outcome = vs)
+x <- crosstabs(mtcars, row = am, col = vs)
 print(x)
 
 }

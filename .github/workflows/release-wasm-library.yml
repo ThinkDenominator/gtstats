@@ -1,0 +1,16 @@
+# Build a mountable webR library image whenever a GitHub release is published.
+# The release assets are library.data and library.js.metadata. Copy them to the
+# workshop site's vfs/ directory during deployment (e.g. Netlify or GitHub Pages).
+name: Build webR library image
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  release-file-system-image:
+    uses: r-wasm/actions/.github/workflows/release-file-system-image.yml@v1
+    permissions:
+      contents: write
+      repository-projects: read

@@ -19,38 +19,41 @@ library(gtstats)
 
 ## Overview
 
-Once you have built a table with the `descriptive_table()` workflow and rendered it with `tbl_stats()`, two functions handle the final presentation step:
+Once you have built a table with the `summary_table()` workflow and rendered it with `tbl_stats()`, two functions handle the final presentation step:
 
-- **`style_table()`** — applies a theme, adds titles, and relabels columns, rows, and factor levels.
+- **`customise_table()`** — applies a theme, adds titles, and relabels columns, rows, and factor levels.
 - **`to_flextable()`** — converts the table to a `flextable` object for Word output.
 
 ---
 
-## style_table()
+## customise_table()
 
-`style_table()` takes the `gt` object returned by `tbl_stats()` and layers on styling. Start with a theme and add options as needed.
+`customise_table()` accepts either the original `gtstats` result or a
+rendered `gt` table. For routine use, pass the result directly and let the
+function render and style it in one step.
 
 ```{r base-table}
-tbl <- descriptive_table(mtcars, by = am, overall = TRUE) |>
+res <- summary_table(mtcars, by = am, overall = TRUE) |>
   add_summary(vars = c(mpg, wt, cyl)) |>
   add_proportion(var = vs) |>
   add_total() |>
-  add_p() |>
-  tbl_stats()
+  add_p()
+
+tbl <- tbl_stats(res)
 ```
 
 ### Themes
 
 ```{r journal}
-style_table(tbl, theme = "journal")
+customise_table(tbl, theme = "journal")
 ```
 
 ```{r minimal}
-style_table(tbl, theme = "minimal")
+customise_table(tbl, theme = "minimal")
 ```
 
 ```{r compact}
-style_table(tbl, theme = "compact")
+customise_table(tbl, theme = "compact")
 ```
 
 | Theme | Best for |
@@ -61,12 +64,24 @@ style_table(tbl, theme = "compact")
 | `"minimal"` | Slide decks, dashboards, modern reports |
 | `"compact"` | Dense tables where space is limited |
 
+The font and table width can also be controlled directly:
+
+```{r font-width}
+customise_table(
+  res,
+  theme = "journal",
+  font = "Arial",
+  font_size = 11,
+  width = 90
+)
+```
+
 ---
 
 ### Titles and notes
 
 ```{r titles}
-style_table(
+customise_table(
   tbl,
   theme       = "journal",
   title       = "Table 1. Baseline characteristics",
@@ -82,7 +97,7 @@ style_table(
 Supply a named character vector — `"internal_name" = "Display label"`. Column names in `gtstats` tables follow the pattern `"am = 1"`, `"am = 0"`, `"Overall"`, `"Level"`.
 
 ```{r col-labels}
-style_table(
+customise_table(
   tbl,
   theme      = "journal",
   col_labels = c(
@@ -101,7 +116,7 @@ style_table(
 Supply a named vector where names are the current row label values and values are the replacement labels.
 
 ```{r row-labels}
-style_table(
+customise_table(
   tbl,
   theme      = "journal",
   row_labels = c(
@@ -121,7 +136,7 @@ style_table(
 Use `level_labels` to rename values that appear in the `Level` column of the rendered table.
 
 ```{r level-labels}
-style_table(
+customise_table(
   tbl,
   level_labels = c(
     "4" = "4-cylinder",
@@ -138,7 +153,7 @@ style_table(
 Apply a brand or journal colour to the table borders:
 
 ```{r accent}
-style_table(tbl, theme = "journal", accent_color = "#123B7A")
+customise_table(tbl, theme = "journal", accent_color = "#123B7A")
 ```
 
 ---
@@ -146,7 +161,7 @@ style_table(tbl, theme = "journal", accent_color = "#123B7A")
 ### Row striping
 
 ```{r stripe}
-style_table(tbl, row_striping = TRUE, stripe_color = "#F0F4F8")
+customise_table(tbl, row_striping = TRUE, stripe_color = "#F0F4F8")
 ```
 
 ---
@@ -154,13 +169,13 @@ style_table(tbl, row_striping = TRUE, stripe_color = "#F0F4F8")
 ### A fully styled table
 
 ```{r full-style}
-descriptive_table(mtcars, by = am, overall = TRUE) |>
+summary_table(mtcars, by = am, overall = TRUE) |>
   add_summary(vars = c(mpg, wt, cyl)) |>
   add_proportion(var = vs) |>
   add_total() |>
   add_p() |>
   tbl_stats() |>
-  style_table(
+  customise_table(
     theme        = "journal",
     title        = "Table 1. Baseline characteristics by transmission type",
     source_note  = "SD = standard deviation; IQR = interquartile range; CI = confidence interval.",
@@ -193,13 +208,18 @@ descriptive_table(mtcars, by = am, overall = TRUE) |>
 `to_flextable()` converts a `gt_desc_table` object — the object **before** `tbl_stats()` — into a `flextable`. This is the recommended path for Word output via R Markdown or Quarto.
 
 ```{r flextable}
-res <- descriptive_table(mtcars, by = am, overall = TRUE) |>
+res <- summary_table(mtcars, by = am, overall = TRUE) |>
   add_summary(vars = c(mpg, wt, cyl)) |>
   add_proportion(var = vs) |>
   add_total() |>
   add_p()
 
-ft <- to_flextable(res)
+ft <- to_flextable(
+  res,
+  font = "Arial",
+  font_size = 10,
+  show_footnotes = TRUE
+)
 ft
 ```
 
@@ -213,10 +233,11 @@ gtstats provides simple helpers to export tables and plots for reports, presenta
 
 You can save either a `gtstats` object or a rendered `gt_tbl`.
 
-If a `gtstats` object is supplied, `save_table()` will internally render it using `tbl_stats()`.
+If a `gtstats` object is supplied, `save_output()` internally renders it
+using `tbl_stats()`.
 
 ```{r}
-res <- descriptive_table(mtcars, by = am, overall = TRUE) |>
+res <- summary_table(mtcars, by = am, overall = TRUE) |>
   add_summary(vars = c(mpg, wt, cyl)) |>
   add_proportion(var = vs) |>
   add_total() |>
@@ -226,7 +247,7 @@ res <- descriptive_table(mtcars, by = am, overall = TRUE) |>
 Save directly from the gtstats object:
 
 ```{r}
-save_table(res, "table1.html")
+save_output(res, "table1.html")
 ```
 
 
@@ -235,26 +256,26 @@ Save from a pre-rendered gt object:
 ```{r}
 gt_obj <- tbl_stats(res)
 
-save_table(gt_obj, "table1.png")
+save_output(gt_obj, "table1.png")
 ```
 
-Supported formats include:
-	•	"html"
-	•	"png"
-	•	"pdf"
-	•	"tiff"
+Supported table formats are HTML, PNG, PDF, RTF, LaTeX (`.tex`), and DOCX.
+A simple filename saves in the current working directory. A relative or full
+filename can be supplied when the destination is elsewhere:
 
-Files are written to a temporary directory by default. A message will display the saved file path.
+```{r}
+save_output(res, "results/table1.docx")
+```
 
 ### Save a plot
 
-Plots created with plot_compare() can be saved using save_plot().
+Plots created with `plot_compare()` can be saved using `save_output()`.
 
 ```{r}
 p <- plot_compare(
   mtcars,
   outcome = mpg,
-  group = am,
+  by = am,
   show_p = TRUE
 )
 
@@ -264,12 +285,12 @@ p
 
 Save the plot:
 ```{r}
-save_plot(p, "mpg_by_am.png")
+save_output(p, "mpg_by_am.png")
 ```
 
 You can control output size and resolution:
 ```{r}
-save_plot(
+save_output(
   p,
   "mpg_by_am_highres.png",
   width = 7,
@@ -283,6 +304,7 @@ save_plot(
 
 ## Tips
 
-- `style_table()` only works on the `gt` object returned by `tbl_stats()`.
-- `to_flextable()` works on the `gt_desc_table` object, **not** on the gt output. Call it before `tbl_stats()`.
+- `customise_table()` accepts either the original result or the `gt`
+  object returned by `tbl_stats()`.
+- `to_flextable()` works on the original `gtstats` object, **not** on the gt output. Call it before `tbl_stats()`.
 - For the most control over Word output, combine `to_flextable()` with `flextable`'s own formatting functions.

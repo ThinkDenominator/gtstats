@@ -1,0 +1,334 @@
+---
+title: "Function options"
+description: "A quick, practical reference for every gtstats function."
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Function options}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+```
+
+# Function options at a glance
+
+This guide is the practical companion to the reference pages. Every exported
+`gtstats` function appears below. The tables distinguish required inputs from
+optional controls, state the default, list available choices, and explain what
+each option changes. Use the linked reference page for validation details and
+worked examples.
+
+All examples below use the built-in labelled birth-weight teaching data:
+
+```r
+data("birthwt", package = "gtstats")
+birthwt_data <- birthwt
+```
+
+## 1. Understand the data
+
+### `describe_data()`
+
+| Option | Default / available choices | What it changes |
+|---|---|---|
+| `data` | required | Data frame to inspect |
+| `vars` | `NULL`: all variables | Restrict the overview to selected variables |
+| `digits` | `2` | Precision for displayed numeric values |
+| `output` | `"table"`; also `"tibble"` | Choose the display table or underlying data |
+
+```r
+describe_data(birthwt_data, vars = c("age", "smoke"))
+```
+
+### `assess_distribution()`
+
+| Option | Default / available choices | What it changes |
+|---|---|---|
+| `data`, `vars` | `vars = NULL`: all eligible continuous variables | Select the continuous variables to assess |
+| `by` | `NULL` | Assess each continuous variable within groups |
+| `normality_test` | `TRUE` | Include Shapiro-Wilk p-values as supporting information |
+| `skew_cutoff` | `1` | Absolute skewness at which marked skew is flagged |
+| `min_n` | `3` | Minimum usable observations for a distribution assessment |
+| `plots` | `FALSE` | Return histogram, density, Q-Q, and boxplot diagnostics |
+| `digits` | `2` | Display precision |
+| `output` | `"table"`; also `"tibble"` | Choose formatted table or underlying data |
+
+```r
+assess_distribution(birthwt_data, vars = c(age, lwt), by = low)
+```
+
+### `assess_variance()`
+
+| Option | Default / available choices | What it changes |
+|---|---|---|
+| `data`, `by` | required | Supply data and the categorical grouping variable |
+| `vars` | `NULL`: all eligible continuous variables | Restrict variables to inspect |
+| `digits` | `2` | SD, variance, and ratio precision |
+| `output` | `"table"`; also `"tibble"` | Choose formatted table or underlying data |
+
+`assess_variance()` reports group SDs, variances, and largest/smallest ratios.
+They are descriptive diagnostics, not pass/fail tests: Welch t-tests and Welch
+ANOVA do not require equal variances, and this function never selects a test.
+
+```r
+assess_variance(birthwt_data, vars = c(age, lwt), by = low)
+```
+
+## 2. Describe and compare
+
+### `summary_table()`
+
+| Option | Default / available choices | What it changes |
+|---|---|---|
+| `data` | required | Data frame to summarise |
+| `by` | `NULL` | Create one column per observed group |
+| `include` | `NULL` | Build the table immediately from selected variables; omit for an empty builder |
+| `mode` | `"summary"`; also `"rate"` | Choose a descriptive Table 1 or a rate-only builder |
+| `overall` | `FALSE`; `TRUE`/`"first"`/`"last"` | Add an Overall column and choose its position |
+| `statistic` | `"recommended"`; `"mean_sd"`, `"mean_ci"`, `"median_iqr"`, `"both"` | Continuous-variable presentation; may be named by variable |
+| `categorical` | `"n_percent"`; `"n_over_N_percent"`, `"n"`, `"percent"` | Categorical cell display |
+| `percent` | `"column"`; `"row"`, `"overall"` | Denominator used for categorical percentages |
+| `digits` | `1`, or named `continuous`, `percent`, `ci` values | Global display precision |
+| `missing` | `"ifany"`; `"always"`, `"no"` | Show missing rows only when needed, always, or never |
+| `ci`, `conf.level` | `FALSE`, `0.95` | Add exact binomial CIs to every categorical level |
+| `label` | `NULL` | Named replacement labels for source variables |
+
+```r
+summary_table(
+  birthwt_data, by = low, include = c(age, smoke), overall = "last",
+  statistic = "mean_ci", categorical = "n_over_N_percent"
+)
+```
+
+### Table-building helpers
+
+#### `add_summary()`
+
+| Option | Default / available choices | What it changes |
+|---|---|---|
+| `vars` | required | Variables added to an empty or existing summary builder |
+| `continuous_format` / `statistic` | `"recommended"`; `"mean_sd"`, `"mean_ci"`, `"median_iqr"`, `"both"` | Continuous-variable display; `statistic` can be named by variable |
+| `categorical` | `"n_percent"`; `"n_over_N_percent"`, `"n"`, `"percent"` | Categorical cell display |
+| `percent` | `"column"`; `"row"`, `"overall"`, `"none"` | Percentage denominator, or counts only |
+| `ci`, `conf.level` | `FALSE`, `0.95` | Add exact binomial CI to all categorical levels |
+| `missing` | `"ifany"`; `"always"`, `"no"` | Missing-row display |
+| `digits` | `1`, or named precision | Continuous, percentage, and CI precision |
+
+#### Specialist and structural helpers
+
+| Function | Option | Default / available choices | What it changes |
+|---|---|---|---|
+| `add_proportion()` | `var`, `level` | `var` required; automatic target level if omitted | Adds one selected event prevalence row |
+|  | `ci`, `conf.level`, `ci_method` | `TRUE`, `0.95`, `"wilson"`; also `"exact"` | Event CI method and confidence level |
+|  | `display` | `"n_percent"`; `"percent"`, `"n_over_N_percent"` | Specialist row cell display |
+|  | `label`, `digits` | variable label, `1` | Row label and precision |
+| `add_rate()` | `event`, `time` | required | Event-count and person-time variables in `mode = "rate"` |
+|  | `multiplier`, `time_label` | `1000`, `"person-time"` | Rate scale and readable time unit |
+|  | `ci`, `conf.level`, `digits`, `label` | `TRUE`, `0.95`, `1`, automatic | Exact Poisson CI, precision, and label |
+| `add_total()` | `label`, `position` | `"Total (N)"`; `"last"` or `"first"` | One cohort-size row; headers already show N |
+| `add_row()` | `label` | required | Free-text row label |
+|  | `overall`, `values`, `level` | `NULL`, named group values, `""` | Values for Overall/group columns and an optional Level entry |
+| `add_p()` | `method` | `"auto"`; named per-variable methods allowed | Automatic or explicit test choice |
+|  | `paired`, `id` | `FALSE`, `NULL` | Paired analysis and participant identifier |
+|  | `normality_check`, `var_equal`, `correction` | `TRUE`, `FALSE`, `TRUE` | Auto distribution guidance, equal-variance t-test choice, and continuity correction |
+|  | `p_adjust` | `"none"`; all `stats::p.adjust.methods` | Multiplicity-adjust displayed p-values |
+|  | `digits` | `3` | P-value precision |
+
+```r
+summary_table(birthwt_data, by = low, overall = TRUE) |>
+  add_summary(vars = c(age, smoke)) |>
+  add_proportion(var = smoke, level = "Yes", ci = TRUE) |>
+  add_p()
+```
+
+### `compare_groups()`
+
+| Option | Default / available choices | What it changes |
+|---|---|---|
+| `data`, `variable`, `group` | required | State one outcome variable and the categorical comparison group |
+| `test` | `"auto"`; `"t_test"`, `"welch_t"`, `"wilcox"`, `"anova"`, `"welch_anova"`, `"kruskal"`, `"chisq"`, `"fisher"`, `"mcnemar"` | Automatic selection or an explicit valid test |
+| `paired`, `id` | `FALSE`, `NULL` | Analyse repeated measurements; `id` is required when paired |
+| `effect_size` | `FALSE` | Add a compatible effect-size estimate to the result |
+| `conf.level`, `digits` | `0.95`, `2` | Interval confidence and display precision |
+| `...` | optional | Advanced controls used by the selected method |
+
+```r
+compare_groups(birthwt_data, variable = lwt, group = low, test = "welch_t")
+```
+
+### `effect_size()`
+
+| Option | Default / available choices | What it changes |
+|---|---|---|
+| `data`, `outcome`, `by` | required | Variable and categorical group to compare |
+| `method` | `"auto"`; `"hedges_g"`, `"rank_biserial"`, `"omega_squared"`, `"epsilon_squared"`, `"cramers_v"` | Effect measure; auto chooses from design/type |
+| `paired`, `id` | `FALSE`, `NULL` | Paired effect-size calculation; `id` required when paired |
+| `conf.level`, `digits` | `0.95`, `2` | Interval confidence and display precision |
+| `interpretation` | `FALSE` | Add conventional magnitude labels; do not treat as clinical importance |
+
+### `correlation()`
+
+| Option | Default / available choices | What it changes |
+|---|---|---|
+| `data`, `x`, `y` | required | Two continuous variables; complete finite pairs are analysed |
+| `method` | `"auto"`; `"pearson"`, `"spearman"` | Correlation method |
+| `conf.level`, `digits` | `0.95`, `2` | Interval confidence and display precision |
+
+```r
+correlation(birthwt_data, x = age, y = bwt, method = "spearman")
+```
+
+## 3. Epidemiology
+
+### `proportion_stats()`
+
+| Option | Default / available choices | What it changes |
+|---|---|---|
+| `data`, `var` | required | Categorical/binary/ordinal variable and selected event prevalence |
+| `by` | `NULL` | Produce one prevalence estimate per group |
+| `level` | automatic target event | Explicitly choose the event level; recommended for clinical outcomes |
+| `ci_method` | `"wilson"`; also `"exact"` | Binomial CI method |
+| `display` | `"n_percent"`; `"percent"`, `"n_over_N_percent"` | Estimate display |
+| `conf.level`, `digits` | `0.95`, `1` | CI confidence and percentage precision |
+
+### `rate_stats()`
+
+| Option | Default / available choices | What it changes |
+|---|---|---|
+| `data`, `event`, `time` | required | Non-negative integer events and finite person-time |
+| `by` | `NULL` | Calculate a separate rate for each group |
+| `multiplier`, `time_label` | `1000`, `"person-time"` | Scale and name the reported rate |
+| `conf.level`, `digits` | `0.95`, `1` | Exact Poisson CI confidence and precision |
+
+```r
+proportion_stats(birthwt_data, var = smoke, by = low, level = "Yes")
+```
+
+### `crosstabs()`
+
+| Option | Default / available choices | What it changes |
+|---|---|---|
+| `data`, `row`, `col` | required | Set exposure (rows) and outcome (columns) axes |
+| `percent` | `"column"`; `"row"`, `"total"`, `"none"`, or a vector | Cell percentages; a vector can show multiple percentages |
+| `totals` | `TRUE` | Include row/column margins |
+| `row_level`, `col_level` | automatic for 2x2 | Explicitly define exposed and event levels for RR/OR/RD direction |
+| `measures` | `c("rr", "or", "rd")`; also `"risk"` | Choose 2x2 measures; ignored for larger tables |
+| `conf.level`, `risk_ci` | `0.95`, `"wilson"`; also `"exact"` | Measure/risk interval confidence and method |
+| `test` | `"auto"`; `"none"`, `"chisq"`, `"fisher"` | Association-test selection |
+| `zero_correction` | `"haldane_anscombe"`; also `"none"` | Zero-cell treatment for ratio estimates |
+| `simulate_B`, `digits` | `10000`, `2` | Fisher simulation repetitions when needed and display precision |
+
+```r
+crosstabs(birthwt_data, row = smoke, col = low, percent = c("row", "column"))
+```
+
+## 4. Plots, inspection, and output
+
+### `plot_compare()`
+
+| Option | Default / available choices | What it changes |
+|---|---|---|
+| `data`, `outcome`, `by` | required | Outcome distribution or categorical composition by group |
+| `type` | `"auto"`; `"box"`, `"bar"` | Auto selects boxplots for continuous and bars for categorical outcomes |
+| `display` | `"proportion"`; also `"count"` | Bar-chart scale for categorical outcomes |
+| `paired`, `id` | `FALSE`, `NULL` | Connected paired continuous plot; `id` required when paired |
+| `show_points`, `show_p` | `TRUE`, `FALSE` | Overlay observations and add a test/p-value caption |
+| `test` | `"auto"` or any `compare_groups()` test | Test used only when `show_p = TRUE` |
+| `palette`, `base_size` | package palette, `14` | Colours and base text size |
+| `title`, `caption`, `xlab`, `ylab`, `legend_title` | `NULL` | Publication labels and annotation |
+
+### `plot_correlation()`
+
+| Option | Default / available choices | What it changes |
+|---|---|---|
+| `data`, `x`, `y` | required | Continuous variables to plot |
+| `method` | `"auto"`; `"pearson"`, `"spearman"` | Correlation shown/used for annotation |
+| `trend` | `"auto"`; `"linear"`, `"smooth"`, `"none"` | Fitted trend line type |
+| `show_ci`, `show_correlation` | `TRUE`, `FALSE` | Trend confidence band and correlation annotation |
+| `conf.level`, `digits` | `0.95`, `2` | Trend/correlation precision where relevant |
+| `point_color`, `line_color`, `base_size` | `"#4472C4"`, `"#ED7D31"`, `14` | Visual styling |
+| `title`, `caption`, `xlab`, `ylab` | `NULL` | Publication labels and annotation |
+
+`plot_compare()` uses complete observations for its displayed variables. For a
+continuous outcome, `NA`, `NaN`, and infinite values are excluded. When
+`show_p = TRUE`, the p-value is calculated from that same plotted analysis
+population, so the group Ns and annotation describe the same data.
+
+### Audit functions
+
+| Function | Option | Default / available choices | What it changes |
+|---|---|---|---|
+| `assumptions_stats()` | `output` | `"tibble"`; also `"gt"` | Return a data frame or a formatted audit table |
+|  | `view` | `"checklist"`; also `"audit"` | Plain-language action list or technical status/result codes |
+|  | `title`, `subtitle` | `"Checks before reporting"`, `NULL` | Heading when `output = "gt"` |
+| `diagnostics_stats()` | `output` | `"tibble"`; also `"gt"` | Return a data frame or formatted audit table |
+|  | `view` | `"readable"`; also `"audit"` | Plain-language headings or raw diagnostic fields |
+|  | `title`, `subtitle` | `"Diagnostics"`, `NULL` | Heading when `output = "gt"` |
+| `denominators_stats()` | `output` | `"tibble"`; also `"gt"` | Return a data frame or formatted denominator table |
+|  | `view` | `"readable"`; also `"audit"` | Reader-facing labels or raw denominator fields |
+|  | `title`, `subtitle` | `"Denominator audit"`, `NULL` | Heading when `output = "gt"` |
+
+### `tbl_stats()`
+
+| Option | Default / available choices | What it changes |
+|---|---|---|
+| `x` | required | A supported analytical/builder result to render as `gt` |
+| `title`, `subtitle` | `NULL` | Optional table heading |
+| `bold_labels`, `show_footnotes` | `TRUE`, `TRUE` | Variable-label emphasis and explanatory footnotes |
+| `digits`, `pvalue_style` | `NULL`; `"default"`/`"scientific"` | Reserved compatibility controls; set precision in the analysis function |
+
+### `customise_table()`
+
+| Option | Default / available choices | What it changes |
+|---|---|---|
+| `x` | required | A `gtstats` result or rendered `gt_tbl` |
+| `theme` | `"default"`; `"journal"`, `"classic"`, `"minimal"`, `"compact"` | Overall visual theme |
+| `title`, `subtitle`, `source_note` | `NULL` | Presentation heading and source note |
+| `col_labels`, `row_labels`, `level_labels` | `NULL` | Named vectors that relabel completed output without changing analysis |
+| `align`, `hide_cols`, `bold_cols`, `italic_cols` | `NULL` | Per-column layout/emphasis controls |
+| `font_size`, `font`, `width` | `NULL` | Typography and table width |
+| `row_striping`, `stripe_color`, `accent_color` | `NULL` | Alternating rows and colour accents |
+| `bold_labels`, `show_footnotes` | `TRUE`, `TRUE` | Controls used if a raw result must first be rendered |
+
+### `to_flextable()`
+
+| Option | Default / available choices | What it changes |
+|---|---|---|
+| `x` | required; original `gtstats` object | Converts for Word/PowerPoint; do not pass `tbl_stats()` output |
+| `font_size`, `font` | `10`, `NULL` | Office-table typography; font uses the Office default when omitted |
+| `autofit`, `show_footnotes` | `TRUE`, `TRUE` | Automatic widths and concise table notes |
+
+### `save_output()`
+
+| Option | Default / available choices | What it changes |
+|---|---|---|
+| `x`, `filename` | required | A `gtstats` table/`gt_tbl` or `ggplot`, plus filename with extension |
+| `path` | `NULL`: current working directory | Destination directory; relative/full filenames also work |
+| `title`, `subtitle`, `bold_labels`, `show_footnotes` | `NULL`, `NULL`, `TRUE`, `TRUE` | Rendering controls for raw table results |
+| `zoom`, `expand`, `vwidth`, `vheight` | `2`, `5`, `992`, `744` | PNG table-export browser sizing |
+| `width`, `height`, `units`, `dpi`, `bg` | `8`, `6`, `"in"`, `300`, `"white"` | Plot export size/resolution/background |
+| `quiet` | `FALSE` | Suppress the saved-path message |
+
+```r
+summary_table(birthwt_data, by = low, include = c(age, smoke)) |>
+  add_p() |>
+  customise_table(title = "Baseline characteristics") |>
+  save_output("table-1.html")
+```
+
+## The shortest useful workflow
+
+Most users need only this sequence:
+
+```r
+describe_data(birthwt_data)
+assess_distribution(birthwt_data, vars = c(age, lwt, bwt), by = low)
+summary_table(birthwt_data, by = low, include = c(age, lwt, smoke), overall = TRUE) |>
+  add_p()
+```
+
+Use the function-specific [reference](https://gtstats.thinkdenominator.com/reference/index.html) for validation
+rules and all arguments. The [descriptive-table guide](descriptive-tables.html)
+explains reporting choices in more depth.

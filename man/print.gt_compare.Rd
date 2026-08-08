@@ -15,15 +15,14 @@
 The input object, invisibly.
 }
 \description{
-Print a compact console preview of a \code{gt_compare} object.
+Print a publication-ready comparison table.
 }
 \details{
-The print method shows the dataset name, outcome, grouping variable,
-a brief descriptive summary, and the display-ready inferential
-results table.
+The print method renders the concise publication table. Detailed numerical
+results and audit information remain available in the object components.
 }
 \examples{
-x <- compare_groups(mtcars, outcome = mpg, group = am)
+x <- compare_groups(mtcars, variable = mpg, group = am)
 print(x)
 
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/print_methods.R
 \name{print.gt_desc_table}
 \alias{print.gt_desc_table}
-\title{Print a descriptive table builder}
+\title{Print a descriptive table}
 \usage{
 \method{print}{gt_desc_table}(x, ...)
 }
@@ -15,7 +15,9 @@
 The input object, invisibly.
 }
 \description{
-Print a compact console preview of a \code{gt_desc_table} object.
+Print a completed \code{gt_desc_table} as a publication-ready \code{gt} table.
+An empty builder instead prints a short instruction explaining how to add
+rows.
 }
 \details{
 The print method shows the table mode, source data, grouping status,
@@ -23,7 +25,7 @@ whether an overall column is requested, and the first few rows of the
 current table builder.
 }
 \examples{
-x <- descriptive_table(mtcars, by = am, overall = TRUE)
+x <- summary_table(mtcars, by = am, overall = TRUE)
 print(x)
 
 }

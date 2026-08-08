@@ -6,25 +6,22 @@
 \usage{
 compare_groups(
   data,
-  outcome,
+  variable,
   group,
   paired = FALSE,
-  test = c("auto", "t_test", "welch_t", "wilcox", "anova", "kruskal", "chisq", "fisher",
-    "mcnemar"),
-  normality_check = FALSE,
-  var_equal = FALSE,
-  correction = TRUE,
+  id = NULL,
+  test = c("auto", "t_test", "welch_t", "wilcox", "anova", "welch_anova", "kruskal",
+    "chisq", "fisher", "mcnemar"),
   effect_size = FALSE,
   conf.level = 0.95,
-  digits = 3,
-  output = c("table", "tibble", "both"),
-  quiet = FALSE
+  digits = 2,
+  ...
 )
 }
 \arguments{
 \item{data}{A data.frame.}
 
-\item{outcome}{Outcome variable. Can be supplied as a bare name or
+\item{variable}{Variable to compare. Can be supplied as a bare name or
 as a character string.}
 
 \item{group}{Grouping variable. Can be supplied as a bare name or as
@@ -34,29 +31,22 @@ a character string.}
 paired t-test, Wilcoxon signed-rank test, or McNemar test will be
 used where appropriate.}
 
+\item{id}{Pair or participant identifier required when \code{paired = TRUE}.
+Each identifier must occur at most once in each group.}
+
 \item{test}{Test to use. One of \code{"auto"}, \code{"t_test"}, \code{"welch_t"},
-\code{"wilcox"}, \code{"anova"}, \code{"kruskal"}, \code{"chisq"}, \code{"fisher"}, or
-\code{"mcnemar"}.}
+\code{"wilcox"}, \code{"anova"}, \code{"welch_anova"}, \code{"kruskal"}, \code{"chisq"},
+\code{"fisher"}, or \code{"mcnemar"}. See \strong{Automatic selection policy} for the
+exact rules used by \code{"auto"}.}
 
-\item{normality_check}{Logical; currently reserved for future
-versions.}
-
-\item{var_equal}{Logical; whether equal variances should be assumed
-for two-sample t-tests.}
-
-\item{correction}{Logical; whether continuity correction should be
-used for chi-square tests where relevant.}
-
-\item{effect_size}{Logical; whether effect size should be calculated
-where supported.}
+\item{effect_size}{Logical; calculate and display the effect size selected
+for the comparison structure. Default is \code{FALSE}.}
 
 \item{conf.level}{Confidence level for intervals.}
 
 \item{digits}{Number of decimal places for formatting.}
 
-\item{output}{Output style. Currently stored in the returned object.}
-
-\item{quiet}{Logical; suppress messages.}
+\item{...}{Reserved for internal package use.}
 }
 \value{
 A \code{gt_compare} object containing:
@@ -71,7 +61,7 @@ A \code{gt_compare} object containing:
 }
 }
 \description{
-Compare an outcome across groups using a practical set of common
+Compare a variable across groups using a practical set of common
 inferential tests.
 }
 \details{
@@ -99,35 +89,76 @@ Supported tests include:
 \item \code{"welch_t"}
 \item \code{"wilcox"}
 \item \code{"anova"}
+\item \code{"welch_anova"}
 \item \code{"kruskal"}
 \item \code{"chisq"}
 \item \code{"fisher"}
 \item \code{"mcnemar"}
 }
+\subsection{Automatic selection policy}{
 
-In \code{test = "auto"} mode:
+\code{test = "auto"} uses the following fixed, data-driven rules. These rules are
+intended as transparent defaults, not a substitute for a prespecified
+analysis plan.
 \itemize{
-\item continuous outcomes with 2 groups use a t-test or Welch t-test
-\item continuous outcomes with >2 groups use ANOVA
-\item categorical outcomes use chi-square or Fisher's exact test
-\item paired binary outcomes use McNemar test
+\item \strong{Continuous outcome, two independent groups:} Welch t-test, unless
+distribution guidance flags skewness in either group, then Wilcoxon
+rank-sum test.
+\item \strong{Continuous outcome, three or more independent groups:} Welch ANOVA,
+unless distribution guidance flags skewness in any group, then
+Kruskal-Wallis test.
+\item \strong{Paired continuous outcome:} paired t-test, unless distribution guidance
+flags skewness in the within-pair differences, then Wilcoxon signed-rank
+test.
+\item \strong{Ordinal outcome:} Wilcoxon rank-sum test for two groups or
+Kruskal-Wallis test for three or more groups.
+\item \strong{Independent binary or nominal categorical outcome:} Pearson chi-square
+test when every expected cell count is at least 5; Fisher's exact test
+otherwise.
+\item \strong{Paired binary outcome:} McNemar test.
 }
 
-When \code{effect_size = TRUE}, effect sizes are returned where supported.
+Distribution guidance uses the package's skewness assessment within each
+group (or within-pair differences). Shapiro-Wilk is supporting information;
+it does not by itself change the selected test. Automatic decisions, the
+values used, and the selected method are retained in \verb{$method},
+\verb{$diagnostics}, and \verb{$notes}.
+
+For independent continuous comparisons, \verb{$diagnostics} also reports the
+observed standard deviation and variance ratios across groups. These are
+descriptive context only: they have no pass/fail threshold and do not alter
+automatic test selection. Welch t-tests and Welch ANOVA do not require equal
+variances.
+
+When \code{effect_size = TRUE}, the function selects an effect size from the
+comparison structure:
+\itemize{
+\item Hedges' g for two-group parametric comparisons
+\item rank-biserial correlation for two-group rank comparisons
+\item omega-squared for ANOVA or Welch ANOVA
+\item epsilon-squared for Kruskal-Wallis comparisons
+\item Cramer's V for categorical contingency tables
+}
+
+Hedges' g is accompanied by a large-sample confidence interval. Other
+effect-size intervals are omitted unless a supported interval method is
+available. Conventional magnitude labels are retained in \code{inferential} for
+teaching but are not displayed as clinical importance thresholds.
+}
 }
 \examples{
-compare_groups(mtcars, outcome = mpg, group = am)
+compare_groups(mtcars, variable = mpg, group = am)
 
 compare_groups(
   mtcars,
-  outcome = mpg,
+  variable = mpg,
   group = am,
   effect_size = TRUE
 )
 
 compare_groups(
   mtcars,
-  outcome = vs,
+  variable = vs,
   group = am,
   test = "chisq",
   effect_size = TRUE
@@ -135,12 +166,12 @@ compare_groups(
 
 compare_groups(
   mtcars,
-  outcome = mpg,
+  variable = mpg,
   group = am,
   paired = FALSE,
   test = "welch_t"
 )
 
-tbl_stats(compare_groups(mtcars, outcome = mpg, group = am))
+tbl_stats(compare_groups(mtcars, variable = mpg, group = am))
 
 }

@@ -7,27 +7,54 @@
 add_summary(
   x,
   vars,
-  continuous_format = c("recommended", "mean_sd", "median_iqr", "both"),
+  continuous_format = c("recommended", "mean_sd", "mean_ci", "median_iqr", "both"),
+  statistic = NULL,
+  percent = c("column", "row", "overall", "none"),
+  categorical = c("n_percent", "n_over_N_percent", "n", "percent"),
+  ci = FALSE,
+  conf.level = 0.95,
+  missing = c("ifany", "always", "no"),
   digits = 1
 )
 }
 \arguments{
-\item{x}{A \code{gt_desc_table} object created with \code{\link[=descriptive_table]{descriptive_table()}}.}
+\item{x}{A \code{gt_desc_table} object created with \code{\link[=summary_table]{summary_table()}}.}
 
 \item{vars}{Variables to summarise. Can be supplied as bare names or as a
 character vector.}
 
 \item{continuous_format}{Format to use for continuous variables. One of
-\code{"recommended"}, \code{"mean_sd"}, \code{"median_iqr"}, or \code{"both"}.}
+\code{"recommended"}, \code{"mean_sd"}, \code{"mean_ci"}, \code{"median_iqr"}, or \code{"both"}.}
 
-\item{digits}{Number of decimal places used when formatting summaries.}
+\item{statistic}{Optional continuous summary selection. A single value
+applies to all selected continuous variables. A named character vector can
+select a different summary for each variable, for example
+\code{c(age = "mean_sd", bmi = "median_iqr")}. \code{"auto"} is accepted as an alias
+for \code{"recommended"}.}
+
+\item{percent}{Denominator for categorical percentages: \code{"column"} uses the
+non-missing denominator within each group, \code{"row"} distributes each level
+across groups, \code{"overall"} uses the overall non-missing denominator, and
+\code{"none"} displays counts only.}
+
+\item{categorical}{Display for categorical values: \code{"n_percent"},
+\code{"n_over_N_percent"}, \code{"n"}, or \code{"percent"}.}
+
+\item{ci}{Logical; append confidence intervals to categorical proportions.}
+
+\item{conf.level}{Confidence level for categorical proportion intervals.}
+
+\item{missing}{Whether explicit missing-value rows are shown: \code{"ifany"},
+\code{"always"}, or \code{"no"}.}
+
+\item{digits}{One number applied throughout, or a named numeric vector using
+\code{continuous}, \code{percent}, and \code{ci}.}
 }
 \value{
 An updated \code{gt_desc_table} object with summary rows added.
 }
 \description{
-Add summary statistics from \code{\link[=summary_stats]{summary_stats()}} to a \code{gtstats} descriptive
-table builder.
+Add summary statistics to a \code{gtstats} descriptive table builder.
 }
 \details{
 This function is the main way to populate a descriptive table with variable
@@ -39,6 +66,7 @@ Continuous variables can be displayed in one of four formats:
 \itemize{
 \item \code{"recommended"}: mean (SD) or median (IQR) as appropriate
 \item \code{"mean_sd"}: mean (SD)
+\item \code{"mean_ci"}: mean with a t confidence interval
 \item \code{"median_iqr"}: median (IQR)
 \item \code{"both"}: mean (SD) and median (IQR)
 }
@@ -48,13 +76,13 @@ Variable names may be supplied either as bare names, for example
 \code{c("age", "sex", "bmi")}.
 }
 \examples{
-descriptive_table(mtcars, by = am) |>
+summary_table(mtcars, by = am) |>
   add_summary(vars = c(mpg, wt, cyl))
 
-descriptive_table(mtcars, by = am, overall = TRUE) |>
+summary_table(mtcars, by = am, overall = TRUE) |>
   add_summary(vars = c("mpg", "wt", "cyl"))
 
-descriptive_table(mtcars) |>
+summary_table(mtcars) |>
   add_summary(vars = c(mpg, wt), continuous_format = "mean_sd")
 
 }
