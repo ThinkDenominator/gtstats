@@ -1,0 +1,238 @@
+# Epidemiology Helpers
+
+``` r
+
+library(gtstats)
+```
+
+## Overview
+
+gtstats includes three standalone helper functions aimed specifically at
+clinical and epidemiological analysis:
+
+| Function | Purpose |
+|----|----|
+| [`proportion_stats()`](https://gtstats.thinkdenominator.com/reference/proportion_stats.md) | Proportions with Wilson or exact confidence intervals |
+| [`rate_stats()`](https://gtstats.thinkdenominator.com/reference/rate_stats.md) | Event rates with exact Poisson confidence intervals |
+| [`crosstabs()`](https://gtstats.thinkdenominator.com/reference/crosstabs.md) | Publication-ready categorical cross-tabs; 2×2 tables also give RR, OR and RD |
+
+All three follow the same pattern: pass in your data frame, name the
+relevant variables, and optionally supply a grouping variable with
+`by =`. Pipe to
+[`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md)
+for a formatted `gt` table.
+
+------------------------------------------------------------------------
+
+## proportion_stats() — Proportions
+
+[`proportion_stats()`](https://gtstats.thinkdenominator.com/reference/proportion_stats.md)
+calculates the proportion of a selected level together with a Wilson
+score confidence interval by default. Exact binomial intervals remain
+available with `ci_method = "exact"`.
+
+``` r
+
+# Overall proportion
+proportion_stats(mtcars, var = vs)
+```
+
+``` r
+
+# Grouped by transmission type
+proportion_stats(mtcars, var = vs, by = am)
+```
+
+``` r
+
+# Pin to a specific level
+proportion_stats(mtcars, var = vs, by = am, level = "1")
+```
+
+``` r
+
+tbl_stats(proportion_stats(mtcars, var = vs, by = am))
+```
+
+### In a descriptive table
+
+[`add_proportion()`](https://gtstats.thinkdenominator.com/reference/add_proportion.md)
+embeds the same calculation inside the table builder:
+
+``` r
+
+summary_table(mtcars, by = am, overall = TRUE) |>
+  add_proportion(var = vs, level = "1", ci = TRUE) |>
+  add_total() |>
+  tbl_stats()
+```
+
+------------------------------------------------------------------------
+
+## rate_stats() — Event rates
+
+[`rate_stats()`](https://gtstats.thinkdenominator.com/reference/rate_stats.md)
+divides the total number of events by the total person-time and
+multiplies by a chosen denominator (e.g. 1 000 person-years). Confidence
+intervals are calculated using the exact Poisson method.
+
+``` r
+
+df <- data.frame(
+  event = c(1, 0, 1, 0, 1, 1),
+  ptime = c(10, 12, 8, 9, 11, 7),
+  arm   = c("A", "A", "A", "B", "B", "B")
+)
+```
+
+``` r
+
+# Overall rate
+rate_stats(df, event = event, time = ptime)
+```
+
+``` r
+
+# Grouped by study arm
+rate_stats(df, event = event, time = ptime, by = arm)
+```
+
+``` r
+
+rate_stats(df, event = event, time = ptime, by = arm) |>
+  tbl_stats()
+```
+
+### In a descriptive table
+
+[`add_rate()`](https://gtstats.thinkdenominator.com/reference/add_rate.md)
+embeds rate rows in the table builder:
+
+``` r
+
+summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
+  add_rate(
+    event      = carb,
+    time       = cyl,
+    label      = "Carburettor rate (per 1 000)",
+    multiplier = 1000
+  ) |>
+  tbl_stats()
+```
+
+------------------------------------------------------------------------
+
+## crosstabs() — categorical tables and 2×2 epidemiology
+
+[`crosstabs()`](https://gtstats.thinkdenominator.com/reference/crosstabs.md)
+takes any two categorical variables. When both are binary, `row` defines
+the exposure/reference axis and `col` the outcome/event axis, so risks
+and ratios retain an explicit direction. The 2×2 output additionally
+calculates:
+
+- Risk in the exposed and unexposed groups, with Wilson 95% CIs
+- Risk ratio (RR) with 95% CI
+- Risk difference with a Newcombe hybrid-score CI
+- An automatically selected association test: Fisher’s exact test when
+  expected counts are sparse, otherwise the chi-squared test
+
+It also supports any categorical table size. By default cells show `n`
+and column percentages, with row/column/grand totals. Use
+`percent = "row"` for within-row outcome frequencies, or
+`percent = c("row", "column")` when both denominators are useful in an
+exploratory or supplementary table.
+
+``` r
+
+crosstabs(mtcars, row = cyl, col = am)
+crosstabs(mtcars, row = cyl, col = gear, percent = c("row", "column"))
+```
+
+For tables larger than 2×2, the footer reports the association test and
+Cramér’s V. Risk ratio, odds ratio, and risk difference are
+intentionally only available for a binary 2×2 contrast.
+
+The odds ratio is available when it is the effect measure the study
+needs, but is deliberately not part of the routine default.
+
+``` r
+
+crosstabs(mtcars, row = am, col = vs)
+```
+
+``` r
+
+tbl_stats(crosstabs(mtcars, row = am, col = vs))
+```
+
+Choose the direction explicitly when the coding or factor order does not
+express the scientific question:
+
+``` r
+
+crosstabs(
+  mtcars,
+  row = am,
+  col = vs,
+  row_level = 1,
+  col_level = 1
+)
+```
+
+Whether levels are supplied or selected automatically, inspect
+`result$inputs$row_level` and `result$inputs$col_level` before reporting
+a 2×2 measure. The audit retains the selected exposure/event direction,
+expected-count rule, zero-cell strategy, and complete-pair denominators
+while the publication table stays concise.
+
+For a case-control analysis, request the odds ratio. The association
+test can also be omitted when the table is intended to report effects
+and confidence intervals only:
+
+``` r
+
+crosstabs(
+  mtcars,
+  row = am,
+  col = vs,
+  measures = "or",
+  test = "none"
+)
+```
+
+When a cell is zero, log-scale ratio intervals use the Haldane–Anscombe
+correction by default. The strategy is explicit and configurable:
+
+``` r
+
+crosstabs(
+  mtcars,
+  row = am,
+  col = vs,
+  zero_correction = "none"
+)
+```
+
+Without correction, an infinite or zero ratio may be reported and its
+log-scale confidence interval may be unavailable.
+
+------------------------------------------------------------------------
+
+## Tips
+
+- Use `risk_ci = "exact"` when an exact binomial interval is required by
+  the reporting convention; Wilson is the routine default.
+- `test = "auto"` checks expected counts and chooses Fisher’s exact test
+  for a sparse table.
+- [`proportion_stats()`](https://gtstats.thinkdenominator.com/reference/proportion_stats.md),
+  [`rate_stats()`](https://gtstats.thinkdenominator.com/reference/rate_stats.md),
+  and
+  [`crosstabs()`](https://gtstats.thinkdenominator.com/reference/crosstabs.md)
+  all return structured objects that can be rendered with
+  [`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md)
+  or inspected as plain lists.
+- Inside a descriptive table, use
+  [`add_proportion()`](https://gtstats.thinkdenominator.com/reference/add_proportion.md)
+  and
+  [`add_rate()`](https://gtstats.thinkdenominator.com/reference/add_rate.md)
+  rather than standalone helpers to keep everything in one table.

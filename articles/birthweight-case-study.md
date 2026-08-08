@@ -1,0 +1,128 @@
+# Birth-weight case study: from data to Table 1
+
+## From raw clinical codes to a report-ready table
+
+This case study shows the intended gtstats workflow. A maternity team
+wants to describe participants by low-birth-weight outcome, understand
+the continuous variables, and produce a Table 1. The example uses the
+labelled birth-weight teaching dataset included with gtstats.
+
+### 1. Prepare readable data
+
+``` r
+
+library(gtstats)
+data("birthwt", package = "gtstats")
+birthwt_data <- birthwt
+```
+
+The built-in data keep the original code names but supply readable
+variable labels and factors. `antenatal_visits` is explicitly ordered;
+numeric clinical codes are not silently treated as ordinal merely
+because their values are ordered.
+
+### 2. Start with the data, not a test
+
+``` r
+
+overview <- describe_data(birthwt_data)
+overview
+overview$issues
+```
+
+[`describe_data()`](https://gtstats.thinkdenominator.com/reference/describe_data.md)
+is the first pass. It reports type, completeness, levels or range, and a
+short type-specific overview. It does not decide a statistical test.
+
+### 3. Assess selected continuous variables
+
+``` r
+
+distribution <- assess_distribution(
+  birthwt_data,
+  vars = c(age, lwt),
+  by = low
+)
+distribution
+distribution$recommendations
+```
+
+The first table retains group-specific diagnostics. The recommendation
+table gives one reporting approach per variable, so the same summary can
+be used across Table 1 groups. Shapiro-Wilk is supporting information,
+not a rule for choosing an inferential test. Use `plots = TRUE` when a
+histogram, density, Q-Q plot, and boxplot are useful.
+
+[`assess_variance()`](https://gtstats.thinkdenominator.com/reference/assess_variance.md)
+provides the related spread diagnostic. It reports group SDs, variances,
+and ratios without using a variance test to gatekeep Welch methods.
+
+``` r
+
+variance <- assess_variance(birthwt_data, vars = c(age, lwt), by = low)
+variance
+```
+
+### 4. Build Table 1
+
+``` r
+
+table_one <- summary_table(
+  birthwt_data,
+  by = low,
+  include = c(age, lwt, race, smoke, ht, ui,
+              previous_preterm, antenatal_visits),
+  overall = "first"
+) |>
+  add_p()
+
+table_one
+```
+
+This is already a publication-ready default. You do not need
+[`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md)
+to see the table. Use it only when you want a `gt` object to modify or
+export.
+
+``` r
+
+table_one |>
+  tbl_stats(title = "Participant characteristics by birth-weight outcome") |>
+  customise_table(theme = "journal") |>
+  save_output("table-1.docx")
+```
+
+### 5. Ask a focused inferential question
+
+``` r
+
+weight_comparison <- compare_groups(
+  birthwt_data,
+  variable = lwt,
+  group = low
+)
+weight_comparison
+
+# The exact automatic rule and observed inputs are retained for review.
+weight_comparison$method$selection_rule
+weight_comparison$method$selection_inputs
+
+assumptions_stats(weight_comparison)
+diagnostics_stats(weight_comparison)
+denominators_stats(weight_comparison)
+```
+
+[`compare_groups()`](https://gtstats.thinkdenominator.com/reference/compare_groups.md)
+answers one question at a time. The publication table is the result; the
+helper functions expose the assumptions, automatic checks, and analysis
+denominators for review. Use
+[`effect_size()`](https://gtstats.thinkdenominator.com/reference/effect_size.md)
+separately when the magnitude of the difference is the main question.
+
+### What this workflow deliberately avoids
+
+- Selecting a test solely from a normality p-value.
+- Recommending a different descriptive summary in each group of the same
+  Table 1 variable.
+- Treating every numeric code as continuous or ordinal without context.
+- Requiring manual formatting before a table can be shared.

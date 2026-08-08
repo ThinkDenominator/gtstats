@@ -1,0 +1,348 @@
+# Styling and Exporting Tables
+
+``` r
+
+library(gtstats)
+```
+
+## Overview
+
+Once you have built a table with the
+[`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md)
+workflow and rendered it with
+[`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md),
+two functions handle the final presentation step:
+
+- **[`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md)**
+  — applies a theme, adds titles, and relabels columns, rows, and factor
+  levels.
+- **[`to_flextable()`](https://gtstats.thinkdenominator.com/reference/to_flextable.md)**
+  — converts the table to a `flextable` object for Word output.
+
+------------------------------------------------------------------------
+
+## customise_table()
+
+[`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md)
+accepts either the original `gtstats` result or a rendered `gt` table.
+For routine use, pass the result directly and let the function render
+and style it in one step.
+
+``` r
+
+res <- summary_table(mtcars, by = am, overall = TRUE) |>
+  add_summary(vars = c(mpg, wt, cyl)) |>
+  add_proportion(var = vs) |>
+  add_total() |>
+  add_p()
+
+tbl <- tbl_stats(res)
+```
+
+### Themes
+
+``` r
+
+customise_table(tbl, theme = "journal")
+```
+
+``` r
+
+customise_table(tbl, theme = "minimal")
+```
+
+``` r
+
+customise_table(tbl, theme = "compact")
+```
+
+| Theme       | Best for                                 |
+|-------------|------------------------------------------|
+| `"default"` | Exploratory work, no strong preference   |
+| `"journal"` | Academic manuscripts, journal submission |
+| `"classic"` | Reports with traditional table borders   |
+| `"minimal"` | Slide decks, dashboards, modern reports  |
+| `"compact"` | Dense tables where space is limited      |
+
+The font and table width can also be controlled directly:
+
+``` r
+
+customise_table(
+  res,
+  theme = "journal",
+  font = "Arial",
+  font_size = 11,
+  width = 90
+)
+```
+
+------------------------------------------------------------------------
+
+### Titles and notes
+
+``` r
+
+customise_table(
+  tbl,
+  theme       = "journal",
+  title       = "Table 1. Baseline characteristics",
+  subtitle    = "Stratified by transmission type",
+  source_note = "Data: mtcars (Motor Trend, 1974)."
+)
+```
+
+------------------------------------------------------------------------
+
+### Relabelling columns
+
+Supply a named character vector — `"internal_name" = "Display label"`.
+Column names in `gtstats` tables follow the pattern `"am = 1"`,
+`"am = 0"`, `"Overall"`, `"Level"`.
+
+``` r
+
+customise_table(
+  tbl,
+  theme      = "journal",
+  col_labels = c(
+    "Level"   = "",
+    "am = 1"  = "Manual (n = 13)",
+    "am = 0"  = "Automatic (n = 19)",
+    "Overall" = "All vehicles (n = 32)"
+  )
+)
+```
+
+------------------------------------------------------------------------
+
+### Relabelling rows
+
+Supply a named vector where names are the current row label values and
+values are the replacement labels.
+
+``` r
+
+customise_table(
+  tbl,
+  theme      = "journal",
+  row_labels = c(
+    "mpg"    = "Miles per gallon",
+    "wt"     = "Weight (1 000 lbs)",
+    "cyl"    = "Cylinders",
+    "vs (1)" = "V-shaped engine, n (%)",
+    "Total (N)" = "Total"
+  )
+)
+```
+
+------------------------------------------------------------------------
+
+### Relabelling factor levels
+
+Use `level_labels` to rename values that appear in the `Level` column of
+the rendered table.
+
+``` r
+
+customise_table(
+  tbl,
+  level_labels = c(
+    "4" = "4-cylinder",
+    "6" = "6-cylinder",
+    "8" = "8-cylinder"
+  )
+)
+```
+
+------------------------------------------------------------------------
+
+### Accent colour
+
+Apply a brand or journal colour to the table borders:
+
+``` r
+
+customise_table(tbl, theme = "journal", accent_color = "#123B7A")
+```
+
+------------------------------------------------------------------------
+
+### Row striping
+
+``` r
+
+customise_table(tbl, row_striping = TRUE, stripe_color = "#F0F4F8")
+```
+
+------------------------------------------------------------------------
+
+### A fully styled table
+
+``` r
+
+summary_table(mtcars, by = am, overall = TRUE) |>
+  add_summary(vars = c(mpg, wt, cyl)) |>
+  add_proportion(var = vs) |>
+  add_total() |>
+  add_p() |>
+  tbl_stats() |>
+  customise_table(
+    theme        = "journal",
+    title        = "Table 1. Baseline characteristics by transmission type",
+    source_note  = "SD = standard deviation; IQR = interquartile range; CI = confidence interval.",
+    col_labels   = c(
+      "Level"   = "",
+      "am = 1"  = "Manual",
+      "am = 0"  = "Automatic",
+      "Overall" = "All"
+    ),
+    row_labels   = c(
+      "mpg"       = "Miles per gallon",
+      "wt"        = "Weight (1 000 lbs)",
+      "cyl"       = "Cylinders",
+      "vs (1)"    = "V-shaped engine",
+      "Total (N)" = "Total"
+    ),
+    level_labels = c(
+      "4" = "4-cylinder",
+      "6" = "6-cylinder",
+      "8" = "8-cylinder"
+    ),
+    accent_color = "#123B7A"
+  )
+```
+
+------------------------------------------------------------------------
+
+## to_flextable()
+
+[`to_flextable()`](https://gtstats.thinkdenominator.com/reference/to_flextable.md)
+converts a `gt_desc_table` object — the object **before**
+[`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md)
+— into a `flextable`. This is the recommended path for Word output via R
+Markdown or Quarto.
+
+``` r
+
+res <- summary_table(mtcars, by = am, overall = TRUE) |>
+  add_summary(vars = c(mpg, wt, cyl)) |>
+  add_proportion(var = vs) |>
+  add_total() |>
+  add_p()
+
+ft <- to_flextable(
+  res,
+  font = "Arial",
+  font_size = 10,
+  show_footnotes = TRUE
+)
+ft
+```
+
+In an R Markdown document with `output: word_document`, simply print
+`ft` in a code chunk and it will render as a formatted table in the Word
+file.
+
+## Saving tables and plots
+
+gtstats provides simple helpers to export tables and plots for reports,
+presentations, and manuscripts.
+
+### Save a table
+
+You can save either a `gtstats` object or a rendered `gt_tbl`.
+
+If a `gtstats` object is supplied,
+[`save_output()`](https://gtstats.thinkdenominator.com/reference/save_output.md)
+internally renders it using
+[`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md).
+
+``` r
+
+res <- summary_table(mtcars, by = am, overall = TRUE) |>
+  add_summary(vars = c(mpg, wt, cyl)) |>
+  add_proportion(var = vs) |>
+  add_total() |>
+  add_p()
+```
+
+Save directly from the gtstats object:
+
+``` r
+
+save_output(res, "table1.html")
+```
+
+Save from a pre-rendered gt object:
+
+``` r
+
+gt_obj <- tbl_stats(res)
+
+save_output(gt_obj, "table1.png")
+```
+
+Supported table formats are HTML, PNG, PDF, RTF, LaTeX (`.tex`), and
+DOCX. A simple filename saves in the current working directory. A
+relative or full filename can be supplied when the destination is
+elsewhere:
+
+``` r
+
+save_output(res, "results/table1.docx")
+```
+
+### Save a plot
+
+Plots created with
+[`plot_compare()`](https://gtstats.thinkdenominator.com/reference/plot_compare.md)
+can be saved using
+[`save_output()`](https://gtstats.thinkdenominator.com/reference/save_output.md).
+
+``` r
+
+p <- plot_compare(
+  mtcars,
+  outcome = mpg,
+  by = am,
+  show_p = TRUE
+)
+
+p
+```
+
+Save the plot:
+
+``` r
+
+save_output(p, "mpg_by_am.png")
+```
+
+You can control output size and resolution:
+
+``` r
+
+save_output(
+  p,
+  "mpg_by_am_highres.png",
+  width = 7,
+  height = 5,
+  dpi = 300
+)
+```
+
+------------------------------------------------------------------------
+
+## Tips
+
+- [`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md)
+  accepts either the original result or the `gt` object returned by
+  [`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md).
+- [`to_flextable()`](https://gtstats.thinkdenominator.com/reference/to_flextable.md)
+  works on the original `gtstats` object, **not** on the gt output. Call
+  it before
+  [`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md).
+- For the most control over Word output, combine
+  [`to_flextable()`](https://gtstats.thinkdenominator.com/reference/to_flextable.md)
+  with `flextable`’s own formatting functions.
