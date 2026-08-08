@@ -28,3 +28,8 @@ index.Rmd
 # misc
 *.html
 SETUP_GUIDE.md
+
+# Local development and teaching material (kept locally, not published)
+data-raw/
+dev/
+workshop/
