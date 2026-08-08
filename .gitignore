@@ -20,7 +20,9 @@ renv.lock
 
 # pkgdown / docs
 docs/
-pkgdown/
+pkgdown/*
+!pkgdown/extra.css
+!pkgdown/_redirects
 index.html
 index.md
 index.Rmd

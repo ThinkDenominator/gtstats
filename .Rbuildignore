@@ -16,6 +16,7 @@
 ^tests/manual$
 ^dev$
 ^\.github$
+^netlify\.toml$
 ^data-raw$
 ^workshop$
 ^README\.html$
