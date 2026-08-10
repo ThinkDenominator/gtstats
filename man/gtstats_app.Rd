@@ -20,7 +20,7 @@ Invisibly returns the result of \code{\link[shiny:runApp]{shiny::runApp()}}.
 Open a guided Shiny interface for the most common \pkg{gtstats} workflows:
 inspecting a dataset, assessing a continuous variable, building a Table 1,
 comparing groups, and producing a cross-tabulation. It accepts CSV uploads;
-Excel uploads are also available when the suggested pkg{rio} package is
+Excel uploads are also available when the suggested \link[rio:rio]{rio} package is
 installed.
 }
 \details{

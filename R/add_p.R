@@ -27,8 +27,9 @@
 #'
 #' With `method = "auto"`, `add_p()` delegates each comparison to
 #' [compare_groups()] using the same fixed selection policy: Welch t-test or
-#' Welch ANOVA when distribution guidance does not flag skewness, rank-based
-#' tests when it does, and chi-square or Fisher's exact test according to
+#' Welch ANOVA by default when distribution guidance does not flag skewness;
+#' Student's t-test or classical ANOVA when `var_equal = TRUE`; rank-based tests
+#' when skewness is flagged; and chi-square or Fisher's exact test according to
 #' expected cell counts. Shapiro-Wilk is supporting information only and does
 #' not itself select a test.
 #'
@@ -52,8 +53,11 @@
 #'   guidance to choose parametric or rank-based tests. This guidance is based
 #'   on skewness; Shapiro-Wilk is supporting information only. For paired
 #'   analyses the check is applied to within-pair differences.
-#' @param var_equal Logical; use equal-variance Student t-tests when appropriate.
-#'   The default is `FALSE`, giving Welch tests.
+#' @param var_equal Logical; for independent, non-skewed continuous comparisons
+#'   in `method = "auto"`, use Student's t-test or classical ANOVA. The default
+#'   `FALSE` uses Welch methods. This is a user-specified assumption, not a
+#'   variance test, and does not affect paired, categorical, ordinal, or
+#'   rank-based comparisons.
 #' @param correction Logical; apply continuity correction to chi-square and
 #'   McNemar tests where applicable.
 #' @param p_adjust Multiplicity adjustment applied across displayed variable
@@ -292,7 +296,7 @@ add_p <- function(
         test = chosen_method,
         digits = digits,
         .normality_check = normality_check,
-        .var_equal = var_equal,
+        var_equal = var_equal,
         .correction = correction
       ),
       error = function(e) {

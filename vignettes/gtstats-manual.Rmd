@@ -284,14 +284,20 @@ Its policy is visible in the package documentation and result notes:
 
 | Data structure | Automatic method |
 |---|---|
-| Continuous, two independent groups | Welch t-test; Wilcoxon if marked skew is flagged |
-| Continuous, 3+ independent groups | Welch ANOVA; Kruskal-Wallis if marked skew is flagged |
+| Continuous, two independent groups | Welch t-test by default; Student's t-test when equal variances are explicitly justified; Wilcoxon if marked skew is flagged |
+| Continuous, 3+ independent groups | Welch ANOVA by default; classical ANOVA when equal variances are explicitly justified; Kruskal-Wallis if marked skew is flagged |
 | Ordinal | Wilcoxon rank-sum or Kruskal-Wallis |
 | Binary/nominal categorical | Chi-square when expected counts are adequate; Fisher exact when sparse |
 
 You can select Student t-test, Welch t-test, Wilcoxon, ANOVA, Welch ANOVA,
 Kruskal-Wallis, chi-square, or Fisher exact yourself. Use an explicit choice
 only when it is justified by the study design or an analysis plan.
+
+For **Auto**, the app also offers **equal variances are justified**. This sets
+`var_equal = TRUE`: it switches only a non-skewed independent continuous auto
+comparison to Student's t-test or classical ANOVA. It does not perform a
+variance test and does not alter paired, categorical, ordinal, or rank-based
+comparisons.
 
 ## Result and Audit panels
 

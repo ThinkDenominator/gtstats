@@ -3,7 +3,7 @@
 #' Open a guided Shiny interface for the most common \pkg{gtstats} workflows:
 #' inspecting a dataset, assessing a continuous variable, building a Table 1,
 #' comparing groups, and producing a cross-tabulation. It accepts CSV uploads;
-#' Excel uploads are also available when the suggested pkg{rio} package is
+#' Excel uploads are also available when the suggested [rio] package is
 #' installed.
 #'
 #' The app is a companion to the package's code-first workflow. It creates

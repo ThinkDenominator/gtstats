@@ -10,7 +10,7 @@
 #' `ggplot` and can be customized with ordinary ggplot2 layers.
 #'
 #' When `show_p = TRUE`, the annotation is obtained from [compare_groups()] with
-#' the same `test`, `paired`, and `id` settings. The test name is always shown
+#' the same `test`, `var_equal`, `paired`, and `id` settings. The test name is always shown
 #' with the p-value. The annotation and plotted denominators use the same
 #' complete observations; non-finite continuous values are excluded.
 #'
@@ -25,6 +25,10 @@
 #' @param show_points Logical; show individual observations for continuous data.
 #' @param show_p Logical; add the selected test and p-value as a plot caption.
 #' @param test Test passed to [compare_groups()] when `show_p = TRUE`.
+#' @param var_equal Logical; passed to [compare_groups()] when `show_p = TRUE`.
+#'   With `test = "auto"`, `TRUE` selects the equal-variance parametric route
+#'   for independent, non-skewed continuous outcomes. Default `FALSE` retains
+#'   Welch methods; no variance test is performed.
 #' @param palette Optional character vector of colours. It must contain at least
 #'   one colour per displayed group or outcome level.
 #' @param base_size Base font size.
@@ -60,6 +64,7 @@ plot_compare <- function(
       "auto", "t_test", "welch_t", "wilcox",
       "anova", "welch_anova", "kruskal", "chisq", "fisher", "mcnemar"
     ),
+    var_equal = FALSE,
     palette = NULL,
     base_size = 14,
     title = NULL,
@@ -71,6 +76,7 @@ plot_compare <- function(
   type <- match.arg(type)
   display <- match.arg(display)
   test <- match.arg(test)
+  .validate_flag(var_equal, "var_equal")
 
   if (!is.data.frame(data)) {
     stop("`data` must be a data.frame.", call. = FALSE)
@@ -213,7 +219,8 @@ plot_compare <- function(
       variable = outcome_name,
       group = by_name,
       paired = paired,
-      test = test
+      test = test,
+      var_equal = var_equal
     )
     if (isTRUE(paired)) compare_args$id <- id_name
     comparison <- tryCatch(

@@ -16,6 +16,7 @@ plot_compare(
   show_p = FALSE,
   test = c("auto", "t_test", "welch_t", "wilcox", "anova", "welch_anova", "kruskal",
     "chisq", "fisher", "mcnemar"),
+  var_equal = FALSE,
   palette = NULL,
   base_size = 14,
   title = NULL,
@@ -47,6 +48,11 @@ string.}
 
 \item{test}{Test passed to \code{\link[=compare_groups]{compare_groups()}} when \code{show_p = TRUE}.}
 
+\item{var_equal}{Logical; passed to \code{\link[=compare_groups]{compare_groups()}} when \code{show_p = TRUE}.
+With \code{test = "auto"}, \code{TRUE} selects the equal-variance parametric route
+for independent, non-skewed continuous outcomes. Default \code{FALSE} retains
+Welch methods; no variance test is performed.}
+
 \item{palette}{Optional character vector of colours. It must contain at least
 one colour per displayed group or outcome level.}
 
@@ -73,7 +79,7 @@ participant-level connected observations. The returned object is a standard
 \code{ggplot} and can be customized with ordinary ggplot2 layers.
 
 When \code{show_p = TRUE}, the annotation is obtained from \code{\link[=compare_groups]{compare_groups()}} with
-the same \code{test}, \code{paired}, and \code{id} settings. The test name is always shown
+the same \code{test}, \code{var_equal}, \code{paired}, and \code{id} settings. The test name is always shown
 with the p-value. The annotation and plotted denominators use the same
 complete observations; non-finite continuous values are excluded.
 }

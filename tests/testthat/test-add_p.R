@@ -45,6 +45,18 @@ test_that("add_p() supports Welch ANOVA for more than two groups", {
   expect_true(any(grepl("Welch ANOVA", res$pvalue_method_footnotes)))
 })
 
+test_that("add_p() forwards var_equal through two- and multi-group auto routes", {
+  two_group <- summary_table(mtcars, by = am) |>
+    add_summary(vars = mpg) |>
+    add_p(normality_check = FALSE, var_equal = TRUE)
+  multi_group <- summary_table(mtcars, by = cyl) |>
+    add_summary(vars = mpg) |>
+    add_p(normality_check = FALSE, var_equal = TRUE)
+
+  expect_true(any(grepl("Student t-test", two_group$pvalue_method_footnotes)))
+  expect_true(any(grepl("ANOVA", multi_group$pvalue_method_footnotes)))
+})
+
 test_that("add_p() works with named method vector", {
   res <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt, cyl)) |>

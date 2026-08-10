@@ -48,6 +48,18 @@ test_that("continuous p-value caption identifies the selected test", {
   expect_match(p$labels$caption, "p")
 })
 
+test_that("plot_compare() forwards var_equal to the auto comparison", {
+  p <- plot_compare(
+    mtcars, outcome = mpg, by = am, show_p = TRUE,
+    var_equal = TRUE
+  )
+  expect_match(p$labels$caption, "Student t-test")
+  expect_error(
+    plot_compare(mtcars, outcome = mpg, by = am, var_equal = "yes"),
+    "var_equal"
+  )
+})
+
 test_that("a user caption is retained with the test annotation", {
   p <- plot_compare(
     mtcars,

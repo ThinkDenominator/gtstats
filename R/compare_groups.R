@@ -34,10 +34,12 @@
 #' intended as transparent defaults, not a substitute for a prespecified
 #' analysis plan.
 #'
-#' - **Continuous outcome, two independent groups:** Welch t-test, unless
+#' - **Continuous outcome, two independent groups:** Welch t-test by default,
+#'   or Student's t-test when `var_equal = TRUE`, unless
 #'   distribution guidance flags skewness in either group, then Wilcoxon
 #'   rank-sum test.
-#' - **Continuous outcome, three or more independent groups:** Welch ANOVA,
+#' - **Continuous outcome, three or more independent groups:** Welch ANOVA by
+#'   default, or classical one-way ANOVA when `var_equal = TRUE`, unless
 #'   unless distribution guidance flags skewness in any group, then
 #'   Kruskal-Wallis test.
 #' - **Paired continuous outcome:** paired t-test, unless distribution guidance
@@ -59,8 +61,10 @@
 #' For independent continuous comparisons, `$diagnostics` also reports the
 #' observed standard deviation and variance ratios across groups. These are
 #' descriptive context only: they have no pass/fail threshold and do not alter
-#' automatic test selection. Welch t-tests and Welch ANOVA do not require equal
-#' variances.
+#' automatic test selection. `var_equal` is a user-specified analytical
+#' assumption, not a variance hypothesis test: gtstats never infers it using
+#' Levene, Bartlett, or F tests. Welch t-tests and Welch ANOVA are the
+#' conservative defaults because they do not require equal variances.
 #'
 #' When `effect_size = TRUE`, the function selects an effect size from the
 #' comparison structure:
@@ -89,6 +93,12 @@
 #'   `"wilcox"`, `"anova"`, `"welch_anova"`, `"kruskal"`, `"chisq"`,
 #'   `"fisher"`, or `"mcnemar"`. See **Automatic selection policy** for the
 #'   exact rules used by `"auto"`.
+#' @param var_equal Logical; for independent, non-skewed continuous outcomes
+#'   with `test = "auto"`, use equal-variance Student's t-test (two groups) or
+#'   classical one-way ANOVA (three or more groups). The default `FALSE` uses
+#'   Welch methods. This is a prespecified user choice and is not tested or
+#'   inferred from the observed variances. It does not affect paired,
+#'   categorical, ordinal, or rank-based comparisons.
 #' @param effect_size Logical; calculate and display the effect size selected
 #'   for the comparison structure. Default is `FALSE`.
 #' @param conf.level Confidence level for intervals.
@@ -132,6 +142,8 @@
 #'   test = "welch_t"
 #' )
 #'
+#' compare_groups(mtcars, variable = mpg, group = am, var_equal = TRUE)
+#'
 #' tbl_stats(compare_groups(mtcars, variable = mpg, group = am))
 #'
 #' @export
@@ -148,20 +160,19 @@ compare_groups <- function(
     effect_size = FALSE,
     conf.level = 0.95,
     digits = 2,
+    var_equal = FALSE,
     ...
 ) {
   dots_expr <- match.call(expand.dots = FALSE)$...
   dots_names <- names(dots_expr) %||% character()
-  allowed_internal <- c(
-    ".normality_check", ".var_equal", ".correction", ".quiet"
-  )
+  allowed_internal <- c(".normality_check", ".correction", ".quiet")
   unknown_internal <- setdiff(dots_names, allowed_internal)
   if (length(unknown_internal) > 0L || any(!nzchar(dots_names))) {
     stop("Unused arguments supplied through `...`.", call. = FALSE)
   }
   internal_names <- intersect(
     dots_names,
-    c(".normality_check", ".var_equal", ".correction", ".quiet")
+    c(".normality_check", ".correction", ".quiet")
   )
   internal <- lapply(dots_expr[internal_names], eval, envir = parent.frame())
   test <- match.arg(test)
@@ -170,11 +181,10 @@ compare_groups <- function(
   .validate_conf_level(conf.level)
   .validate_digits(digits)
   normality_check <- internal$.normality_check %||% TRUE
-  var_equal <- internal$.var_equal %||% identical(test, "t_test")
   correction <- internal$.correction %||% TRUE
   quiet <- internal$.quiet %||% FALSE
   .validate_flag(normality_check, ".normality_check")
-  .validate_flag(var_equal, ".var_equal")
+  .validate_flag(var_equal, "var_equal")
   .validate_flag(correction, ".correction")
   .validate_flag(quiet, ".quiet")
 
@@ -568,7 +578,7 @@ compare_groups <- function(
           }
         }
       } else {
-        chosen_test <- "welch_anova"
+        chosen_test <- if (isTRUE(var_equal)) "anova" else "welch_anova"
       }
 
       assessed_distribution <- if (isTRUE(normality_check)) {
@@ -580,7 +590,9 @@ compare_groups <- function(
         distribution_guidance = assessed_distribution,
         skewness_flagged = distribution_flag,
         groups = n_groups,
-        paired = paired
+        paired = paired,
+        var_equal = var_equal,
+        variance_assumption_source = "User-specified; not inferred from a variance hypothesis test"
       )
       selection_rule <- if (isTRUE(paired)) {
         if (isTRUE(distribution_flag)) {
@@ -591,11 +603,19 @@ compare_groups <- function(
       } else if (n_groups == 2L && isTRUE(distribution_flag)) {
         "Two-group continuous outcome: skewness flagged in at least one group; selected Wilcoxon rank-sum test."
       } else if (n_groups == 2L) {
-        "Two-group continuous outcome: no skewness flag; selected Welch t-test."
+        if (isTRUE(var_equal)) {
+          "Two-group continuous outcome: no skewness flag; equal variance was user-specified (`var_equal = TRUE`); selected Student's t-test. No variance hypothesis test was used."
+        } else {
+          "Two-group continuous outcome: no skewness flag; `var_equal = FALSE`; selected Welch t-test, the conservative default that does not require equal variances."
+        }
       } else if (isTRUE(distribution_flag)) {
         "Multi-group continuous outcome: skewness flagged in at least one group; selected Kruskal-Wallis test."
       } else {
-        "Multi-group continuous outcome: no skewness flag; selected Welch ANOVA."
+        if (isTRUE(var_equal)) {
+          "Multi-group continuous outcome: no skewness flag; equal variance was user-specified (`var_equal = TRUE`); selected classical one-way ANOVA. No variance hypothesis test was used."
+        } else {
+          "Multi-group continuous outcome: no skewness flag; `var_equal = FALSE`; selected Welch ANOVA, the conservative default that does not require equal variances."
+        }
       }
     }
 
@@ -1790,8 +1810,12 @@ compare_groups <- function(
       },
       threshold = "Descriptive diagnostic; no pass/fail threshold",
       detail = paste(
-        "Welch t-test and Welch ANOVA do not require equal variances;",
-        "this does not alter automatic test selection."
+        "Observed spread is descriptive only; no Levene, Bartlett, or F test was performed.",
+        if (isTRUE(var_equal)) {
+          "`var_equal = TRUE` is a user-specified equal-variance assumption for the parametric auto route."
+        } else {
+          "`var_equal = FALSE` retains Welch methods as the conservative parametric auto default."
+        }
       )
     )
   }
@@ -1800,6 +1824,38 @@ compare_groups <- function(
   }
 
   diagnostics_tbl <- dplyr::bind_rows(
+    .diagnostics_tbl(
+      check = "Comparison design",
+      result = if (isTRUE(paired)) "paired" else "independent",
+      value = if (isTRUE(paired)) "Paired observations" else "Independent observations",
+      threshold = "Defined by the study design",
+      detail = if (isTRUE(paired)) {
+        "Paired routes use within-pair differences; `var_equal` does not apply."
+      } else {
+        "Independent comparison; confirm independence from the study design."
+      }
+    ),
+    if (outcome_type == "continuous" && !isTRUE(paired)) {
+      .diagnostics_tbl(
+        check = "Variance assumption",
+        result = if (isTRUE(var_equal)) "equal_variance_user_specified" else "welch_default",
+        value = paste0("var_equal = ", if (isTRUE(var_equal)) "TRUE" else "FALSE"),
+        threshold = "User-specified analytical assumption",
+        detail = if (isTRUE(var_equal)) {
+          "Equal variance was specified by the user. It is not inferred or proven by Levene, Bartlett, or F tests."
+        } else {
+          "Welch is the conservative default and does not require equal variances. No variance hypothesis test was used."
+        }
+      )
+    } else {
+      .diagnostics_tbl(
+        check = "Variance assumption",
+        result = "not_applicable",
+        value = paste0("var_equal = ", if (isTRUE(var_equal)) "TRUE" else "FALSE"),
+        threshold = "Applies only to independent parametric continuous comparisons",
+        detail = "`var_equal` does not alter paired, categorical, ordinal, or rank-based routes."
+      )
+    },
     if (identical(test, "auto") && !is.null(selection_rule)) {
       .diagnostics_tbl(
         check = "Automatic test selection",
@@ -1898,6 +1954,7 @@ compare_groups <- function(
       id = id_name,
       paired = paired,
       test = test,
+      var_equal = var_equal,
       effect_size = effect_size,
       conf.level = conf.level,
       digits = digits
@@ -1910,6 +1967,11 @@ compare_groups <- function(
       group_type = group_type,
       test_requested = test,
       test_selected = inferential_tbl$test_used[[1L]],
+      variance_assumption = list(
+        value = var_equal,
+        source = "User-specified; not inferred from a variance hypothesis test",
+        applies = identical(outcome_type, "continuous") && !isTRUE(paired)
+      ),
       selection_rule = selection_rule %||% "User-specified test; automatic selection was not used.",
       selection_inputs = selection_inputs,
       expected_counts = if (exists("expected_counts")) {

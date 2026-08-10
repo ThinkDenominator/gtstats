@@ -235,10 +235,12 @@ ui <- navbarPage(
         br(), fluidRow(
           column(4, div(class = "cardish",
             tags$h3("One focused question"),
-            tags$p(class = "help-copy", "Choose one variable and one grouping variable. Auto uses gtstats' documented rules; choose a test yourself when your analysis plan specifies one."),
+            tags$p(class = "help-copy", "Choose one variable and one grouping variable. Auto uses the conservative Welch route for suitable independent continuous data unless you explicitly declare an equal-variance assumption."),
             selectInput("compare_variable", "Variable to compare", choices = NULL),
             selectInput("compare_group", "Compare across groups", choices = NULL),
             selectInput("compare_test", "Test", choices = c("Auto (recommended starting point)" = "auto", "Student t-test" = "t_test", "Welch t-test" = "welch_t", "Wilcoxon rank-sum" = "wilcox", "ANOVA" = "anova", "Welch ANOVA" = "welch_anova", "Kruskal-Wallis" = "kruskal", "Chi-square" = "chisq", "Fisher's exact" = "fisher")),
+            checkboxInput("compare_var_equal", "For auto: equal variances are justified", FALSE),
+            tags$p(class = "help-copy", "This only changes a suitable independent, non-skewed continuous auto comparison to Student's t-test or classical ANOVA. It does not run a variance test and does not affect paired, categorical, ordinal, or rank-based routes."),
             checkboxInput("compare_effect", "Include effect size when supported", FALSE),
             actionButton("run_compare", "Compare groups", class = "btn-primary")
           )),
@@ -519,6 +521,7 @@ server <- function(input, output, session) {
     validate(need(!identical(input$compare_variable, input$compare_group), "Variable and group must be different."))
     comparison_result(gtstats::compare_groups(selected_data(), variable = input$compare_variable,
       group = input$compare_group, test = input$compare_test,
+      var_equal = isTRUE(input$compare_var_equal),
       effect_size = isTRUE(input$compare_effect)))
   }, ignoreInit = TRUE)
   output$comparison_table <- render_result(comparison_result)
@@ -547,6 +550,7 @@ server <- function(input, output, session) {
   comparison_code <- reactive({
     paste0("compare_groups(\n  data,\n  variable = ", input$compare_variable,
       ",\n  group = ", input$compare_group, ",\n  test = ", sprintf('"%s"', input$compare_test),
+      ",\n  var_equal = ", if (isTRUE(input$compare_var_equal)) "TRUE" else "FALSE",
       ",\n  effect_size = ", if (isTRUE(input$compare_effect)) "TRUE" else "FALSE", "\n)")
   })
   output$comparison_code <- renderText(comparison_code())

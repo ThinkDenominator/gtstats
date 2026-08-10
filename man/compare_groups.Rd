@@ -15,6 +15,7 @@ compare_groups(
   effect_size = FALSE,
   conf.level = 0.95,
   digits = 2,
+  var_equal = FALSE,
   ...
 )
 }
@@ -45,6 +46,13 @@ for the comparison structure. Default is \code{FALSE}.}
 \item{conf.level}{Confidence level for intervals.}
 
 \item{digits}{Number of decimal places for formatting.}
+
+\item{var_equal}{Logical; for independent, non-skewed continuous outcomes
+with \code{test = "auto"}, use equal-variance Student's t-test (two groups) or
+classical one-way ANOVA (three or more groups). The default \code{FALSE} uses
+Welch methods. This is a prespecified user choice and is not tested or
+inferred from the observed variances. It does not affect paired,
+categorical, ordinal, or rank-based comparisons.}
 
 \item{...}{Reserved for internal package use.}
 }
@@ -101,10 +109,12 @@ Supported tests include:
 intended as transparent defaults, not a substitute for a prespecified
 analysis plan.
 \itemize{
-\item \strong{Continuous outcome, two independent groups:} Welch t-test, unless
+\item \strong{Continuous outcome, two independent groups:} Welch t-test by default,
+or Student's t-test when \code{var_equal = TRUE}, unless
 distribution guidance flags skewness in either group, then Wilcoxon
 rank-sum test.
-\item \strong{Continuous outcome, three or more independent groups:} Welch ANOVA,
+\item \strong{Continuous outcome, three or more independent groups:} Welch ANOVA by
+default, or classical one-way ANOVA when \code{var_equal = TRUE}, unless
 unless distribution guidance flags skewness in any group, then
 Kruskal-Wallis test.
 \item \strong{Paired continuous outcome:} paired t-test, unless distribution guidance
@@ -127,8 +137,10 @@ values used, and the selected method are retained in \verb{$method},
 For independent continuous comparisons, \verb{$diagnostics} also reports the
 observed standard deviation and variance ratios across groups. These are
 descriptive context only: they have no pass/fail threshold and do not alter
-automatic test selection. Welch t-tests and Welch ANOVA do not require equal
-variances.
+automatic test selection. \code{var_equal} is a user-specified analytical
+assumption, not a variance hypothesis test: gtstats never infers it using
+Levene, Bartlett, or F tests. Welch t-tests and Welch ANOVA are the
+conservative defaults because they do not require equal variances.
 
 When \code{effect_size = TRUE}, the function selects an effect size from the
 comparison structure:
@@ -171,6 +183,8 @@ compare_groups(
   paired = FALSE,
   test = "welch_t"
 )
+
+compare_groups(mtcars, variable = mpg, group = am, var_equal = TRUE)
 
 tbl_stats(compare_groups(mtcars, variable = mpg, group = am))
 

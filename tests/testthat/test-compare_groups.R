@@ -15,11 +15,7 @@ test_that("compare_groups() works for 2-group continuous outcome with default au
   expect_equal(res$method$test_selected, "Welch t-test")
   expect_true(any(res$diagnostics$check == "Automatic test selection"))
   expect_true(any(res$diagnostics$check == "Observed group spread"))
-  expect_true(any(grepl(
-    "Welch t-test and Welch ANOVA do not require equal variances",
-    res$diagnostics$detail,
-    fixed = TRUE
-  )))
+  expect_true(any(grepl("Welch is the conservative default", res$diagnostics$detail, fixed = TRUE)))
   expect_true(is.list(res$method$selection_inputs$observed_group_spread))
 })
 
@@ -75,13 +71,9 @@ test_that("compare_groups() treats ordered outcomes as ordinal", {
   expect_equal(res$table$Level, levels(data$response))
 })
 
-test_that("compare_groups() rejects the retired public arguments", {
+test_that("compare_groups() rejects retired public arguments but accepts var_equal", {
   expect_error(
     compare_groups(mtcars, mpg, group = am, normality_check = FALSE),
-    "Unused arguments"
-  )
-  expect_error(
-    compare_groups(mtcars, mpg, group = am, var_equal = TRUE),
     "Unused arguments"
   )
   expect_error(
@@ -92,6 +84,56 @@ test_that("compare_groups() rejects the retired public arguments", {
     compare_groups(mtcars, outcome = mpg, by = am),
     "Unused arguments"
   )
+})
+
+test_that("var_equal changes only the independent parametric auto route", {
+  two_group <- compare_groups(
+    mtcars, mpg, group = am, var_equal = TRUE,
+    .normality_check = FALSE
+  )
+  multi_group <- compare_groups(
+    mtcars, mpg, group = cyl, var_equal = TRUE,
+    .normality_check = FALSE
+  )
+
+  expect_equal(two_group$inferential$test_used[[1]], "Student t-test")
+  expect_equal(multi_group$inferential$test_used[[1]], "ANOVA")
+  expect_true(two_group$inputs$var_equal)
+  expect_match(two_group$method$selection_rule, "user-specified")
+  expect_true(any(two_group$diagnostics$check == "Variance assumption"))
+  expect_match(
+    two_group$diagnostics$detail[two_group$diagnostics$check == "Variance assumption"],
+    "not inferred"
+  )
+})
+
+test_that("skewness, pairing, and categorical routes ignore var_equal", {
+  skewed <- data.frame(
+    arm = rep(c("A", "B"), each = 21),
+    value = c(seq_len(20), 500, 2:21, 600)
+  )
+  skewed_result <- compare_groups(skewed, value, arm, var_equal = TRUE)
+  expect_equal(skewed_result$inferential$test_used[[1]], "Wilcoxon rank-sum test")
+
+  paired <- data.frame(
+    id = rep(seq_len(8), 2), visit = rep(c("Before", "After"), each = 8),
+    value = c(1:8, c(2, 4, 5, 8, 10, 11, 14, 16))
+  )
+  paired_result <- compare_groups(
+    paired, value, visit, paired = TRUE, id = id, var_equal = TRUE,
+    .normality_check = FALSE
+  )
+  expect_equal(paired_result$inferential$test_used[[1]], "Paired t-test")
+
+  categorical_result <- compare_groups(mtcars, vs, am, var_equal = TRUE)
+  expect_true(categorical_result$inferential$test_used[[1]] %in%
+    c("Chi-square test", "Fisher's exact test"))
+})
+
+test_that("var_equal is validated and hidden .var_equal is retired", {
+  expect_error(compare_groups(mtcars, mpg, am, var_equal = "yes"), "var_equal")
+  expect_error(compare_groups(mtcars, mpg, am, var_equal = NA), "var_equal")
+  expect_error(compare_groups(mtcars, mpg, am, .var_equal = TRUE), "Unused arguments")
 })
 
 test_that("compare_groups() supports Student t-test", {
