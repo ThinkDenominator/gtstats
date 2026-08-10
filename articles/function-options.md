@@ -16,6 +16,31 @@ data("birthwt", package = "gtstats")
 birthwt_data <- birthwt
 ```
 
+### Guided interface
+
+#### `gtstats_app()`
+
+| Option | Default / available choices | What it changes |
+|----|----|----|
+| `launch.browser` | RStudio Viewer when available; otherwise [`interactive()`](https://rdrr.io/r/base/interactive.html) | Where to open the local app |
+| `...` | optional | Additional arguments passed to [`shiny::runApp()`](https://rdrr.io/pkg/shiny/man/runApp.html) |
+
+[`gtstats_app()`](https://gtstats.thinkdenominator.com/reference/gtstats_app.md)
+is an optional point-and-click companion; it requires the suggested
+`shiny` package. It supports the same core workflow as this guide, adds
+a data dictionary, Table 1 presentation controls, an in-session history,
+and copyable or downloadable R code. Result tables download as Word,
+HTML, PDF, or RTF. CSV input works directly; Excel input additionally
+needs `rio`. It does not change the analysis algorithms or replace a
+reproducible R script.
+
+``` r
+
+install.packages("shiny") # once, if needed
+install.packages("rio")   # once, only for Excel files
+gtstats_app()
+```
+
 ### 1. Understand the data
 
 #### `describe_data()`

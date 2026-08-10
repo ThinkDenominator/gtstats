@@ -8,6 +8,11 @@
   Understand data, make a publication-ready descriptive table, and
   compare groups.
 
+- [Using the gtstats
+  App](https://gtstats.thinkdenominator.com/articles/gtstats-manual.md):
+
+  A beginner-friendly manual for the menu-driven gtstats Shiny app.
+
 - [Birth-weight case study: from data to Table
   1](https://gtstats.thinkdenominator.com/articles/birthweight-case-study.md):
 

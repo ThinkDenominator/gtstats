@@ -11,6 +11,13 @@ Built-in, labelled datasets for reproducible learning and examples.
 - [`paired_data`](https://gtstats.thinkdenominator.com/reference/paired_data.md)
   : Paired follow-up teaching data
 
+## Guided interface
+
+A point-and-click companion that generates reproducible gtstats code.
+
+- [`gtstats_app()`](https://gtstats.thinkdenominator.com/reference/gtstats_app.md)
+  : Launch the gtstats graphical interface
+
 ## 
 
 Understand the data

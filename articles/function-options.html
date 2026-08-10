@@ -10,7 +10,8 @@
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Function options">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<meta property="og:title" content="Function options">
 <meta name="description" content="A quick, practical reference for every gtstats function.">
 <meta property="og:description" content="A quick, practical reference for every gtstats function.">
 </head>
@@ -37,6 +38,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/getting-started.html">Getting started</a></li>
+    <li><a class="dropdown-item" href="../articles/gtstats-manual.html">Using the gtstats App</a></li>
     <li><a class="dropdown-item" href="../articles/birthweight-case-study.html">Birth-weight case study</a></li>
     <li><a class="dropdown-item" href="../articles/overview.html">Function map</a></li>
     <li><a class="dropdown-item" href="../articles/function-options.html">Function options</a></li>
@@ -92,6 +94,54 @@ data:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"birthwt"</span>, package <span class="op">=</span> <span class="st">"gtstats"</span><span class="op">)</span></span>
 <span><span class="va">birthwt_data</span> <span class="op">&lt;-</span> <span class="va">birthwt</span></span></code></pre></div>
 <div class="section level3">
+<h3 id="guided-interface">Guided interface<a class="anchor" aria-label="anchor" href="#guided-interface"></a>
+</h3>
+<div class="section level4">
+<h4 id="gtstats_app">
+<code>gtstats_app()</code><a class="anchor" aria-label="anchor" href="#gtstats_app"></a>
+</h4>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Option</th>
+<th>Default / available choices</th>
+<th>What it changes</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>launch.browser</code></td>
+<td>RStudio Viewer when available; otherwise
+<code><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive()</a></code>
+</td>
+<td>Where to open the local app</td>
+</tr>
+<tr class="even">
+<td><code>...</code></td>
+<td>optional</td>
+<td>Additional arguments passed to <code><a href="https://rdrr.io/pkg/shiny/man/runApp.html" class="external-link">shiny::runApp()</a></code>
+</td>
+</tr>
+</tbody>
+</table>
+<p><code><a href="../reference/gtstats_app.html">gtstats_app()</a></code> is an optional point-and-click companion;
+it requires the suggested <code>shiny</code> package. It supports the
+same core workflow as this guide, adds a data dictionary, Table 1
+presentation controls, an in-session history, and copyable or
+downloadable R code. Result tables download as Word, HTML, PDF, or RTF.
+CSV input works directly; Excel input additionally needs
+<code>rio</code>. It does not change the analysis algorithms or replace
+a reproducible R script.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"shiny"</span><span class="op">)</span> <span class="co"># once, if needed</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"rio"</span><span class="op">)</span>   <span class="co"># once, only for Excel files</span></span>
+<span><span class="fu"><a href="../reference/gtstats_app.html">gtstats_app</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level3">
 <h3 id="understand-the-data">1. Understand the data<a class="anchor" aria-label="anchor" href="#understand-the-data"></a>
 </h3>
 <div class="section level4">
@@ -135,7 +185,7 @@ data:</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/describe_data.html">describe_data</a></span><span class="op">(</span><span class="va">birthwt_data</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"smoke"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
@@ -201,7 +251,7 @@ data:</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/assess_distribution.html">assess_distribution</a></span><span class="op">(</span><span class="va">birthwt_data</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">lwt</span><span class="op">)</span>, by <span class="op">=</span> <span class="va">low</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
@@ -251,7 +301,7 @@ data:</p>
 largest/smallest ratios. They are descriptive diagnostics, not pass/fail
 tests: Welch t-tests and Welch ANOVA do not require equal variances, and
 this function never selects a test.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/assess_variance.html">assess_variance</a></span><span class="op">(</span><span class="va">birthwt_data</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">lwt</span><span class="op">)</span>, by <span class="op">=</span> <span class="va">low</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
@@ -360,7 +410,7 @@ empty builder</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/summary_table.html">summary_table</a></span><span class="op">(</span></span>
 <span>  <span class="va">birthwt_data</span>, by <span class="op">=</span> <span class="va">low</span>, include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">smoke</span><span class="op">)</span>, overall <span class="op">=</span> <span class="st">"last"</span>,</span>
 <span>  statistic <span class="op">=</span> <span class="st">"mean_ci"</span>, categorical <span class="op">=</span> <span class="st">"n_over_N_percent"</span></span>
@@ -601,7 +651,7 @@ continuity correction</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/summary_table.html">summary_table</a></span><span class="op">(</span><span class="va">birthwt_data</span>, by <span class="op">=</span> <span class="va">low</span>, overall <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_summary.html">add_summary</a></span><span class="op">(</span>vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">smoke</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_proportion.html">add_proportion</a></span><span class="op">(</span>var <span class="op">=</span> <span class="va">smoke</span>, level <span class="op">=</span> <span class="st">"Yes"</span>, ci <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -672,7 +722,7 @@ paired</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/compare_groups.html">compare_groups</a></span><span class="op">(</span><span class="va">birthwt_data</span>, variable <span class="op">=</span> <span class="va">lwt</span>, group <span class="op">=</span> <span class="va">low</span>, test <span class="op">=</span> <span class="st">"welch_t"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
@@ -777,7 +827,7 @@ importance</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/correlation.html">correlation</a></span><span class="op">(</span><span class="va">birthwt_data</span>, x <span class="op">=</span> <span class="va">age</span>, y <span class="op">=</span> <span class="va">bwt</span>, method <span class="op">=</span> <span class="st">"spearman"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
@@ -894,7 +944,7 @@ outcomes</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/proportion_stats.html">proportion_stats</a></span><span class="op">(</span><span class="va">birthwt_data</span>, var <span class="op">=</span> <span class="va">smoke</span>, by <span class="op">=</span> <span class="va">low</span>, level <span class="op">=</span> <span class="st">"Yes"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
@@ -983,7 +1033,7 @@ direction</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/crosstabs.html">crosstabs</a></span><span class="op">(</span><span class="va">birthwt_data</span>, row <span class="op">=</span> <span class="va">smoke</span>, col <span class="op">=</span> <span class="va">low</span>, percent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"row"</span>, <span class="st">"column"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
@@ -1508,7 +1558,7 @@ omitted</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/summary_table.html">summary_table</a></span><span class="op">(</span><span class="va">birthwt_data</span>, by <span class="op">=</span> <span class="va">low</span>, include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">smoke</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_p.html">add_p</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/customise_table.html">customise_table</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Baseline characteristics"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -1519,7 +1569,7 @@ omitted</td>
 <h3 id="the-shortest-useful-workflow">The shortest useful workflow<a class="anchor" aria-label="anchor" href="#the-shortest-useful-workflow"></a>
 </h3>
 <p>Most users need only this sequence:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/describe_data.html">describe_data</a></span><span class="op">(</span><span class="va">birthwt_data</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/assess_distribution.html">assess_distribution</a></span><span class="op">(</span><span class="va">birthwt_data</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">lwt</span>, <span class="va">bwt</span><span class="op">)</span>, by <span class="op">=</span> <span class="va">low</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/summary_table.html">summary_table</a></span><span class="op">(</span><span class="va">birthwt_data</span>, by <span class="op">=</span> <span class="va">low</span>, include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">lwt</span>, <span class="va">smoke</span><span class="op">)</span>, overall <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>

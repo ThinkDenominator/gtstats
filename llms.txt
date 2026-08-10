@@ -27,6 +27,7 @@ automatic decisions for review.
 | Compare | [`compare_groups()`](https://gtstats.thinkdenominator.com/reference/compare_groups.md) | One focused group comparison with a clearly identified test and automatic-selection rule |
 | Audit | [`assumptions_stats()`](https://gtstats.thinkdenominator.com/reference/assumptions_stats.md), [`diagnostics_stats()`](https://gtstats.thinkdenominator.com/reference/diagnostics_stats.md), [`denominators_stats()`](https://gtstats.thinkdenominator.com/reference/denominators_stats.md) | Transparent decisions and analysis population |
 | Export | [`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md), [`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md), [`save_output()`](https://gtstats.thinkdenominator.com/reference/save_output.md) | A modifiable, report-ready table |
+| Guided | [`gtstats_app()`](https://gtstats.thinkdenominator.com/reference/gtstats_app.md) | A point-and-click companion that generates the matching R code |
 
 Understand
 
@@ -91,6 +92,27 @@ data("birthwt", "trial_data", "paired_data", package = "gtstats")
 - `paired_data`: long-format paired follow-up data for paired t-tests,
   Wilcoxon signed-rank, and McNemar tests.
 
+## Prefer a guided interface?
+
+The package remains code-first, but a Shiny companion is available when
+you prefer to learn by clicking through the workflow. It includes the
+three teaching datasets, CSV/Excel upload, a working data dictionary,
+distribution and variance checks, Table 1, focused group comparisons,
+crosstabs, Word/HTML/PDF/RTF table downloads, an in-session history, and
+copyable or downloadable R code for every analysis. Excel import uses
+the optional `rio` package.
+
+``` r
+
+install.packages("shiny") # once, if needed
+install.packages("rio")   # once, only for Excel files
+gtstats_app() # opens in the RStudio Viewer when available
+```
+
+The interface is intentionally a guide rather than a black box: use the
+code shown beside each result in an R script or Quarto document to keep
+the final analysis reproducible.
+
 ## Five-minute workflow
 
 ``` r
@@ -151,6 +173,7 @@ table_one |>
 | Epidemiology | [`proportion_stats()`](https://gtstats.thinkdenominator.com/reference/proportion_stats.md), [`rate_stats()`](https://gtstats.thinkdenominator.com/reference/rate_stats.md), [`crosstabs()`](https://gtstats.thinkdenominator.com/reference/crosstabs.md) |
 | Inspect decisions | [`assumptions_stats()`](https://gtstats.thinkdenominator.com/reference/assumptions_stats.md), [`diagnostics_stats()`](https://gtstats.thinkdenominator.com/reference/diagnostics_stats.md), [`denominators_stats()`](https://gtstats.thinkdenominator.com/reference/denominators_stats.md) |
 | Visualise | [`plot_compare()`](https://gtstats.thinkdenominator.com/reference/plot_compare.md), [`plot_correlation()`](https://gtstats.thinkdenominator.com/reference/plot_correlation.md) |
+| Guided interface | [`gtstats_app()`](https://gtstats.thinkdenominator.com/reference/gtstats_app.md) |
 | Polish and export | [`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md), [`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md), [`to_flextable()`](https://gtstats.thinkdenominator.com/reference/to_flextable.md), [`save_output()`](https://gtstats.thinkdenominator.com/reference/save_output.md) |
 
 ## Citation
@@ -175,6 +198,13 @@ Built-in, labelled datasets for reproducible learning and examples.
   : Three-arm clinical trial teaching data
 - [`paired_data`](https://gtstats.thinkdenominator.com/reference/paired_data.md)
   : Paired follow-up teaching data
+
+## Guided interface
+
+A point-and-click companion that generates reproducible gtstats code.
+
+- [`gtstats_app()`](https://gtstats.thinkdenominator.com/reference/gtstats_app.md)
+  : Launch the gtstats graphical interface
 
 ## 
 
@@ -307,6 +337,11 @@ the console.
 
   Understand data, make a publication-ready descriptive table, and
   compare groups.
+
+- [Using the gtstats
+  App](https://gtstats.thinkdenominator.com/articles/gtstats-manual.md):
+
+  A beginner-friendly manual for the menu-driven gtstats Shiny app.
 
 - [Birth-weight case study: from data to Table
   1](https://gtstats.thinkdenominator.com/articles/birthweight-case-study.md):

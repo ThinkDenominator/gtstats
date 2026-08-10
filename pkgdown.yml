@@ -7,12 +7,13 @@ articles:
   epi-helpers: epi-helpers.html
   function-options: function-options.html
   getting-started: getting-started.html
+  gtstats-manual: gtstats-manual.html
   inferential-tests: inferential-tests.html
   missing-data-denominators: missing-data-denominators.html
   overview: overview.html
   styling-export: styling-export.html
   teaching-datasets: teaching-datasets.html
-last_built: 2026-08-08T20:19Z
+last_built: 2026-08-10T17:47Z
 urls:
   reference: https://gtstats.thinkdenominator.com/reference
   article: https://gtstats.thinkdenominator.com/articles
