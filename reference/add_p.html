@@ -108,8 +108,11 @@ analyses the check is applied to within-pair differences.</p></dd>
 
 
 <dt id="arg-var-equal">var_equal<a class="anchor" aria-label="anchor" href="#arg-var-equal"></a></dt>
-<dd><p>Logical; use equal-variance Student t-tests when appropriate.
-The default is <code>FALSE</code>, giving Welch tests.</p></dd>
+<dd><p>Logical; for independent, non-skewed continuous comparisons
+in <code>method = "auto"</code>, use Student's t-test or classical ANOVA. The default
+<code>FALSE</code> uses Welch methods. This is a user-specified assumption, not a
+variance test, and does not affect paired, categorical, ordinal, or
+rank-based comparisons.</p></dd>
 
 
 <dt id="arg-correction">correction<a class="anchor" aria-label="anchor" href="#arg-correction"></a></dt>
@@ -151,8 +154,9 @@ different methods for individual variables.</p><div class="section">
 
 <p>With <code>method = "auto"</code>, <code>add_p()</code> delegates each comparison to
 <code><a href="compare_groups.html">compare_groups()</a></code> using the same fixed selection policy: Welch t-test or
-Welch ANOVA when distribution guidance does not flag skewness, rank-based
-tests when it does, and chi-square or Fisher's exact test according to
+Welch ANOVA by default when distribution guidance does not flag skewness;
+Student's t-test or classical ANOVA when <code>var_equal = TRUE</code>; rank-based tests
+when skewness is flagged; and chi-square or Fisher's exact test according to
 expected cell counts. Shapiro-Wilk is supporting information only and does
 not itself select a test.</p>
 <p>The publication table contains only the p-value and compact test markers.

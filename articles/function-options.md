@@ -170,6 +170,7 @@ summary_table(birthwt_data, by = low, overall = TRUE) |>
 |----|----|----|
 | `data`, `variable`, `group` | required | State one outcome variable and the categorical comparison group |
 | `test` | `"auto"`; `"t_test"`, `"welch_t"`, `"wilcox"`, `"anova"`, `"welch_anova"`, `"kruskal"`, `"chisq"`, `"fisher"`, `"mcnemar"` | Automatic selection or an explicit valid test |
+| `var_equal` | `FALSE` | For non-skewed independent continuous auto comparisons, `TRUE` selects Student’s t-test or classical ANOVA; it is user-specified, never inferred from a variance test |
 | `paired`, `id` | `FALSE`, `NULL` | Analyse repeated measurements; `id` is required when paired |
 | `effect_size` | `FALSE` | Add a compatible effect-size estimate to the result |
 | `conf.level`, `digits` | `0.95`, `2` | Interval confidence and display precision |

@@ -70,6 +70,7 @@ from the outcome type and study design.</p>
 <span>  show_p <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"t_test"</span>, <span class="st">"welch_t"</span>, <span class="st">"wilcox"</span>, <span class="st">"anova"</span>, <span class="st">"welch_anova"</span>, <span class="st">"kruskal"</span>,</span>
 <span>    <span class="st">"chisq"</span>, <span class="st">"fisher"</span>, <span class="st">"mcnemar"</span><span class="op">)</span>,</span>
+<span>  var_equal <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  palette <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  base_size <span class="op">=</span> <span class="fl">14</span>,</span>
 <span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -125,6 +126,13 @@ string.</p></dd>
 <dd><p>Test passed to <code><a href="compare_groups.html">compare_groups()</a></code> when <code>show_p = TRUE</code>.</p></dd>
 
 
+<dt id="arg-var-equal">var_equal<a class="anchor" aria-label="anchor" href="#arg-var-equal"></a></dt>
+<dd><p>Logical; passed to <code><a href="compare_groups.html">compare_groups()</a></code> when <code>show_p = TRUE</code>.
+With <code>test = "auto"</code>, <code>TRUE</code> selects the equal-variance parametric route
+for independent, non-skewed continuous outcomes. Default <code>FALSE</code> retains
+Welch methods; no variance test is performed.</p></dd>
+
+
 <dt id="arg-palette">palette<a class="anchor" aria-label="anchor" href="#arg-palette"></a></dt>
 <dd><p>Optional character vector of colours. It must contain at least
 one colour per displayed group or outcome level.</p></dd>
@@ -158,7 +166,7 @@ stacked within-group proportions, and paired continuous outcomes as
 participant-level connected observations. The returned object is a standard
 <code>ggplot</code> and can be customized with ordinary ggplot2 layers.</p>
 <p>When <code>show_p = TRUE</code>, the annotation is obtained from <code><a href="compare_groups.html">compare_groups()</a></code> with
-the same <code>test</code>, <code>paired</code>, and <code>id</code> settings. The test name is always shown
+the same <code>test</code>, <code>var_equal</code>, <code>paired</code>, and <code>id</code> settings. The test name is always shown
 with the p-value. The annotation and plotted denominators use the same
 complete observations; non-finite continuous values are excluded.</p>
     </div>

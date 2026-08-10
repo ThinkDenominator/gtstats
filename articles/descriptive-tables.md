@@ -216,7 +216,8 @@ appends a p-value column. By default, the test is selected
 automatically:
 
 - Continuous variables: Welch t-test (2 groups) or Welch ANOVA (3+
-  groups)
+  groups) by default; use `var_equal = TRUE` only when an equal-variance
+  assumption is justified, to select Student’s t-test or classical ANOVA
 - Skewed distributions: Wilcoxon rank-sum or Kruskal-Wallis
 - Categorical variables: chi-squared test when all expected cell counts
   are at least 5; Fisher’s exact test otherwise
@@ -226,7 +227,8 @@ uses the same automatic-selection policy as
 [`compare_groups()`](https://gtstats.thinkdenominator.com/reference/compare_groups.md).
 The publication table stays concise: its p-value markers identify the
 test, while the variable-specific checks remain available in the audit
-components.
+components. `var_equal` is a user-specified analytical assumption; it is
+not inferred by a variance hypothesis test.
 
 ``` r
 

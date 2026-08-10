@@ -58,6 +58,10 @@ that gap:
 - publication-ready tables are the default, not an extra formatting
   task;
 - automatic test selection is visible and can always be overridden;
+- Welch methods are the conservative default for suitable independent
+  continuous comparisons; `var_equal = TRUE` is available when equal
+  variances are prespecified and justified, not inferred from a variance
+  test;
 - distribution, variance, assumptions, and denominators are inspectable;
 - the table builder offers simple defaults with optional layers of
   control.

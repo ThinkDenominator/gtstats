@@ -359,7 +359,9 @@ displays only when categorical variables are present.</p>
 is selected automatically:</p>
 <ul>
 <li>Continuous variables: Welch t-test (2 groups) or Welch ANOVA (3+
-groups)</li>
+groups) by default; use <code>var_equal = TRUE</code> only when an
+equal-variance assumption is justified, to select Student’s t-test or
+classical ANOVA</li>
 <li>Skewed distributions: Wilcoxon rank-sum or Kruskal-Wallis</li>
 <li>Categorical variables: chi-squared test when all expected cell
 counts are at least 5; Fisher’s exact test otherwise</li>
@@ -367,7 +369,9 @@ counts are at least 5; Fisher’s exact test otherwise</li>
 <p><code><a href="../reference/add_p.html">add_p()</a></code> uses the same automatic-selection policy as
 <code><a href="../reference/compare_groups.html">compare_groups()</a></code>. The publication table stays concise: its
 p-value markers identify the test, while the variable-specific checks
-remain available in the audit components.</p>
+remain available in the audit components. <code>var_equal</code> is a
+user-specified analytical assumption; it is not inferred by a variance
+hypothesis test.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/summary_table.html">summary_table</a></span><span class="op">(</span><span class="va">mtcars</span>, by <span class="op">=</span> <span class="va">am</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_summary.html">add_summary</a></span><span class="op">(</span>vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">mpg</span>, <span class="va">wt</span>, <span class="va">cyl</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>

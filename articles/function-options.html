@@ -692,6 +692,13 @@ continuity correction</td>
 <td>Automatic selection or an explicit valid test</td>
 </tr>
 <tr class="odd">
+<td><code>var_equal</code></td>
+<td><code>FALSE</code></td>
+<td>For non-skewed independent continuous auto comparisons,
+<code>TRUE</code> selects Student’s t-test or classical ANOVA; it is
+user-specified, never inferred from a variance test</td>
+</tr>
+<tr class="even">
 <td>
 <code>paired</code>, <code>id</code>
 </td>
@@ -701,12 +708,12 @@ continuity correction</td>
 <td>Analyse repeated measurements; <code>id</code> is required when
 paired</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>effect_size</code></td>
 <td><code>FALSE</code></td>
 <td>Add a compatible effect-size estimate to the result</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>
 <code>conf.level</code>, <code>digits</code>
 </td>
@@ -715,7 +722,7 @@ paired</td>
 </td>
 <td>Interval confidence and display precision</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>...</code></td>
 <td>optional</td>
 <td>Advanced controls used by the selected method</td>

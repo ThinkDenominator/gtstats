@@ -147,15 +147,19 @@ recorded with its rule and inputs in <code>$method</code>,
 <tbody>
 <tr class="odd">
 <td>Continuous, two independent groups</td>
-<td>Skewness guidance within each group</td>
-<td>Welch t-test if no group is flagged; Wilcoxon rank-sum if one or
-more groups are flagged</td>
+<td>Skewness guidance within each group; <code>var_equal</code>
+</td>
+<td>Welch t-test by default; Student’s t-test when
+<code>var_equal = TRUE</code>; Wilcoxon rank-sum if one or more groups
+are flagged</td>
 </tr>
 <tr class="even">
 <td>Continuous, three or more independent groups</td>
-<td>Skewness guidance within each group</td>
-<td>Welch ANOVA if no group is flagged; Kruskal-Wallis if one or more
-groups are flagged</td>
+<td>Skewness guidance within each group; <code>var_equal</code>
+</td>
+<td>Welch ANOVA by default; classical ANOVA when
+<code>var_equal = TRUE</code>; Kruskal-Wallis if one or more groups are
+flagged</td>
 </tr>
 <tr class="odd">
 <td>Continuous, paired</td>
@@ -257,8 +261,11 @@ McNemar’s test:</p>
 </h2>
 <p>Welch’s t-test is the two-group parametric default because it does
 not require equal variances. Welch ANOVA is the corresponding default
-for three or more groups. Classical Student t-tests and ANOVA remain
-available when equal variances are justified.</p>
+for three or more groups. When equal variances are justified in a
+prespecified analysis plan, <code>var_equal = TRUE</code> changes the
+non-skewed independent automatic route to Student’s t-test or classical
+ANOVA. It does not run, infer, or prove an equal-variance hypothesis
+test.</p>
 <p>Use <code><a href="../reference/assess_variance.html">assess_variance()</a></code> to make the observed group spread
 visible before interpreting a comparison. It reports SDs, variances, and
 largest/smallest spread ratios but deliberately does not run a
@@ -268,7 +275,8 @@ variance-test gatekeeper or change the automatic choice.</p>
 <p>The same observed-spread diagnostic is retained in an independent
 continuous <code><a href="../reference/compare_groups.html">compare_groups()</a></code> result. It is descriptive
 context, not a test-selection rule: Welch t-tests and Welch ANOVA do not
-require equal variances.</p>
+require equal variances. The value of <code>var_equal</code> is a
+transparent user choice, not a data-driven variance test.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/compare_groups.html">compare_groups</a></span><span class="op">(</span></span>
 <span>  <span class="va">mtcars</span>,</span>
@@ -316,7 +324,10 @@ default.</p>
 <span>      vs <span class="op">=</span> <span class="st">"fisher"</span></span>
 <span>    <span class="op">)</span>,</span>
 <span>    normality_check <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span>  <span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
+<p>To use the equal-variance parametric route deliberately:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/compare_groups.html">compare_groups</a></span><span class="op">(</span><span class="va">trial_data</span>, <span class="va">change_score</span>, group <span class="op">=</span> <span class="va">arm</span>, var_equal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>The table footnote records tests used and reminds readers that
 independence must be confirmed from the study design.</p>
 </div>
@@ -359,7 +370,7 @@ incidence rates, unless genuine observation time is represented.</p>
 <h2 id="inspect-what-was-checked">Inspect what was checked<a class="anchor" aria-label="anchor" href="#inspect-what-was-checked"></a>
 </h2>
 <p>Inferential objects retain transparent metadata:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compare_groups.html">compare_groups</a></span><span class="op">(</span><span class="va">mtcars</span>, variable <span class="op">=</span> <span class="va">vs</span>, group <span class="op">=</span> <span class="va">am</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">result</span><span class="op">$</span><span class="va">inferential</span></span>
@@ -379,7 +390,7 @@ and rule used. <code>$notes</code> remains a short human-readable
 explanation.</p>
 <p>Use the inspection helpers for a consistent tibble or formatted
 table:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/assumptions_stats.html">assumptions_stats</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/diagnostics_stats.html">diagnostics_stats</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/denominators_stats.html">denominators_stats</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>

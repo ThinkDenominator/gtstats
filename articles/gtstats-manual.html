@@ -466,11 +466,13 @@ and result notes:</p>
 <tbody>
 <tr class="odd">
 <td>Continuous, two independent groups</td>
-<td>Welch t-test; Wilcoxon if marked skew is flagged</td>
+<td>Welch t-test by default; Student’s t-test when equal variances are
+explicitly justified; Wilcoxon if marked skew is flagged</td>
 </tr>
 <tr class="even">
 <td>Continuous, 3+ independent groups</td>
-<td>Welch ANOVA; Kruskal-Wallis if marked skew is flagged</td>
+<td>Welch ANOVA by default; classical ANOVA when equal variances are
+explicitly justified; Kruskal-Wallis if marked skew is flagged</td>
 </tr>
 <tr class="odd">
 <td>Ordinal</td>
@@ -487,6 +489,12 @@ sparse</td>
 ANOVA, Kruskal-Wallis, chi-square, or Fisher exact yourself. Use an
 explicit choice only when it is justified by the study design or an
 analysis plan.</p>
+<p>For <strong>Auto</strong>, the app also offers <strong>equal
+variances are justified</strong>. This sets
+<code>var_equal = TRUE</code>: it switches only a non-skewed independent
+continuous auto comparison to Student’s t-test or classical ANOVA. It
+does not perform a variance test and does not alter paired, categorical,
+ordinal, or rank-based comparisons.</p>
 </div>
 <div class="section level3">
 <h3 id="result-and-audit-panels">Result and Audit panels<a class="anchor" aria-label="anchor" href="#result-and-audit-panels"></a>

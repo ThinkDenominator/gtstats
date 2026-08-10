@@ -53,8 +53,11 @@ add_p(
 
 - var_equal:
 
-  Logical; use equal-variance Student t-tests when appropriate. The
-  default is `FALSE`, giving Welch tests.
+  Logical; for independent, non-skewed continuous comparisons in
+  `method = "auto"`, use Student's t-test or classical ANOVA. The
+  default `FALSE` uses Welch methods. This is a user-specified
+  assumption, not a variance test, and does not affect paired,
+  categorical, ordinal, or rank-based comparisons.
 
 - correction:
 
@@ -110,11 +113,12 @@ different methods for individual variables.
 
 With `method = "auto"`, `add_p()` delegates each comparison to
 [`compare_groups()`](https://gtstats.thinkdenominator.com/reference/compare_groups.md)
-using the same fixed selection policy: Welch t-test or Welch ANOVA when
-distribution guidance does not flag skewness, rank-based tests when it
-does, and chi-square or Fisher's exact test according to expected cell
-counts. Shapiro-Wilk is supporting information only and does not itself
-select a test.
+using the same fixed selection policy: Welch t-test or Welch ANOVA by
+default when distribution guidance does not flag skewness; Student's
+t-test or classical ANOVA when `var_equal = TRUE`; rank-based tests when
+skewness is flagged; and chi-square or Fisher's exact test according to
+expected cell counts. Shapiro-Wilk is supporting information only and
+does not itself select a test.
 
 The publication table contains only the p-value and compact test
 markers. The full per-variable audit trail is retained in

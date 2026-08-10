@@ -63,8 +63,8 @@ rule and inputs in `$method`, `$diagnostics`, and `$notes`.
 
 | Comparison | What auto checks | Test selected |
 |----|----|----|
-| Continuous, two independent groups | Skewness guidance within each group | Welch t-test if no group is flagged; Wilcoxon rank-sum if one or more groups are flagged |
-| Continuous, three or more independent groups | Skewness guidance within each group | Welch ANOVA if no group is flagged; Kruskal-Wallis if one or more groups are flagged |
+| Continuous, two independent groups | Skewness guidance within each group; `var_equal` | Welch t-test by default; Student’s t-test when `var_equal = TRUE`; Wilcoxon rank-sum if one or more groups are flagged |
+| Continuous, three or more independent groups | Skewness guidance within each group; `var_equal` | Welch ANOVA by default; classical ANOVA when `var_equal = TRUE`; Kruskal-Wallis if one or more groups are flagged |
 | Continuous, paired | Skewness guidance for within-pair differences | Paired t-test if not flagged; Wilcoxon signed-rank if flagged |
 | Ordinal, two groups | Outcome is ordered | Wilcoxon rank-sum |
 | Ordinal, three or more groups | Outcome is ordered | Kruskal-Wallis |
@@ -137,8 +137,10 @@ compare_groups(
 
 Welch’s t-test is the two-group parametric default because it does not
 require equal variances. Welch ANOVA is the corresponding default for
-three or more groups. Classical Student t-tests and ANOVA remain
-available when equal variances are justified.
+three or more groups. When equal variances are justified in a
+prespecified analysis plan, `var_equal = TRUE` changes the non-skewed
+independent automatic route to Student’s t-test or classical ANOVA. It
+does not run, infer, or prove an equal-variance hypothesis test.
 
 Use
 [`assess_variance()`](https://gtstats.thinkdenominator.com/reference/assess_variance.md)
@@ -156,7 +158,9 @@ The same observed-spread diagnostic is retained in an independent
 continuous
 [`compare_groups()`](https://gtstats.thinkdenominator.com/reference/compare_groups.md)
 result. It is descriptive context, not a test-selection rule: Welch
-t-tests and Welch ANOVA do not require equal variances.
+t-tests and Welch ANOVA do not require equal variances. The value of
+`var_equal` is a transparent user choice, not a data-driven variance
+test.
 
 ``` r
 
@@ -219,7 +223,14 @@ summary_table(mtcars, by = am) |>
       vs = "fisher"
     ),
     normality_check = FALSE
-  )
+)
+```
+
+To use the equal-variance parametric route deliberately:
+
+``` r
+
+compare_groups(trial_data, change_score, group = arm, var_equal = TRUE)
 ```
 
 The table footnote records tests used and reminds readers that

@@ -18,6 +18,7 @@ plot_compare(
   show_p = FALSE,
   test = c("auto", "t_test", "welch_t", "wilcox", "anova", "welch_anova", "kruskal",
     "chisq", "fisher", "mcnemar"),
+  var_equal = FALSE,
   palette = NULL,
   base_size = 14,
   title = NULL,
@@ -73,6 +74,15 @@ plot_compare(
   [`compare_groups()`](https://gtstats.thinkdenominator.com/reference/compare_groups.md)
   when `show_p = TRUE`.
 
+- var_equal:
+
+  Logical; passed to
+  [`compare_groups()`](https://gtstats.thinkdenominator.com/reference/compare_groups.md)
+  when `show_p = TRUE`. With `test = "auto"`, `TRUE` selects the
+  equal-variance parametric route for independent, non-skewed continuous
+  outcomes. Default `FALSE` retains Welch methods; no variance test is
+  performed.
+
 - palette:
 
   Optional character vector of colours. It must contain at least one
@@ -109,10 +119,10 @@ ggplot2 layers.
 
 When `show_p = TRUE`, the annotation is obtained from
 [`compare_groups()`](https://gtstats.thinkdenominator.com/reference/compare_groups.md)
-with the same `test`, `paired`, and `id` settings. The test name is
-always shown with the p-value. The annotation and plotted denominators
-use the same complete observations; non-finite continuous values are
-excluded.
+with the same `test`, `var_equal`, `paired`, and `id` settings. The test
+name is always shown with the p-value. The annotation and plotted
+denominators use the same complete observations; non-finite continuous
+values are excluded.
 
 ## Examples
 

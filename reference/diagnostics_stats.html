@@ -97,11 +97,13 @@ retained by a <code>gtstats</code> result.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="compare_groups.html">compare_groups</a></span><span class="op">(</span><span class="va">mtcars</span>, variable <span class="op">=</span> <span class="va">vs</span>, group <span class="op">=</span> <span class="va">am</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">diagnostics_stats</span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 6</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 4 × 6</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Variable Check                Result `Observed value` Reference Interpretation</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="color: #BB0000;">NA</span>       Automatic test sele… Chi-s… 5.69             All expe… Independent c…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> <span style="color: #BB0000;">NA</span>       Expected cell counts adequ… 5.69             Minimum … Fisher's exac…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="color: #BB0000;">NA</span>       Comparison design    indep… Independent obs… Defined … Independent c…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> <span style="color: #BB0000;">NA</span>       Variance assumption  not a… var_equal = FAL… Applies … `var_equal` d…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> <span style="color: #BB0000;">NA</span>       Automatic test sele… Chi-s… 5.69             All expe… Independent c…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> <span style="color: #BB0000;">NA</span>       Expected cell counts adequ… 5.69             Minimum … Fisher's exac…</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
