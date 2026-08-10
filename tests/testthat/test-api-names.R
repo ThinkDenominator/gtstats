@@ -86,7 +86,7 @@ test_that("only finalized conflict-free public names are exported", {
     "add_summary", "add_total", "assess_distribution", "assess_variance",
     "assumptions_stats", "compare_groups", "correlation",
     "customise_table", "denominators_stats", "describe_data",
-    "diagnostics_stats", "effect_size", "plot_compare",
+    "diagnostics_stats", "effect_size", "gtstats_app", "plot_compare",
     "plot_correlation", "proportion_stats", "rate_stats",
     "save_output",
     "summary_table", "tbl_stats", "to_flextable", "crosstabs"

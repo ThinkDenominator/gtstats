@@ -144,3 +144,12 @@
 
   invisible(TRUE)
 }
+
+# Convert empty observed category labels to a safe, explicit display label.
+# Empty strings are valid data values, but cannot safely be used as table
+# column names or named-list indices.
+.display_level <- function(x, blank = "(blank)") {
+  x <- as.character(x)
+  x[!is.na(x) & !nzchar(trimws(x))] <- blank
+  x
+}

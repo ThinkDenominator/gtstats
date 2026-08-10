@@ -33,7 +33,7 @@
 
 .builder_group_columns <- function(x) {
   values <- .builder_group_values(x)
-  stats::setNames(paste0(x$by, " = ", values), values)
+  stats::setNames(paste0(x$by, " = ", .display_level(values)), values)
 }
 
 .builder_display_headers <- function(x) {
@@ -49,14 +49,15 @@
   if (!is.null(x$by)) {
     values <- .builder_group_values(x)
     columns <- .builder_group_columns(x)
-    for (value in values) {
-      column <- unname(columns[[value]])
+    for (i in seq_along(values)) {
+      value <- values[[i]]
+      column <- unname(columns[[i]])
       if (column %in% names(x$table)) {
         n_group <- sum(
           !is.na(x$data[[x$by]]) &
             as.character(x$data[[x$by]]) == value
         )
-        labels[[column]] <- paste0(value, "\nN = ", n_group)
+        labels[[column]] <- paste0(.display_level(value), "\nN = ", n_group)
       }
     }
   }

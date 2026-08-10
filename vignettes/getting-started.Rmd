@@ -64,6 +64,30 @@ Kruskal-Wallis, chi-square, Fisher exact, correlation, and rates.
 Wilcoxon signed-rank, and McNemar tests. Each help page contains its data
 dictionary and examples.
 
+## Prefer a guided interface?
+
+`gtstats_app()` is an optional Shiny companion for learners and collaborators
+who prefer a menu-driven starting point. It can load a built-in teaching
+dataset or a CSV/Excel file, show a working data dictionary, then guide the
+user through data description, distribution and spread checks, Table 1, group
+comparisons, and crosstabs. Every analysis page displays the corresponding R
+code with copy and `.R` download buttons, while result tables can be downloaded
+as Word, HTML, PDF, or RTF. The optional `rio` package enables Excel import.
+
+```r
+# Run once if Shiny is not installed
+install.packages("shiny")
+install.packages("rio") # only needed for Excel files
+
+gtstats_app()
+```
+
+The GUI is not a substitute for a reproducible script: copy the displayed code
+into an R script or Quarto document before final reporting. While the app is
+open, the R console displays `Listening on ...`; this is normal. Click **Close
+app** in the bottom-right corner of the interface to end the local session
+cleanly and return to the R prompt.
+
 ## 2. Assess distribution for descriptive reporting
 
 ```{r assess}

@@ -526,3 +526,15 @@ test_that("compare_groups() returns epsilon-squared for multi-level ordinal outc
   expect_gte(res$inferential$effect_size, 0)
   expect_lte(res$inferential$effect_size, 1)
 })
+
+test_that("compare_groups() displays blank group values safely", {
+  dat <- data.frame(
+    group = factor(c("", "", "A", "A")),
+    outcome = c(1, 2, 3, 4)
+  )
+
+  result <- compare_groups(dat, variable = outcome, group = group)
+
+  expect_s3_class(result, "gt_compare")
+  expect_true(any(grepl("\\(blank\\)", names(result$table))))
+})

@@ -167,8 +167,11 @@ crosstabs <- function(
   }
   display <- matrix("", nrow(tab), ncol(tab), dimnames = dimnames(tab))
   for (i in seq_len(nrow(tab))) for (j in seq_len(ncol(tab))) display[i, j] <- format_cell(tab[i, j], i, j)
-  table_tbl <- data.frame(Row = rownames(tab), display, check.names = FALSE, stringsAsFactors = FALSE)
-  names(table_tbl)[-1L] <- colnames(tab)
+  table_tbl <- data.frame(
+    Row = .display_level(rownames(tab)), display,
+    check.names = FALSE, stringsAsFactors = FALSE
+  )
+  names(table_tbl)[-1L] <- .display_level(colnames(tab))
   if (isTRUE(totals)) {
     table_tbl$Total <- paste0(rowSums(tab), "<br>", formatC(100 * rowSums(tab) / total_n, format = "f", digits = digits), "%")
     total_row <- c("Total", paste0(colSums(tab), "<br>100.00%"), paste0(total_n, "<br>100.00%"))

@@ -90,6 +90,18 @@ test_that("crosstabs() validates categorical structure", {
   expect_error(crosstabs(mtcars, cyl, am, percent = c("none", "row")), "cannot be combined")
 })
 
+test_that("crosstabs() displays blank category values safely", {
+  dat <- data.frame(
+    exposure = factor(c("", "", "Exposed", "Exposed")),
+    outcome = factor(c("No", "Yes", "No", "Yes"))
+  )
+
+  result <- crosstabs(dat, exposure, outcome)
+
+  expect_s3_class(result, "gt_twobytwo")
+  expect_true("(blank)" %in% result$table[[1L]])
+})
+
 test_that("crosstabs() renders and exports", {
   result <- crosstabs(mtcars, cyl, gear, percent = c("row", "column"))
   expect_s3_class(tbl_stats(result), "gt_tbl")

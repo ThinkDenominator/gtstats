@@ -59,6 +59,7 @@ automatic decisions for review.
 | Compare | `compare_groups()` | One focused group comparison with a clearly identified test and automatic-selection rule |
 | Audit | `assumptions_stats()`, `diagnostics_stats()`, `denominators_stats()` | Transparent decisions and analysis population |
 | Export | `tbl_stats()`, `customise_table()`, `save_output()` | A modifiable, report-ready table |
+| Guided | `gtstats_app()` | A point-and-click companion that generates the matching R code |
 
 <div class="gs-strip">
 
@@ -161,6 +162,26 @@ data("birthwt", "trial_data", "paired_data", package = "gtstats")
 - `paired_data`: long-format paired follow-up data for paired t-tests,
   Wilcoxon signed-rank, and McNemar tests.
 
+## Prefer a guided interface?
+
+The package remains code-first, but a Shiny companion is available when
+you prefer to learn by clicking through the workflow. It includes the
+three teaching datasets, CSV/Excel upload, a working data dictionary,
+distribution and variance checks, Table 1, focused group comparisons,
+crosstabs, Word/HTML/PDF/RTF table downloads, an in-session history, and
+copyable or downloadable R code for every analysis. Excel import uses
+the optional `rio` package.
+
+``` r
+install.packages("shiny") # once, if needed
+install.packages("rio")   # once, only for Excel files
+gtstats_app() # opens in the RStudio Viewer when available
+```
+
+The interface is intentionally a guide rather than a black box: use the
+code shown beside each result in an R script or Quarto document to keep
+the final analysis reproducible.
+
 ## Five-minute workflow
 
 ``` r
@@ -218,6 +239,7 @@ table_one |>
 | Epidemiology | `proportion_stats()`, `rate_stats()`, `crosstabs()` |
 | Inspect decisions | `assumptions_stats()`, `diagnostics_stats()`, `denominators_stats()` |
 | Visualise | `plot_compare()`, `plot_correlation()` |
+| Guided interface | `gtstats_app()` |
 | Polish and export | `tbl_stats()`, `customise_table()`, `to_flextable()`, `save_output()` |
 
 ## Citation

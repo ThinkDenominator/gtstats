@@ -147,6 +147,20 @@ test_that("summary_table() errors for invalid data", {
   )
 })
 
+test_that("grouped summaries display blank category values safely", {
+  dat <- data.frame(
+    group = factor(c("", "", "A", "A")),
+    outcome = factor(c("No", "Yes", "No", "Yes"))
+  )
+
+  result <- summary_table(dat, by = group) |>
+    add_proportion(var = outcome, level = "Yes") |>
+    add_total()
+
+  expect_s3_class(result, "gt_desc_table")
+  expect_true(any(grepl("\\(blank\\)", names(result$table))))
+})
+
 test_that("add_summary() errors for missing variable", {
   res <- summary_table(mtcars, by = am)
 

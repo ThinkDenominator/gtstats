@@ -40,6 +40,8 @@ navbar:
       menu:
         - text: "Getting started"
           href: articles/getting-started.html
+        - text: "Using the gtstats App"
+          href: articles/gtstats-manual.html
         - text: "Birth-weight case study"
           href: articles/birthweight-case-study.html
         - text: "Function map"
@@ -72,6 +74,7 @@ articles:
     navbar: ~
     contents:
       - getting-started
+      - gtstats-manual
       - birthweight-case-study
       - overview
       - function-options
@@ -92,6 +95,11 @@ reference:
       - birthwt
       - trial_data
       - paired_data
+
+  - title: "Guided interface"
+    desc: "A point-and-click companion that generates reproducible gtstats code."
+    contents:
+      - gtstats_app
 
   - title: "1. Understand the data"
     desc: "Understand variable types, missing data, and distributions before analysis."

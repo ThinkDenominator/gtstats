@@ -1486,6 +1486,7 @@ compare_groups <- function(
   # freedom, selection reasons, and diagnostics remain in `inferential`.
   infer_row <- inferential_tbl[1, ]
   group_levels_display <- levels(group_factor)
+  group_levels_label <- .display_level(group_levels_display)
   group_n <- vapply(
     group_levels_display,
     function(level) {
@@ -1498,7 +1499,7 @@ compare_groups <- function(
     integer(1)
   )
   group_columns <- stats::setNames(
-    paste0(group_levels_display, "\nN = ", group_n),
+    paste0(group_levels_label, "\nN = ", group_n),
     group_levels_display
   )
 
@@ -1530,13 +1531,14 @@ compare_groups <- function(
     table_tbl <- tibble::tibble(
       Variable = .get_var_label(data, outcome_name)
     )
-    for (level in group_levels_display) {
+    for (i in seq_along(group_levels_display)) {
+      level <- group_levels_display[[i]]
       desc_row <- descriptives_tbl[
         descriptives_tbl$group_level == level,
         ,
         drop = FALSE
       ]
-      table_tbl[[group_columns[[level]]]] <-
+      table_tbl[[group_columns[[i]]]] <-
         desc_row[[summary_field]][[1L]]
     }
     if (!is.na(estimate_display)) {
@@ -1592,13 +1594,14 @@ compare_groups <- function(
       ),
       Level = outcome_levels
     )
-    for (level in group_levels_display) {
+    for (i in seq_along(group_levels_display)) {
+      level <- group_levels_display[[i]]
       values <- descriptives_tbl[
         descriptives_tbl$group_level == level,
         c("level", "count_pct"),
         drop = FALSE
       ]
-      table_tbl[[group_columns[[level]]]] <-
+      table_tbl[[group_columns[[i]]]] <-
         values$count_pct[match(outcome_levels, values$level)]
     }
     if (!is.na(estimate_display)) {

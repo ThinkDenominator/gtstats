@@ -516,7 +516,7 @@
     group_values <- group_values[!is.na(group_values)]
 
     group_values_chr <- as.character(group_values)
-    group_labels <- paste0(by, " = ", group_values_chr)
+    group_labels <- paste0(by, " = ", .display_level(group_values_chr))
     names(group_labels) <- group_values_chr
 
     summary_list <- list()
@@ -806,13 +806,14 @@
     names(row_keys) <- c("Variable", "Level", "Type")
     row_keys$Level[is.na(row_keys$Level)] <- ""
 
-    group_tables <- lapply(group_values_chr, function(g) {
+    group_tables <- lapply(seq_along(group_values_chr), function(i) {
+      g <- group_values_chr[[i]]
       tmp <- summary_tbl[
         summary_tbl$group_level == g,
         c("label", "level", "display_value")
       ]
 
-      names(tmp) <- c("Variable", "Level", group_labels[[g]])
+      names(tmp) <- c("Variable", "Level", group_labels[[i]])
       tmp$Level[is.na(tmp$Level)] <- ""
       tmp
     })

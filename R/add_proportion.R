@@ -151,11 +151,12 @@ add_proportion <- function(
     group_values_chr <- .builder_group_values(x)
     group_labels <- .builder_group_columns(x)
 
-    for (g in group_values_chr) {
+    for (i in seq_along(group_values_chr)) {
+      g <- group_values_chr[[i]]
       idx <- !is.na(by_var) & as.character(by_var) == g
       vg <- v_chr[idx]
 
-      row_tbl[[group_labels[[g]]]] <- .make_display(
+      row_tbl[[group_labels[[i]]]] <- .make_display(
         values = vg,
         ci = ci,
         conf.level = conf.level,

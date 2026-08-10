@@ -12,7 +12,7 @@ Description: Provides beginner-friendly functions for common descriptive and
     statistics, distribution assessment, group comparisons, effect sizes,
     correlations, proportions and rates with confidence intervals, crosstabs for
     epidemiological measures, plots, and modular table-building workflows.
-URL: https://github.com/thinkdenominator/gtstats
+URL: https://gtstats.thinkdenominator.com/, https://github.com/ThinkDenominator/gtstats
 BugReports: https://github.com/thinkdenominator/gtstats/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
@@ -28,6 +28,9 @@ Imports:
     stats,
     ggplot2
 Suggests:
+    shiny,
+    rstudioapi,
+    rio,
     testthat (>= 3.0.0),
     knitr,
     rmarkdown,

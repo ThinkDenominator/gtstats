@@ -67,9 +67,10 @@ add_total <- function(
     group_values_chr <- .builder_group_values(x)
     group_labels <- .builder_group_columns(x)
 
-    for (g in group_values_chr) {
+    for (i in seq_along(group_values_chr)) {
+      g <- group_values_chr[[i]]
       n_g <- sum(!is.na(x$data[[x$by]]) & as.character(x$data[[x$by]]) == g)
-      total_row[[group_labels[[g]]]] <- as.character(n_g)
+      total_row[[group_labels[[i]]]] <- as.character(n_g)
     }
   } else if (!isTRUE(x$overall)) {
     # Use a single Value column when neither grouping nor overall is used
