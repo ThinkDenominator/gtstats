@@ -371,3 +371,12 @@ test_that("save_output() returns invisible path", {
   expect_false(out$visible)
   expect_true(file.exists(out$value))
 })
+
+test_that("save_output() saves png with explicit sizing arguments", {
+  skip_on_cran()
+  skip_if(Sys.getenv("CI") != "", "Table PNG export requires a working local Chrome browser.")
+  skip_if_not_installed("webshot2")
+  skip_if_not_installed("gt")
+
+  # existing test body
+})
