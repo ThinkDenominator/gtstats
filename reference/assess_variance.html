@@ -3,7 +3,7 @@
 diagnostic companion to assess_distribution() and is intended to make
 variation visible before a group comparison is interpreted."><meta property="og:description" content="Describe the spread of continuous numeric variables within groups. This is a
 diagnostic companion to assess_distribution() and is intended to make
-variation visible before a group comparison is interpreted."></head><body>
+variation visible before a group comparison is interpreted."><link rel="stylesheet" href="https://thinkdenominator.com/analytics-consent.css"><script>window.TD_GA_MEASUREMENT_ID = "G-EW7RP69914";</script><script defer src="https://thinkdenominator.com/analytics-consent.js"></script></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -66,6 +66,7 @@ variation visible before a group comparison is interpreted.</p>
 <span>  vars <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">by</span>,</span>
 <span>  digits <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"bartlett"</span><span class="op">)</span>,</span>
 <span>  output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"table"</span>, <span class="st">"tibble"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -95,6 +96,12 @@ two observed groups.</p></dd>
 <dd><p>Number of decimal places.</p></dd>
 
 
+<dt id="arg-test">test<a class="anchor" aria-label="anchor" href="#arg-test"></a></dt>
+<dd><p>Variance hypothesis test to display: <code>"none"</code> (default) or
+<code>"bartlett"</code>. Bartlett's test is sensitive to non-normality and is a
+diagnostic, not a gatekeeper for ANOVA or Welch methods.</p></dd>
+
+
 <dt id="arg-output">output<a class="anchor" aria-label="anchor" href="#arg-output"></a></dt>
 <dd><p>Either <code>"table"</code> (the default) or <code>"tibble"</code>.</p></dd>
 
@@ -113,29 +120,32 @@ variances, and the ratio of the largest to the smallest group SD and
 variance. These ratios are descriptive diagnostics, not pass/fail tests.
 The function deliberately does not run a variance hypothesis test by
 default, and it does not choose an inferential test. In particular, Welch
-t-tests and Welch ANOVA do not require equal variances.</p>
+t-tests and Welch ANOVA do not require equal variances.
+Set <code>test = "bartlett"</code> to add Bartlett's test as supporting information.
+Bartlett's test assumes normal group distributions and is deliberately not
+used to select a test in <code><a href="compare_groups.html">compare_groups()</a></code>.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">assess_variance</span><span class="op">(</span><span class="va">mtcars</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">mpg</span>, <span class="va">wt</span><span class="op">)</span>, by <span class="op">=</span> <span class="va">am</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;div id="qeoelfyoqa" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;"&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   &lt;style&gt;#qeoelfyoqa table {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;div id="wjjayiclmu" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;"&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   &lt;style&gt;#wjjayiclmu table {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-family: system-ui;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   -webkit-font-smoothing: antialiased;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   -moz-osx-font-smoothing: grayscale;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa thead, #qeoelfyoqa tbody, #qeoelfyoqa tfoot, #qeoelfyoqa tr, #qeoelfyoqa td, #qeoelfyoqa th {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu thead, #wjjayiclmu tbody, #wjjayiclmu tfoot, #wjjayiclmu tr, #wjjayiclmu td, #wjjayiclmu th {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-style: none;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa p {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu p {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   margin: 0;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding: 0;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_table {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_table {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   display: table;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-collapse: collapse;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   line-height: normal;</span>
@@ -161,12 +171,12 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_caption {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_caption {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 4px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 4px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_title {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_title {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 125%;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-weight: initial;</span>
@@ -178,7 +188,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-width: 0;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_subtitle {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_subtitle {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 85%;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-weight: initial;</span>
@@ -190,7 +200,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 0;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_heading {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_heading {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-align: left;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #FFFFFF;</span>
@@ -202,13 +212,13 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_bottom_border {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_bottom_border {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: solid;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-width: 2px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_col_headings {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_col_headings {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-style: solid;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 2px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-color: #D3D3D3;</span>
@@ -223,7 +233,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_col_heading {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_col_heading {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 100%;</span>
@@ -243,7 +253,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   overflow-x: hidden;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_column_spanner_outer {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_column_spanner_outer {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 100%;</span>
@@ -255,15 +265,15 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 4px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_column_spanner_outer:first-child {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_column_spanner_outer:first-child {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 0;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_column_spanner_outer:last-child {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_column_spanner_outer:last-child {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 0;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_column_spanner {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_column_spanner {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: solid;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-width: 2px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #D3D3D3;</span>
@@ -275,11 +285,11 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   width: 100%;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_spanner_row {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_spanner_row {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: hidden;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_group_heading {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_group_heading {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 8px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 8px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
@@ -305,7 +315,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-align: left;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_empty_group_heading {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_empty_group_heading {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding: 0.5px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
@@ -320,15 +330,15 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   vertical-align: middle;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_from_md &gt; :first-child {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_from_md &gt; :first-child {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   margin-top: 0;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_from_md &gt; :last-child {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_from_md &gt; :last-child {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   margin-bottom: 0;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_row {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_row {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 4px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 4px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
@@ -347,7 +357,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   overflow-x: hidden;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_stub {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_stub {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 100%;</span>
@@ -360,7 +370,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_stub_row_group {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_stub_row_group {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 100%;</span>
@@ -374,15 +384,15 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   vertical-align: top;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_row_group_first td {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_row_group_first td {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 2px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_row_group_first th {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_row_group_first th {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 2px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_summary_row {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_summary_row {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-transform: inherit;</span>
@@ -392,16 +402,16 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_first_summary_row {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_first_summary_row {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-style: solid;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_first_summary_row.thick {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_first_summary_row.thick {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 2px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_last_summary_row {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_last_summary_row {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 8px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 8px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
@@ -411,7 +421,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_grand_summary_row {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_grand_summary_row {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-transform: inherit;</span>
@@ -421,7 +431,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_first_grand_summary_row {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_first_grand_summary_row {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 8px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 8px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
@@ -431,7 +441,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_last_grand_summary_row_top {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_last_grand_summary_row_top {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 8px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 8px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
@@ -441,11 +451,11 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_striped {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_striped {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: rgba(128, 128, 128, 0.05);</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_table_body {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_table_body {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-style: solid;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 2px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-color: #D3D3D3;</span>
@@ -454,7 +464,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_footnotes {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_footnotes {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: none;</span>
@@ -468,7 +478,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_footnote {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_footnote {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   margin: 0px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 90%;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 4px;</span>
@@ -477,7 +487,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_sourcenotes {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_sourcenotes {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: none;</span>
@@ -491,7 +501,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_sourcenote {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_sourcenote {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 90%;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 4px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 4px;</span>
@@ -499,72 +509,72 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_left {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_left {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-align: left;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_center {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_center {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-align: center;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_right {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_right {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-align: right;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-variant-numeric: tabular-nums;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_font_normal {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_font_normal {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-weight: normal;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_font_bold {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_font_bold {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-weight: bold;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_font_italic {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_font_italic {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-style: italic;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_super {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_super {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 65%;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_footnote_marks {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_footnote_marks {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 75%;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   vertical-align: 0.4em;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   position: initial;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_asterisk {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_asterisk {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 100%;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   vertical-align: 0;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_indent_1 {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_indent_1 {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-indent: 5px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_indent_2 {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_indent_2 {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-indent: 10px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_indent_3 {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_indent_3 {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-indent: 15px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_indent_4 {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_indent_4 {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-indent: 20px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .gt_indent_5 {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .gt_indent_5 {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-indent: 25px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa .katex-display {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu .katex-display {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   display: inline-flex !important;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   margin-bottom: 0.75em !important;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #qeoelfyoqa div.Reactable &gt; div.rt-table &gt; div.rt-thead &gt; div.rt-tr.rt-tr-group-header &gt; div.rt-th-group:after {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #wjjayiclmu div.Reactable &gt; div.rt-table &gt; div.rt-thead &gt; div.rt-tr.rt-tr-group-header &gt; div.rt-th-group:after {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   height: 0px !important;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;/style&gt;</span>
@@ -626,23 +636,23 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;/table&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;/div&gt;</span>
 <span class="r-in"><span><span class="fu">assess_variance</span><span class="op">(</span><span class="va">mtcars</span>, vars <span class="op">=</span> <span class="st">"mpg"</span>, by <span class="op">=</span> <span class="va">am</span>, digits <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;div id="itrxpwwkzg" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;"&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   &lt;style&gt;#itrxpwwkzg table {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;div id="sltzopvaax" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;"&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   &lt;style&gt;#sltzopvaax table {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-family: system-ui;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   -webkit-font-smoothing: antialiased;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   -moz-osx-font-smoothing: grayscale;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg thead, #itrxpwwkzg tbody, #itrxpwwkzg tfoot, #itrxpwwkzg tr, #itrxpwwkzg td, #itrxpwwkzg th {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax thead, #sltzopvaax tbody, #sltzopvaax tfoot, #sltzopvaax tr, #sltzopvaax td, #sltzopvaax th {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-style: none;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg p {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax p {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   margin: 0;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding: 0;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_table {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_table {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   display: table;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-collapse: collapse;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   line-height: normal;</span>
@@ -668,12 +678,12 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_caption {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_caption {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 4px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 4px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_title {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_title {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 125%;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-weight: initial;</span>
@@ -685,7 +695,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-width: 0;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_subtitle {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_subtitle {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 85%;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-weight: initial;</span>
@@ -697,7 +707,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 0;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_heading {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_heading {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-align: left;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #FFFFFF;</span>
@@ -709,13 +719,13 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_bottom_border {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_bottom_border {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: solid;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-width: 2px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_col_headings {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_col_headings {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-style: solid;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 2px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-color: #D3D3D3;</span>
@@ -730,7 +740,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_col_heading {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_col_heading {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 100%;</span>
@@ -750,7 +760,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   overflow-x: hidden;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_column_spanner_outer {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_column_spanner_outer {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 100%;</span>
@@ -762,15 +772,15 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 4px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_column_spanner_outer:first-child {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_column_spanner_outer:first-child {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 0;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_column_spanner_outer:last-child {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_column_spanner_outer:last-child {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 0;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_column_spanner {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_column_spanner {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: solid;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-width: 2px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #D3D3D3;</span>
@@ -782,11 +792,11 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   width: 100%;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_spanner_row {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_spanner_row {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: hidden;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_group_heading {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_group_heading {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 8px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 8px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
@@ -812,7 +822,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-align: left;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_empty_group_heading {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_empty_group_heading {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding: 0.5px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
@@ -827,15 +837,15 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   vertical-align: middle;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_from_md &gt; :first-child {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_from_md &gt; :first-child {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   margin-top: 0;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_from_md &gt; :last-child {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_from_md &gt; :last-child {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   margin-bottom: 0;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_row {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_row {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 4px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 4px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
@@ -854,7 +864,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   overflow-x: hidden;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_stub {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_stub {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 100%;</span>
@@ -867,7 +877,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_stub_row_group {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_stub_row_group {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 100%;</span>
@@ -881,15 +891,15 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   vertical-align: top;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_row_group_first td {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_row_group_first td {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 2px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_row_group_first th {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_row_group_first th {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 2px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_summary_row {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_summary_row {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-transform: inherit;</span>
@@ -899,16 +909,16 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_first_summary_row {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_first_summary_row {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-style: solid;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_first_summary_row.thick {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_first_summary_row.thick {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 2px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_last_summary_row {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_last_summary_row {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 8px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 8px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
@@ -918,7 +928,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_grand_summary_row {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_grand_summary_row {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-transform: inherit;</span>
@@ -928,7 +938,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_first_grand_summary_row {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_first_grand_summary_row {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 8px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 8px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
@@ -938,7 +948,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_last_grand_summary_row_top {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_last_grand_summary_row_top {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 8px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 8px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
@@ -948,11 +958,11 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_striped {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_striped {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: rgba(128, 128, 128, 0.05);</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_table_body {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_table_body {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-style: solid;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 2px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-color: #D3D3D3;</span>
@@ -961,7 +971,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_footnotes {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_footnotes {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: none;</span>
@@ -975,7 +985,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_footnote {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_footnote {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   margin: 0px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 90%;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 4px;</span>
@@ -984,7 +994,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_sourcenotes {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_sourcenotes {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: none;</span>
@@ -998,7 +1008,7 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-color: #D3D3D3;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_sourcenote {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_sourcenote {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 90%;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 4px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 4px;</span>
@@ -1006,72 +1016,72 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_left {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_left {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-align: left;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_center {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_center {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-align: center;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_right {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_right {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-align: right;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-variant-numeric: tabular-nums;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_font_normal {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_font_normal {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-weight: normal;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_font_bold {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_font_bold {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-weight: bold;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_font_italic {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_font_italic {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-style: italic;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_super {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_super {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 65%;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_footnote_marks {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_footnote_marks {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 75%;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   vertical-align: 0.4em;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   position: initial;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_asterisk {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_asterisk {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 100%;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   vertical-align: 0;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_indent_1 {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_indent_1 {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-indent: 5px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_indent_2 {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_indent_2 {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-indent: 10px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_indent_3 {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_indent_3 {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-indent: 15px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_indent_4 {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_indent_4 {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-indent: 20px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .gt_indent_5 {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .gt_indent_5 {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   text-indent: 25px;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg .katex-display {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax .katex-display {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   display: inline-flex !important;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   margin-bottom: 0.75em !important;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> #itrxpwwkzg div.Reactable &gt; div.rt-table &gt; div.rt-thead &gt; div.rt-tr.rt-tr-group-header &gt; div.rt-th-group:after {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #sltzopvaax div.Reactable &gt; div.rt-table &gt; div.rt-thead &gt; div.rt-tr.rt-tr-group-header &gt; div.rt-th-group:after {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   height: 0px !important;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;/style&gt;</span>
@@ -1112,6 +1122,503 @@ t-tests and Welch ANOVA do not require equal variances.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;/tr&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;tr class="gt_footnotes"&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;td class="gt_footnote" colspan="8"&gt;&lt;span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"&gt;&lt;sup&gt;2&lt;/sup&gt;&lt;/span&gt; Welch t-tests and Welch ANOVA do not require equal variances. `assess_variance()` does not select an inferential test. Interpret spread alongside sample size, distributional shape, outliers, missingness, and the study design.&lt;/td&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;/tr&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   &lt;/tfoot&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;/table&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;/div&gt;</span>
+<span class="r-in"><span><span class="fu">assess_variance</span><span class="op">(</span><span class="va">mtcars</span>, vars <span class="op">=</span> <span class="st">"mpg"</span>, by <span class="op">=</span> <span class="va">am</span>, test <span class="op">=</span> <span class="st">"bartlett"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;div id="bmruzexfyt" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;"&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   &lt;style&gt;#bmruzexfyt table {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-family: system-ui;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -webkit-font-smoothing: antialiased;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -moz-osx-font-smoothing: grayscale;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt thead, #bmruzexfyt tbody, #bmruzexfyt tfoot, #bmruzexfyt tr, #bmruzexfyt td, #bmruzexfyt th {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-style: none;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt p {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   margin: 0;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding: 0;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_table {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   display: table;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-collapse: collapse;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   line-height: normal;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   margin-left: auto;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   margin-right: auto;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 13px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-weight: normal;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-style: normal;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   width: auto;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-style: solid;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-color: #A8A8A8;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-style: none;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: solid;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #A8A8A8;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-style: none;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_caption {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 4px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 4px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_title {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 125%;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-weight: initial;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 4px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 4px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #FFFFFF;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-width: 0;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_subtitle {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 85%;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-weight: initial;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 3px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-color: #FFFFFF;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 0;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_heading {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   text-align: left;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #FFFFFF;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-style: none;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-width: 1px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-style: none;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-width: 1px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_bottom_border {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: solid;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_col_headings {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-style: solid;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: solid;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-style: none;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-width: 1px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-style: none;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-width: 1px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_col_heading {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 100%;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-weight: normal;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   text-transform: inherit;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-style: none;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-width: 1px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-style: none;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-width: 1px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   vertical-align: bottom;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 6px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   overflow-x: hidden;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_column_spanner_outer {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 100%;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-weight: normal;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   text-transform: inherit;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 0;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 0;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 4px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 4px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_column_spanner_outer:first-child {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 0;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_column_spanner_outer:last-child {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 0;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_column_spanner {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: solid;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   vertical-align: bottom;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   overflow-x: hidden;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   display: inline-block;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   width: 100%;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_spanner_row {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: hidden;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_group_heading {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 8px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 8px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 100%;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-weight: initial;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   text-transform: inherit;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-style: solid;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: solid;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-style: none;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-width: 1px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-style: none;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-width: 1px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   vertical-align: middle;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   text-align: left;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_empty_group_heading {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding: 0.5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 100%;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-weight: initial;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-style: solid;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: solid;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   vertical-align: middle;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_from_md &gt; :first-child {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   margin-top: 0;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_from_md &gt; :last-child {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   margin-bottom: 0;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_row {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 4px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 4px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   margin: 10px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-style: solid;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 1px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-style: none;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-width: 1px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-style: none;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-width: 1px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   vertical-align: middle;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   overflow-x: hidden;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_stub {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 100%;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-weight: initial;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   text-transform: inherit;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-style: solid;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_stub_row_group {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 100%;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-weight: initial;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   text-transform: inherit;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-style: solid;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   vertical-align: top;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_row_group_first td {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_row_group_first th {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_summary_row {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   text-transform: inherit;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 8px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 8px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_first_summary_row {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-style: solid;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_first_summary_row.thick {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_last_summary_row {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 8px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 8px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: solid;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_grand_summary_row {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   text-transform: inherit;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 8px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 8px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_first_grand_summary_row {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 8px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 8px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-style: double;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 6px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_last_grand_summary_row_top {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 8px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 8px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: double;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-width: 6px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_striped {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: rgba(128, 128, 128, 0.05);</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_table_body {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-style: solid;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-top-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: solid;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_footnotes {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: none;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-style: none;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-style: none;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_footnote {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   margin: 0px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 90%;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 4px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 4px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_sourcenotes {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   color: #333333;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   background-color: #FFFFFF;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-style: none;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-bottom-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-style: none;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-left-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-style: none;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-width: 2px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   border-right-color: #D3D3D3;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_sourcenote {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 90%;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-top: 4px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-bottom: 4px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-left: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   padding-right: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_left {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   text-align: left;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_center {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   text-align: center;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_right {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   text-align: right;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-variant-numeric: tabular-nums;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_font_normal {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-weight: normal;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_font_bold {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-weight: bold;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_font_italic {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-style: italic;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_super {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 65%;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_footnote_marks {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 75%;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   vertical-align: 0.4em;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   position: initial;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_asterisk {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   font-size: 100%;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   vertical-align: 0;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_indent_1 {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   text-indent: 5px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_indent_2 {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   text-indent: 10px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_indent_3 {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   text-indent: 15px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_indent_4 {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   text-indent: 20px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .gt_indent_5 {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   text-indent: 25px;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt .katex-display {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   display: inline-flex !important;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   margin-bottom: 0.75em !important;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> #bmruzexfyt div.Reactable &gt; div.rt-table &gt; div.rt-thead &gt; div.rt-tr.rt-tr-group-header &gt; div.rt-th-group:after {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   height: 0px !important;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;/style&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   &lt;table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false"&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   &lt;thead&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;tr class="gt_col_headings"&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="Variable"&gt;Variable&lt;/th&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="Group"&gt;Group&lt;/th&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="n"&gt;n&lt;/th&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="SD"&gt;SD&lt;/th&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="Variance"&gt;Variance&lt;/th&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="SD-ratio"&gt;SD ratio&lt;span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/span&gt;&lt;/th&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="Variance-ratio"&gt;Variance ratio&lt;/th&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="Interpretation"&gt;Interpretation&lt;span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"&gt;&lt;sup&gt;2&lt;/sup&gt;&lt;/span&gt;&lt;/th&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="Bartlett-p"&gt;Bartlett p&lt;/th&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="Bartlett-status"&gt;Bartlett status&lt;/th&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;/tr&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   &lt;/thead&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   &lt;tbody class="gt_table_body"&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;tr&gt;&lt;td headers="Variable" class="gt_row gt_left"&gt;mpg&lt;/td&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;td headers="Group" class="gt_row gt_right"&gt;1&lt;/td&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;td headers="n" class="gt_row gt_right"&gt;13&lt;/td&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;td headers="SD" class="gt_row gt_right"&gt;6.17&lt;/td&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;td headers="Variance" class="gt_row gt_right"&gt;38.03&lt;/td&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;td headers="SD ratio" class="gt_row gt_right"&gt;1.61&lt;/td&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;td headers="Variance ratio" class="gt_row gt_right"&gt;2.59&lt;/td&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;td headers="Interpretation" class="gt_row gt_left"&gt;Descriptive spread shown; Welch methods do not require equal variances.&lt;/td&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;td headers="Bartlett p" class="gt_row gt_right"&gt;0.07248273&lt;/td&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;td headers="Bartlett status" class="gt_row gt_left"&gt;Supporting information&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;tr&gt;&lt;td headers="Variable" class="gt_row gt_left"&gt;&lt;/td&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;td headers="Group" class="gt_row gt_right"&gt;0&lt;/td&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;td headers="n" class="gt_row gt_right"&gt;19&lt;/td&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;td headers="SD" class="gt_row gt_right"&gt;3.83&lt;/td&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;td headers="Variance" class="gt_row gt_right"&gt;14.70&lt;/td&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;td headers="SD ratio" class="gt_row gt_right"&gt;NA&lt;/td&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;td headers="Variance ratio" class="gt_row gt_right"&gt;NA&lt;/td&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;td headers="Interpretation" class="gt_row gt_left"&gt;&lt;/td&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;td headers="Bartlett p" class="gt_row gt_right"&gt;NA&lt;/td&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;td headers="Bartlett status" class="gt_row gt_left"&gt;NA&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   &lt;/tbody&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   &lt;tfoot&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;tr class="gt_footnotes"&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;td class="gt_footnote" colspan="10"&gt;&lt;span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/span&gt; SD and variance ratios are the largest group value divided by the smallest group value. They describe observed spread; they are not pass/fail tests.&lt;/td&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;/tr&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;tr class="gt_footnotes"&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;td class="gt_footnote" colspan="10"&gt;&lt;span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"&gt;&lt;sup&gt;2&lt;/sup&gt;&lt;/span&gt; Welch t-tests and Welch ANOVA do not require equal variances. `assess_variance()` does not select an inferential test. Interpret spread alongside sample size, distributional shape, outliers, missingness, and the study design.&lt;/td&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;/tr&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   &lt;/tfoot&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;/table&gt;</span>

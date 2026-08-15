@@ -16,6 +16,8 @@
 ">
 <meta property="og:description" content="Understand the default tests selected by gtstats, their indications, automatic checks, and assumptions that require study-design judgement.
 ">
+<link rel="stylesheet" href="https://thinkdenominator.com/analytics-consent.css">
+<script>window.TD_GA_MEASUREMENT_ID = "G-EW7RP69914";</script><script defer src="https://thinkdenominator.com/analytics-consent.js"></script>
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -162,30 +164,36 @@ are flagged</td>
 flagged</td>
 </tr>
 <tr class="odd">
-<td>Continuous, paired</td>
+<td>Continuous, paired (two occasions)</td>
 <td>Skewness guidance for within-pair differences</td>
 <td>Paired t-test if not flagged; Wilcoxon signed-rank if flagged</td>
 </tr>
 <tr class="even">
+<td>Continuous, paired (3+ occasions)</td>
+<td>Skewness guidance at each occasion</td>
+<td>Repeated-measures ANOVA if not flagged; Friedman test if flagged;
+review sphericity for repeated-measures ANOVA</td>
+</tr>
+<tr class="odd">
 <td>Ordinal, two groups</td>
 <td>Outcome is ordered</td>
 <td>Wilcoxon rank-sum</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Ordinal, three or more groups</td>
 <td>Outcome is ordered</td>
-<td>Kruskal-Wallis</td>
-</tr>
-<tr class="even">
-<td>Binary or nominal categorical, independent</td>
-<td>Expected cell counts</td>
-<td>Pearson chi-square when all expected counts are at least 5; Fisher’s
-exact otherwise</td>
+<td>Kruskal-Wallis (independent) or Friedman (paired)</td>
 </tr>
 <tr class="odd">
+<td>Binary or nominal categorical, independent</td>
+<td>Expected cell counts</td>
+<td>Pearson chi-square when no expected count is below 1 and no more
+than 20% are below 5; Fisher’s exact otherwise</td>
+</tr>
+<tr class="even">
 <td>Binary, paired</td>
 <td>Paired design and binary outcome</td>
-<td>McNemar test</td>
+<td>McNemar test (two occasions) or Cochran’s Q test (3+ occasions)</td>
 </tr>
 </tbody>
 </table>
@@ -193,6 +201,26 @@ exact otherwise</td>
 a normality-test p-value. Shapiro-Wilk is supporting information only
 and does not alone switch the test. <code><a href="../reference/add_p.html">add_p()</a></code> uses the same
 rules.</p>
+</div>
+<div class="section level2">
+<h2 id="ordinal-values-make-the-meaning-explicit">Ordinal values: make the meaning explicit<a class="anchor" aria-label="anchor" href="#ordinal-values-make-the-meaning-explicit"></a>
+</h2>
+<p><code><a href="../reference/compare_groups.html">compare_groups()</a></code> treats an <code>ordered</code> factor
+as ordinal and uses rank-based methods. A numeric variable with a few
+values (for example <code>0</code>, <code>1</code>, <code>2</code>,
+<code>3</code> visits or cancer stages coded
+<code>1</code>–<code>4</code>) is deliberately treated as a
+categorical/count-coded variable unless its order is explicitly
+declared. This avoids silently treating a clinical code as a numerical
+scale. Convert a true ordered variable before comparing it:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">data</span><span class="op">$</span><span class="va">stage</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">ordered</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">stage</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/compare_groups.html">compare_groups</a></span><span class="op">(</span><span class="va">data</span>, variable <span class="op">=</span> <span class="va">stage</span>, group <span class="op">=</span> <span class="va">arm</span><span class="op">)</span></span></code></pre></div>
+<p><code><a href="../reference/describe_data.html">describe_data()</a></code> makes this distinction visible: explicit
+ordered factors are shown as <code>ordinal</code>; small integer-coded
+variables receive a possible ordinal/count-coded flag for review against
+the data dictionary. It does not change the analysis type
+automatically.</p>
 <p>Other automatic defaults are:</p>
 <table class="table">
 <colgroup>
@@ -225,18 +253,19 @@ Spearman</td>
 </h2>
 <p><code><a href="../reference/proportion_stats.html">proportion_stats()</a></code> estimates a proportion and Wilson
 score confidence interval. It does not test whether groups differ.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/proportion_stats.html">proportion_stats</a></span><span class="op">(</span><span class="va">mtcars</span>, var <span class="op">=</span> <span class="va">vs</span>, by <span class="op">=</span> <span class="va">am</span><span class="op">)</span></span></code></pre></div>
 <p>To compare categorical distributions, use
 <code><a href="../reference/compare_groups.html">compare_groups()</a></code>, <code><a href="../reference/add_p.html">add_p()</a></code>, or
 <code><a href="../reference/crosstabs.html">crosstabs()</a></code>.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/compare_groups.html">compare_groups</a></span><span class="op">(</span><span class="va">mtcars</span>, variable <span class="op">=</span> <span class="va">vs</span>, group <span class="op">=</span> <span class="va">am</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/crosstabs.html">crosstabs</a></span><span class="op">(</span><span class="va">mtcars</span>, row <span class="op">=</span> <span class="va">am</span>, col <span class="op">=</span> <span class="va">vs</span><span class="op">)</span></span></code></pre></div>
 <p>In automatic mode, expected cell counts are calculated. Fisher’s
-exact test is selected if any expected count is below 5; otherwise
-chi-square is used. Returned objects expose the expected counts and the
-minimum expected count.</p>
+exact test is selected when an expected count is below 1 or more than
+20% of expected cells are below 5; otherwise chi-square is used. Larger
+sparse tables use Fisher’s test with a Monte Carlo p-value. Returned
+objects expose the expected counts and the minimum expected count.</p>
 <p>The analyst must still confirm:</p>
 <ul>
 <li>observations are independent;</li>
@@ -247,7 +276,7 @@ direction.</li>
 </ul>
 <p>For paired binary observations, supply an identifier and use
 McNemar’s test:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/compare_groups.html">compare_groups</a></span><span class="op">(</span></span>
 <span>  <span class="va">paired_data</span>,</span>
 <span>  variable <span class="op">=</span> <span class="va">status</span>,</span>
@@ -270,14 +299,14 @@ test.</p>
 visible before interpreting a comparison. It reports SDs, variances, and
 largest/smallest spread ratios but deliberately does not run a
 variance-test gatekeeper or change the automatic choice.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/assess_variance.html">assess_variance</a></span><span class="op">(</span><span class="va">mtcars</span>, vars <span class="op">=</span> <span class="va">mpg</span>, by <span class="op">=</span> <span class="va">am</span><span class="op">)</span></span></code></pre></div>
 <p>The same observed-spread diagnostic is retained in an independent
 continuous <code><a href="../reference/compare_groups.html">compare_groups()</a></code> result. It is descriptive
 context, not a test-selection rule: Welch t-tests and Welch ANOVA do not
 require equal variances. The value of <code>var_equal</code> is a
 transparent user choice, not a data-driven variance test.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/compare_groups.html">compare_groups</a></span><span class="op">(</span></span>
 <span>  <span class="va">mtcars</span>,</span>
 <span>  variable <span class="op">=</span> <span class="va">mpg</span>,</span>
@@ -291,7 +320,7 @@ transparent user choice, not a data-driven variance test.</p>
 are supporting information and are not used alone to select a test.
 Analysts should also inspect outliers and plots. To see the exact
 automatic decision for one analysis, inspect the saved result:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compare_groups.html">compare_groups</a></span><span class="op">(</span><span class="va">mtcars</span>, variable <span class="op">=</span> <span class="va">mpg</span>, group <span class="op">=</span> <span class="va">am</span><span class="op">)</span></span>
 <span><span class="va">result</span><span class="op">$</span><span class="va">method</span><span class="op">$</span><span class="va">selection_rule</span></span>
 <span><span class="va">result</span><span class="op">$</span><span class="va">method</span><span class="op">$</span><span class="va">selection_inputs</span></span>
@@ -309,12 +338,12 @@ separately.</p>
 <p><code><a href="../reference/add_p.html">add_p()</a></code> uses the same automatic selection policy as
 <code><a href="../reference/compare_groups.html">compare_groups()</a></code>. Distribution guidance is enabled by
 default.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/summary_table.html">summary_table</a></span><span class="op">(</span><span class="va">mtcars</span>, by <span class="op">=</span> <span class="va">am</span>, overall <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_summary.html">add_summary</a></span><span class="op">(</span>vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">mpg</span>, <span class="va">wt</span>, <span class="va">vs</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_p.html">add_p</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Tests can be prespecified per variable:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/summary_table.html">summary_table</a></span><span class="op">(</span><span class="va">mtcars</span>, by <span class="op">=</span> <span class="va">am</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_summary.html">add_summary</a></span><span class="op">(</span>vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">mpg</span>, <span class="va">wt</span>, <span class="va">vs</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_p.html">add_p</a></span><span class="op">(</span></span>
@@ -326,7 +355,7 @@ default.</p>
 <span>    normality_check <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>To use the equal-variance parametric route deliberately:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/compare_groups.html">compare_groups</a></span><span class="op">(</span><span class="va">trial_data</span>, <span class="va">change_score</span>, group <span class="op">=</span> <span class="va">arm</span>, var_equal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>The table footnote records tests used and reminds readers that
 independence must be confirmed from the study design.</p>
@@ -370,7 +399,7 @@ incidence rates, unless genuine observation time is represented.</p>
 <h2 id="inspect-what-was-checked">Inspect what was checked<a class="anchor" aria-label="anchor" href="#inspect-what-was-checked"></a>
 </h2>
 <p>Inferential objects retain transparent metadata:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compare_groups.html">compare_groups</a></span><span class="op">(</span><span class="va">mtcars</span>, variable <span class="op">=</span> <span class="va">vs</span>, group <span class="op">=</span> <span class="va">am</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">result</span><span class="op">$</span><span class="va">inferential</span></span>
@@ -390,7 +419,7 @@ and rule used. <code>$notes</code> remains a short human-readable
 explanation.</p>
 <p>Use the inspection helpers for a consistent tibble or formatted
 table:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/assumptions_stats.html">assumptions_stats</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/diagnostics_stats.html">diagnostics_stats</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/denominators_stats.html">denominators_stats</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>

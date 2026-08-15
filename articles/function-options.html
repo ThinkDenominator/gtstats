@@ -14,6 +14,8 @@
 <meta property="og:title" content="Function options">
 <meta name="description" content="A quick, practical reference for every gtstats function.">
 <meta property="og:description" content="A quick, practical reference for every gtstats function.">
+<link rel="stylesheet" href="https://thinkdenominator.com/analytics-consent.css">
+<script>window.TD_GA_MEASUREMENT_ID = "G-EW7RP69914";</script><script defer src="https://thinkdenominator.com/analytics-consent.js"></script>
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -289,6 +291,14 @@ a reproducible R script.</p>
 <td>SD, variance, and ratio precision</td>
 </tr>
 <tr class="even">
+<td><code>test</code></td>
+<td>
+<code>"none"</code>; <code>"bartlett"</code>
+</td>
+<td>Optionally display Bartlett’s test as supporting information; it
+never selects the comparison test</td>
+</tr>
+<tr class="odd">
 <td><code>output</code></td>
 <td>
 <code>"table"</code>; also <code>"tibble"</code>
@@ -300,7 +310,9 @@ a reproducible R script.</p>
 <p><code><a href="../reference/assess_variance.html">assess_variance()</a></code> reports group SDs, variances, and
 largest/smallest ratios. They are descriptive diagnostics, not pass/fail
 tests: Welch t-tests and Welch ANOVA do not require equal variances, and
-this function never selects a test.</p>
+this function never selects a test. Bartlett’s test is sensitive to
+non-normality: a p-value neither proves equal variances nor replaces the
+prespecified <code>var_equal</code> choice.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/assess_variance.html">assess_variance</a></span><span class="op">(</span><span class="va">birthwt_data</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">lwt</span><span class="op">)</span>, by <span class="op">=</span> <span class="va">low</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -684,10 +696,12 @@ continuity correction</td>
 <tr class="even">
 <td><code>test</code></td>
 <td>
-<code>"auto"</code>; <code>"t_test"</code>, <code>"welch_t"</code>,
-<code>"wilcox"</code>, <code>"anova"</code>, <code>"welch_anova"</code>,
-<code>"kruskal"</code>, <code>"chisq"</code>, <code>"fisher"</code>,
-<code>"mcnemar"</code>
+<code>"auto"</code>; parametric <code>"t_test"</code>,
+<code>"welch_t"</code>, <code>"anova"</code>,
+<code>"welch_anova"</code>, <code>"rm_anova"</code>; non-parametric
+<code>"wilcox"</code>, <code>"kruskal"</code>, <code>"friedman"</code>;
+categorical <code>"chisq"</code>, <code>"fisher"</code>,
+<code>"mcnemar"</code>, <code>"cochran_q"</code>
 </td>
 <td>Automatic selection or an explicit valid test</td>
 </tr>

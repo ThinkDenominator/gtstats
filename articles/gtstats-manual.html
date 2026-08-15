@@ -14,6 +14,8 @@
 <meta property="og:title" content="Using the gtstats App">
 <meta name="description" content="A beginner-friendly manual for the menu-driven gtstats Shiny app.">
 <meta property="og:description" content="A beginner-friendly manual for the menu-driven gtstats Shiny app.">
+<link rel="stylesheet" href="https://thinkdenominator.com/analytics-consent.css">
+<script>window.TD_GA_MEASUREMENT_ID = "G-EW7RP69914";</script><script defer src="https://thinkdenominator.com/analytics-consent.js"></script>
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -181,6 +183,9 @@ workflow.</p>
 <strong>Data</strong> — choose a teaching dataset or upload your own
 data.</li>
 <li>
+<strong>Data Prep</strong> — optionally make safe, reversible
+changes before analysis.</li>
+<li>
 <strong>Understand</strong> — inspect types, completeness,
 distribution, and spread.</li>
 <li>
@@ -202,12 +207,160 @@ session.</li>
 press the relevant action button. This prevents accidental analysis
 while the app is loading or while a browser restores an earlier
 session.</p>
+<p>On a phone or narrow screen, use the menu icon in the top-right to
+open the full tab list. The numbered workflow strip remains visible
+below it and can be swiped sideways; no analysis tab is hidden or
+removed on smaller screens.</p>
 </div>
 <div class="section level2">
 <h2 id="data-tab">Data tab<a class="anchor" aria-label="anchor" href="#data-tab"></a>
 </h2>
 <p>Use the <strong>Data</strong> tab first. You can select one of three
-labelled teaching datasets or upload your own data.</p>
+labelled teaching datasets from one compact dropdown, or upload your own
+data. Uploads support CSV, Excel (<code>.xlsx</code>/<code>.xls</code>),
+R data (<code>.rds</code>), Stata (<code>.dta</code>), and SPSS
+(<code>.sav</code>). Excel, Stata, and SPSS files use the optional
+<code>rio</code> package.</p>
+</div>
+<div class="section level2">
+<h2 id="data-prep-tab">Data Prep tab<a class="anchor" aria-label="anchor" href="#data-prep-tab"></a>
+</h2>
+<p><strong>Data Prep</strong> is optional. It is for small, auditable
+changes before analysis, not a replacement for a full data-management
+workflow. The imported dataset is kept unchanged; each action changes an
+independent working copy.</p>
+<p>The command bar lists every available action explicitly. Click the
+task you need, complete the structured fields that appear, then click
+<strong>Apply this change</strong>. The current version provides eight
+common operations:</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Operation</th>
+<th>Use it for</th>
+<th>Safety check</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Rename variable</td>
+<td>Clearer variable names</td>
+<td>Blank, duplicate, and invalid R names are rejected</td>
+</tr>
+<tr class="even">
+<td>Recode values</td>
+<td>Give every recorded value a clear label, for example
+<code>0/1</code> to <code>No/Yes</code>
+</td>
+<td>The mapping grid shows source and new labels side by side; ordered
+mode uses the displayed order</td>
+</tr>
+<tr class="odd">
+<td>Set type and order</td>
+<td>Make values categorical, ordered categorical, numeric, or text</td>
+<td>The display-order grid appears only for ordered categorical values;
+every level must have one different position</td>
+</tr>
+<tr class="even">
+<td>Manage missing values</td>
+<td>Convert recorded codes such as <code>999</code> or
+<code>Unknown</code> to <code>NA</code>, or show existing
+<code>NA</code> values as a labelled category</td>
+<td>The app reports affected cells and warns that a Missing category
+changes analysis</td>
+</tr>
+<tr class="odd">
+<td>Create calculation</td>
+<td>Adjust one variable, combine two numeric variables, or calculate a
+ratio with a powered denominator (for example BMI)</td>
+<td>Source variables are retained; preview shows usable rows</td>
+</tr>
+<tr class="even">
+<td>Create groups</td>
+<td>Build a two-, three-, or four-group variable from one source
+variable</td>
+<td>Give every group a label; conditions are checked top to bottom and
+the first match wins</td>
+</tr>
+<tr class="odd">
+<td>Filter observations</td>
+<td>Keep records meeting one or two inclusion criteria</td>
+<td>A second condition is optional; preview shows kept, excluded, and
+unknown counts</td>
+</tr>
+<tr class="even">
+<td>Keep variables</td>
+<td>Choose the columns for a smaller analysis dataset</td>
+<td>Searchable multi-select, Keep all, and Clear selection controls;
+Undo restores removed columns</td>
+</tr>
+</tbody>
+</table>
+<p>The <strong>Quick starts</strong> buttons are fill-only helpers.
+<strong>Age groups</strong> proposes a two-group age variable using a
+65-year cut-off; <strong>0/1 to No/Yes</strong> opens a matching binary
+recode when a variable coded exactly <code>0</code> and <code>1</code>
+is found; <strong>BMI-style calculation</strong> sets up
+<code>numerator / (denominator ^ 2)</code>; and <strong>99/999 to
+missing</strong> opens the missing-code workflow. None of these buttons
+applies a change. They are deliberately starting points, so verify the
+selected variable, coding, units, cut-offs, and labels before pressing
+<strong>Apply this change</strong>.</p>
+<p>For numeric grouping, choose equal to, not equal to, greater/less
+than, greater/less than or equal to, <strong>between
+(inclusive)</strong>, or <strong>outside a range</strong>. Range rules
+show a second field for the upper bound. Between means
+<code>x &gt;= lower &amp; x &lt;= upper</code>; outside means
+<code>x &lt; lower | x &gt; upper</code>. Both bounds must be numeric,
+the lower bound cannot exceed the upper bound, and range rules are
+unavailable for non-numeric variables. The preview shows each proposed
+group’s count and blocks an Apply action if any group would be empty.
+The final group is always everyone else, and rules are evaluated from
+top to bottom.</p>
+<p>Before applying, the panel states the expected impact: for example,
+how many values will be recoded, how many codes will become missing, or
+how many rows a filter will keep. For recoding, missing-value changes,
+group creation, and filtering, it also shows a compact <strong>Before
+you apply</strong> table with the exact values or row counts expected to
+change. The right-hand preview and the <strong>Change log</strong>
+update immediately after you click <strong>Apply this change</strong>.
+Use <strong>Undo</strong>, <strong>Redo</strong>, or <strong>Reset
+all</strong> to reverse work safely.</p>
+<p>When an action uses a categorical variable, the panel also shows its
+exact recorded values and offers <strong>Copy values</strong>. Recode
+values creates a mapping grid with one row per observed value and
+pre-fills each new label with its existing value. Edit only the labels
+that need changing. This avoids guessing whether a dataset records a
+value as <code>Yes</code>, <code>yes</code>, <code>Y</code>, or
+<code>1</code>. Tick <strong>Treat as ordered categorical, in the order
+shown</strong> only if that order has a genuine meaning. For numeric
+variables, it shows the range, number of unique values, and any short
+list of observed values.</p>
+<p>When ready, choose one of these deliberately:</p>
+<ul>
+<li>
+<strong>Continue without changes</strong> makes all later tabs use
+the original data.</li>
+<li>
+<strong>Use prepared data</strong> makes all later tabs use the
+working copy.</li>
+</ul>
+<p>The <strong>Reusable code</strong> panel records the applied actions.
+Copy or download this code and use it as the starting point for a
+reproducible R script. Data Prep does not evaluate arbitrary
+user-supplied R code.</p>
+<p>Use <strong>Download prepared data</strong> to save the current
+working dataset as CSV, Excel, RDS, or Stata. CSV and RDS work without
+additional packages; Excel and Stata export use the optional
+<code>rio</code> package.</p>
+<p>The <strong>History</strong> tab also provides <strong>Download
+complete R script</strong>. It combines the data import, applied Data
+Prep changes, and only the analyses run during that session. For an
+uploaded file, it uses a clear file-path placeholder rather than the
+temporary upload path used by the app.</p>
 <table class="table">
 <colgroup>
 <col width="50%">
@@ -421,10 +574,11 @@ prespecifies tests, use the generated code in RStudio and supply a named
 <div class="section level3">
 <h3 id="preview-export-and-code">Preview, export, and code<a class="anchor" aria-label="anchor" href="#preview-export-and-code"></a>
 </h3>
-<p>The <strong>Table</strong> panel is the publication-ready preview.
-Download buttons provide DOCX, HTML, PDF, and RTF. PDF needs a working
-browser/webshot setup; DOCX or HTML are the easiest choices for most
-users.</p>
+<p>Every visible table in the app—data preview, data dictionary, dataset
+description, diagnostics, Table 1, comparison audits, crosstabs, and
+history—has download buttons for DOCX, HTML, PDF, and RTF. PDF needs a
+working browser/webshot setup; DOCX or HTML are the easiest choices for
+most users.</p>
 <p>Open the <strong>Code</strong> panel to copy or download the complete
 <code><a href="../reference/summary_table.html">summary_table()</a></code> call, including the display choices you
 selected. This is the route from a point-and-click table to a
@@ -475,20 +629,33 @@ explicitly justified; Wilcoxon if marked skew is flagged</td>
 explicitly justified; Kruskal-Wallis if marked skew is flagged</td>
 </tr>
 <tr class="odd">
-<td>Ordinal</td>
-<td>Wilcoxon rank-sum or Kruskal-Wallis</td>
+<td>Continuous, paired</td>
+<td>Paired t-test/Wilcoxon signed-rank for two occasions;
+repeated-measures ANOVA/Friedman for 3+ occasions</td>
 </tr>
 <tr class="even">
+<td>Ordinal</td>
+<td>Wilcoxon rank-sum or Kruskal-Wallis when independent; Friedman for
+3+ paired occasions</td>
+</tr>
+<tr class="odd">
 <td>Binary/nominal categorical</td>
-<td>Chi-square when expected counts are adequate; Fisher exact when
-sparse</td>
+<td>Chi-square when no expected count is below 1 and no more than 20%
+are below 5; Fisher exact when sparse</td>
+</tr>
+<tr class="even">
+<td>Binary, paired</td>
+<td>McNemar for two occasions; Cochran’s Q for 3+ occasions</td>
 </tr>
 </tbody>
 </table>
-<p>You can select Student t-test, Welch t-test, Wilcoxon, ANOVA, Welch
-ANOVA, Kruskal-Wallis, chi-square, or Fisher exact yourself. Use an
-explicit choice only when it is justified by the study design or an
-analysis plan.</p>
+<p>The app also exposes the paired methods: McNemar (two binary
+occasions), Cochran’s Q (three or more binary occasions),
+repeated-measures ANOVA, and Friedman. Turn on <strong>Repeated
+measurements from the same participant</strong> and select the
+participant ID before running any paired comparison. Use an explicit
+choice only when it is justified by the study design or an analysis
+plan.</p>
 <p>For <strong>Auto</strong>, the app also offers <strong>equal
 variances are justified</strong>. This sets
 <code>var_equal = TRUE</code>: it switches only a non-skewed independent
