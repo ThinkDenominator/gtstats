@@ -203,8 +203,9 @@
     stats::chisq.test(matrix_2x2, correct = TRUE)$expected
   )
   minimum_expected <- min(expected)
+  expected_screen <- .expected_count_screen(expected)
   chosen_test <- if (identical(test, "auto")) {
-    if (any(expected < 5)) "fisher" else "chisq"
+    if (expected_screen$sparse) "fisher" else "chisq"
   } else {
     test
   }
@@ -401,13 +402,13 @@
         "not_checked",
         "not_checked",
         "levels_reported",
-        if (minimum_expected >= 5) "all_at_least_5" else "sparse"
+        if (expected_screen$sparse) "sparse" else "adequate"
       ),
       detail = c(
         "Confirm independence from the study design.",
         "Each observation should occupy exactly one 2x2 cell.",
         "Review exposed_level and event_level before interpretation.",
-        "Fisher's exact test is selected automatically when any expected count is below 5."
+        "Automatic Fisher selection uses the expected-count screen: any expected count below 1, or more than 20% below 5."
       )
     ),
     diagnostics = dplyr::bind_rows(
@@ -415,7 +416,7 @@
         check = "Expected cell counts",
         result = if (minimum_expected >= 5) "adequate" else "sparse",
         value = .format_number(minimum_expected, 2),
-        threshold = "Minimum expected count >= 5",
+        threshold = "No expected count < 1 and <=20% of expected counts < 5",
         detail = paste0("Association test: ", test_used, ".")
       ),
       .diagnostics_tbl(

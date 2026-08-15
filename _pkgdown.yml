@@ -12,6 +12,11 @@ home:
 template:
   bootstrap: 5
   bootswatch: litera
+  includes:
+    in_header: |
+      <link rel="stylesheet" href="https://thinkdenominator.com/analytics-consent.css">
+      <script>window.TD_GA_MEASUREMENT_ID = "G-EW7RP69914";</script>
+      <script defer src="https://thinkdenominator.com/analytics-consent.js"></script>
   bslib:
     primary: "#C0392B"
     link-color: "#C0392B"

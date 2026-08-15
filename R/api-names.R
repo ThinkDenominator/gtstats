@@ -147,7 +147,8 @@ crosstabs <- function(
   tab <- table(row_x, col_x)
   if (nrow(tab) < 2L || ncol(tab) < 2L) stop("`row` and `col` must each have at least 2 observed levels.", call. = FALSE)
   chi <- suppressWarnings(stats::chisq.test(tab, correct = nrow(tab) == 2L && ncol(tab) == 2L))
-  sparse <- any(chi$expected < 5)
+  expected_screen <- .expected_count_screen(chi$expected)
+  sparse <- expected_screen$sparse
   chosen <- if (identical(test, "auto")) if (sparse) "fisher" else "chisq" else test
   fisher_simulated <- identical(chosen, "fisher") && (nrow(tab) > 2L || ncol(tab) > 2L)
   fit <- if (identical(chosen, "none")) NULL else if (identical(chosen, "chisq")) chi else stats::fisher.test(tab, simulate.p.value = fisher_simulated, B = simulate_B)
@@ -254,8 +255,12 @@ crosstabs <- function(
       check = "Expected cell counts",
       result = if (sparse) "sparse" else "adequate",
       value = .format_number(min(chi$expected), 2),
-      threshold = "Minimum expected count >= 5",
-      detail = paste0("Association test: ", test_label, ".")
+      threshold = "No expected count < 1 and <=20% of expected counts < 5",
+      detail = paste0(
+        "Association test: ", test_label, ". ",
+        expected_screen$n_below_5, " of ", expected_screen$n_cells,
+        " expected cells were below 5."
+      )
     )
   }
   result <- if (is_2x2) epi else list()
@@ -288,12 +293,13 @@ crosstabs <- function(
         total_n * min(nrow(tab) - 1L, ncol(tab) - 1L)
       )),
       sparse = sparse,
+      expected_count_screen = expected_screen,
       fisher_simulated = fisher_simulated,
       selection_rule = if (identical(test, "auto")) {
         if (sparse) {
-          "At least one expected cell count was below 5; selected Fisher's exact test."
+          "Independent categorical outcome: expected cell count guidance was not met (an expected count below 1 or more than 20% below 5); selected Fisher's exact test."
         } else {
-          "All expected cell counts were at least 5; selected chi-square test."
+          "Independent categorical outcome: expected cell count guidance was met (no expected count below 1 and no more than 20% below 5); selected chi-square test."
         }
       } else {
         paste0("User specified ", test, " association test.")

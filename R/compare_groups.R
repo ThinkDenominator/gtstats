@@ -27,6 +27,9 @@
 #' - `"chisq"`
 #' - `"fisher"`
 #' - `"mcnemar"`
+#' - `"rm_anova"`
+#' - `"friedman"`
+#' - `"cochran_q"`
 #'
 #' ## Automatic selection policy
 #'
@@ -42,15 +45,18 @@
 #'   default, or classical one-way ANOVA when `var_equal = TRUE`, unless
 #'   unless distribution guidance flags skewness in any group, then
 #'   Kruskal-Wallis test.
-#' - **Paired continuous outcome:** paired t-test, unless distribution guidance
-#'   flags skewness in the within-pair differences, then Wilcoxon signed-rank
-#'   test.
-#' - **Ordinal outcome:** Wilcoxon rank-sum test for two groups or
-#'   Kruskal-Wallis test for three or more groups.
+#' - **Paired continuous outcome:** for two occasions, paired t-test unless
+#'   within-pair differences are flagged, then Wilcoxon signed-rank; for three
+#'   or more occasions, repeated-measures ANOVA unless shape is flagged, then
+#'   Friedman test. Sphericity is a user check for repeated-measures ANOVA.
+#' - **Ordinal outcome:** Wilcoxon rank-sum/signed-rank for two groups;
+#'   Kruskal-Wallis for three or more independent groups; Friedman for three
+#'   or more paired occasions.
 #' - **Independent binary or nominal categorical outcome:** Pearson chi-square
-#'   test when every expected cell count is at least 5; Fisher's exact test
-#'   otherwise.
-#' - **Paired binary outcome:** McNemar test.
+#'   test when no expected count is below 1 and no more than 20% are below 5;
+#'   Fisher's exact test otherwise (Monte Carlo p-value for larger tables).
+#' - **Paired binary outcome:** McNemar test for two occasions; Cochran's Q
+#'   test for three or more occasions.
 #'
 #' Distribution guidance uses the package's skewness assessment within each
 #' group (or within-pair differences). Shapiro-Wilk is supporting information;
@@ -91,7 +97,8 @@
 #'   Each identifier must occur at most once in each group.
 #' @param test Test to use. One of `"auto"`, `"t_test"`, `"welch_t"`,
 #'   `"wilcox"`, `"anova"`, `"welch_anova"`, `"kruskal"`, `"chisq"`,
-#'   `"fisher"`, or `"mcnemar"`. See **Automatic selection policy** for the
+#'   `"fisher"`, `"mcnemar"`, `"rm_anova"`, `"friedman"`, or
+#'   `"cochran_q"`. See **Automatic selection policy** for the
 #'   exact rules used by `"auto"`.
 #' @param var_equal Logical; for independent, non-skewed continuous outcomes
 #'   with `test = "auto"`, use equal-variance Student's t-test (two groups) or
@@ -155,7 +162,8 @@ compare_groups <- function(
     id = NULL,
     test = c(
       "auto", "t_test", "welch_t", "wilcox",
-      "anova", "welch_anova", "kruskal", "chisq", "fisher", "mcnemar"
+      "anova", "welch_anova", "kruskal", "chisq", "fisher", "mcnemar",
+      "rm_anova", "friedman", "cochran_q"
     ),
     effect_size = FALSE,
     conf.level = 0.95,
@@ -292,8 +300,8 @@ compare_groups <- function(
 
   paired_values <- NULL
   if (isTRUE(paired)) {
-    if (n_groups != 2L) {
-      stop("Paired analyses require exactly two groups.", call. = FALSE)
+    if (n_groups < 2L) {
+      stop("Paired analyses require at least two groups.", call. = FALSE)
     }
 
     paired_data <- data.frame(
@@ -310,20 +318,29 @@ compare_groups <- function(
     }
 
     group_levels <- levels(group_factor)
-    first <- paired_data[paired_data$group == group_levels[[1L]], ]
-    second <- paired_data[paired_data$group == group_levels[[2L]], ]
-    common_ids <- intersect(first$id, second$id)
+    ids_by_group <- lapply(group_levels, function(level) {
+      paired_data$id[paired_data$group == level]
+    })
+    common_ids <- Reduce(intersect, ids_by_group)
     if (length(common_ids) < 2L) {
-      stop("At least two complete pairs are required.", call. = FALSE)
+      stop("At least two participants observed at every paired occasion are required.", call. = FALSE)
     }
-
-    first <- first[match(common_ids, first$id), ]
-    second <- second[match(common_ids, second$id), ]
+    paired_columns <- lapply(group_levels, function(level) {
+      values <- paired_data[paired_data$group == level, ]
+      values$outcome[match(common_ids, values$id)]
+    })
+    paired_matrix <- if (is.factor(outcome_clean) || is.character(outcome_clean) || is.logical(outcome_clean)) {
+      matrix(unlist(lapply(paired_columns, as.character), use.names = FALSE), nrow = length(common_ids), ncol = n_groups)
+    } else {
+      do.call(cbind, paired_columns)
+    }
+    colnames(paired_matrix) <- group_levels
     paired_values <- list(
       ids = common_ids,
       group_levels = group_levels,
-      x1 = first$outcome,
-      x2 = second$outcome,
+      values = paired_matrix,
+      x1 = if (n_groups == 2L) paired_matrix[, 1L] else NULL,
+      x2 = if (n_groups == 2L) paired_matrix[, 2L] else NULL,
       n_pairs = length(common_ids)
     )
   }
@@ -524,7 +541,7 @@ compare_groups <- function(
     )
     if (isTRUE(paired)) {
       descriptives_tbl <- make_cont_desc(
-        x = c(paired_values$x1, paired_values$x2),
+        x = as.vector(paired_values$values),
         g = factor(
           rep(paired_values$group_levels, each = paired_values$n_pairs),
           levels = paired_values$group_levels
@@ -540,13 +557,19 @@ compare_groups <- function(
     if (test == "auto") {
       distribution_flag <- FALSE
       if (isTRUE(normality_check)) {
-        group_assessments <- if (isTRUE(paired)) {
+        group_assessments <- if (isTRUE(paired) && n_groups == 2L) {
           list(
             .assess_distribution(
               paired_values$x1 - paired_values$x2,
               normality_test = TRUE
             )$distribution
           )
+        } else if (isTRUE(paired)) {
+          lapply(seq_len(ncol(paired_values$values)), function(index) {
+            .assess_distribution(
+              paired_values$values[, index], normality_test = TRUE
+            )$distribution
+          })
         } else {
           lapply(
             levels(group_factor),
@@ -563,7 +586,9 @@ compare_groups <- function(
         )
       }
 
-      if (distribution_flag && n_groups == 2L) {
+      if (isTRUE(paired) && n_groups > 2L) {
+        chosen_test <- if (distribution_flag) "friedman" else "rm_anova"
+      } else if (distribution_flag && n_groups == 2L) {
         chosen_test <- "wilcox"
       } else if (distribution_flag && n_groups > 2L) {
         chosen_test <- "kruskal"
@@ -594,7 +619,13 @@ compare_groups <- function(
         var_equal = var_equal,
         variance_assumption_source = "User-specified; not inferred from a variance hypothesis test"
       )
-      selection_rule <- if (isTRUE(paired)) {
+      selection_rule <- if (isTRUE(paired) && n_groups > 2L) {
+        if (isTRUE(distribution_flag)) {
+          "Repeated continuous outcome across three or more occasions: skewness was flagged; selected Friedman test."
+        } else {
+          "Repeated continuous outcome across three or more occasions: no skewness flag; selected repeated-measures ANOVA. Sphericity remains a user check."
+        }
+      } else if (isTRUE(paired)) {
         if (isTRUE(distribution_flag)) {
           "Paired continuous outcome: skewness flagged in within-pair differences; selected Wilcoxon signed-rank test."
         } else {
@@ -829,6 +860,51 @@ compare_groups <- function(
         interpretation = interpretation_text,
         notes = ""
       )
+    } else if (isTRUE(paired) && n_groups > 2L &&
+               chosen_test %in% c("rm_anova", "friedman")) {
+      repeated_long <- data.frame(
+        id = factor(rep(paired_values$ids, times = n_groups)),
+        group = factor(
+          rep(paired_values$group_levels, each = paired_values$n_pairs),
+          levels = paired_values$group_levels
+        ),
+        outcome = as.vector(paired_values$values)
+      )
+      if (identical(chosen_test, "friedman")) {
+        fit <- stats::friedman.test(paired_values$values)
+        statistic <- unname(fit$statistic)
+        df1 <- unname(fit$parameter)
+        p_value <- fit$p.value
+        test_label <- "Friedman test"
+        method_detail <- "Repeated rank-based comparison across complete participants"
+      } else {
+        fit <- stats::aov(outcome ~ group + Error(id), data = repeated_long)
+        within <- summary(fit)[["Error: Within"]][[1L]]
+        statistic <- within[["F value"]][1L]
+        df1 <- within[["Df"]][1L]
+        p_value <- within[["Pr(>F)"]][1L]
+        test_label <- "Repeated-measures ANOVA"
+        method_detail <- "Univariate repeated-measures ANOVA; review sphericity"
+      }
+      interpretation_text <- if (p_value < 0.05) {
+        paste0("There was evidence of a difference in ", .get_var_label(data, outcome_name), " across repeated ", group_name, " occasions.")
+      } else {
+        paste0("There was no clear evidence of a difference in ", .get_var_label(data, outcome_name), " across repeated ", group_name, " occasions.")
+      }
+      inferential_tbl <- tibble::tibble(
+        outcome = outcome_name, label = .get_var_label(data, outcome_name),
+        outcome_type = outcome_type, group = group_name, group_levels = n_groups,
+        test_requested = test, test_used = test_label, paired = paired,
+        statistic = statistic, df = df1, p_value = p_value,
+        estimate = NA_real_, estimate_type = NA_character_, conf_low = NA_real_,
+        conf_high = NA_real_, conf_level = conf.level,
+        effect_size = NA_real_, effect_size_type = NA_character_,
+        effect_size_symbol = NA_character_, effect_conf_low = NA_real_,
+        effect_conf_high = NA_real_, effect_interval_method = NA_character_,
+        effect_size_interpretation = NA_character_, method_detail = method_detail,
+        reason_for_test = "Continuous outcome compared across three or more repeated occasions",
+        interpretation = interpretation_text, notes = ""
+      )
     } else if (n_groups > 2 &&
                chosen_test %in% c("anova", "welch_anova", "kruskal")) {
       df_tmp <- data.frame(
@@ -1048,7 +1124,7 @@ compare_groups <- function(
     )
     if (isTRUE(paired)) {
       descriptives_tbl <- make_cat_desc(
-        x = c(paired_values$x1, paired_values$x2),
+        x = as.vector(paired_values$values),
         g = factor(
           rep(paired_values$group_levels, each = paired_values$n_pairs),
           levels = paired_values$group_levels
@@ -1062,7 +1138,7 @@ compare_groups <- function(
 
     # Select the test for categorical outcomes
     tab <- table(group_factor, outcome_clean)
-    paired_tab <- if (isTRUE(paired)) {
+    paired_tab <- if (isTRUE(paired) && n_groups == 2L) {
       outcome_levels <- sort(unique(as.character(outcome_clean)))
       table(
         factor(as.character(paired_values$x1), levels = outcome_levels),
@@ -1076,12 +1152,21 @@ compare_groups <- function(
     } else {
       NULL
     }
+    expected_screen <- if (!isTRUE(paired)) {
+      .expected_count_screen(expected_counts)
+    } else {
+      NULL
+    }
 
     chosen_test <- test
     if (test == "auto") {
       if (identical(outcome_type, "ordinal")) {
-        chosen_test <- if (n_groups == 2L) "wilcox" else "kruskal"
-        selection_rule <- if (n_groups == 2L) {
+        chosen_test <- if (isTRUE(paired) && n_groups > 2L) {
+          "friedman"
+        } else if (n_groups == 2L) "wilcox" else "kruskal"
+        selection_rule <- if (isTRUE(paired) && n_groups > 2L) {
+          "Repeated ordinal outcome across three or more occasions: selected Friedman test."
+        } else if (n_groups == 2L) {
           "Two-group ordinal outcome: selected Wilcoxon rank-sum test."
         } else {
           "Multi-group ordinal outcome: selected Kruskal-Wallis test."
@@ -1091,28 +1176,33 @@ compare_groups <- function(
         chosen_test <- "mcnemar"
         selection_rule <- "Paired binary outcome: selected McNemar test."
         selection_inputs <- list(groups = n_groups, outcome_type = "binary", paired = TRUE)
+      } else if (paired && n_groups > 2L && outcome_type == "binary") {
+        chosen_test <- "cochran_q"
+        selection_rule <- "Repeated binary outcome across three or more occasions: selected Cochran's Q test."
+        selection_inputs <- list(groups = n_groups, outcome_type = "binary", paired = TRUE)
       } else {
-        if (any(expected_counts < 5)) {
+        if (expected_screen$sparse) {
           chosen_test <- "fisher"
         } else {
           chosen_test <- "chisq"
         }
-        selection_rule <- if (any(expected_counts < 5)) {
-          "Independent categorical outcome: at least one expected cell count was below 5; selected Fisher's exact test."
+        selection_rule <- if (expected_screen$sparse) {
+          "Independent categorical outcome: expected cell count guidance was not met (an expected count below 1 or more than 20% below 5); selected Fisher's exact test."
         } else {
-          "Independent categorical outcome: all expected cell counts were at least 5; selected Pearson chi-square test."
+          "Independent categorical outcome: expected cell count guidance was met (no expected count below 1 and no more than 20% below 5); selected Pearson chi-square test."
         }
         selection_inputs <- list(
           groups = n_groups,
           outcome_type = outcome_type,
           minimum_expected_count = min(expected_counts),
-          expected_count_threshold = 5
+          expected_count_threshold = "No expected count < 1 and <=20% below 5",
+          expected_count_screen = expected_screen
         )
       }
     }
 
     if (identical(outcome_type, "ordinal") &&
-        chosen_test %in% c("wilcox", "kruskal")) {
+        chosen_test %in% c("wilcox", "kruskal", "friedman")) {
       ordinal_scores <- as.numeric(outcome_clean)
       if (identical(chosen_test, "wilcox") && n_groups == 2L) {
         group_levels <- levels(group_factor)
@@ -1156,6 +1246,16 @@ compare_groups <- function(
         }
         statistic_val <- unname(fit$statistic)
         df_val <- NA_real_
+      } else if (identical(chosen_test, "friedman") && isTRUE(paired) && n_groups > 2L) {
+        ordinal_matrix <- apply(paired_values$values, 2L, function(values) {
+          match(as.character(values), levels(outcome_clean))
+        })
+        fit <- stats::friedman.test(ordinal_matrix)
+        test_label <- "Friedman test"
+        effect_size_val <- NA_real_
+        effect_size_type_val <- NA_character_
+        statistic_val <- unname(fit$statistic)
+        df_val <- unname(fit$parameter)
       } else if (identical(chosen_test, "kruskal") && n_groups > 2L) {
         fit <- stats::kruskal.test(ordinal_scores, group_factor)
         test_label <- "Kruskal-Wallis test"
@@ -1262,7 +1362,40 @@ compare_groups <- function(
         interpretation = interpretation_text,
         notes = ""
       )
-
+    } else if (chosen_test == "cochran_q") {
+      if (!(isTRUE(paired) && n_groups > 2L && outcome_type == "binary")) {
+        stop("`cochran_q` requires a paired binary outcome with three or more groups.", call. = FALSE)
+      }
+      binary_levels <- levels(factor(as.character(outcome_clean)))
+      binary_matrix <- apply(paired_values$values, 2L, function(values) {
+        as.integer(factor(as.character(values), levels = binary_levels)) - 1L
+      })
+      column_totals <- colSums(binary_matrix)
+      row_totals <- rowSums(binary_matrix)
+      total <- sum(column_totals)
+      denominator <- n_groups * total - sum(row_totals^2)
+      if (!is.finite(denominator) || denominator <= 0) {
+        stop("Cochran's Q test cannot be calculated because there is no usable within-participant variation.", call. = FALSE)
+      }
+      statistic_q <- (n_groups - 1) * (n_groups * sum(column_totals^2) - total^2) / denominator
+      p_q <- stats::pchisq(statistic_q, df = n_groups - 1L, lower.tail = FALSE)
+      interpretation_text <- if (p_q < 0.05) {
+        paste0("There was evidence that paired proportions of ", .get_var_label(data, outcome_name), " differed across repeated ", group_name, " occasions.")
+      } else {
+        paste0("There was no clear evidence that paired proportions of ", .get_var_label(data, outcome_name), " differed across repeated ", group_name, " occasions.")
+      }
+      inferential_tbl <- tibble::tibble(
+        outcome = outcome_name, label = .get_var_label(data, outcome_name),
+        outcome_type = outcome_type, group = group_name, group_levels = n_groups,
+        test_requested = test, test_used = "Cochran's Q test", paired = TRUE,
+        statistic = statistic_q, df = n_groups - 1L, p_value = p_q,
+        estimate = NA_real_, estimate_type = NA_character_, conf_low = NA_real_,
+        conf_high = NA_real_, conf_level = conf.level, effect_size = NA_real_,
+        effect_size_type = NA_character_, effect_size_interpretation = NA_character_,
+        method_detail = "Repeated binary comparison across complete participants",
+        reason_for_test = "Binary outcome compared across three or more repeated occasions",
+        interpretation = interpretation_text, notes = ""
+      )
     } else if (chosen_test == "chisq") {
       fit <- suppressWarnings(stats::chisq.test(tab, correct = correction))
 
@@ -1339,7 +1472,13 @@ compare_groups <- function(
         notes = ""
       )
     } else if (chosen_test == "fisher") {
-      fit <- stats::fisher.test(tab, conf.level = conf.level)
+      fisher_simulated <- nrow(tab) > 2L || ncol(tab) > 2L
+      fit <- stats::fisher.test(
+        tab,
+        conf.level = conf.level,
+        simulate.p.value = fisher_simulated,
+        B = if (fisher_simulated) 10000L else 2000L
+      )
 
       interpretation_text <- if (fit$p.value < 0.05) {
         paste0(
@@ -1389,7 +1528,11 @@ compare_groups <- function(
         group = group_name,
         group_levels = n_groups,
         test_requested = test,
-        test_used = "Fisher's exact test",
+        test_used = if (fisher_simulated) {
+          "Fisher's exact test (Monte Carlo p-value)"
+        } else {
+          "Fisher's exact test"
+        },
         paired = paired,
         statistic = NA_real_,
         df = NA_real_,
@@ -1419,11 +1562,10 @@ compare_groups <- function(
         effect_size_type = effect_size_type_val,
         effect_size_interpretation =
           effect_size_interpretation_val,
-        method_detail = "",
-        reason_for_test = paste0(
-          "Categorical outcome compared across groups with ",
-          "small expected counts"
-        ),
+        method_detail = if (fisher_simulated) {
+          "Monte Carlo p-value (10,000 simulations) for a table larger than 2x2"
+        } else "",
+        reason_for_test = "Categorical outcome compared across groups with inadequate expected-count guidance",
         interpretation = interpretation_text,
         notes = ""
       )
@@ -1677,7 +1819,7 @@ compare_groups <- function(
     ),
     if (test_used_final %in% c(
       "Student t-test", "Welch t-test", "Paired t-test",
-      "ANOVA", "Welch ANOVA"
+      "ANOVA", "Welch ANOVA", "Repeated-measures ANOVA"
     )) {
       .assumptions_tbl(
         assumption = "Distribution and influential outliers",
@@ -1687,7 +1829,9 @@ compare_groups <- function(
           exists("distribution_flag") &&
           !isTRUE(distribution_flag)
         ) "no_skew_flag" else "not_checked",
-        detail = if (isTRUE(paired)) {
+        detail = if (identical(test_used_final, "Repeated-measures ANOVA")) {
+          "Inspect repeated-measures residuals for influential outliers and severe asymmetry. Sphericity also requires review."
+        } else if (isTRUE(paired)) {
           "Inspect the within-pair differences for influential outliers and severe asymmetry."
         } else {
           "Inspect group distributions or model residuals for influential outliers and severe asymmetry."
@@ -1695,7 +1839,7 @@ compare_groups <- function(
       )
     } else if (test_used_final %in% c(
       "Wilcoxon rank-sum test",
-      "Kruskal-Wallis test"
+      "Kruskal-Wallis test", "Friedman test"
     )) {
       .assumptions_tbl(
         assumption = "Comparable distribution shapes",
@@ -1713,7 +1857,14 @@ compare_groups <- function(
     } else {
       .empty_assumptions()
     },
-    if (test_used_final %in% c("Chi-square test", "Fisher's exact test")) {
+    if (test_used_final == "Repeated-measures ANOVA") {
+      .assumptions_tbl(
+        assumption = "Sphericity",
+        status = "user_check",
+        result = "not_checked",
+        detail = "The univariate repeated-measures ANOVA p-value assumes sphericity; use an appropriate correction or model if this is doubtful."
+      )
+    } else if (test_used_final %in% c("Chi-square test", "Fisher's exact test", "Fisher's exact test (Monte Carlo p-value)")) {
       .assumptions_tbl(
         assumption = c(
           "Mutually exclusive categories",
@@ -1725,12 +1876,12 @@ compare_groups <- function(
           if (
             exists("expected_counts") &&
             !is.null(expected_counts) &&
-            all(expected_counts >= 5)
-          ) "all_at_least_5" else "sparse"
+            !is.null(expected_screen) && !isTRUE(expected_screen$sparse)
+          ) "guidance_met" else "sparse"
         ),
         detail = c(
           "Confirm that every observation contributes to one category per variable.",
-          "Automatic selection uses Fisher's exact test when any expected count is below 5."
+          "Automatic selection uses Fisher's exact test when any expected count is below 1 or more than 20% are below 5."
         )
       )
     } else if (test_used_final == "McNemar test") {
@@ -1739,6 +1890,13 @@ compare_groups <- function(
         status = "partly_checked",
         result = "aligned_by_id",
         detail = "Identifiers were aligned and duplicate id/group records were rejected; confirm the clinical pairing."
+      )
+    } else if (test_used_final == "Cochran's Q test") {
+      .assumptions_tbl(
+        assumption = "Correctly matched binary observations",
+        status = "partly_checked",
+        result = "aligned_by_id",
+        detail = "Identifiers were aligned across all occasions and duplicate id/group records were rejected; confirm the clinical pairing."
       )
     } else {
       .empty_assumptions()
@@ -1830,7 +1988,7 @@ compare_groups <- function(
       value = if (isTRUE(paired)) "Paired observations" else "Independent observations",
       threshold = "Defined by the study design",
       detail = if (isTRUE(paired)) {
-        "Paired routes use within-pair differences; `var_equal` does not apply."
+          if (n_groups == 2L) "Paired routes use within-pair differences; `var_equal` does not apply." else "Repeated-measures routes align the same participants across all occasions; `var_equal` does not apply."
       } else {
         "Independent comparison; confirm independence from the study design."
       }
@@ -1868,7 +2026,7 @@ compare_groups <- function(
           as.character(selection_inputs$outcome_type %||% outcome_type)
         },
         threshold = if (!is.null(selection_inputs$expected_count_threshold)) {
-          "All expected counts >= 5 for chi-square"
+          "No expected count below 1 and no more than 20% below 5"
         } else if (!is.null(selection_inputs$distribution_guidance)) {
           "No group-level skewness flag for parametric default"
         } else {
@@ -1892,8 +2050,10 @@ compare_groups <- function(
         ))) "rank_based_recommended" else "parametric_reasonable",
         value = paste(distributions, collapse = "; "),
         threshold = "Absolute skewness guidance",
-        detail = if (isTRUE(paired)) {
+        detail = if (isTRUE(paired) && n_groups == 2L) {
           "Assessment applied to within-pair differences."
+        } else if (isTRUE(paired)) {
+          "Assessment applied at each repeated occasion; repeated-measures ANOVA also requires a sphericity review."
         } else {
           "Assessment applied within each group."
         }
@@ -1905,21 +2065,21 @@ compare_groups <- function(
     if (exists("expected_counts") && !is.null(expected_counts)) {
       .diagnostics_tbl(
         check = "Expected cell counts",
-        result = if (all(expected_counts >= 5)) "adequate" else "sparse",
+        result = if (!is.null(expected_screen) && !isTRUE(expected_screen$sparse)) "guidance_met" else "sparse",
         value = .fmt_num(min(expected_counts), 2),
-        threshold = "Minimum expected count >= 5",
-        detail = "Fisher's exact test is selected automatically when any expected count is below 5."
+        threshold = "No expected count below 1 and no more than 20% below 5",
+        detail = "Fisher's exact test is selected automatically when expected-count guidance is not met."
       )
     } else {
       .empty_diagnostics()
     },
     if (isTRUE(paired)) {
       .diagnostics_tbl(
-        check = "Complete pairs",
+        check = if (n_groups == 2L) "Complete pairs" else "Complete repeated participants",
         result = "aligned",
         value = as.character(paired_values$n_pairs),
         threshold = "At least 2",
-        detail = "Only identifiers observed once in both groups were analysed."
+        detail = if (n_groups == 2L) "Only identifiers observed once in both groups were analysed." else "Only identifiers observed once at every occasion were analysed."
       )
     } else {
       .empty_diagnostics()
@@ -1928,14 +2088,14 @@ compare_groups <- function(
   denominators_tbl <- if (isTRUE(paired)) {
     .denominators_tbl(
       variable = outcome_name,
-      group = "Complete pairs",
+      group = if (n_groups == 2L) "Complete pairs" else "Complete participants",
       n_total = length(unique(stats::na.omit(data[[id_name]]))),
       n_nonmissing = paired_values$n_pairs,
       n_missing = length(unique(stats::na.omit(data[[id_name]]))) -
         paired_values$n_pairs,
       numerator = NA_real_,
       denominator = paired_values$n_pairs,
-      rule = "Identifiers observed once in both groups"
+      rule = if (n_groups == 2L) "Identifiers observed once in both groups" else "Identifiers observed once at every occasion"
     )
   } else {
     .data_denominators(
@@ -1978,7 +2138,8 @@ compare_groups <- function(
         expected_counts
       } else {
         NULL
-      }
+      },
+      expected_count_screen = if (exists("expected_screen")) expected_screen else NULL
     ),
     assumptions = assumptions_tbl,
     diagnostics = diagnostics_tbl,
@@ -1986,11 +2147,7 @@ compare_groups <- function(
     notes = {
       test_used <- inferential_tbl$test_used[[1L]]
       design_note <- if (isTRUE(paired)) {
-        paste0(
-          "Paired analysis used ",
-          paired_values$n_pairs,
-          " complete pairs; distribution checks apply to within-pair differences."
-        )
+        if (n_groups == 2L) paste0("Paired analysis used ", paired_values$n_pairs, " complete pairs; distribution checks apply to within-pair differences.") else paste0("Repeated-measures analysis used ", paired_values$n_pairs, " participants observed at all ", n_groups, " occasions.")
       } else {
         "The analysis assumes independent observations; study design must confirm this."
       }
@@ -2001,18 +2158,26 @@ compare_groups <- function(
           "Classical ANOVA assumes approximately normal residuals and similar group variances.",
         test_used == "Welch ANOVA" ~
           "Welch ANOVA allows unequal variances; check residual shape and influential outliers.",
+        test_used == "Repeated-measures ANOVA" ~
+          "Repeated-measures ANOVA requires review of residual shape, influential outliers, and sphericity.",
         test_used == "Wilcoxon rank-sum test" ~
           "Wilcoxon rank-sum is rank based; similar distribution shapes are needed for a median-shift interpretation.",
         test_used == "Wilcoxon signed-rank test" ~
           "Wilcoxon signed-rank assumes a roughly symmetric distribution of non-zero paired differences.",
         test_used == "Kruskal-Wallis test" ~
           "Kruskal-Wallis is rank based; similar distribution shapes are needed for a location-shift interpretation.",
+        test_used == "Friedman test" ~
+          "Friedman is a rank-based repeated-measures test; it assesses differences across paired occasions.",
         test_used == "Chi-square test" ~
           "Chi-square requires mutually exclusive categories and adequate expected cell counts.",
         test_used == "Fisher's exact test" ~
           "Fisher's exact test handles sparse counts but still requires independent observations.",
+        test_used == "Fisher's exact test (Monte Carlo p-value)" ~
+          "Fisher's exact test with a Monte Carlo p-value handles sparse larger tables but still requires independent observations.",
         test_used == "McNemar test" ~
           "McNemar's test requires correctly matched binary pairs.",
+        test_used == "Cochran's Q test" ~
+          "Cochran's Q test requires correctly matched binary observations across all occasions.",
         TRUE ~ ""
       )
       count_note <- if (
@@ -2022,7 +2187,7 @@ compare_groups <- function(
         paste0(
           "Minimum expected cell count was ",
           .fmt_num(min(expected_counts), 2),
-          "; Fisher's exact test is selected automatically when any expected count is below 5."
+          "; Fisher's exact test is selected automatically when an expected count is below 1 or more than 20% are below 5."
         )
       } else {
         character()

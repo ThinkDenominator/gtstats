@@ -11,7 +11,7 @@ compare_groups(
   paired = FALSE,
   id = NULL,
   test = c("auto", "t_test", "welch_t", "wilcox", "anova", "welch_anova", "kruskal",
-    "chisq", "fisher", "mcnemar"),
+    "chisq", "fisher", "mcnemar", "rm_anova", "friedman", "cochran_q"),
   effect_size = FALSE,
   conf.level = 0.95,
   digits = 2,
@@ -37,7 +37,8 @@ Each identifier must occur at most once in each group.}
 
 \item{test}{Test to use. One of \code{"auto"}, \code{"t_test"}, \code{"welch_t"},
 \code{"wilcox"}, \code{"anova"}, \code{"welch_anova"}, \code{"kruskal"}, \code{"chisq"},
-\code{"fisher"}, or \code{"mcnemar"}. See \strong{Automatic selection policy} for the
+\code{"fisher"}, \code{"mcnemar"}, \code{"rm_anova"}, \code{"friedman"}, or
+\code{"cochran_q"}. See \strong{Automatic selection policy} for the
 exact rules used by \code{"auto"}.}
 
 \item{effect_size}{Logical; calculate and display the effect size selected
@@ -102,6 +103,9 @@ Supported tests include:
 \item \code{"chisq"}
 \item \code{"fisher"}
 \item \code{"mcnemar"}
+\item \code{"rm_anova"}
+\item \code{"friedman"}
+\item \code{"cochran_q"}
 }
 \subsection{Automatic selection policy}{
 
@@ -117,15 +121,18 @@ rank-sum test.
 default, or classical one-way ANOVA when \code{var_equal = TRUE}, unless
 unless distribution guidance flags skewness in any group, then
 Kruskal-Wallis test.
-\item \strong{Paired continuous outcome:} paired t-test, unless distribution guidance
-flags skewness in the within-pair differences, then Wilcoxon signed-rank
-test.
-\item \strong{Ordinal outcome:} Wilcoxon rank-sum test for two groups or
-Kruskal-Wallis test for three or more groups.
+\item \strong{Paired continuous outcome:} for two occasions, paired t-test unless
+within-pair differences are flagged, then Wilcoxon signed-rank; for three
+or more occasions, repeated-measures ANOVA unless shape is flagged, then
+Friedman test. Sphericity is a user check for repeated-measures ANOVA.
+\item \strong{Ordinal outcome:} Wilcoxon rank-sum/signed-rank for two groups;
+Kruskal-Wallis for three or more independent groups; Friedman for three
+or more paired occasions.
 \item \strong{Independent binary or nominal categorical outcome:} Pearson chi-square
-test when every expected cell count is at least 5; Fisher's exact test
-otherwise.
-\item \strong{Paired binary outcome:} McNemar test.
+test when no expected count is below 1 and no more than 20\% are below 5;
+Fisher's exact test otherwise (Monte Carlo p-value for larger tables).
+\item \strong{Paired binary outcome:} McNemar test for two occasions; Cochran's Q
+test for three or more occasions.
 }
 
 Distribution guidance uses the package's skewness assessment within each

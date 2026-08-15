@@ -88,11 +88,14 @@ assess_distribution(birthwt_data, vars = c(age, lwt), by = low)
 | `data`, `by` | required | Supply data and the categorical grouping variable |
 | `vars` | `NULL`: all eligible continuous variables | Restrict variables to inspect |
 | `digits` | `2` | SD, variance, and ratio precision |
+| `test` | `"none"`; `"bartlett"` | Optionally display Bartlett's test as supporting information; it never selects the comparison test |
 | `output` | `"table"`; also `"tibble"` | Choose formatted table or underlying data |
 
 `assess_variance()` reports group SDs, variances, and largest/smallest ratios.
 They are descriptive diagnostics, not pass/fail tests: Welch t-tests and Welch
 ANOVA do not require equal variances, and this function never selects a test.
+Bartlett's test is sensitive to non-normality: a p-value neither proves equal
+variances nor replaces the prespecified `var_equal` choice.
 
 ```r
 assess_variance(birthwt_data, vars = c(age, lwt), by = low)
@@ -170,7 +173,7 @@ summary_table(birthwt_data, by = low, overall = TRUE) |>
 | Option | Default / available choices | What it changes |
 |---|---|---|
 | `data`, `variable`, `group` | required | State one outcome variable and the categorical comparison group |
-| `test` | `"auto"`; `"t_test"`, `"welch_t"`, `"wilcox"`, `"anova"`, `"welch_anova"`, `"kruskal"`, `"chisq"`, `"fisher"`, `"mcnemar"` | Automatic selection or an explicit valid test |
+| `test` | `"auto"`; parametric `"t_test"`, `"welch_t"`, `"anova"`, `"welch_anova"`, `"rm_anova"`; non-parametric `"wilcox"`, `"kruskal"`, `"friedman"`; categorical `"chisq"`, `"fisher"`, `"mcnemar"`, `"cochran_q"` | Automatic selection or an explicit valid test |
 | `var_equal` | `FALSE` | For non-skewed independent continuous auto comparisons, `TRUE` selects Student's t-test or classical ANOVA; it is user-specified, never inferred from a variance test |
 | `paired`, `id` | `FALSE`, `NULL` | Analyse repeated measurements; `id` is required when paired |
 | `effect_size` | `FALSE` | Add a compatible effect-size estimate to the result |

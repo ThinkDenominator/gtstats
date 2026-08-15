@@ -9,6 +9,7 @@ assess_variance(
   vars = NULL,
   by,
   digits = 2,
+  test = c("none", "bartlett"),
   output = c("table", "tibble")
 )
 }
@@ -25,6 +26,10 @@ It must be categorical, binary, logical, or ordinal and contain at least
 two observed groups.}
 
 \item{digits}{Number of decimal places.}
+
+\item{test}{Variance hypothesis test to display: \code{"none"} (default) or
+\code{"bartlett"}. Bartlett's test is sensitive to non-normality and is a
+diagnostic, not a gatekeeper for ANOVA or Welch methods.}
 
 \item{output}{Either \code{"table"} (the default) or \code{"tibble"}.}
 }
@@ -46,9 +51,13 @@ variance. These ratios are descriptive diagnostics, not pass/fail tests.
 The function deliberately does not run a variance hypothesis test by
 default, and it does not choose an inferential test. In particular, Welch
 t-tests and Welch ANOVA do not require equal variances.
+Set \code{test = "bartlett"} to add Bartlett's test as supporting information.
+Bartlett's test assumes normal group distributions and is deliberately not
+used to select a test in \code{compare_groups()}.
 }
 \examples{
 assess_variance(mtcars, vars = c(mpg, wt), by = am)
 assess_variance(mtcars, vars = "mpg", by = am, digits = 1)
+assess_variance(mtcars, vars = "mpg", by = am, test = "bartlett")
 
 }

@@ -71,15 +71,35 @@ inputs in `$method`, `$diagnostics`, and `$notes`.
 |---|---|---|
 | Continuous, two independent groups | Skewness guidance within each group; `var_equal` | Welch t-test by default; Student's t-test when `var_equal = TRUE`; Wilcoxon rank-sum if one or more groups are flagged |
 | Continuous, three or more independent groups | Skewness guidance within each group; `var_equal` | Welch ANOVA by default; classical ANOVA when `var_equal = TRUE`; Kruskal-Wallis if one or more groups are flagged |
-| Continuous, paired | Skewness guidance for within-pair differences | Paired t-test if not flagged; Wilcoxon signed-rank if flagged |
+| Continuous, paired (two occasions) | Skewness guidance for within-pair differences | Paired t-test if not flagged; Wilcoxon signed-rank if flagged |
+| Continuous, paired (3+ occasions) | Skewness guidance at each occasion | Repeated-measures ANOVA if not flagged; Friedman test if flagged; review sphericity for repeated-measures ANOVA |
 | Ordinal, two groups | Outcome is ordered | Wilcoxon rank-sum |
-| Ordinal, three or more groups | Outcome is ordered | Kruskal-Wallis |
-| Binary or nominal categorical, independent | Expected cell counts | Pearson chi-square when all expected counts are at least 5; Fisher's exact otherwise |
-| Binary, paired | Paired design and binary outcome | McNemar test |
+| Ordinal, three or more groups | Outcome is ordered | Kruskal-Wallis (independent) or Friedman (paired) |
+| Binary or nominal categorical, independent | Expected cell counts | Pearson chi-square when no expected count is below 1 and no more than 20% are below 5; Fisher's exact otherwise |
+| Binary, paired | Paired design and binary outcome | McNemar test (two occasions) or Cochran's Q test (3+ occasions) |
 
 The continuous-variable rule uses the package skewness guidance, not a
 normality-test p-value. Shapiro-Wilk is supporting information only and does
 not alone switch the test. `add_p()` uses the same rules.
+
+## Ordinal values: make the meaning explicit
+
+`compare_groups()` treats an `ordered` factor as ordinal and uses rank-based
+methods. A numeric variable with a few values (for example `0`, `1`, `2`, `3`
+visits or cancer stages coded `1`--`4`) is deliberately treated as a
+categorical/count-coded variable unless its order is explicitly declared. This
+avoids silently treating a clinical code as a numerical scale. Convert a true
+ordered variable before comparing it:
+
+```r
+data$stage <- ordered(data$stage, levels = c(1, 2, 3, 4))
+compare_groups(data, variable = stage, group = arm)
+```
+
+`describe_data()` makes this distinction visible: explicit ordered factors are
+shown as `ordinal`; small integer-coded variables receive a possible
+ordinal/count-coded flag for review against the data dictionary. It does not
+change the analysis type automatically.
 
 Other automatic defaults are:
 
@@ -107,7 +127,9 @@ crosstabs(mtcars, row = am, col = vs)
 ```
 
 In automatic mode, expected cell counts are calculated. Fisher's exact test is
-selected if any expected count is below 5; otherwise chi-square is used.
+selected when an expected count is below 1 or more than 20% of expected cells
+are below 5; otherwise chi-square is used. Larger sparse tables use Fisher's
+test with a Monte Carlo p-value.
 Returned objects expose the expected counts and the minimum expected count.
 
 The analyst must still confirm:

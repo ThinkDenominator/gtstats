@@ -97,21 +97,102 @@ install.packages("rio")
 The tabs are deliberately ordered to follow a safe statistical workflow.
 
 1. **Data** — choose a teaching dataset or upload your own data.
-2. **Understand** — inspect types, completeness, distribution, and spread.
-3. **Table 1** — create the descriptive table for a report.
-4. **Compare groups** — answer one focused inferential question.
-5. **Crosstabs** — inspect categorical association and 2×2 measures.
-6. **History** — see which analyses were run during this session.
-7. **Help** — revisit the safe beginner workflow.
+2. **Data Prep** — optionally make safe, reversible changes before analysis.
+3. **Understand** — inspect types, completeness, distribution, and spread.
+4. **Table 1** — create the descriptive table for a report.
+5. **Compare groups** — answer one focused inferential question.
+6. **Crosstabs** — inspect categorical association and 2×2 measures.
+7. **History** — see which analyses were run during this session.
+8. **Help** — revisit the safe beginner workflow.
 
 The app will not run Table 1, comparisons, or cross-tabs until you press the
 relevant action button. This prevents accidental analysis while the app is
 loading or while a browser restores an earlier session.
 
+On a phone or narrow screen, use the menu icon in the top-right to open the
+full tab list. The numbered workflow strip remains visible below it and can be
+swiped sideways; no analysis tab is hidden or removed on smaller screens.
+
 # Data tab
 
 Use the **Data** tab first. You can select one of three labelled teaching
-datasets or upload your own data.
+datasets from one compact dropdown, or upload your own data. Uploads support
+CSV, Excel (`.xlsx`/`.xls`), R data (`.rds`), Stata (`.dta`), and SPSS
+(`.sav`). Excel, Stata, and SPSS files use the optional `rio` package.
+
+# Data Prep tab
+
+**Data Prep** is optional. It is for small, auditable changes before analysis,
+not a replacement for a full data-management workflow. The imported dataset is
+kept unchanged; each action changes an independent working copy.
+
+The command bar lists every available action explicitly. Click the task you
+need, complete the structured fields that appear, then click **Apply this
+change**. The current version provides eight common operations:
+
+| Operation | Use it for | Safety check |
+|---|---|---|
+| Rename variable | Clearer variable names | Blank, duplicate, and invalid R names are rejected |
+| Recode values | Give every recorded value a clear label, for example `0/1` to `No/Yes` | The mapping grid shows source and new labels side by side; ordered mode uses the displayed order |
+| Set type and order | Make values categorical, ordered categorical, numeric, or text | The display-order grid appears only for ordered categorical values; every level must have one different position |
+| Manage missing values | Convert recorded codes such as `999` or `Unknown` to `NA`, or show existing `NA` values as a labelled category | The app reports affected cells and warns that a Missing category changes analysis |
+| Create calculation | Adjust one variable, combine two numeric variables, or calculate a ratio with a powered denominator (for example BMI) | Source variables are retained; preview shows usable rows |
+| Create groups | Build a two-, three-, or four-group variable from one source variable | Give every group a label; conditions are checked top to bottom and the first match wins |
+| Filter observations | Keep records meeting one or two inclusion criteria | A second condition is optional; preview shows kept, excluded, and unknown counts |
+| Keep variables | Choose the columns for a smaller analysis dataset | Searchable multi-select, Keep all, and Clear selection controls; Undo restores removed columns |
+
+The **Quick starts** buttons are fill-only helpers. **Age groups** proposes a
+two-group age variable using a 65-year cut-off; **0/1 to No/Yes** opens a
+matching binary recode when a variable coded exactly `0` and `1` is found;
+**BMI-style calculation** sets up `numerator / (denominator ^ 2)`; and
+**99/999 to missing** opens the missing-code workflow. None of these buttons
+applies a change. They are deliberately starting points, so verify the selected
+variable, coding, units, cut-offs, and labels before pressing **Apply this
+change**.
+
+For numeric grouping, choose equal to, not equal to, greater/less than,
+greater/less than or equal to, **between (inclusive)**, or **outside a range**.
+Range rules show a second field for the upper bound. Between means
+`x >= lower & x <= upper`; outside means `x < lower | x > upper`. Both bounds
+must be numeric, the lower bound cannot exceed the upper bound, and range rules
+are unavailable for non-numeric variables. The preview shows each proposed
+group's count and blocks an Apply action if any group would be empty. The final
+group is always everyone else, and rules are evaluated from top to bottom.
+
+Before applying, the panel states the expected impact: for example, how many
+values will be recoded, how many codes will become missing, or how many rows a
+filter will keep. For recoding, missing-value changes, group creation, and
+filtering, it also shows a compact **Before you apply** table with the exact
+values or row counts expected to change. The right-hand preview and the
+**Change log** update immediately after you click **Apply this change**.
+Use **Undo**, **Redo**, or **Reset all** to reverse work safely.
+
+When an action uses a categorical variable, the panel also shows its exact
+recorded values and offers **Copy values**. Recode values creates a mapping grid
+with one row per observed value and pre-fills each new label with its existing
+value. Edit only the labels that need changing. This avoids guessing whether a
+dataset records a value as `Yes`, `yes`, `Y`, or `1`. Tick **Treat as ordered
+categorical, in the order shown** only if that order has a genuine meaning.
+For numeric variables, it shows the range, number of unique values, and any
+short list of observed values.
+
+When ready, choose one of these deliberately:
+
+- **Continue without changes** makes all later tabs use the original data.
+- **Use prepared data** makes all later tabs use the working copy.
+
+The **Reusable code** panel records the applied actions. Copy or download this
+code and use it as the starting point for a reproducible R script. Data Prep
+does not evaluate arbitrary user-supplied R code.
+
+Use **Download prepared data** to save the current working dataset as CSV,
+Excel, RDS, or Stata. CSV and RDS work without additional packages; Excel and
+Stata export use the optional `rio` package.
+
+The **History** tab also provides **Download complete R script**. It combines
+the data import, applied Data Prep changes, and only the analyses run during
+that session. For an uploaded file, it uses a clear file-path placeholder
+rather than the temporary upload path used by the app.
 
 | Choice | Best use |
 |---|---|
@@ -255,9 +336,10 @@ that prespecifies tests, use the generated code in RStudio and supply a named
 
 ## Preview, export, and code
 
-The **Table** panel is the publication-ready preview. Download buttons provide
-DOCX, HTML, PDF, and RTF. PDF needs a working browser/webshot setup; DOCX or
-HTML are the easiest choices for most users.
+Every visible table in the app—data preview, data dictionary, dataset
+description, diagnostics, Table 1, comparison audits, crosstabs, and
+history—has download buttons for DOCX, HTML, PDF, and RTF. PDF needs a working
+browser/webshot setup; DOCX or HTML are the easiest choices for most users.
 
 Open the **Code** panel to copy or download the complete `summary_table()`
 call, including the display choices you selected. This is the route from a
@@ -286,12 +368,16 @@ Its policy is visible in the package documentation and result notes:
 |---|---|
 | Continuous, two independent groups | Welch t-test by default; Student's t-test when equal variances are explicitly justified; Wilcoxon if marked skew is flagged |
 | Continuous, 3+ independent groups | Welch ANOVA by default; classical ANOVA when equal variances are explicitly justified; Kruskal-Wallis if marked skew is flagged |
-| Ordinal | Wilcoxon rank-sum or Kruskal-Wallis |
-| Binary/nominal categorical | Chi-square when expected counts are adequate; Fisher exact when sparse |
+| Continuous, paired | Paired t-test/Wilcoxon signed-rank for two occasions; repeated-measures ANOVA/Friedman for 3+ occasions |
+| Ordinal | Wilcoxon rank-sum or Kruskal-Wallis when independent; Friedman for 3+ paired occasions |
+| Binary/nominal categorical | Chi-square when no expected count is below 1 and no more than 20% are below 5; Fisher exact when sparse |
+| Binary, paired | McNemar for two occasions; Cochran's Q for 3+ occasions |
 
-You can select Student t-test, Welch t-test, Wilcoxon, ANOVA, Welch ANOVA,
-Kruskal-Wallis, chi-square, or Fisher exact yourself. Use an explicit choice
-only when it is justified by the study design or an analysis plan.
+The app also exposes the paired methods: McNemar (two binary occasions),
+Cochran's Q (three or more binary occasions), repeated-measures ANOVA, and
+Friedman. Turn on **Repeated measurements from the same participant** and
+select the participant ID before running any paired comparison. Use an explicit
+choice only when it is justified by the study design or an analysis plan.
 
 For **Auto**, the app also offers **equal variances are justified**. This sets
 `var_equal = TRUE`: it switches only a non-skewed independent continuous auto

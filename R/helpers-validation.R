@@ -153,3 +153,27 @@
   x[!is.na(x) & !nzchar(trimws(x))] <- blank
   x
 }
+
+# Assess whether Pearson chi-square expected-count guidance is inadequate.
+# The conventional screen is an expected count below 1 in any cell, or more
+# than 20% of expected counts below 5. This guides automatic selection only;
+# it does not affect an explicitly requested association test.
+.expected_count_screen <- function(expected) {
+  values <- as.numeric(expected)
+  values <- values[is.finite(values)]
+  if (!length(values)) {
+    return(list(
+      sparse = TRUE, any_below_1 = NA, proportion_below_5 = NA,
+      n_below_5 = NA_integer_, n_cells = 0L
+    ))
+  }
+  any_below_1 <- any(values < 1)
+  proportion_below_5 <- mean(values < 5)
+  list(
+    sparse = isTRUE(any_below_1) || proportion_below_5 > 0.20,
+    any_below_1 = any_below_1,
+    proportion_below_5 = proportion_below_5,
+    n_below_5 = sum(values < 5),
+    n_cells = length(values)
+  )
+}

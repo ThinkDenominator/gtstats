@@ -580,3 +580,17 @@ test_that("compare_groups() displays blank group values safely", {
   expect_s3_class(result, "gt_compare")
   expect_true(any(grepl("\\(blank\\)", names(result$table))))
 })
+
+test_that("compare_groups() supports three or more paired occasions", {
+  repeated <- data.frame(
+    id = rep(seq_len(8), 3),
+    visit = factor(rep(c("Baseline", "Week 4", "Week 12"), each = 8)),
+    score = c(1:8, 3:10, 5:12),
+    ordinal = ordered(c(1, 2, 3, 1, 2, 3, 1, 2, 2, 3, 1, 2, 3, 1, 2, 3, 3, 1, 2, 3, 1, 2, 3, 1))
+  )
+  continuous <- compare_groups(repeated, variable = score, group = visit, paired = TRUE, id = id)
+  ordinal <- compare_groups(repeated, variable = ordinal, group = visit, paired = TRUE, id = id)
+  expect_equal(continuous$inferential$test_used, "Repeated-measures ANOVA")
+  expect_equal(ordinal$inferential$test_used, "Friedman test")
+  expect_true(any(continuous$assumptions$assumption == "Sphericity"))
+})

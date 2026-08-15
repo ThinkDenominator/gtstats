@@ -10,6 +10,9 @@
 #' The function deliberately does not run a variance hypothesis test by
 #' default, and it does not choose an inferential test. In particular, Welch
 #' t-tests and Welch ANOVA do not require equal variances.
+#' Set `test = "bartlett"` to add Bartlett's test as supporting information.
+#' Bartlett's test assumes normal group distributions and is deliberately not
+#' used to select a test in `compare_groups()`.
 #'
 #' @param data A data frame.
 #' @param vars Continuous numeric variables to assess. Bare names or a character
@@ -20,6 +23,9 @@
 #'   It must be categorical, binary, logical, or ordinal and contain at least
 #'   two observed groups.
 #' @param digits Number of decimal places.
+#' @param test Variance hypothesis test to display: `"none"` (default) or
+#'   `"bartlett"`. Bartlett's test is sensitive to non-normality and is a
+#'   diagnostic, not a gatekeeper for ANOVA or Welch methods.
 #' @param output Either `"table"` (the default) or `"tibble"`.
 #'
 #' @return With `output = "table"`, a `gt_variance` object that prints as a
@@ -30,6 +36,7 @@
 #' @examples
 #' assess_variance(mtcars, vars = c(mpg, wt), by = am)
 #' assess_variance(mtcars, vars = "mpg", by = am, digits = 1)
+#' assess_variance(mtcars, vars = "mpg", by = am, test = "bartlett")
 #'
 #' @export
 assess_variance <- function(
@@ -37,9 +44,11 @@ assess_variance <- function(
     vars = NULL,
     by,
     digits = 2,
+    test = c("none", "bartlett"),
     output = c("table", "tibble")
 ) {
   output <- match.arg(output)
+  test <- match.arg(test)
   if (!is.data.frame(data)) {
     stop("`data` must be a data.frame.", call. = FALSE)
   }
@@ -172,11 +181,22 @@ assess_variance <- function(
     if (any(rows$missing > 0L | rows$non_finite > 0L)) {
       status <- paste0(status, " Missing or non-finite values are excluded from SD and variance.")
     }
+    bartlett <- if (identical(test, "bartlett")) {
+      test_data <- data.frame(
+        value = data[[variable]], group = data[[by_name]]
+      )
+      test_data <- test_data[stats::complete.cases(test_data) & is.finite(test_data$value), , drop = FALSE]
+      tryCatch(stats::bartlett.test(value ~ as.factor(group), data = test_data), error = function(e) NULL)
+    } else NULL
     tibble::tibble(
       variable = variable,
       label = .get_var_label(data, variable),
       sd_ratio = sd_ratio,
       variance_ratio = variance_ratio,
+      bartlett_statistic = if (is.null(bartlett)) NA_real_ else unname(bartlett$statistic),
+      bartlett_df = if (is.null(bartlett)) NA_real_ else unname(bartlett$parameter),
+      bartlett_p = if (is.null(bartlett)) NA_real_ else bartlett$p.value,
+      bartlett_status = if (!identical(test, "bartlett")) "Not requested" else if (is.null(bartlett)) "Not estimable" else "Supporting information",
       interpretation = status
     )
   }))
@@ -199,19 +219,24 @@ assess_variance <- function(
     display_tbl$interpretation, display_tbl$variable,
     FUN = function(x) c(x[[1L]], rep("", length(x) - 1L))
   )
+  for (column in c("bartlett_statistic", "bartlett_df", "bartlett_p", "bartlett_status")) {
+    display_tbl[[column]] <- stats::ave(display_tbl[[column]], display_tbl$variable, FUN = function(x) c(x[[1L]], rep(NA, length(x) - 1L)))
+  }
 
   display_cols <- c(
     "label", "group", "n",
     if (any(summary_tbl$missing > 0L)) "missing",
     if (any(summary_tbl$non_finite > 0L)) "non_finite",
     "sd", "variance", "sd_ratio", "variance_ratio", "interpretation"
+    , if (identical(test, "bartlett")) c("bartlett_p", "bartlett_status")
   )
   table_tbl <- display_tbl[, display_cols, drop = FALSE]
   names(table_tbl) <- c(
     "Variable", "Group", "n",
     if (any(summary_tbl$missing > 0L)) "Missing",
     if (any(summary_tbl$non_finite > 0L)) "Non-finite",
-    "SD", "Variance", "SD ratio", "Variance ratio", "Interpretation"
+    "SD", "Variance", "SD ratio", "Variance ratio", "Interpretation",
+    if (identical(test, "bartlett")) c("Bartlett p", "Bartlett status")
   )
   for (column in intersect(c("SD", "Variance", "SD ratio", "Variance ratio"), names(table_tbl))) {
     table_tbl[[column]] <- vapply(table_tbl[[column]], function(value) {
@@ -228,7 +253,7 @@ assess_variance <- function(
   result <- list(
     inputs = list(
       data_name = deparse(substitute(data)), vars = vars_names, by = by_name,
-      digits = digits, output = output
+      digits = digits, test = test, output = output
     ),
     summary = summary_tbl,
     diagnostics = diagnostics,
@@ -236,6 +261,7 @@ assess_variance <- function(
     notes = c(
       ratios = "SD and variance ratios are the largest group value divided by the smallest group value. They describe observed spread; they are not pass/fail tests.",
       welch = "Welch t-tests and Welch ANOVA do not require equal variances. `assess_variance()` does not select an inferential test.",
+      bartlett = if (identical(test, "bartlett")) "Bartlett's test is supporting information only: it assumes normal group distributions, and its p-value neither proves equal variances nor selects an inferential test." else NULL,
       review = "Interpret spread alongside sample size, distributional shape, outliers, missingness, and the study design."
     ),
     call = match.call()

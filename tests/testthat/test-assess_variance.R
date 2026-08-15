@@ -60,3 +60,10 @@ test_that("assess_variance() validates groups and variables", {
   expect_error(assess_variance(dat, vars = mpg, by = one_group), "at least two")
   expect_error(assess_variance(mtcars, vars = "not_a_variable", by = am), "not found")
 })
+
+test_that("assess_variance() can display Bartlett supporting information", {
+  result <- assess_variance(iris, vars = Sepal.Length, by = Species, test = "bartlett")
+  expect_true(all(c("Bartlett p", "Bartlett status") %in% names(result$table)))
+  expect_true(is.finite(result$diagnostics$bartlett_p[[1L]]))
+  expect_true(any(grepl("supporting information", result$notes, fixed = TRUE)))
+})
