@@ -31,6 +31,12 @@ calculates the proportion of a selected level together with a Wilson
 score confidence interval by default. Exact binomial intervals remain
 available with `ci_method = "exact"`.
 
+Its publication table keeps the event count and percentage together as
+`n (%)` and places the confidence interval in a separate column. When
+`by` is used, each group becomes a spanning header above these two
+columns. The tidy long-form numerical results remain available from
+`$summary`.
+
 ``` r
 
 # Overall proportion
@@ -75,6 +81,12 @@ summary_table(mtcars, by = am, overall = TRUE) |>
 divides the total number of events by the total person-time and
 multiplies by a chosen denominator (e.g. 1 000 person-years). Confidence
 intervals are calculated using the exact Poisson method.
+
+The publication table places each group above four separate columns:
+events, accumulated person-time, rate and confidence interval. This
+keeps the numerator, denominator and uncertainty visible without
+repeating interval labels inside every rate cell. Record counts and all
+numerical values remain in `$summary`.
 
 ``` r
 

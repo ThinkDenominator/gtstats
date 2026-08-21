@@ -51,6 +51,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/descriptive-tables.html">Building descriptive tables</a></li>
     <li><a class="dropdown-item" href="../articles/inferential-tests.html">Inferential tests and assumptions</a></li>
+    <li><a class="dropdown-item" href="../articles/inferential-tests.html#default-selection-policy">Automatic test algorithm</a></li>
     <li><a class="dropdown-item" href="../articles/epi-helpers.html">Epidemiology helpers</a></li>
     <li><a class="dropdown-item" href="../articles/styling-export.html">Styling and exporting tables</a></li>
   </ul>
@@ -352,8 +353,8 @@ destination is elsewhere:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_compare.html">plot_compare</a></span><span class="op">(</span></span>
 <span>  <span class="va">mtcars</span>,</span>
-<span>  outcome <span class="op">=</span> <span class="va">mpg</span>,</span>
-<span>  by <span class="op">=</span> <span class="va">am</span>,</span>
+<span>  variable <span class="op">=</span> <span class="va">mpg</span>,</span>
+<span>  group <span class="op">=</span> <span class="va">am</span>,</span>
 <span>  show_p <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span></span>

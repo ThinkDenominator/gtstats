@@ -13,15 +13,16 @@ direction.
 ``` r
 effect_size(
   data,
-  outcome,
-  by,
+  variable,
+  group,
   method = c("auto", "hedges_g", "rank_biserial", "omega_squared", "epsilon_squared",
     "cramers_v"),
   paired = FALSE,
   id = NULL,
   conf.level = 0.95,
   interpretation = FALSE,
-  digits = 2
+  digits = 2,
+  format = c("table", "tibble")
 )
 ```
 
@@ -31,11 +32,11 @@ effect_size(
 
   A data frame.
 
-- outcome:
+- variable:
 
-  Outcome variable.
+  Outcome or response variable.
 
-- by:
+- group:
 
   Grouping variable.
 
@@ -64,6 +65,10 @@ effect_size(
 - digits:
 
   Number of decimal places.
+
+- format:
+
+  Output format: `"table"` (default) or a plain console `"tibble"`.
 
 ## Value
 
@@ -95,24 +100,24 @@ for those epidemiological measures.
 ## Examples
 
 ``` r
-effect_size(mtcars, outcome = mpg, by = am)
-#> <div id="mzeoiosmpv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-#>   <style>#mzeoiosmpv table {
+effect_size(mtcars, variable = mpg, group = am)
+#> <div id="xciqafymiq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+#>   <style>#xciqafymiq table {
 #>   font-family: system-ui;
 #>   -webkit-font-smoothing: antialiased;
 #>   -moz-osx-font-smoothing: grayscale;
 #> }
 #> 
-#> #mzeoiosmpv thead, #mzeoiosmpv tbody, #mzeoiosmpv tfoot, #mzeoiosmpv tr, #mzeoiosmpv td, #mzeoiosmpv th {
+#> #xciqafymiq thead, #xciqafymiq tbody, #xciqafymiq tfoot, #xciqafymiq tr, #xciqafymiq td, #xciqafymiq th {
 #>   border-style: none;
 #> }
 #> 
-#> #mzeoiosmpv p {
+#> #xciqafymiq p {
 #>   margin: 0;
 #>   padding: 0;
 #> }
 #> 
-#> #mzeoiosmpv .gt_table {
+#> #xciqafymiq .gt_table {
 #>   display: table;
 #>   border-collapse: collapse;
 #>   line-height: normal;
@@ -138,12 +143,12 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   border-left-color: #D3D3D3;
 #> }
 #> 
-#> #mzeoiosmpv .gt_caption {
+#> #xciqafymiq .gt_caption {
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
 #> }
 #> 
-#> #mzeoiosmpv .gt_title {
+#> #xciqafymiq .gt_title {
 #>   color: #333333;
 #>   font-size: 125%;
 #>   font-weight: initial;
@@ -155,7 +160,7 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   border-bottom-width: 0;
 #> }
 #> 
-#> #mzeoiosmpv .gt_subtitle {
+#> #xciqafymiq .gt_subtitle {
 #>   color: #333333;
 #>   font-size: 85%;
 #>   font-weight: initial;
@@ -167,7 +172,7 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   border-top-width: 0;
 #> }
 #> 
-#> #mzeoiosmpv .gt_heading {
+#> #xciqafymiq .gt_heading {
 #>   background-color: #FFFFFF;
 #>   text-align: left;
 #>   border-bottom-color: #FFFFFF;
@@ -179,13 +184,13 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #mzeoiosmpv .gt_bottom_border {
+#> #xciqafymiq .gt_bottom_border {
 #>   border-bottom-style: solid;
 #>   border-bottom-width: 2px;
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #mzeoiosmpv .gt_col_headings {
+#> #xciqafymiq .gt_col_headings {
 #>   border-top-style: solid;
 #>   border-top-width: 2px;
 #>   border-top-color: #D3D3D3;
@@ -200,7 +205,7 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #mzeoiosmpv .gt_col_heading {
+#> #xciqafymiq .gt_col_heading {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -220,7 +225,7 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   overflow-x: hidden;
 #> }
 #> 
-#> #mzeoiosmpv .gt_column_spanner_outer {
+#> #xciqafymiq .gt_column_spanner_outer {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -232,15 +237,15 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   padding-right: 4px;
 #> }
 #> 
-#> #mzeoiosmpv .gt_column_spanner_outer:first-child {
+#> #xciqafymiq .gt_column_spanner_outer:first-child {
 #>   padding-left: 0;
 #> }
 #> 
-#> #mzeoiosmpv .gt_column_spanner_outer:last-child {
+#> #xciqafymiq .gt_column_spanner_outer:last-child {
 #>   padding-right: 0;
 #> }
 #> 
-#> #mzeoiosmpv .gt_column_spanner {
+#> #xciqafymiq .gt_column_spanner {
 #>   border-bottom-style: solid;
 #>   border-bottom-width: 2px;
 #>   border-bottom-color: #D3D3D3;
@@ -252,11 +257,11 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   width: 100%;
 #> }
 #> 
-#> #mzeoiosmpv .gt_spanner_row {
+#> #xciqafymiq .gt_spanner_row {
 #>   border-bottom-style: hidden;
 #> }
 #> 
-#> #mzeoiosmpv .gt_group_heading {
+#> #xciqafymiq .gt_group_heading {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -282,7 +287,7 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   text-align: left;
 #> }
 #> 
-#> #mzeoiosmpv .gt_empty_group_heading {
+#> #xciqafymiq .gt_empty_group_heading {
 #>   padding: 0.5px;
 #>   color: #333333;
 #>   background-color: #FFFFFF;
@@ -297,15 +302,15 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   vertical-align: middle;
 #> }
 #> 
-#> #mzeoiosmpv .gt_from_md > :first-child {
+#> #xciqafymiq .gt_from_md > :first-child {
 #>   margin-top: 0;
 #> }
 #> 
-#> #mzeoiosmpv .gt_from_md > :last-child {
+#> #xciqafymiq .gt_from_md > :last-child {
 #>   margin-bottom: 0;
 #> }
 #> 
-#> #mzeoiosmpv .gt_row {
+#> #xciqafymiq .gt_row {
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
 #>   padding-left: 5px;
@@ -324,7 +329,7 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   overflow-x: hidden;
 #> }
 #> 
-#> #mzeoiosmpv .gt_stub {
+#> #xciqafymiq .gt_stub {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -337,7 +342,7 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #mzeoiosmpv .gt_stub_row_group {
+#> #xciqafymiq .gt_stub_row_group {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -351,15 +356,15 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   vertical-align: top;
 #> }
 #> 
-#> #mzeoiosmpv .gt_row_group_first td {
+#> #xciqafymiq .gt_row_group_first td {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #mzeoiosmpv .gt_row_group_first th {
+#> #xciqafymiq .gt_row_group_first th {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #mzeoiosmpv .gt_summary_row {
+#> #xciqafymiq .gt_summary_row {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   text-transform: inherit;
@@ -369,16 +374,16 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #mzeoiosmpv .gt_first_summary_row {
+#> #xciqafymiq .gt_first_summary_row {
 #>   border-top-style: solid;
 #>   border-top-color: #D3D3D3;
 #> }
 #> 
-#> #mzeoiosmpv .gt_first_summary_row.thick {
+#> #xciqafymiq .gt_first_summary_row.thick {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #mzeoiosmpv .gt_last_summary_row {
+#> #xciqafymiq .gt_last_summary_row {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -388,7 +393,7 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #mzeoiosmpv .gt_grand_summary_row {
+#> #xciqafymiq .gt_grand_summary_row {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   text-transform: inherit;
@@ -398,7 +403,7 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #mzeoiosmpv .gt_first_grand_summary_row {
+#> #xciqafymiq .gt_first_grand_summary_row {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -408,7 +413,7 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   border-top-color: #D3D3D3;
 #> }
 #> 
-#> #mzeoiosmpv .gt_last_grand_summary_row_top {
+#> #xciqafymiq .gt_last_grand_summary_row_top {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -418,11 +423,11 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #mzeoiosmpv .gt_striped {
+#> #xciqafymiq .gt_striped {
 #>   background-color: rgba(128, 128, 128, 0.05);
 #> }
 #> 
-#> #mzeoiosmpv .gt_table_body {
+#> #xciqafymiq .gt_table_body {
 #>   border-top-style: solid;
 #>   border-top-width: 2px;
 #>   border-top-color: #D3D3D3;
@@ -431,7 +436,7 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #mzeoiosmpv .gt_footnotes {
+#> #xciqafymiq .gt_footnotes {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   border-bottom-style: none;
@@ -445,7 +450,7 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #mzeoiosmpv .gt_footnote {
+#> #xciqafymiq .gt_footnote {
 #>   margin: 0px;
 #>   font-size: 90%;
 #>   padding-top: 4px;
@@ -454,7 +459,7 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #mzeoiosmpv .gt_sourcenotes {
+#> #xciqafymiq .gt_sourcenotes {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   border-bottom-style: none;
@@ -468,7 +473,7 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #mzeoiosmpv .gt_sourcenote {
+#> #xciqafymiq .gt_sourcenote {
 #>   font-size: 90%;
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
@@ -476,72 +481,72 @@ effect_size(mtcars, outcome = mpg, by = am)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #mzeoiosmpv .gt_left {
+#> #xciqafymiq .gt_left {
 #>   text-align: left;
 #> }
 #> 
-#> #mzeoiosmpv .gt_center {
+#> #xciqafymiq .gt_center {
 #>   text-align: center;
 #> }
 #> 
-#> #mzeoiosmpv .gt_right {
+#> #xciqafymiq .gt_right {
 #>   text-align: right;
 #>   font-variant-numeric: tabular-nums;
 #> }
 #> 
-#> #mzeoiosmpv .gt_font_normal {
+#> #xciqafymiq .gt_font_normal {
 #>   font-weight: normal;
 #> }
 #> 
-#> #mzeoiosmpv .gt_font_bold {
+#> #xciqafymiq .gt_font_bold {
 #>   font-weight: bold;
 #> }
 #> 
-#> #mzeoiosmpv .gt_font_italic {
+#> #xciqafymiq .gt_font_italic {
 #>   font-style: italic;
 #> }
 #> 
-#> #mzeoiosmpv .gt_super {
+#> #xciqafymiq .gt_super {
 #>   font-size: 65%;
 #> }
 #> 
-#> #mzeoiosmpv .gt_footnote_marks {
+#> #xciqafymiq .gt_footnote_marks {
 #>   font-size: 75%;
 #>   vertical-align: 0.4em;
 #>   position: initial;
 #> }
 #> 
-#> #mzeoiosmpv .gt_asterisk {
+#> #xciqafymiq .gt_asterisk {
 #>   font-size: 100%;
 #>   vertical-align: 0;
 #> }
 #> 
-#> #mzeoiosmpv .gt_indent_1 {
+#> #xciqafymiq .gt_indent_1 {
 #>   text-indent: 5px;
 #> }
 #> 
-#> #mzeoiosmpv .gt_indent_2 {
+#> #xciqafymiq .gt_indent_2 {
 #>   text-indent: 10px;
 #> }
 #> 
-#> #mzeoiosmpv .gt_indent_3 {
+#> #xciqafymiq .gt_indent_3 {
 #>   text-indent: 15px;
 #> }
 #> 
-#> #mzeoiosmpv .gt_indent_4 {
+#> #xciqafymiq .gt_indent_4 {
 #>   text-indent: 20px;
 #> }
 #> 
-#> #mzeoiosmpv .gt_indent_5 {
+#> #xciqafymiq .gt_indent_5 {
 #>   text-indent: 25px;
 #> }
 #> 
-#> #mzeoiosmpv .katex-display {
+#> #xciqafymiq .katex-display {
 #>   display: inline-flex !important;
 #>   margin-bottom: 0.75em !important;
 #> }
 #> 
-#> #mzeoiosmpv div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#> #xciqafymiq div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
 #>   height: 0px !important;
 #> }
 #> </style>
@@ -573,28 +578,28 @@ effect_size(mtcars, outcome = mpg, by = am)
 
 effect_size(
   mtcars,
-  outcome = mpg,
-  by = am,
+  variable = mpg,
+  group = am,
   method = "hedges_g",
   interpretation = TRUE
 )
-#> <div id="mnkoymwvmz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-#>   <style>#mnkoymwvmz table {
+#> <div id="nfjfikzdxl" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+#>   <style>#nfjfikzdxl table {
 #>   font-family: system-ui;
 #>   -webkit-font-smoothing: antialiased;
 #>   -moz-osx-font-smoothing: grayscale;
 #> }
 #> 
-#> #mnkoymwvmz thead, #mnkoymwvmz tbody, #mnkoymwvmz tfoot, #mnkoymwvmz tr, #mnkoymwvmz td, #mnkoymwvmz th {
+#> #nfjfikzdxl thead, #nfjfikzdxl tbody, #nfjfikzdxl tfoot, #nfjfikzdxl tr, #nfjfikzdxl td, #nfjfikzdxl th {
 #>   border-style: none;
 #> }
 #> 
-#> #mnkoymwvmz p {
+#> #nfjfikzdxl p {
 #>   margin: 0;
 #>   padding: 0;
 #> }
 #> 
-#> #mnkoymwvmz .gt_table {
+#> #nfjfikzdxl .gt_table {
 #>   display: table;
 #>   border-collapse: collapse;
 #>   line-height: normal;
@@ -620,12 +625,12 @@ effect_size(
 #>   border-left-color: #D3D3D3;
 #> }
 #> 
-#> #mnkoymwvmz .gt_caption {
+#> #nfjfikzdxl .gt_caption {
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
 #> }
 #> 
-#> #mnkoymwvmz .gt_title {
+#> #nfjfikzdxl .gt_title {
 #>   color: #333333;
 #>   font-size: 125%;
 #>   font-weight: initial;
@@ -637,7 +642,7 @@ effect_size(
 #>   border-bottom-width: 0;
 #> }
 #> 
-#> #mnkoymwvmz .gt_subtitle {
+#> #nfjfikzdxl .gt_subtitle {
 #>   color: #333333;
 #>   font-size: 85%;
 #>   font-weight: initial;
@@ -649,7 +654,7 @@ effect_size(
 #>   border-top-width: 0;
 #> }
 #> 
-#> #mnkoymwvmz .gt_heading {
+#> #nfjfikzdxl .gt_heading {
 #>   background-color: #FFFFFF;
 #>   text-align: left;
 #>   border-bottom-color: #FFFFFF;
@@ -661,13 +666,13 @@ effect_size(
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #mnkoymwvmz .gt_bottom_border {
+#> #nfjfikzdxl .gt_bottom_border {
 #>   border-bottom-style: solid;
 #>   border-bottom-width: 2px;
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #mnkoymwvmz .gt_col_headings {
+#> #nfjfikzdxl .gt_col_headings {
 #>   border-top-style: solid;
 #>   border-top-width: 2px;
 #>   border-top-color: #D3D3D3;
@@ -682,7 +687,7 @@ effect_size(
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #mnkoymwvmz .gt_col_heading {
+#> #nfjfikzdxl .gt_col_heading {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -702,7 +707,7 @@ effect_size(
 #>   overflow-x: hidden;
 #> }
 #> 
-#> #mnkoymwvmz .gt_column_spanner_outer {
+#> #nfjfikzdxl .gt_column_spanner_outer {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -714,15 +719,15 @@ effect_size(
 #>   padding-right: 4px;
 #> }
 #> 
-#> #mnkoymwvmz .gt_column_spanner_outer:first-child {
+#> #nfjfikzdxl .gt_column_spanner_outer:first-child {
 #>   padding-left: 0;
 #> }
 #> 
-#> #mnkoymwvmz .gt_column_spanner_outer:last-child {
+#> #nfjfikzdxl .gt_column_spanner_outer:last-child {
 #>   padding-right: 0;
 #> }
 #> 
-#> #mnkoymwvmz .gt_column_spanner {
+#> #nfjfikzdxl .gt_column_spanner {
 #>   border-bottom-style: solid;
 #>   border-bottom-width: 2px;
 #>   border-bottom-color: #D3D3D3;
@@ -734,11 +739,11 @@ effect_size(
 #>   width: 100%;
 #> }
 #> 
-#> #mnkoymwvmz .gt_spanner_row {
+#> #nfjfikzdxl .gt_spanner_row {
 #>   border-bottom-style: hidden;
 #> }
 #> 
-#> #mnkoymwvmz .gt_group_heading {
+#> #nfjfikzdxl .gt_group_heading {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -764,7 +769,7 @@ effect_size(
 #>   text-align: left;
 #> }
 #> 
-#> #mnkoymwvmz .gt_empty_group_heading {
+#> #nfjfikzdxl .gt_empty_group_heading {
 #>   padding: 0.5px;
 #>   color: #333333;
 #>   background-color: #FFFFFF;
@@ -779,15 +784,15 @@ effect_size(
 #>   vertical-align: middle;
 #> }
 #> 
-#> #mnkoymwvmz .gt_from_md > :first-child {
+#> #nfjfikzdxl .gt_from_md > :first-child {
 #>   margin-top: 0;
 #> }
 #> 
-#> #mnkoymwvmz .gt_from_md > :last-child {
+#> #nfjfikzdxl .gt_from_md > :last-child {
 #>   margin-bottom: 0;
 #> }
 #> 
-#> #mnkoymwvmz .gt_row {
+#> #nfjfikzdxl .gt_row {
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
 #>   padding-left: 5px;
@@ -806,7 +811,7 @@ effect_size(
 #>   overflow-x: hidden;
 #> }
 #> 
-#> #mnkoymwvmz .gt_stub {
+#> #nfjfikzdxl .gt_stub {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -819,7 +824,7 @@ effect_size(
 #>   padding-right: 5px;
 #> }
 #> 
-#> #mnkoymwvmz .gt_stub_row_group {
+#> #nfjfikzdxl .gt_stub_row_group {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -833,15 +838,15 @@ effect_size(
 #>   vertical-align: top;
 #> }
 #> 
-#> #mnkoymwvmz .gt_row_group_first td {
+#> #nfjfikzdxl .gt_row_group_first td {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #mnkoymwvmz .gt_row_group_first th {
+#> #nfjfikzdxl .gt_row_group_first th {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #mnkoymwvmz .gt_summary_row {
+#> #nfjfikzdxl .gt_summary_row {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   text-transform: inherit;
@@ -851,16 +856,16 @@ effect_size(
 #>   padding-right: 5px;
 #> }
 #> 
-#> #mnkoymwvmz .gt_first_summary_row {
+#> #nfjfikzdxl .gt_first_summary_row {
 #>   border-top-style: solid;
 #>   border-top-color: #D3D3D3;
 #> }
 #> 
-#> #mnkoymwvmz .gt_first_summary_row.thick {
+#> #nfjfikzdxl .gt_first_summary_row.thick {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #mnkoymwvmz .gt_last_summary_row {
+#> #nfjfikzdxl .gt_last_summary_row {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -870,7 +875,7 @@ effect_size(
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #mnkoymwvmz .gt_grand_summary_row {
+#> #nfjfikzdxl .gt_grand_summary_row {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   text-transform: inherit;
@@ -880,7 +885,7 @@ effect_size(
 #>   padding-right: 5px;
 #> }
 #> 
-#> #mnkoymwvmz .gt_first_grand_summary_row {
+#> #nfjfikzdxl .gt_first_grand_summary_row {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -890,7 +895,7 @@ effect_size(
 #>   border-top-color: #D3D3D3;
 #> }
 #> 
-#> #mnkoymwvmz .gt_last_grand_summary_row_top {
+#> #nfjfikzdxl .gt_last_grand_summary_row_top {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -900,11 +905,11 @@ effect_size(
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #mnkoymwvmz .gt_striped {
+#> #nfjfikzdxl .gt_striped {
 #>   background-color: rgba(128, 128, 128, 0.05);
 #> }
 #> 
-#> #mnkoymwvmz .gt_table_body {
+#> #nfjfikzdxl .gt_table_body {
 #>   border-top-style: solid;
 #>   border-top-width: 2px;
 #>   border-top-color: #D3D3D3;
@@ -913,7 +918,7 @@ effect_size(
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #mnkoymwvmz .gt_footnotes {
+#> #nfjfikzdxl .gt_footnotes {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   border-bottom-style: none;
@@ -927,7 +932,7 @@ effect_size(
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #mnkoymwvmz .gt_footnote {
+#> #nfjfikzdxl .gt_footnote {
 #>   margin: 0px;
 #>   font-size: 90%;
 #>   padding-top: 4px;
@@ -936,7 +941,7 @@ effect_size(
 #>   padding-right: 5px;
 #> }
 #> 
-#> #mnkoymwvmz .gt_sourcenotes {
+#> #nfjfikzdxl .gt_sourcenotes {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   border-bottom-style: none;
@@ -950,7 +955,7 @@ effect_size(
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #mnkoymwvmz .gt_sourcenote {
+#> #nfjfikzdxl .gt_sourcenote {
 #>   font-size: 90%;
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
@@ -958,72 +963,72 @@ effect_size(
 #>   padding-right: 5px;
 #> }
 #> 
-#> #mnkoymwvmz .gt_left {
+#> #nfjfikzdxl .gt_left {
 #>   text-align: left;
 #> }
 #> 
-#> #mnkoymwvmz .gt_center {
+#> #nfjfikzdxl .gt_center {
 #>   text-align: center;
 #> }
 #> 
-#> #mnkoymwvmz .gt_right {
+#> #nfjfikzdxl .gt_right {
 #>   text-align: right;
 #>   font-variant-numeric: tabular-nums;
 #> }
 #> 
-#> #mnkoymwvmz .gt_font_normal {
+#> #nfjfikzdxl .gt_font_normal {
 #>   font-weight: normal;
 #> }
 #> 
-#> #mnkoymwvmz .gt_font_bold {
+#> #nfjfikzdxl .gt_font_bold {
 #>   font-weight: bold;
 #> }
 #> 
-#> #mnkoymwvmz .gt_font_italic {
+#> #nfjfikzdxl .gt_font_italic {
 #>   font-style: italic;
 #> }
 #> 
-#> #mnkoymwvmz .gt_super {
+#> #nfjfikzdxl .gt_super {
 #>   font-size: 65%;
 #> }
 #> 
-#> #mnkoymwvmz .gt_footnote_marks {
+#> #nfjfikzdxl .gt_footnote_marks {
 #>   font-size: 75%;
 #>   vertical-align: 0.4em;
 #>   position: initial;
 #> }
 #> 
-#> #mnkoymwvmz .gt_asterisk {
+#> #nfjfikzdxl .gt_asterisk {
 #>   font-size: 100%;
 #>   vertical-align: 0;
 #> }
 #> 
-#> #mnkoymwvmz .gt_indent_1 {
+#> #nfjfikzdxl .gt_indent_1 {
 #>   text-indent: 5px;
 #> }
 #> 
-#> #mnkoymwvmz .gt_indent_2 {
+#> #nfjfikzdxl .gt_indent_2 {
 #>   text-indent: 10px;
 #> }
 #> 
-#> #mnkoymwvmz .gt_indent_3 {
+#> #nfjfikzdxl .gt_indent_3 {
 #>   text-indent: 15px;
 #> }
 #> 
-#> #mnkoymwvmz .gt_indent_4 {
+#> #nfjfikzdxl .gt_indent_4 {
 #>   text-indent: 20px;
 #> }
 #> 
-#> #mnkoymwvmz .gt_indent_5 {
+#> #nfjfikzdxl .gt_indent_5 {
 #>   text-indent: 25px;
 #> }
 #> 
-#> #mnkoymwvmz .katex-display {
+#> #nfjfikzdxl .katex-display {
 #>   display: inline-flex !important;
 #>   margin-bottom: 0.75em !important;
 #> }
 #> 
-#> #mnkoymwvmz div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#> #nfjfikzdxl div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
 #>   height: 0px !important;
 #> }
 #> </style>

@@ -41,10 +41,10 @@ the scientific question.
 | `rule` | Plain-language record of how the denominator was formed |
 
 [`denominators_stats()`](https://gtstats.thinkdenominator.com/reference/denominators_stats.md)
-returns this audit as a tibble by default, or a formatted table with
-`output = "gt"`. For categorical summaries, it records the level as well
-as the group, so row and overall percentages can be checked against the
-exact denominator used in the displayed cell.
+returns a formatted table by default, or a plain console tibble with
+`format = "tibble"`. For categorical summaries, it records the level as
+well as the group, so row and overall percentages can be checked against
+the exact denominator used in the displayed cell.
 
 ## Start by describing missingness
 
@@ -230,6 +230,8 @@ assess_variance(dat, vars = age, by = arm)
   this clear?
 - For rates, is the denominator person-time rather than participants?
 - For paired analysis, have you reported the number of complete pairs?
+- For repeated-measures ANOVA, have you reviewed sphericity rather than
+  using a cross-occasion variance test as a substitute?
 - Have you reviewed
   [`denominators_stats()`](https://gtstats.thinkdenominator.com/reference/denominators_stats.md)
   where exclusions affect interpretation?

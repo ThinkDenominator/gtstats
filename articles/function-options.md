@@ -28,11 +28,13 @@ birthwt_data <- birthwt
 [`gtstats_app()`](https://gtstats.thinkdenominator.com/reference/gtstats_app.md)
 is an optional point-and-click companion; it requires the suggested
 `shiny` package. It supports the same core workflow as this guide, adds
-a data dictionary, Table 1 presentation controls, an in-session history,
-and copyable or downloadable R code. Result tables download as Word,
-HTML, PDF, or RTF. CSV input works directly; Excel input additionally
-needs `rio`. It does not change the analysis algorithms or replace a
-reproducible R script.
+a data dictionary, Summary-table presentation controls, a dedicated
+**Customise table** workspace that automatically carries forward the
+latest Summary table, an in-session history, and copyable or
+downloadable R code. Result tables download as Word, HTML, PDF, or RTF.
+CSV input works directly; Excel input additionally needs `rio`. Display
+customisation never changes estimates or test selection, and the app
+does not replace a reproducible R script.
 
 ``` r
 
@@ -50,7 +52,7 @@ gtstats_app()
 | `data` | required | Data frame to inspect |
 | `vars` | `NULL`: all variables | Restrict the overview to selected variables |
 | `digits` | `2` | Precision for displayed numeric values |
-| `output` | `"table"`; also `"tibble"` | Choose the display table or underlying data |
+| `format` | `"table"`; also `"tibble"` | Choose the publication table or a plain console tibble (`output` remains a compatibility alias) |
 
 ``` r
 
@@ -68,7 +70,7 @@ describe_data(birthwt_data, vars = c("age", "smoke"))
 | `min_n` | `3` | Minimum usable observations for a distribution assessment |
 | `plots` | `FALSE` | Return histogram, density, Q-Q, and boxplot diagnostics |
 | `digits` | `2` | Display precision |
-| `output` | `"table"`; also `"tibble"` | Choose formatted table or underlying data |
+| `format` | `"table"`; also `"tibble"` | Choose the publication table or a plain console tibble (`output` remains a compatibility alias) |
 
 ``` r
 
@@ -82,19 +84,26 @@ assess_distribution(birthwt_data, vars = c(age, lwt), by = low)
 | `data`, `by` | required | Supply data and the categorical grouping variable |
 | `vars` | `NULL`: all eligible continuous variables | Restrict variables to inspect |
 | `digits` | `2` | SD, variance, and ratio precision |
-| `test` | `"none"`; `"bartlett"` | Optionally display Bartlett’s test as supporting information; it never selects the comparison test |
-| `output` | `"table"`; also `"tibble"` | Choose formatted table or underlying data |
+| `test` | `"levene"`; also `"none"`, `"bartlett"` | Display median-centred Levene (Brown-Forsythe) by default; Bartlett remains optional supporting information; neither selects the comparison test |
+| `format` | `"table"`; also `"tibble"` | Choose the publication table or a plain console tibble (`output` remains a compatibility alias) |
 
 [`assess_variance()`](https://gtstats.thinkdenominator.com/reference/assess_variance.md)
-reports group SDs, variances, and largest/smallest ratios. They are
-descriptive diagnostics, not pass/fail tests: Welch t-tests and Welch
-ANOVA do not require equal variances, and this function never selects a
-test. Bartlett’s test is sensitive to non-normality: a p-value neither
-proves equal variances nor replaces the prespecified `var_equal` choice.
+prints one row per variable. Read it from left to right: each group
+column gives its usable `n`, SD, and variance. **Observed SD ratio** and
+**Observed variance ratio** describe the largest value divided by the
+smallest, **Levene p** is supporting information, and **Interpretation**
+states the practical takeaway. Detailed test metadata remain available
+in `$summary` and `$diagnostics`. They are descriptive diagnostics, not
+pass/fail tests: Welch t-tests and Welch ANOVA do not require equal
+variances, and this function never selects a test. The median-centred
+Levene test is less sensitive to non-normality than Bartlett’s test.
+Bartlett’s test assumes normal group distributions. Neither p-value
+proves equal variances or replaces the prespecified `var_equal` choice.
 
 ``` r
 
 assess_variance(birthwt_data, vars = c(age, lwt), by = low)
+assess_variance(birthwt_data, vars = c(age, lwt), by = low, test = "levene")
 ```
 
 ### 2. Describe and compare
@@ -113,8 +122,10 @@ assess_variance(birthwt_data, vars = c(age, lwt), by = low)
 | `percent` | `"column"`; `"row"`, `"overall"` | Denominator used for categorical percentages |
 | `digits` | `1`, or named `continuous`, `percent`, `ci` values | Global display precision |
 | `missing` | `"ifany"`; `"always"`, `"no"` | Show missing rows only when needed, always, or never |
-| `ci`, `conf.level` | `FALSE`, `0.95` | Add exact binomial CIs to every categorical level |
+| `ci`, `conf.level`, `ci_method` | `FALSE`, `0.95`, `"wilson"`; method also `"exact"` | Add binomial CIs to every categorical level and choose the interval method |
+| `layout` | `"compact"`; also `"separate"` | Keep summaries inline or place summary and CI in child columns beneath each cohort |
 | `label` | `NULL` | Named replacement labels for source variables |
+| `format` | `"table"`; also `"tibble"` | Publication table by default; console mode prints the completed builder’s plain tibble and remains compatible with `add_*()` layers |
 
 ``` r
 
@@ -134,7 +145,7 @@ summary_table(
 | `continuous_format` / `statistic` | `"recommended"`; `"mean_sd"`, `"mean_ci"`, `"median_iqr"`, `"both"` | Continuous-variable display; `statistic` can be named by variable |
 | `categorical` | `"n_percent"`; `"n_over_N_percent"`, `"n"`, `"percent"` | Categorical cell display |
 | `percent` | `"column"`; `"row"`, `"overall"`, `"none"` | Percentage denominator, or counts only |
-| `ci`, `conf.level` | `FALSE`, `0.95` | Add exact binomial CI to all categorical levels |
+| `ci`, `conf.level`, `ci_method` | `FALSE`, `0.95`, `"wilson"`; method also `"exact"` | Add binomial CIs to all categorical levels and choose the interval method |
 | `missing` | `"ifany"`; `"always"`, `"no"` | Missing-row display |
 | `digits` | `1`, or named precision | Continuous, percentage, and CI precision |
 
@@ -144,19 +155,37 @@ summary_table(
 |----|----|----|----|
 | [`add_proportion()`](https://gtstats.thinkdenominator.com/reference/add_proportion.md) | `var`, `level` | `var` required; automatic target level if omitted | Adds one selected event prevalence row |
 |  | `ci`, `conf.level`, `ci_method` | `TRUE`, `0.95`, `"wilson"`; also `"exact"` | Event CI method and confidence level |
+|  | `layout` | inherits the table; `"compact"` or `"separate"` | Inline or separate estimate/CI columns |
 |  | `display` | `"n_percent"`; `"percent"`, `"n_over_N_percent"` | Specialist row cell display |
 |  | `label`, `digits` | variable label, `1` | Row label and precision |
 | [`add_rate()`](https://gtstats.thinkdenominator.com/reference/add_rate.md) | `event`, `time` | required | Event-count and person-time variables in `mode = "rate"` |
 |  | `multiplier`, `time_label` | `1000`, `"person-time"` | Rate scale and readable time unit |
 |  | `ci`, `conf.level`, `digits`, `label` | `TRUE`, `0.95`, `1`, automatic | Exact Poisson CI, precision, and label |
+|  | `layout` | inherits the table; `"compact"` or `"separate"` | Inline or separate rate/CI columns |
 | [`add_total()`](https://gtstats.thinkdenominator.com/reference/add_total.md) | `label`, `position` | `"Total (N)"`; `"last"` or `"first"` | One cohort-size row; headers already show N |
 | [`add_row()`](https://gtstats.thinkdenominator.com/reference/add_row.md) | `label` | required | Free-text row label |
 |  | `overall`, `values`, `level` | `NULL`, named group values, `""` | Values for Overall/group columns and an optional Level entry |
-| [`add_p()`](https://gtstats.thinkdenominator.com/reference/add_p.md) | `method` | `"auto"`; named per-variable methods allowed | Automatic or explicit test choice |
+| [`add_p()`](https://gtstats.thinkdenominator.com/reference/add_p.md) | `method`, `include` | `method = "auto"`; `include = everything()` | Automatic or explicit test choice; omit inappropriate comparisons while retaining their descriptive rows |
 |  | `paired`, `id` | `FALSE`, `NULL` | Paired analysis and participant identifier |
-|  | `normality_check`, `var_equal`, `correction` | `TRUE`, `FALSE`, `TRUE` | Auto distribution guidance, equal-variance t-test choice, and continuity correction |
+|  | `distribution_check`, `var_equal`, `correction` | `TRUE`, `FALSE`, `TRUE` | Auto marked-skew guidance, the prespecified equal-variance parametric route, and continuity correction |
+|  | `fisher_seed` | `1049`; `NULL` uses current RNG state | Makes simulated Fisher p-values for larger tables reproducible |
 |  | `p_adjust` | `"none"`; all [`stats::p.adjust.methods`](https://rdrr.io/r/stats/p.adjust.html) | Multiplicity-adjust displayed p-values |
 |  | `digits` | `3` | P-value precision |
+
+Independent ordered factors use the same chi-square/Fisher distribution
+comparison as other categorical variables. Request `method = "wilcox"`
+or `method = "kruskal"` when the ordered scale itself is the intended
+rank-based comparison. If an ordered factor and another variable share
+the same publication label, source-variable identity—not the displayed
+label—determines the test and superscript.
+
+[`add_proportion()`](https://gtstats.thinkdenominator.com/reference/add_proportion.md)
+deliberately highlights one selected event, such as `"Yes"`. Use
+`summary_table(ci = TRUE)` when every categorical level needs an
+interval. The p-value produced by
+[`add_p()`](https://gtstats.thinkdenominator.com/reference/add_p.md)
+belongs to the full variable association; it is not duplicated on the
+selected-event row.
 
 ``` r
 
@@ -172,16 +201,48 @@ summary_table(birthwt_data, by = low, overall = TRUE) |>
 |----|----|----|
 | `data`, `variable`, `group` | required | State one outcome variable and the categorical comparison group |
 | `test` | `"auto"`; parametric `"t_test"`, `"welch_t"`, `"anova"`, `"welch_anova"`, `"rm_anova"`; non-parametric `"wilcox"`, `"kruskal"`, `"friedman"`; categorical `"chisq"`, `"fisher"`, `"mcnemar"`, `"cochran_q"` | Automatic selection or an explicit valid test |
-| `var_equal` | `FALSE` | For non-skewed independent continuous auto comparisons, `TRUE` selects Student’s t-test or classical ANOVA; it is user-specified, never inferred from a variance test |
+| `var_equal` | `FALSE` | When no marked skew is flagged in an independent continuous auto comparison, `TRUE` selects Student’s t-test or classical ANOVA; it is user-specified, never inferred from a variance test |
 | `paired`, `id` | `FALSE`, `NULL` | Analyse repeated measurements; `id` is required when paired |
 | `effect_size` | `FALSE` | Add a compatible effect-size estimate to the result |
 | `conf.level`, `digits` | `0.95`, `2` | Interval confidence and display precision |
+| `format` | `"table"`; also `"tibble"` | Publication-ready default or plain console output |
 | `...` | optional | Advanced controls used by the selected method |
 
 ``` r
 
 compare_groups(birthwt_data, variable = lwt, group = low, test = "welch_t")
 ```
+
+##### Exact `test = "auto"` algorithm
+
+`add_p(method = "auto")` delegates to this same algorithm for every
+variable.
+
+| Outcome and design | Automatic decision | Automatic test |
+|----|----|----|
+| Continuous, 2 independent groups | Marked skewness in either group | Wilcoxon rank-sum |
+| Continuous, 2 independent groups | No marked skew; `var_equal = FALSE` | Welch t-test |
+| Continuous, 2 independent groups | No marked skew; `var_equal = TRUE` | Student’s t-test |
+| Continuous, 3+ independent groups | Marked skewness in any group | Kruskal-Wallis |
+| Continuous, 3+ independent groups | No marked skew; `var_equal = FALSE` | Welch ANOVA |
+| Continuous, 3+ independent groups | No marked skew; `var_equal = TRUE` | Classical one-way ANOVA |
+| Continuous, 2 paired occasions | Marked skewness in within-pair differences / no marked skew | Wilcoxon signed-rank / paired t-test |
+| Continuous, 3+ paired occasions | Marked skewness at any occasion / no marked skew | Friedman / repeated-measures ANOVA |
+| Binary, nominal, or ordinal; independent | Any expected count below 1, or more than 20% below 5 / otherwise | Fisher exact (Monte Carlo for larger sparse tables) / Pearson chi-square |
+| Ordinal; paired | 2 / 3+ occasions | Wilcoxon signed-rank / Friedman |
+| Binary; paired | 2 / 3+ occasions | McNemar / Cochran’s Q |
+
+“Marked skewness” means the package’s absolute sample-skewness flag
+(default cut-off 1). Shapiro-Wilk is supporting information only.
+`var_equal` is never inferred from Levene, Bartlett, or an F-test and
+applies only to the independent continuous parametric route.
+Repeated-measures ANOVA still needs a design-level sphericity review.
+
+[`compare_groups()`](https://gtstats.thinkdenominator.com/reference/compare_groups.md)
+is a focused one-outcome analysis. For several variables and one p-value
+per row block, use `summary_table(..., include = ...) |> add_p()`. This
+distinction prevents a focused result object from silently becoming a
+multi-outcome screening table.
 
 #### `effect_size()`
 
@@ -192,23 +253,54 @@ compare_groups(birthwt_data, variable = lwt, group = low, test = "welch_t")
 | `paired`, `id` | `FALSE`, `NULL` | Paired effect-size calculation; `id` required when paired |
 | `conf.level`, `digits` | `0.95`, `2` | Interval confidence and display precision |
 | `interpretation` | `FALSE` | Add conventional magnitude labels; do not treat as clinical importance |
+| `format` | `"table"`; also `"tibble"` | Publication-ready default or plain console output |
 
 #### `correlation()`
 
 | Option | Default / available choices | What it changes |
 |----|----|----|
-| `data`, `x`, `y` | required | Two continuous variables; complete finite pairs are analysed |
+| `data`, `x`, `y` | pair route | Two continuous variables; complete finite pairs are analysed |
+| `vars` | `NULL`; for example `c(age, weight, outcome)` | Build a multi-variable correlation matrix instead of one pair |
 | `method` | `"auto"`; `"pearson"`, `"spearman"` | Correlation method |
+| `triangle` | `"lower"`; `"upper"`, `"full"` | Matrix layout |
+| `order` | `"input"`; `"alphabetical"`, `"cluster"` | Preserve the requested order, sort display labels, or place strongly related variables together |
+| `show_diagonal` | `TRUE` | Show or hide self-correlations |
+| `display` | `"estimate"`; `"estimate_p"`, `"estimate_n"`, `"estimate_p_n"`, `"estimate_ci"` | Matrix cell content |
+| `shade` | `TRUE` | Shade matrix cells by coefficient direction and magnitude |
+| `missing` | `"pairwise"` | Use complete finite observations separately for each pair |
+| `adjust` | `"none"`; `"holm"`, `"bonferroni"`, `"BH"` | Adjust matrix p-values for multiplicity |
 | `conf.level`, `digits` | `0.95`, `2` | Interval confidence and display precision |
+| `format` | `"table"`; also `"tibble"` | Publication-ready default or plain console output |
 
 ``` r
 
 correlation(birthwt_data, x = age, y = bwt, method = "spearman")
+
+birthwt_matrix <- correlation(
+  birthwt_data,
+  vars = c(age, lwt, bwt),
+  display = "estimate_p",
+  adjust = "holm"
+)
+
+plot_correlation(birthwt_matrix)
 ```
+
+Matrix mode uses one method throughout: automatic mode uses Pearson only
+when all selected variables have absolute sample skewness below 1, and
+Spearman otherwise. Pair-specific sample sizes and inferential results
+remain available in the tidy `$summary` component. A matrix is
+exploratory; multiplicity-adjusted p-values do not replace prespecified
+analyses or establish causation.
 
 ### 3. Epidemiology
 
 #### `proportion_stats()`
+
+The publication renderer uses one row for the selected event. Grouped
+results place `n (%)` and the confidence interval in separate columns
+beneath each group header; this does not change the tidy `$summary`
+component.
 
 | Option | Default / available choices | What it changes |
 |----|----|----|
@@ -218,8 +310,14 @@ correlation(birthwt_data, x = age, y = bwt, method = "spearman")
 | `ci_method` | `"wilson"`; also `"exact"` | Binomial CI method |
 | `display` | `"n_percent"`; `"percent"`, `"n_over_N_percent"` | Estimate display |
 | `conf.level`, `digits` | `0.95`, `1` | CI confidence and percentage precision |
+| `format` | `"table"`; also `"tibble"` | Publication-ready default or plain console output |
 
 #### `rate_stats()`
+
+Grouped publication output uses each group as a spanning header above
+Events, accumulated time, Rate and CI columns. The tidy `$summary`
+component remains in long form and retains the number of contributing
+records.
 
 | Option | Default / available choices | What it changes |
 |----|----|----|
@@ -227,6 +325,7 @@ correlation(birthwt_data, x = age, y = bwt, method = "spearman")
 | `by` | `NULL` | Calculate a separate rate for each group |
 | `multiplier`, `time_label` | `1000`, `"person-time"` | Scale and name the reported rate |
 | `conf.level`, `digits` | `0.95`, `1` | Exact Poisson CI confidence and precision |
+| `format` | `"table"`; also `"tibble"` | Publication-ready default or plain console output |
 
 ``` r
 
@@ -246,6 +345,7 @@ proportion_stats(birthwt_data, var = smoke, by = low, level = "Yes")
 | `test` | `"auto"`; `"none"`, `"chisq"`, `"fisher"` | Association-test selection |
 | `zero_correction` | `"haldane_anscombe"`; also `"none"` | Zero-cell treatment for ratio estimates |
 | `simulate_B`, `digits` | `10000`, `2` | Fisher simulation repetitions when needed and display precision |
+| `format` | `"table"`; also `"tibble"` | Publication-ready default or plain console output |
 
 ``` r
 
@@ -290,15 +390,15 @@ data.
 
 | Function | Option | Default / available choices | What it changes |
 |----|----|----|----|
-| [`assumptions_stats()`](https://gtstats.thinkdenominator.com/reference/assumptions_stats.md) | `output` | `"tibble"`; also `"gt"` | Return a data frame or a formatted audit table |
+| [`assumptions_stats()`](https://gtstats.thinkdenominator.com/reference/assumptions_stats.md) | `format` | `"table"`; also `"tibble"` | Return a formatted audit table or a plain console tibble |
 |  | `view` | `"checklist"`; also `"audit"` | Plain-language action list or technical status/result codes |
-|  | `title`, `subtitle` | `"Checks before reporting"`, `NULL` | Heading when `output = "gt"` |
-| [`diagnostics_stats()`](https://gtstats.thinkdenominator.com/reference/diagnostics_stats.md) | `output` | `"tibble"`; also `"gt"` | Return a data frame or formatted audit table |
+|  | `title`, `subtitle` | `"Checks before reporting"`, `NULL` | Heading when `format = "table"` |
+| [`diagnostics_stats()`](https://gtstats.thinkdenominator.com/reference/diagnostics_stats.md) | `format` | `"table"`; also `"tibble"` | Return a formatted audit table or plain console tibble |
 |  | `view` | `"readable"`; also `"audit"` | Plain-language headings or raw diagnostic fields |
-|  | `title`, `subtitle` | `"Diagnostics"`, `NULL` | Heading when `output = "gt"` |
-| [`denominators_stats()`](https://gtstats.thinkdenominator.com/reference/denominators_stats.md) | `output` | `"tibble"`; also `"gt"` | Return a data frame or formatted denominator table |
+|  | `title`, `subtitle` | `"Diagnostics"`, `NULL` | Heading when `format = "table"` |
+| [`denominators_stats()`](https://gtstats.thinkdenominator.com/reference/denominators_stats.md) | `format` | `"table"`; also `"tibble"` | Return a formatted denominator table or plain console tibble |
 |  | `view` | `"readable"`; also `"audit"` | Reader-facing labels or raw denominator fields |
-|  | `title`, `subtitle` | `"Denominator audit"`, `NULL` | Heading when `output = "gt"` |
+|  | `title`, `subtitle` | `"Denominator audit"`, `NULL` | Heading when `format = "table"` |
 
 #### `tbl_stats()`
 

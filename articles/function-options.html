@@ -49,6 +49,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/descriptive-tables.html">Building descriptive tables</a></li>
     <li><a class="dropdown-item" href="../articles/inferential-tests.html">Inferential tests and assumptions</a></li>
+    <li><a class="dropdown-item" href="../articles/inferential-tests.html#default-selection-policy">Automatic test algorithm</a></li>
     <li><a class="dropdown-item" href="../articles/epi-helpers.html">Epidemiology helpers</a></li>
     <li><a class="dropdown-item" href="../articles/styling-export.html">Styling and exporting tables</a></li>
   </ul>
@@ -131,11 +132,13 @@ data:</p>
 </table>
 <p><code><a href="../reference/gtstats_app.html">gtstats_app()</a></code> is an optional point-and-click companion;
 it requires the suggested <code>shiny</code> package. It supports the
-same core workflow as this guide, adds a data dictionary, Table 1
-presentation controls, an in-session history, and copyable or
-downloadable R code. Result tables download as Word, HTML, PDF, or RTF.
-CSV input works directly; Excel input additionally needs
-<code>rio</code>. It does not change the analysis algorithms or replace
+same core workflow as this guide, adds a data dictionary, Summary-table
+presentation controls, a dedicated <strong>Customise table</strong>
+workspace that automatically carries forward the latest Summary table,
+an in-session history, and copyable or downloadable R code. Result
+tables download as Word, HTML, PDF, or RTF. CSV input works directly;
+Excel input additionally needs <code>rio</code>. Display customisation
+never changes estimates or test selection, and the app does not replace
 a reproducible R script.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"shiny"</span><span class="op">)</span> <span class="co"># once, if needed</span></span>
@@ -179,11 +182,12 @@ a reproducible R script.</p>
 <td>Precision for displayed numeric values</td>
 </tr>
 <tr class="even">
-<td><code>output</code></td>
+<td><code>format</code></td>
 <td>
 <code>"table"</code>; also <code>"tibble"</code>
 </td>
-<td>Choose the display table or underlying data</td>
+<td>Choose the publication table or a plain console tibble
+(<code>output</code> remains a compatibility alias)</td>
 </tr>
 </tbody>
 </table>
@@ -245,11 +249,12 @@ a reproducible R script.</p>
 <td>Display precision</td>
 </tr>
 <tr class="even">
-<td><code>output</code></td>
+<td><code>format</code></td>
 <td>
 <code>"table"</code>; also <code>"tibble"</code>
 </td>
-<td>Choose formatted table or underlying data</td>
+<td>Choose the publication table or a plain console tibble
+(<code>output</code> remains a compatibility alias)</td>
 </tr>
 </tbody>
 </table>
@@ -293,28 +298,40 @@ a reproducible R script.</p>
 <tr class="even">
 <td><code>test</code></td>
 <td>
-<code>"none"</code>; <code>"bartlett"</code>
+<code>"levene"</code>; also <code>"none"</code>,
+<code>"bartlett"</code>
 </td>
-<td>Optionally display Bartlett’s test as supporting information; it
-never selects the comparison test</td>
+<td>Display median-centred Levene (Brown-Forsythe) by default; Bartlett
+remains optional supporting information; neither selects the comparison
+test</td>
 </tr>
 <tr class="odd">
-<td><code>output</code></td>
+<td><code>format</code></td>
 <td>
 <code>"table"</code>; also <code>"tibble"</code>
 </td>
-<td>Choose formatted table or underlying data</td>
+<td>Choose the publication table or a plain console tibble
+(<code>output</code> remains a compatibility alias)</td>
 </tr>
 </tbody>
 </table>
-<p><code><a href="../reference/assess_variance.html">assess_variance()</a></code> reports group SDs, variances, and
-largest/smallest ratios. They are descriptive diagnostics, not pass/fail
-tests: Welch t-tests and Welch ANOVA do not require equal variances, and
-this function never selects a test. Bartlett’s test is sensitive to
-non-normality: a p-value neither proves equal variances nor replaces the
+<p><code><a href="../reference/assess_variance.html">assess_variance()</a></code> prints one row per variable. Read it
+from left to right: each group column gives its usable <code>n</code>,
+SD, and variance. <strong>Observed SD ratio</strong> and
+<strong>Observed variance ratio</strong> describe the largest value
+divided by the smallest, <strong>Levene p</strong> is supporting
+information, and <strong>Interpretation</strong> states the practical
+takeaway. Detailed test metadata remain available in
+<code>$summary</code> and <code>$diagnostics</code>. They are
+descriptive diagnostics, not pass/fail tests: Welch t-tests and Welch
+ANOVA do not require equal variances, and this function never selects a
+test. The median-centred Levene test is less sensitive to non-normality
+than Bartlett’s test. Bartlett’s test assumes normal group
+distributions. Neither p-value proves equal variances or replaces the
 prespecified <code>var_equal</code> choice.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/assess_variance.html">assess_variance</a></span><span class="op">(</span><span class="va">birthwt_data</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">lwt</span><span class="op">)</span>, by <span class="op">=</span> <span class="va">low</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/assess_variance.html">assess_variance</a></span><span class="op">(</span><span class="va">birthwt_data</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">lwt</span><span class="op">)</span>, by <span class="op">=</span> <span class="va">low</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/assess_variance.html">assess_variance</a></span><span class="op">(</span><span class="va">birthwt_data</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">lwt</span><span class="op">)</span>, by <span class="op">=</span> <span class="va">low</span>, test <span class="op">=</span> <span class="st">"levene"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level3">
@@ -408,17 +425,37 @@ empty builder</td>
 </tr>
 <tr class="odd">
 <td>
-<code>ci</code>, <code>conf.level</code>
+<code>ci</code>, <code>conf.level</code>,
+<code>ci_method</code>
 </td>
 <td>
-<code>FALSE</code>, <code>0.95</code>
+<code>FALSE</code>, <code>0.95</code>, <code>"wilson"</code>; method
+also <code>"exact"</code>
 </td>
-<td>Add exact binomial CIs to every categorical level</td>
+<td>Add binomial CIs to every categorical level and choose the interval
+method</td>
 </tr>
 <tr class="even">
+<td><code>layout</code></td>
+<td>
+<code>"compact"</code>; also <code>"separate"</code>
+</td>
+<td>Keep summaries inline or place summary and CI in child columns
+beneath each cohort</td>
+</tr>
+<tr class="odd">
 <td><code>label</code></td>
 <td><code>NULL</code></td>
 <td>Named replacement labels for source variables</td>
+</tr>
+<tr class="even">
+<td><code>format</code></td>
+<td>
+<code>"table"</code>; also <code>"tibble"</code>
+</td>
+<td>Publication table by default; console mode prints the completed
+builder’s plain tibble and remains compatible with <code>add_*()</code>
+layers</td>
 </tr>
 </tbody>
 </table>
@@ -482,12 +519,15 @@ variable</td>
 </tr>
 <tr class="odd">
 <td>
-<code>ci</code>, <code>conf.level</code>
+<code>ci</code>, <code>conf.level</code>,
+<code>ci_method</code>
 </td>
 <td>
-<code>FALSE</code>, <code>0.95</code>
+<code>FALSE</code>, <code>0.95</code>, <code>"wilson"</code>; method
+also <code>"exact"</code>
 </td>
-<td>Add exact binomial CI to all categorical levels</td>
+<td>Add binomial CIs to all categorical levels and choose the interval
+method</td>
 </tr>
 <tr class="even">
 <td><code>missing</code></td>
@@ -545,6 +585,14 @@ variable</td>
 </tr>
 <tr class="odd">
 <td></td>
+<td><code>layout</code></td>
+<td>inherits the table; <code>"compact"</code> or
+<code>"separate"</code>
+</td>
+<td>Inline or separate estimate/CI columns</td>
+</tr>
+<tr class="even">
+<td></td>
 <td><code>display</code></td>
 <td>
 <code>"n_percent"</code>; <code>"percent"</code>,
@@ -552,7 +600,7 @@ variable</td>
 </td>
 <td>Specialist row cell display</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td></td>
 <td>
 <code>label</code>, <code>digits</code>
@@ -561,7 +609,7 @@ variable</td>
 </td>
 <td>Row label and precision</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code><a href="../reference/add_rate.html">add_rate()</a></code></td>
 <td>
 <code>event</code>, <code>time</code>
@@ -571,7 +619,7 @@ variable</td>
 <code>mode = "rate"</code>
 </td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td></td>
 <td>
 <code>multiplier</code>, <code>time_label</code>
@@ -581,7 +629,7 @@ variable</td>
 </td>
 <td>Rate scale and readable time unit</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td></td>
 <td>
 <code>ci</code>, <code>conf.level</code>, <code>digits</code>,
@@ -590,6 +638,14 @@ variable</td>
 <td>
 <code>TRUE</code>, <code>0.95</code>, <code>1</code>, automatic</td>
 <td>Exact Poisson CI, precision, and label</td>
+</tr>
+<tr class="odd">
+<td></td>
+<td><code>layout</code></td>
+<td>inherits the table; <code>"compact"</code> or
+<code>"separate"</code>
+</td>
+<td>Inline or separate rate/CI columns</td>
 </tr>
 <tr class="even">
 <td><code><a href="../reference/add_total.html">add_total()</a></code></td>
@@ -620,10 +676,15 @@ variable</td>
 </tr>
 <tr class="odd">
 <td><code><a href="../reference/add_p.html">add_p()</a></code></td>
-<td><code>method</code></td>
 <td>
-<code>"auto"</code>; named per-variable methods allowed</td>
-<td>Automatic or explicit test choice</td>
+<code>method</code>, <code>include</code>
+</td>
+<td>
+<code>method = "auto"</code>;
+<code>include = everything()</code>
+</td>
+<td>Automatic or explicit test choice; omit inappropriate comparisons
+while retaining their descriptive rows</td>
 </tr>
 <tr class="even">
 <td></td>
@@ -638,16 +699,23 @@ variable</td>
 <tr class="odd">
 <td></td>
 <td>
-<code>normality_check</code>, <code>var_equal</code>,
+<code>distribution_check</code>, <code>var_equal</code>,
 <code>correction</code>
 </td>
 <td>
 <code>TRUE</code>, <code>FALSE</code>, <code>TRUE</code>
 </td>
-<td>Auto distribution guidance, equal-variance t-test choice, and
-continuity correction</td>
+<td>Auto marked-skew guidance, the prespecified equal-variance
+parametric route, and continuity correction</td>
 </tr>
 <tr class="even">
+<td></td>
+<td><code>fisher_seed</code></td>
+<td>
+<code>1049</code>; <code>NULL</code> uses current RNG state</td>
+<td>Makes simulated Fisher p-values for larger tables reproducible</td>
+</tr>
+<tr class="odd">
 <td></td>
 <td><code>p_adjust</code></td>
 <td>
@@ -655,7 +723,7 @@ continuity correction</td>
 </td>
 <td>Multiplicity-adjust displayed p-values</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td></td>
 <td><code>digits</code></td>
 <td><code>3</code></td>
@@ -663,6 +731,19 @@ continuity correction</td>
 </tr>
 </tbody>
 </table>
+<p>Independent ordered factors use the same chi-square/Fisher
+distribution comparison as other categorical variables. Request
+<code>method = "wilcox"</code> or <code>method = "kruskal"</code> when
+the ordered scale itself is the intended rank-based comparison. If an
+ordered factor and another variable share the same publication label,
+source-variable identity—not the displayed label—determines the test and
+superscript.</p>
+<p><code><a href="../reference/add_proportion.html">add_proportion()</a></code> deliberately highlights one selected
+event, such as <code>"Yes"</code>. Use
+<code>summary_table(ci = TRUE)</code> when every categorical level needs
+an interval. The p-value produced by <code><a href="../reference/add_p.html">add_p()</a></code> belongs to the
+full variable association; it is not duplicated on the selected-event
+row.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/summary_table.html">summary_table</a></span><span class="op">(</span><span class="va">birthwt_data</span>, by <span class="op">=</span> <span class="va">low</span>, overall <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_summary.html">add_summary</a></span><span class="op">(</span>vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">smoke</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -708,9 +789,9 @@ categorical <code>"chisq"</code>, <code>"fisher"</code>,
 <tr class="odd">
 <td><code>var_equal</code></td>
 <td><code>FALSE</code></td>
-<td>For non-skewed independent continuous auto comparisons,
-<code>TRUE</code> selects Student’s t-test or classical ANOVA; it is
-user-specified, never inferred from a variance test</td>
+<td>When no marked skew is flagged in an independent continuous auto
+comparison, <code>TRUE</code> selects Student’s t-test or classical
+ANOVA; it is user-specified, never inferred from a variance test</td>
 </tr>
 <tr class="even">
 <td>
@@ -737,6 +818,13 @@ paired</td>
 <td>Interval confidence and display precision</td>
 </tr>
 <tr class="odd">
+<td><code>format</code></td>
+<td>
+<code>"table"</code>; also <code>"tibble"</code>
+</td>
+<td>Publication-ready default or plain console output</td>
+</tr>
+<tr class="even">
 <td><code>...</code></td>
 <td>optional</td>
 <td>Advanced controls used by the selected method</td>
@@ -745,6 +833,98 @@ paired</td>
 </table>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/compare_groups.html">compare_groups</a></span><span class="op">(</span><span class="va">birthwt_data</span>, variable <span class="op">=</span> <span class="va">lwt</span>, group <span class="op">=</span> <span class="va">low</span>, test <span class="op">=</span> <span class="st">"welch_t"</span><span class="op">)</span></span></code></pre></div>
+<div class="section level5">
+<h5 id="exact-test-auto-algorithm">Exact <code>test = "auto"</code> algorithm<a class="anchor" aria-label="anchor" href="#exact-test-auto-algorithm"></a>
+</h5>
+<p><code>add_p(method = "auto")</code> delegates to this same algorithm
+for every variable.</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Outcome and design</th>
+<th>Automatic decision</th>
+<th>Automatic test</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Continuous, 2 independent groups</td>
+<td>Marked skewness in either group</td>
+<td>Wilcoxon rank-sum</td>
+</tr>
+<tr class="even">
+<td>Continuous, 2 independent groups</td>
+<td>No marked skew; <code>var_equal = FALSE</code>
+</td>
+<td>Welch t-test</td>
+</tr>
+<tr class="odd">
+<td>Continuous, 2 independent groups</td>
+<td>No marked skew; <code>var_equal = TRUE</code>
+</td>
+<td>Student’s t-test</td>
+</tr>
+<tr class="even">
+<td>Continuous, 3+ independent groups</td>
+<td>Marked skewness in any group</td>
+<td>Kruskal-Wallis</td>
+</tr>
+<tr class="odd">
+<td>Continuous, 3+ independent groups</td>
+<td>No marked skew; <code>var_equal = FALSE</code>
+</td>
+<td>Welch ANOVA</td>
+</tr>
+<tr class="even">
+<td>Continuous, 3+ independent groups</td>
+<td>No marked skew; <code>var_equal = TRUE</code>
+</td>
+<td>Classical one-way ANOVA</td>
+</tr>
+<tr class="odd">
+<td>Continuous, 2 paired occasions</td>
+<td>Marked skewness in within-pair differences / no marked skew</td>
+<td>Wilcoxon signed-rank / paired t-test</td>
+</tr>
+<tr class="even">
+<td>Continuous, 3+ paired occasions</td>
+<td>Marked skewness at any occasion / no marked skew</td>
+<td>Friedman / repeated-measures ANOVA</td>
+</tr>
+<tr class="odd">
+<td>Binary, nominal, or ordinal; independent</td>
+<td>Any expected count below 1, or more than 20% below 5 /
+otherwise</td>
+<td>Fisher exact (Monte Carlo for larger sparse tables) / Pearson
+chi-square</td>
+</tr>
+<tr class="even">
+<td>Ordinal; paired</td>
+<td>2 / 3+ occasions</td>
+<td>Wilcoxon signed-rank / Friedman</td>
+</tr>
+<tr class="odd">
+<td>Binary; paired</td>
+<td>2 / 3+ occasions</td>
+<td>McNemar / Cochran’s Q</td>
+</tr>
+</tbody>
+</table>
+<p>“Marked skewness” means the package’s absolute sample-skewness flag
+(default cut-off 1). Shapiro-Wilk is supporting information only.
+<code>var_equal</code> is never inferred from Levene, Bartlett, or an
+F-test and applies only to the independent continuous parametric route.
+Repeated-measures ANOVA still needs a design-level sphericity
+review.</p>
+<p><code><a href="../reference/compare_groups.html">compare_groups()</a></code> is a focused one-outcome analysis. For
+several variables and one p-value per row block, use
+<code>summary_table(..., include = ...) |&gt; add_p()</code>. This
+distinction prevents a focused result object from silently becoming a
+multi-outcome screening table.</p>
+</div>
 </div>
 <div class="section level4">
 <h4 id="effect_size">
@@ -803,6 +983,13 @@ paired</td>
 <td>Add conventional magnitude labels; do not treat as clinical
 importance</td>
 </tr>
+<tr class="even">
+<td><code>format</code></td>
+<td>
+<code>"table"</code>; also <code>"tibble"</code>
+</td>
+<td>Publication-ready default or plain console output</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -826,16 +1013,72 @@ importance</td>
 <td>
 <code>data</code>, <code>x</code>, <code>y</code>
 </td>
-<td>required</td>
+<td>pair route</td>
 <td>Two continuous variables; complete finite pairs are analysed</td>
 </tr>
 <tr class="even">
+<td><code>vars</code></td>
+<td>
+<code>NULL</code>; for example
+<code>c(age, weight, outcome)</code>
+</td>
+<td>Build a multi-variable correlation matrix instead of one pair</td>
+</tr>
+<tr class="odd">
 <td><code>method</code></td>
 <td>
 <code>"auto"</code>; <code>"pearson"</code>,
 <code>"spearman"</code>
 </td>
 <td>Correlation method</td>
+</tr>
+<tr class="even">
+<td><code>triangle</code></td>
+<td>
+<code>"lower"</code>; <code>"upper"</code>, <code>"full"</code>
+</td>
+<td>Matrix layout</td>
+</tr>
+<tr class="odd">
+<td><code>order</code></td>
+<td>
+<code>"input"</code>; <code>"alphabetical"</code>,
+<code>"cluster"</code>
+</td>
+<td>Preserve the requested order, sort display labels, or place strongly
+related variables together</td>
+</tr>
+<tr class="even">
+<td><code>show_diagonal</code></td>
+<td><code>TRUE</code></td>
+<td>Show or hide self-correlations</td>
+</tr>
+<tr class="odd">
+<td><code>display</code></td>
+<td>
+<code>"estimate"</code>; <code>"estimate_p"</code>,
+<code>"estimate_n"</code>, <code>"estimate_p_n"</code>,
+<code>"estimate_ci"</code>
+</td>
+<td>Matrix cell content</td>
+</tr>
+<tr class="even">
+<td><code>shade</code></td>
+<td><code>TRUE</code></td>
+<td>Shade matrix cells by coefficient direction and magnitude</td>
+</tr>
+<tr class="odd">
+<td><code>missing</code></td>
+<td><code>"pairwise"</code></td>
+<td>Use complete finite observations separately for each pair</td>
+</tr>
+<tr class="even">
+<td><code>adjust</code></td>
+<td>
+<code>"none"</code>; <code>"holm"</code>, <code>"bonferroni"</code>,
+<code>"BH"</code>
+</td>
+<td>Adjust matrix p-values for multiplicity</td>
 </tr>
 <tr class="odd">
 <td>
@@ -846,10 +1089,32 @@ importance</td>
 </td>
 <td>Interval confidence and display precision</td>
 </tr>
+<tr class="even">
+<td><code>format</code></td>
+<td>
+<code>"table"</code>; also <code>"tibble"</code>
+</td>
+<td>Publication-ready default or plain console output</td>
+</tr>
 </tbody>
 </table>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/correlation.html">correlation</a></span><span class="op">(</span><span class="va">birthwt_data</span>, x <span class="op">=</span> <span class="va">age</span>, y <span class="op">=</span> <span class="va">bwt</span>, method <span class="op">=</span> <span class="st">"spearman"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/correlation.html">correlation</a></span><span class="op">(</span><span class="va">birthwt_data</span>, x <span class="op">=</span> <span class="va">age</span>, y <span class="op">=</span> <span class="va">bwt</span>, method <span class="op">=</span> <span class="st">"spearman"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">birthwt_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/correlation.html">correlation</a></span><span class="op">(</span></span>
+<span>  <span class="va">birthwt_data</span>,</span>
+<span>  vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">lwt</span>, <span class="va">bwt</span><span class="op">)</span>,</span>
+<span>  display <span class="op">=</span> <span class="st">"estimate_p"</span>,</span>
+<span>  adjust <span class="op">=</span> <span class="st">"holm"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plot_correlation.html">plot_correlation</a></span><span class="op">(</span><span class="va">birthwt_matrix</span><span class="op">)</span></span></code></pre></div>
+<p>Matrix mode uses one method throughout: automatic mode uses Pearson
+only when all selected variables have absolute sample skewness below 1,
+and Spearman otherwise. Pair-specific sample sizes and inferential
+results remain available in the tidy <code>$summary</code> component. A
+matrix is exploratory; multiplicity-adjusted p-values do not replace
+prespecified analyses or establish causation.</p>
 </div>
 </div>
 <div class="section level3">
@@ -859,6 +1124,10 @@ importance</td>
 <h4 id="proportion_stats">
 <code>proportion_stats()</code><a class="anchor" aria-label="anchor" href="#proportion_stats"></a>
 </h4>
+<p>The publication renderer uses one row for the selected event. Grouped
+results place <code>n (%)</code> and the confidence interval in separate
+columns beneath each group header; this does not change the tidy
+<code>$summary</code> component.</p>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -914,6 +1183,13 @@ outcomes</td>
 </td>
 <td>CI confidence and percentage precision</td>
 </tr>
+<tr class="odd">
+<td><code>format</code></td>
+<td>
+<code>"table"</code>; also <code>"tibble"</code>
+</td>
+<td>Publication-ready default or plain console output</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -921,6 +1197,10 @@ outcomes</td>
 <h4 id="rate_stats">
 <code>rate_stats()</code><a class="anchor" aria-label="anchor" href="#rate_stats"></a>
 </h4>
+<p>Grouped publication output uses each group as a spanning header above
+Events, accumulated time, Rate and CI columns. The tidy
+<code>$summary</code> component remains in long form and retains the
+number of contributing records.</p>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -962,6 +1242,13 @@ outcomes</td>
 <code>0.95</code>, <code>1</code>
 </td>
 <td>Exact Poisson CI confidence and precision</td>
+</tr>
+<tr class="odd">
+<td><code>format</code></td>
+<td>
+<code>"table"</code>; also <code>"tibble"</code>
+</td>
+<td>Publication-ready default or plain console output</td>
 </tr>
 </tbody>
 </table>
@@ -1051,6 +1338,13 @@ direction</td>
 <code>10000</code>, <code>2</code>
 </td>
 <td>Fisher simulation repetitions when needed and display precision</td>
+</tr>
+<tr class="even">
+<td><code>format</code></td>
+<td>
+<code>"table"</code>; also <code>"tibble"</code>
+</td>
+<td>Publication-ready default or plain console output</td>
 </tr>
 </tbody>
 </table>
@@ -1247,11 +1541,11 @@ same data.</p>
 <tbody>
 <tr class="odd">
 <td><code><a href="../reference/assumptions_stats.html">assumptions_stats()</a></code></td>
-<td><code>output</code></td>
+<td><code>format</code></td>
 <td>
-<code>"tibble"</code>; also <code>"gt"</code>
+<code>"table"</code>; also <code>"tibble"</code>
 </td>
-<td>Return a data frame or a formatted audit table</td>
+<td>Return a formatted audit table or a plain console tibble</td>
 </tr>
 <tr class="even">
 <td></td>
@@ -1269,16 +1563,16 @@ same data.</p>
 <td>
 <code>"Checks before reporting"</code>, <code>NULL</code>
 </td>
-<td>Heading when <code>output = "gt"</code>
+<td>Heading when <code>format = "table"</code>
 </td>
 </tr>
 <tr class="even">
 <td><code><a href="../reference/diagnostics_stats.html">diagnostics_stats()</a></code></td>
-<td><code>output</code></td>
+<td><code>format</code></td>
 <td>
-<code>"tibble"</code>; also <code>"gt"</code>
+<code>"table"</code>; also <code>"tibble"</code>
 </td>
-<td>Return a data frame or formatted audit table</td>
+<td>Return a formatted audit table or plain console tibble</td>
 </tr>
 <tr class="odd">
 <td></td>
@@ -1296,16 +1590,16 @@ same data.</p>
 <td>
 <code>"Diagnostics"</code>, <code>NULL</code>
 </td>
-<td>Heading when <code>output = "gt"</code>
+<td>Heading when <code>format = "table"</code>
 </td>
 </tr>
 <tr class="odd">
 <td><code><a href="../reference/denominators_stats.html">denominators_stats()</a></code></td>
-<td><code>output</code></td>
+<td><code>format</code></td>
 <td>
-<code>"tibble"</code>; also <code>"gt"</code>
+<code>"table"</code>; also <code>"tibble"</code>
 </td>
-<td>Return a data frame or formatted denominator table</td>
+<td>Return a formatted denominator table or plain console tibble</td>
 </tr>
 <tr class="even">
 <td></td>
@@ -1323,7 +1617,7 @@ same data.</p>
 <td>
 <code>"Denominator audit"</code>, <code>NULL</code>
 </td>
-<td>Heading when <code>output = "gt"</code>
+<td>Heading when <code>format = "table"</code>
 </td>
 </tr>
 </tbody>

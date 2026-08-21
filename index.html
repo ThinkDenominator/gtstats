@@ -51,6 +51,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="articles/descriptive-tables.html">Building descriptive tables</a></li>
     <li><a class="dropdown-item" href="articles/inferential-tests.html">Inferential tests and assumptions</a></li>
+    <li><a class="dropdown-item" href="articles/inferential-tests.html#default-selection-policy">Automatic test algorithm</a></li>
     <li><a class="dropdown-item" href="articles/epi-helpers.html">Epidemiology helpers</a></li>
     <li><a class="dropdown-item" href="articles/styling-export.html">Styling and exporting tables</a></li>
   </ul>
@@ -115,7 +116,7 @@ Understand your data, build a publication-ready Table 1, and answer focused stat
 <tr>
 <td>Assess</td>
 <td><code><a href="reference/assess_variance.html">assess_variance()</a></code></td>
-<td>Group SDs, variances, and descriptive spread ratios</td>
+<td>Group SDs, variances, spread ratios, and median-centred Levene support</td>
 </tr>
 <tr>
 <td>Describe</td>
@@ -194,6 +195,7 @@ tbl_stats()<br>save_output()
 <li>distribution, variance, assumptions, and denominators are inspectable;</li>
 <li>the table builder offers simple defaults with optional layers of control.</li>
 </ul>
+<p>The automatic algorithm is documented in full: marked skewness—not a Shapiro-Wilk p-value alone—triggers rank-based continuous tests; sparse categorical tables use Fisher’s exact test when an expected count is below 1 or more than 20% are below 5; and paired/repeated designs use their dedicated methods. See the <a href="https://gtstats.thinkdenominator.com/articles/inferential-tests.html">inferential tests and assumptions guide</a>.</p>
 <p><code>gtstats</code> uses established R statistical engines such as <code>stats</code>, <code>dplyr</code>, <code>ggplot2</code>, <code>gt</code>, and <code>flextable</code>; it provides a coherent teaching and reporting workflow around them.</p>
 </div>
 <div class="section level2">
@@ -239,6 +241,8 @@ tbl_stats()<br>save_output()
 <span></span>
 <span><span class="va">distribution</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/assess_distribution.html">assess_distribution</a></span><span class="op">(</span><span class="va">birthwt</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">lwt</span><span class="op">)</span>, by <span class="op">=</span> <span class="va">low</span><span class="op">)</span></span>
 <span><span class="va">variance</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/assess_variance.html">assess_variance</a></span><span class="op">(</span><span class="va">birthwt</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">lwt</span><span class="op">)</span>, by <span class="op">=</span> <span class="va">low</span><span class="op">)</span></span>
+<span><span class="co"># Use `test = "none"` for descriptive spreads only, or `test = "bartlett"`</span></span>
+<span><span class="co"># when the stronger normal-distribution assumption is justified.</span></span>
 <span></span>
 <span><span class="va">table_one</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/summary_table.html">summary_table</a></span><span class="op">(</span></span>
 <span>  <span class="va">birthwt</span>,</span>
@@ -307,6 +311,21 @@ tbl_stats()<br>save_output()
 </table>
 </div>
 <div class="section level2">
+<h2 id="publication-tables-and-console-output">Publication tables and console output<a class="anchor" aria-label="anchor" href="#publication-tables-and-console-output"></a>
+</h2>
+<p>Core statistical functions produce a publication-ready table by default. In a terminal, automated test, or plain-text workflow, request a real tibble:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/compare_groups.html">compare_groups</a></span><span class="op">(</span><span class="va">birthwt_data</span>, variable <span class="op">=</span> <span class="va">age</span>, group <span class="op">=</span> <span class="va">low</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/compare_groups.html">compare_groups</a></span><span class="op">(</span></span>
+<span>  <span class="va">birthwt_data</span>,</span>
+<span>  variable <span class="op">=</span> <span class="va">age</span>,</span>
+<span>  group <span class="op">=</span> <span class="va">low</span>,</span>
+<span>  format <span class="op">=</span> <span class="st">"tibble"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>The same <code>format = "table"</code> or <code>format = "tibble"</code> choice is available for data description, distribution and variance assessment, effect sizes, correlations, proportions, rates, and cross-tabulations. A summary-table builder stays composable in either format, so <code><a href="reference/add_p.html">add_p()</a></code> and other layers still work before the completed tibble is printed.</p>
+</div>
+<div class="section level2">
 <h2 id="function-map">Function map<a class="anchor" aria-label="anchor" href="#function-map"></a>
 </h2>
 <table class="table">
@@ -367,12 +386,16 @@ tbl_stats()<br>save_output()
 </tr>
 </tbody>
 </table>
+<p><code><a href="reference/correlation.html">correlation()</a></code> handles both a prespecified pair and an exploratory matrix. The matrix retains pair-specific denominators and p-values in <code>$summary</code>, while <code><a href="reference/plot_correlation.html">plot_correlation()</a></code> provides a labelled coefficient heatmap.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/correlation.html">correlation</a></span><span class="op">(</span><span class="va">mtcars</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">mpg</span>, <span class="va">disp</span>, <span class="va">hp</span>, <span class="va">wt</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/plot_correlation.html">plot_correlation</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
 <p>Until the package is on CRAN or has a DOI, use the package citation generated by R:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"gtstats"</span><span class="op">)</span></span></code></pre></div>
 </div>
 
@@ -405,6 +428,10 @@ tbl_stats()<br>save_output()
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>Rubeshkumar Polani <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0002-0418-7592" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Mogan Kaviprawin <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-1659-059X" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Manikandanesan Sakthivel <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-5438-3970" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Salin K Eliyas <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-8020-5860" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Yuvaraj Krishnamoorthy <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0003-4688-510X" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 </ul>
 </div>
 

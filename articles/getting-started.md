@@ -114,9 +114,32 @@ variance
 ```
 
 [`assess_variance()`](https://gtstats.thinkdenominator.com/reference/assess_variance.md)
-reports SDs, variances, and largest/smallest ratios. These are
-descriptive diagnostics, not a test-selection rule: Welch methods do not
-require equal variances.
+presents one row per variable: each group’s usable `n`, SD, and
+variance, the observed SD and variance ratios, Levene p, and a short
+interpretation. These are descriptive diagnostics, not a test-selection
+rule: Welch methods do not require equal variances.
+
+### How Auto chooses an inferential test
+
+The automatic algorithm is deliberately visible and can always be
+overridden:
+
+| Data structure | Auto route |
+|----|----|
+| Continuous, 2 independent groups | Welch t-test when no marked skew is flagged; Student’s t-test only with `var_equal = TRUE`; Wilcoxon rank-sum when marked skew is flagged |
+| Continuous, 3+ independent groups | Welch ANOVA when no marked skew is flagged; classical ANOVA only with `var_equal = TRUE`; Kruskal-Wallis when marked skew is flagged |
+| Continuous, paired | Paired t-test or repeated-measures ANOVA when no marked skew is flagged; Wilcoxon signed-rank or Friedman when flagged |
+| Independent categorical or ordinal | Chi-square when expected-count guidance is met; Fisher exact when an expected count is below 1 or more than 20% are below 5 |
+| Paired binary | McNemar for 2 occasions; Cochran’s Q for 3+ occasions |
+
+The skewness threshold—not the Shapiro-Wilk p-value alone—controls the
+continuous rank-based switch. Levene and Bartlett results are
+descriptive support and never change Auto. Inspect the recorded reason
+with
+[`diagnostics_stats()`](https://gtstats.thinkdenominator.com/reference/diagnostics_stats.md)
+or `result$method$selection_rule`. The full explanation is in
+[Inferential tests and
+assumptions](https://gtstats.thinkdenominator.com/articles/inferential-tests.md).
 
 ### 3. Create a Table 1
 

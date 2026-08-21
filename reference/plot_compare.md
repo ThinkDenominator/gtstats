@@ -8,8 +8,8 @@ selected from the outcome type and study design.
 ``` r
 plot_compare(
   data,
-  outcome,
-  by,
+  variable,
+  group,
   paired = FALSE,
   id = NULL,
   type = c("auto", "box", "bar"),
@@ -17,7 +17,7 @@ plot_compare(
   show_points = TRUE,
   show_p = FALSE,
   test = c("auto", "t_test", "welch_t", "wilcox", "anova", "welch_anova", "kruskal",
-    "chisq", "fisher", "mcnemar"),
+    "chisq", "fisher", "mcnemar", "rm_anova", "friedman", "cochran_q"),
   var_equal = FALSE,
   palette = NULL,
   base_size = 14,
@@ -35,18 +35,19 @@ plot_compare(
 
   A data frame.
 
-- outcome:
+- variable:
 
-  Outcome variable, supplied as a bare name or character string.
+  Outcome or response variable, supplied as a bare name or character
+  string.
 
-- by:
+- group:
 
   Categorical grouping variable, supplied as a bare name or character
   string.
 
 - paired:
 
-  Logical; whether the continuous measurements are paired.
+  Logical; whether observations are paired or repeatedly measured.
 
 - id:
 
@@ -110,7 +111,7 @@ A `ggplot` object.
 
 ## Details
 
-The minimal call is `plot_compare(data, outcome, by)`. Continuous
+The minimal call is `plot_compare(data, variable, group)`. Continuous
 outcomes are shown as boxplots with individual observations, categorical
 outcomes as stacked within-group proportions, and paired continuous
 outcomes as participant-level connected observations. The returned
@@ -127,13 +128,13 @@ values are excluded.
 ## Examples
 
 ``` r
-plot_compare(mtcars, outcome = mpg, by = am)
+plot_compare(mtcars, variable = mpg, group = am)
 
 
 plot_compare(
   mtcars,
-  outcome = vs,
-  by = am,
+  variable = vs,
+  group = am,
   display = "proportion",
   show_p = TRUE
 )

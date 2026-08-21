@@ -22,7 +22,7 @@ automatic decisions for review.
 |----|----|----|
 | Understand | [`describe_data()`](https://gtstats.thinkdenominator.com/reference/describe_data.md) | Variable type, completeness, levels/range, and concise data overview |
 | Assess | [`assess_distribution()`](https://gtstats.thinkdenominator.com/reference/assess_distribution.md) | Distribution diagnostics and descriptive guidance for continuous variables |
-| Assess | [`assess_variance()`](https://gtstats.thinkdenominator.com/reference/assess_variance.md) | Group SDs, variances, and descriptive spread ratios |
+| Assess | [`assess_variance()`](https://gtstats.thinkdenominator.com/reference/assess_variance.md) | Group SDs, variances, spread ratios, and median-centred Levene support |
 | Describe | [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md) | Publication-ready participant-characteristics table |
 | Compare | [`compare_groups()`](https://gtstats.thinkdenominator.com/reference/compare_groups.md) | One focused group comparison with a clearly identified test and automatic-selection rule |
 | Audit | [`assumptions_stats()`](https://gtstats.thinkdenominator.com/reference/assumptions_stats.md), [`diagnostics_stats()`](https://gtstats.thinkdenominator.com/reference/diagnostics_stats.md), [`denominators_stats()`](https://gtstats.thinkdenominator.com/reference/denominators_stats.md) | Transparent decisions and analysis population |
@@ -65,6 +65,13 @@ that gap:
 - distribution, variance, assumptions, and denominators are inspectable;
 - the table builder offers simple defaults with optional layers of
   control.
+
+The automatic algorithm is documented in full: marked skewness—not a
+Shapiro-Wilk p-value alone—triggers rank-based continuous tests; sparse
+categorical tables use Fisher’s exact test when an expected count is
+below 1 or more than 20% are below 5; and paired/repeated designs use
+their dedicated methods. See the [inferential tests and assumptions
+guide](https://gtstats.thinkdenominator.com/articles/inferential-tests.html).
 
 `gtstats` uses established R statistical engines such as `stats`,
 `dplyr`, `ggplot2`, `gt`, and `flextable`; it provides a coherent
@@ -127,6 +134,8 @@ overview <- describe_data(birthwt)
 
 distribution <- assess_distribution(birthwt, vars = c(age, lwt), by = low)
 variance <- assess_variance(birthwt, vars = c(age, lwt), by = low)
+# Use `test = "none"` for descriptive spreads only, or `test = "bartlett"`
+# when the stronger normal-distribution assumption is justified.
 
 table_one <- summary_table(
   birthwt,
@@ -167,6 +176,31 @@ table_one |>
 | Every argument and default | [Function options](https://gtstats.thinkdenominator.com/articles/function-options.html) |
 | All functions | [Reference index](https://gtstats.thinkdenominator.com/reference/index.html) |
 
+## Publication tables and console output
+
+Core statistical functions produce a publication-ready table by default.
+In a terminal, automated test, or plain-text workflow, request a real
+tibble:
+
+``` r
+
+compare_groups(birthwt_data, variable = age, group = low)
+
+compare_groups(
+  birthwt_data,
+  variable = age,
+  group = low,
+  format = "tibble"
+)
+```
+
+The same `format = "table"` or `format = "tibble"` choice is available
+for data description, distribution and variance assessment, effect
+sizes, correlations, proportions, rates, and cross-tabulations. A
+summary-table builder stays composable in either format, so
+[`add_p()`](https://gtstats.thinkdenominator.com/reference/add_p.md) and
+other layers still work before the completed tibble is printed.
+
 ## Function map
 
 | Workflow | Functions |
@@ -179,6 +213,18 @@ table_one |>
 | Visualise | [`plot_compare()`](https://gtstats.thinkdenominator.com/reference/plot_compare.md), [`plot_correlation()`](https://gtstats.thinkdenominator.com/reference/plot_correlation.md) |
 | Guided interface | [`gtstats_app()`](https://gtstats.thinkdenominator.com/reference/gtstats_app.md) |
 | Polish and export | [`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md), [`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md), [`to_flextable()`](https://gtstats.thinkdenominator.com/reference/to_flextable.md), [`save_output()`](https://gtstats.thinkdenominator.com/reference/save_output.md) |
+
+[`correlation()`](https://gtstats.thinkdenominator.com/reference/correlation.md)
+handles both a prespecified pair and an exploratory matrix. The matrix
+retains pair-specific denominators and p-values in `$summary`, while
+[`plot_correlation()`](https://gtstats.thinkdenominator.com/reference/plot_correlation.md)
+provides a labelled coefficient heatmap.
+
+``` r
+
+correlation(mtcars, vars = c(mpg, disp, hp, wt)) |>
+  plot_correlation()
+```
 
 ## Citation
 

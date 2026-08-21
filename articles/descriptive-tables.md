@@ -74,6 +74,7 @@ categorical workflows.
 | Precision | `digits` | `c(continuous = 1, percent = 0, ci = 1)` |
 | Missing-value rows | `missing` | `"ifany"`, `"always"`, or `"no"` |
 | Categorical confidence intervals | `ci`, `conf.level` | `ci = TRUE, conf.level = 0.95` |
+| CI layout | `layout` | `"compact"` (default) or `"separate"` |
 
 For different continuous summaries by variable, provide a named vector:
 
@@ -167,7 +168,26 @@ summary_table(
 
 [`add_proportion()`](https://gtstats.thinkdenominator.com/reference/add_proportion.md)
 adds a highlighted percentage row for a binary or categorical variable.
-Optionally add exact binomial confidence intervals with `ci = TRUE`.
+Optionally add Wilson confidence intervals (the default) or request
+exact binomial confidence intervals with `ci = TRUE`.
+
+When confidence intervals make a table too dense, use
+`layout = "separate"`. Each displayed cohort then becomes a spanning
+header with a **Summary** (or **n (%)**) column and one **95% CI**
+column. The compact layout remains the default for ordinary Table 1
+output.
+
+``` r
+
+summary_table(
+  birthwt,
+  by = smoke,
+  include = c(age, low),
+  overall = "first",
+  ci = TRUE,
+  layout = "separate"
+)
+```
 
 ``` r
 
@@ -212,15 +232,19 @@ displays only when categorical variables are present.
 ## Adding p-values
 
 [`add_p()`](https://gtstats.thinkdenominator.com/reference/add_p.md)
-appends a p-value column. By default, the test is selected
-automatically:
+appends a p-value column. Its automatic route is identical to
+`compare_groups(test = "auto")`:
 
 - Continuous variables: Welch t-test (2 groups) or Welch ANOVA (3+
   groups) by default; use `var_equal = TRUE` only when an equal-variance
   assumption is justified, to select Student’s t-test or classical ANOVA
-- Skewed distributions: Wilcoxon rank-sum or Kruskal-Wallis
-- Categorical variables: chi-squared test when all expected cell counts
-  are at least 5; Fisher’s exact test otherwise
+- Marked skewness (absolute sample skewness at least 1 in any group):
+  Wilcoxon rank-sum or Kruskal-Wallis. Shapiro-Wilk and lesser asymmetry
+  are supporting information and do not switch the test by themselves.
+- Binary, nominal, and independent ordinal variables: chi-square when no
+  expected count is below 1 and no more than 20% are below 5; Fisher’s
+  exact test otherwise. Larger sparse tables use a Monte Carlo Fisher
+  p-value.
 
 [`add_p()`](https://gtstats.thinkdenominator.com/reference/add_p.md)
 uses the same automatic-selection policy as
@@ -229,6 +253,24 @@ The publication table stays concise: its p-value markers identify the
 test, while the variable-specific checks remain available in the audit
 components. `var_equal` is a user-specified analytical assumption; it is
 not inferred by a variance hypothesis test.
+
+Use `include` when a displayed variable should remain descriptive but
+should not be tested. This is important when the grouping variable was
+derived from a displayed variable or when a comparison was not
+prespecified.
+
+``` r
+
+summary_table(birthwt, by = low, include = c(age, bwt, smoke)) |>
+  add_p(include = -bwt)
+```
+
+For independent ordered factors, Auto compares the complete distribution
+of levels using chi-square/Fisher. Specify `method = "wilcox"` or
+`"kruskal"` only when the planned estimand is an ordered rank shift.
+Paired and repeated outcomes use their design-specific routes: paired
+t/Wilcoxon signed-rank, repeated-measures ANOVA/Friedman, McNemar, or
+Cochran’s Q.
 
 ``` r
 
@@ -275,7 +317,8 @@ summary_table(mtcars, by = am) |>
 ```
 
 Supported methods: `"auto"`, `"welch_t"`, `"t_test"`, `"wilcox"`,
-`"anova"`, `"kruskal"`, `"chisq"`, `"fisher"`, `"mcnemar"`.
+`"anova"`, `"welch_anova"`, `"rm_anova"`, `"kruskal"`, `"friedman"`,
+`"chisq"`, `"fisher"`, `"mcnemar"`, and `"cochran_q"`.
 
 ### Paired tests
 

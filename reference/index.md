@@ -43,7 +43,7 @@ Test whether groups differ and quantify associations.
 - [`effect_size()`](https://gtstats.thinkdenominator.com/reference/effect_size.md)
   : Estimate an effect size
 - [`correlation()`](https://gtstats.thinkdenominator.com/reference/correlation.md)
-  : Correlate two variables
+  : Correlation analysis for one pair or several continuous variables
 
 ## 
 

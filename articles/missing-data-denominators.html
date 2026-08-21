@@ -49,6 +49,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/descriptive-tables.html">Building descriptive tables</a></li>
     <li><a class="dropdown-item" href="../articles/inferential-tests.html">Inferential tests and assumptions</a></li>
+    <li><a class="dropdown-item" href="../articles/inferential-tests.html#default-selection-policy">Automatic test algorithm</a></li>
     <li><a class="dropdown-item" href="../articles/epi-helpers.html">Epidemiology helpers</a></li>
     <li><a class="dropdown-item" href="../articles/styling-export.html">Styling and exporting tables</a></li>
   </ul>
@@ -153,10 +154,10 @@ estimate</td>
 </tr>
 </tbody>
 </table>
-<p><code><a href="../reference/denominators_stats.html">denominators_stats()</a></code> returns this audit as a tibble by
-default, or a formatted table with <code>output = "gt"</code>. For
-categorical summaries, it records the level as well as the group, so row
-and overall percentages can be checked against the exact denominator
+<p><code><a href="../reference/denominators_stats.html">denominators_stats()</a></code> returns a formatted table by
+default, or a plain console tibble with <code>format = "tibble"</code>.
+For categorical summaries, it records the level as well as the group, so
+row and overall percentages can be checked against the exact denominator
 used in the displayed cell.</p>
 </div>
 <div class="section level2">
@@ -334,6 +335,8 @@ this clear?</li>
 participants?</li>
 <li>For paired analysis, have you reported the number of complete
 pairs?</li>
+<li>For repeated-measures ANOVA, have you reviewed sphericity rather
+than using a cross-occasion variance test as a substitute?</li>
 <li>Have you reviewed <code><a href="../reference/denominators_stats.html">denominators_stats()</a></code> where exclusions
 affect interpretation?</li>
 </ul>

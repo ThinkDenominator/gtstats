@@ -66,3 +66,8 @@ formed.
 For a compact, user-facing table of arguments and defaults for every
 exported function, see [Function
 options](https://gtstats.thinkdenominator.com/articles/function-options.md).
+
+For the complete and auditable `test = "auto"` decision table—including
+Welch versus Student/ANOVA, marked-skew rank routes, sparse categorical
+tables, and paired/repeated methods—see [Inferential tests and
+assumptions](https://gtstats.thinkdenominator.com/articles/inferential-tests.md).

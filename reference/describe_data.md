@@ -9,7 +9,13 @@ levels. Potential data-quality findings are kept separately in
 ## Usage
 
 ``` r
-describe_data(data, vars = NULL, digits = 2, output = c("table", "tibble"))
+describe_data(
+  data,
+  vars = NULL,
+  digits = 2,
+  format = c("table", "tibble"),
+  output = NULL
+)
 ```
 
 ## Arguments
@@ -26,17 +32,20 @@ describe_data(data, vars = NULL, digits = 2, output = c("table", "tibble"))
 
   Number of decimal places in concise numeric summaries.
 
+- format:
+
+  Output format: `"table"` (default) or `"tibble"`.
+
 - output:
 
-  Requested output route, retained for consistency with other gtstats
-  functions.
+  Compatibility alias for `format`.
 
 ## Value
 
-With `output = "table"`, a `gt_describe` object that prints as a
+With `format = "table"`, a `gt_describe` object that prints as a
 publication-ready table. `$summary` is the concise variable overview and
 `$issues` contains only findings requiring review. With
-`output = "tibble"`, the concise summary tibble is returned directly.
+`format = "tibble"`, the concise summary tibble is returned directly.
 
 ## Details
 
@@ -53,23 +62,23 @@ for inferential comparisons.
 
 ``` r
 describe_data(mtcars)
-#> <div id="tyzzwzudtz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-#>   <style>#tyzzwzudtz table {
+#> <div id="evvaghsmzz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+#>   <style>#evvaghsmzz table {
 #>   font-family: system-ui;
 #>   -webkit-font-smoothing: antialiased;
 #>   -moz-osx-font-smoothing: grayscale;
 #> }
 #> 
-#> #tyzzwzudtz thead, #tyzzwzudtz tbody, #tyzzwzudtz tfoot, #tyzzwzudtz tr, #tyzzwzudtz td, #tyzzwzudtz th {
+#> #evvaghsmzz thead, #evvaghsmzz tbody, #evvaghsmzz tfoot, #evvaghsmzz tr, #evvaghsmzz td, #evvaghsmzz th {
 #>   border-style: none;
 #> }
 #> 
-#> #tyzzwzudtz p {
+#> #evvaghsmzz p {
 #>   margin: 0;
 #>   padding: 0;
 #> }
 #> 
-#> #tyzzwzudtz .gt_table {
+#> #evvaghsmzz .gt_table {
 #>   display: table;
 #>   border-collapse: collapse;
 #>   line-height: normal;
@@ -95,12 +104,12 @@ describe_data(mtcars)
 #>   border-left-color: #D3D3D3;
 #> }
 #> 
-#> #tyzzwzudtz .gt_caption {
+#> #evvaghsmzz .gt_caption {
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
 #> }
 #> 
-#> #tyzzwzudtz .gt_title {
+#> #evvaghsmzz .gt_title {
 #>   color: #333333;
 #>   font-size: 125%;
 #>   font-weight: initial;
@@ -112,7 +121,7 @@ describe_data(mtcars)
 #>   border-bottom-width: 0;
 #> }
 #> 
-#> #tyzzwzudtz .gt_subtitle {
+#> #evvaghsmzz .gt_subtitle {
 #>   color: #333333;
 #>   font-size: 85%;
 #>   font-weight: initial;
@@ -124,7 +133,7 @@ describe_data(mtcars)
 #>   border-top-width: 0;
 #> }
 #> 
-#> #tyzzwzudtz .gt_heading {
+#> #evvaghsmzz .gt_heading {
 #>   background-color: #FFFFFF;
 #>   text-align: left;
 #>   border-bottom-color: #FFFFFF;
@@ -136,13 +145,13 @@ describe_data(mtcars)
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #tyzzwzudtz .gt_bottom_border {
+#> #evvaghsmzz .gt_bottom_border {
 #>   border-bottom-style: solid;
 #>   border-bottom-width: 2px;
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #tyzzwzudtz .gt_col_headings {
+#> #evvaghsmzz .gt_col_headings {
 #>   border-top-style: solid;
 #>   border-top-width: 2px;
 #>   border-top-color: #D3D3D3;
@@ -157,7 +166,7 @@ describe_data(mtcars)
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #tyzzwzudtz .gt_col_heading {
+#> #evvaghsmzz .gt_col_heading {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -177,7 +186,7 @@ describe_data(mtcars)
 #>   overflow-x: hidden;
 #> }
 #> 
-#> #tyzzwzudtz .gt_column_spanner_outer {
+#> #evvaghsmzz .gt_column_spanner_outer {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -189,15 +198,15 @@ describe_data(mtcars)
 #>   padding-right: 4px;
 #> }
 #> 
-#> #tyzzwzudtz .gt_column_spanner_outer:first-child {
+#> #evvaghsmzz .gt_column_spanner_outer:first-child {
 #>   padding-left: 0;
 #> }
 #> 
-#> #tyzzwzudtz .gt_column_spanner_outer:last-child {
+#> #evvaghsmzz .gt_column_spanner_outer:last-child {
 #>   padding-right: 0;
 #> }
 #> 
-#> #tyzzwzudtz .gt_column_spanner {
+#> #evvaghsmzz .gt_column_spanner {
 #>   border-bottom-style: solid;
 #>   border-bottom-width: 2px;
 #>   border-bottom-color: #D3D3D3;
@@ -209,11 +218,11 @@ describe_data(mtcars)
 #>   width: 100%;
 #> }
 #> 
-#> #tyzzwzudtz .gt_spanner_row {
+#> #evvaghsmzz .gt_spanner_row {
 #>   border-bottom-style: hidden;
 #> }
 #> 
-#> #tyzzwzudtz .gt_group_heading {
+#> #evvaghsmzz .gt_group_heading {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -239,7 +248,7 @@ describe_data(mtcars)
 #>   text-align: left;
 #> }
 #> 
-#> #tyzzwzudtz .gt_empty_group_heading {
+#> #evvaghsmzz .gt_empty_group_heading {
 #>   padding: 0.5px;
 #>   color: #333333;
 #>   background-color: #FFFFFF;
@@ -254,15 +263,15 @@ describe_data(mtcars)
 #>   vertical-align: middle;
 #> }
 #> 
-#> #tyzzwzudtz .gt_from_md > :first-child {
+#> #evvaghsmzz .gt_from_md > :first-child {
 #>   margin-top: 0;
 #> }
 #> 
-#> #tyzzwzudtz .gt_from_md > :last-child {
+#> #evvaghsmzz .gt_from_md > :last-child {
 #>   margin-bottom: 0;
 #> }
 #> 
-#> #tyzzwzudtz .gt_row {
+#> #evvaghsmzz .gt_row {
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
 #>   padding-left: 5px;
@@ -281,7 +290,7 @@ describe_data(mtcars)
 #>   overflow-x: hidden;
 #> }
 #> 
-#> #tyzzwzudtz .gt_stub {
+#> #evvaghsmzz .gt_stub {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -294,7 +303,7 @@ describe_data(mtcars)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #tyzzwzudtz .gt_stub_row_group {
+#> #evvaghsmzz .gt_stub_row_group {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -308,15 +317,15 @@ describe_data(mtcars)
 #>   vertical-align: top;
 #> }
 #> 
-#> #tyzzwzudtz .gt_row_group_first td {
+#> #evvaghsmzz .gt_row_group_first td {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #tyzzwzudtz .gt_row_group_first th {
+#> #evvaghsmzz .gt_row_group_first th {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #tyzzwzudtz .gt_summary_row {
+#> #evvaghsmzz .gt_summary_row {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   text-transform: inherit;
@@ -326,16 +335,16 @@ describe_data(mtcars)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #tyzzwzudtz .gt_first_summary_row {
+#> #evvaghsmzz .gt_first_summary_row {
 #>   border-top-style: solid;
 #>   border-top-color: #D3D3D3;
 #> }
 #> 
-#> #tyzzwzudtz .gt_first_summary_row.thick {
+#> #evvaghsmzz .gt_first_summary_row.thick {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #tyzzwzudtz .gt_last_summary_row {
+#> #evvaghsmzz .gt_last_summary_row {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -345,7 +354,7 @@ describe_data(mtcars)
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #tyzzwzudtz .gt_grand_summary_row {
+#> #evvaghsmzz .gt_grand_summary_row {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   text-transform: inherit;
@@ -355,7 +364,7 @@ describe_data(mtcars)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #tyzzwzudtz .gt_first_grand_summary_row {
+#> #evvaghsmzz .gt_first_grand_summary_row {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -365,7 +374,7 @@ describe_data(mtcars)
 #>   border-top-color: #D3D3D3;
 #> }
 #> 
-#> #tyzzwzudtz .gt_last_grand_summary_row_top {
+#> #evvaghsmzz .gt_last_grand_summary_row_top {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -375,11 +384,11 @@ describe_data(mtcars)
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #tyzzwzudtz .gt_striped {
+#> #evvaghsmzz .gt_striped {
 #>   background-color: rgba(128, 128, 128, 0.05);
 #> }
 #> 
-#> #tyzzwzudtz .gt_table_body {
+#> #evvaghsmzz .gt_table_body {
 #>   border-top-style: solid;
 #>   border-top-width: 2px;
 #>   border-top-color: #D3D3D3;
@@ -388,7 +397,7 @@ describe_data(mtcars)
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #tyzzwzudtz .gt_footnotes {
+#> #evvaghsmzz .gt_footnotes {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   border-bottom-style: none;
@@ -402,7 +411,7 @@ describe_data(mtcars)
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #tyzzwzudtz .gt_footnote {
+#> #evvaghsmzz .gt_footnote {
 #>   margin: 0px;
 #>   font-size: 90%;
 #>   padding-top: 4px;
@@ -411,7 +420,7 @@ describe_data(mtcars)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #tyzzwzudtz .gt_sourcenotes {
+#> #evvaghsmzz .gt_sourcenotes {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   border-bottom-style: none;
@@ -425,7 +434,7 @@ describe_data(mtcars)
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #tyzzwzudtz .gt_sourcenote {
+#> #evvaghsmzz .gt_sourcenote {
 #>   font-size: 90%;
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
@@ -433,72 +442,72 @@ describe_data(mtcars)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #tyzzwzudtz .gt_left {
+#> #evvaghsmzz .gt_left {
 #>   text-align: left;
 #> }
 #> 
-#> #tyzzwzudtz .gt_center {
+#> #evvaghsmzz .gt_center {
 #>   text-align: center;
 #> }
 #> 
-#> #tyzzwzudtz .gt_right {
+#> #evvaghsmzz .gt_right {
 #>   text-align: right;
 #>   font-variant-numeric: tabular-nums;
 #> }
 #> 
-#> #tyzzwzudtz .gt_font_normal {
+#> #evvaghsmzz .gt_font_normal {
 #>   font-weight: normal;
 #> }
 #> 
-#> #tyzzwzudtz .gt_font_bold {
+#> #evvaghsmzz .gt_font_bold {
 #>   font-weight: bold;
 #> }
 #> 
-#> #tyzzwzudtz .gt_font_italic {
+#> #evvaghsmzz .gt_font_italic {
 #>   font-style: italic;
 #> }
 #> 
-#> #tyzzwzudtz .gt_super {
+#> #evvaghsmzz .gt_super {
 #>   font-size: 65%;
 #> }
 #> 
-#> #tyzzwzudtz .gt_footnote_marks {
+#> #evvaghsmzz .gt_footnote_marks {
 #>   font-size: 75%;
 #>   vertical-align: 0.4em;
 #>   position: initial;
 #> }
 #> 
-#> #tyzzwzudtz .gt_asterisk {
+#> #evvaghsmzz .gt_asterisk {
 #>   font-size: 100%;
 #>   vertical-align: 0;
 #> }
 #> 
-#> #tyzzwzudtz .gt_indent_1 {
+#> #evvaghsmzz .gt_indent_1 {
 #>   text-indent: 5px;
 #> }
 #> 
-#> #tyzzwzudtz .gt_indent_2 {
+#> #evvaghsmzz .gt_indent_2 {
 #>   text-indent: 10px;
 #> }
 #> 
-#> #tyzzwzudtz .gt_indent_3 {
+#> #evvaghsmzz .gt_indent_3 {
 #>   text-indent: 15px;
 #> }
 #> 
-#> #tyzzwzudtz .gt_indent_4 {
+#> #evvaghsmzz .gt_indent_4 {
 #>   text-indent: 20px;
 #> }
 #> 
-#> #tyzzwzudtz .gt_indent_5 {
+#> #evvaghsmzz .gt_indent_5 {
 #>   text-indent: 25px;
 #> }
 #> 
-#> #tyzzwzudtz .katex-display {
+#> #evvaghsmzz .katex-display {
 #>   display: inline-flex !important;
 #>   margin-bottom: 0.75em !important;
 #> }
 #> 
-#> #tyzzwzudtz div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#> #evvaghsmzz div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
 #>   height: 0px !important;
 #> }
 #> </style>
@@ -589,23 +598,23 @@ describe_data(mtcars)
 #> </table>
 #> </div>
 describe_data(mtcars, vars = c("mpg", "cyl", "am"))
-#> <div id="kzyubmlqvt" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-#>   <style>#kzyubmlqvt table {
+#> <div id="jkjksxdaga" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+#>   <style>#jkjksxdaga table {
 #>   font-family: system-ui;
 #>   -webkit-font-smoothing: antialiased;
 #>   -moz-osx-font-smoothing: grayscale;
 #> }
 #> 
-#> #kzyubmlqvt thead, #kzyubmlqvt tbody, #kzyubmlqvt tfoot, #kzyubmlqvt tr, #kzyubmlqvt td, #kzyubmlqvt th {
+#> #jkjksxdaga thead, #jkjksxdaga tbody, #jkjksxdaga tfoot, #jkjksxdaga tr, #jkjksxdaga td, #jkjksxdaga th {
 #>   border-style: none;
 #> }
 #> 
-#> #kzyubmlqvt p {
+#> #jkjksxdaga p {
 #>   margin: 0;
 #>   padding: 0;
 #> }
 #> 
-#> #kzyubmlqvt .gt_table {
+#> #jkjksxdaga .gt_table {
 #>   display: table;
 #>   border-collapse: collapse;
 #>   line-height: normal;
@@ -631,12 +640,12 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   border-left-color: #D3D3D3;
 #> }
 #> 
-#> #kzyubmlqvt .gt_caption {
+#> #jkjksxdaga .gt_caption {
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
 #> }
 #> 
-#> #kzyubmlqvt .gt_title {
+#> #jkjksxdaga .gt_title {
 #>   color: #333333;
 #>   font-size: 125%;
 #>   font-weight: initial;
@@ -648,7 +657,7 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   border-bottom-width: 0;
 #> }
 #> 
-#> #kzyubmlqvt .gt_subtitle {
+#> #jkjksxdaga .gt_subtitle {
 #>   color: #333333;
 #>   font-size: 85%;
 #>   font-weight: initial;
@@ -660,7 +669,7 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   border-top-width: 0;
 #> }
 #> 
-#> #kzyubmlqvt .gt_heading {
+#> #jkjksxdaga .gt_heading {
 #>   background-color: #FFFFFF;
 #>   text-align: left;
 #>   border-bottom-color: #FFFFFF;
@@ -672,13 +681,13 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #kzyubmlqvt .gt_bottom_border {
+#> #jkjksxdaga .gt_bottom_border {
 #>   border-bottom-style: solid;
 #>   border-bottom-width: 2px;
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #kzyubmlqvt .gt_col_headings {
+#> #jkjksxdaga .gt_col_headings {
 #>   border-top-style: solid;
 #>   border-top-width: 2px;
 #>   border-top-color: #D3D3D3;
@@ -693,7 +702,7 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #kzyubmlqvt .gt_col_heading {
+#> #jkjksxdaga .gt_col_heading {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -713,7 +722,7 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   overflow-x: hidden;
 #> }
 #> 
-#> #kzyubmlqvt .gt_column_spanner_outer {
+#> #jkjksxdaga .gt_column_spanner_outer {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -725,15 +734,15 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   padding-right: 4px;
 #> }
 #> 
-#> #kzyubmlqvt .gt_column_spanner_outer:first-child {
+#> #jkjksxdaga .gt_column_spanner_outer:first-child {
 #>   padding-left: 0;
 #> }
 #> 
-#> #kzyubmlqvt .gt_column_spanner_outer:last-child {
+#> #jkjksxdaga .gt_column_spanner_outer:last-child {
 #>   padding-right: 0;
 #> }
 #> 
-#> #kzyubmlqvt .gt_column_spanner {
+#> #jkjksxdaga .gt_column_spanner {
 #>   border-bottom-style: solid;
 #>   border-bottom-width: 2px;
 #>   border-bottom-color: #D3D3D3;
@@ -745,11 +754,11 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   width: 100%;
 #> }
 #> 
-#> #kzyubmlqvt .gt_spanner_row {
+#> #jkjksxdaga .gt_spanner_row {
 #>   border-bottom-style: hidden;
 #> }
 #> 
-#> #kzyubmlqvt .gt_group_heading {
+#> #jkjksxdaga .gt_group_heading {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -775,7 +784,7 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   text-align: left;
 #> }
 #> 
-#> #kzyubmlqvt .gt_empty_group_heading {
+#> #jkjksxdaga .gt_empty_group_heading {
 #>   padding: 0.5px;
 #>   color: #333333;
 #>   background-color: #FFFFFF;
@@ -790,15 +799,15 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   vertical-align: middle;
 #> }
 #> 
-#> #kzyubmlqvt .gt_from_md > :first-child {
+#> #jkjksxdaga .gt_from_md > :first-child {
 #>   margin-top: 0;
 #> }
 #> 
-#> #kzyubmlqvt .gt_from_md > :last-child {
+#> #jkjksxdaga .gt_from_md > :last-child {
 #>   margin-bottom: 0;
 #> }
 #> 
-#> #kzyubmlqvt .gt_row {
+#> #jkjksxdaga .gt_row {
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
 #>   padding-left: 5px;
@@ -817,7 +826,7 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   overflow-x: hidden;
 #> }
 #> 
-#> #kzyubmlqvt .gt_stub {
+#> #jkjksxdaga .gt_stub {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -830,7 +839,7 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   padding-right: 5px;
 #> }
 #> 
-#> #kzyubmlqvt .gt_stub_row_group {
+#> #jkjksxdaga .gt_stub_row_group {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -844,15 +853,15 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   vertical-align: top;
 #> }
 #> 
-#> #kzyubmlqvt .gt_row_group_first td {
+#> #jkjksxdaga .gt_row_group_first td {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #kzyubmlqvt .gt_row_group_first th {
+#> #jkjksxdaga .gt_row_group_first th {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #kzyubmlqvt .gt_summary_row {
+#> #jkjksxdaga .gt_summary_row {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   text-transform: inherit;
@@ -862,16 +871,16 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   padding-right: 5px;
 #> }
 #> 
-#> #kzyubmlqvt .gt_first_summary_row {
+#> #jkjksxdaga .gt_first_summary_row {
 #>   border-top-style: solid;
 #>   border-top-color: #D3D3D3;
 #> }
 #> 
-#> #kzyubmlqvt .gt_first_summary_row.thick {
+#> #jkjksxdaga .gt_first_summary_row.thick {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #kzyubmlqvt .gt_last_summary_row {
+#> #jkjksxdaga .gt_last_summary_row {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -881,7 +890,7 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #kzyubmlqvt .gt_grand_summary_row {
+#> #jkjksxdaga .gt_grand_summary_row {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   text-transform: inherit;
@@ -891,7 +900,7 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   padding-right: 5px;
 #> }
 #> 
-#> #kzyubmlqvt .gt_first_grand_summary_row {
+#> #jkjksxdaga .gt_first_grand_summary_row {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -901,7 +910,7 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   border-top-color: #D3D3D3;
 #> }
 #> 
-#> #kzyubmlqvt .gt_last_grand_summary_row_top {
+#> #jkjksxdaga .gt_last_grand_summary_row_top {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -911,11 +920,11 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #kzyubmlqvt .gt_striped {
+#> #jkjksxdaga .gt_striped {
 #>   background-color: rgba(128, 128, 128, 0.05);
 #> }
 #> 
-#> #kzyubmlqvt .gt_table_body {
+#> #jkjksxdaga .gt_table_body {
 #>   border-top-style: solid;
 #>   border-top-width: 2px;
 #>   border-top-color: #D3D3D3;
@@ -924,7 +933,7 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #kzyubmlqvt .gt_footnotes {
+#> #jkjksxdaga .gt_footnotes {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   border-bottom-style: none;
@@ -938,7 +947,7 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #kzyubmlqvt .gt_footnote {
+#> #jkjksxdaga .gt_footnote {
 #>   margin: 0px;
 #>   font-size: 90%;
 #>   padding-top: 4px;
@@ -947,7 +956,7 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   padding-right: 5px;
 #> }
 #> 
-#> #kzyubmlqvt .gt_sourcenotes {
+#> #jkjksxdaga .gt_sourcenotes {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   border-bottom-style: none;
@@ -961,7 +970,7 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #kzyubmlqvt .gt_sourcenote {
+#> #jkjksxdaga .gt_sourcenote {
 #>   font-size: 90%;
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
@@ -969,72 +978,72 @@ describe_data(mtcars, vars = c("mpg", "cyl", "am"))
 #>   padding-right: 5px;
 #> }
 #> 
-#> #kzyubmlqvt .gt_left {
+#> #jkjksxdaga .gt_left {
 #>   text-align: left;
 #> }
 #> 
-#> #kzyubmlqvt .gt_center {
+#> #jkjksxdaga .gt_center {
 #>   text-align: center;
 #> }
 #> 
-#> #kzyubmlqvt .gt_right {
+#> #jkjksxdaga .gt_right {
 #>   text-align: right;
 #>   font-variant-numeric: tabular-nums;
 #> }
 #> 
-#> #kzyubmlqvt .gt_font_normal {
+#> #jkjksxdaga .gt_font_normal {
 #>   font-weight: normal;
 #> }
 #> 
-#> #kzyubmlqvt .gt_font_bold {
+#> #jkjksxdaga .gt_font_bold {
 #>   font-weight: bold;
 #> }
 #> 
-#> #kzyubmlqvt .gt_font_italic {
+#> #jkjksxdaga .gt_font_italic {
 #>   font-style: italic;
 #> }
 #> 
-#> #kzyubmlqvt .gt_super {
+#> #jkjksxdaga .gt_super {
 #>   font-size: 65%;
 #> }
 #> 
-#> #kzyubmlqvt .gt_footnote_marks {
+#> #jkjksxdaga .gt_footnote_marks {
 #>   font-size: 75%;
 #>   vertical-align: 0.4em;
 #>   position: initial;
 #> }
 #> 
-#> #kzyubmlqvt .gt_asterisk {
+#> #jkjksxdaga .gt_asterisk {
 #>   font-size: 100%;
 #>   vertical-align: 0;
 #> }
 #> 
-#> #kzyubmlqvt .gt_indent_1 {
+#> #jkjksxdaga .gt_indent_1 {
 #>   text-indent: 5px;
 #> }
 #> 
-#> #kzyubmlqvt .gt_indent_2 {
+#> #jkjksxdaga .gt_indent_2 {
 #>   text-indent: 10px;
 #> }
 #> 
-#> #kzyubmlqvt .gt_indent_3 {
+#> #jkjksxdaga .gt_indent_3 {
 #>   text-indent: 15px;
 #> }
 #> 
-#> #kzyubmlqvt .gt_indent_4 {
+#> #jkjksxdaga .gt_indent_4 {
 #>   text-indent: 20px;
 #> }
 #> 
-#> #kzyubmlqvt .gt_indent_5 {
+#> #jkjksxdaga .gt_indent_5 {
 #>   text-indent: 25px;
 #> }
 #> 
-#> #kzyubmlqvt .katex-display {
+#> #jkjksxdaga .katex-display {
 #>   display: inline-flex !important;
 #>   margin-bottom: 0.75em !important;
 #> }
 #> 
-#> #kzyubmlqvt div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#> #jkjksxdaga div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
 #>   height: 0px !important;
 #> }
 #> </style>

@@ -9,7 +9,8 @@ result.
 ``` r
 denominators_stats(
   x,
-  output = c("tibble", "gt"),
+  format = c("table", "tibble"),
+  output = NULL,
   title = "Denominator audit",
   subtitle = NULL,
   view = c("readable", "audit")
@@ -22,13 +23,17 @@ denominators_stats(
 
   A `gtstats` result.
 
+- format:
+
+  Output format: `"table"` (default) or `"tibble"`.
+
 - output:
 
-  Return a `"tibble"` or formatted `"gt"` table.
+  Compatibility alias accepting `"gt"`, `"table"`, or `"tibble"`.
 
 - title, subtitle:
 
-  Optional table heading used for `output = "gt"`.
+  Optional table heading used for `format = "table"`.
 
 - view:
 
@@ -44,11 +49,10 @@ A tibble or `gt_tbl`.
 ``` r
 result <- proportion_stats(mtcars, var = vs, by = am)
 denominators_stats(result)
-#> # A tibble: 2 × 9
-#>   Variable Level Group  `Eligible observations` `Used in analysis`
-#>   <chr>    <chr> <chr>                    <int>              <int>
-#> 1 vs       NA    am = 1                      13                 13
-#> 2 vs       NA    am = 0                      19                 19
-#> # ℹ 4 more variables: `Missing / excluded` <int>, Numerator <int>,
-#> #   Denominator <dbl>, Rule <chr>
+
+
+  
+
+
+Denominator audit
 ```

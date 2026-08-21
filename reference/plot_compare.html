@@ -31,6 +31,7 @@ from the outcome type and study design."><link rel="stylesheet" href="https://th
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/descriptive-tables.html">Building descriptive tables</a></li>
     <li><a class="dropdown-item" href="../articles/inferential-tests.html">Inferential tests and assumptions</a></li>
+    <li><a class="dropdown-item" href="../articles/inferential-tests.html#default-selection-policy">Automatic test algorithm</a></li>
     <li><a class="dropdown-item" href="../articles/epi-helpers.html">Epidemiology helpers</a></li>
     <li><a class="dropdown-item" href="../articles/styling-export.html">Styling and exporting tables</a></li>
   </ul></li>
@@ -60,8 +61,8 @@ from the outcome type and study design.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plot_compare</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
-<span>  <span class="va">outcome</span>,</span>
-<span>  <span class="va">by</span>,</span>
+<span>  <span class="va">variable</span>,</span>
+<span>  <span class="va">group</span>,</span>
 <span>  paired <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"box"</span>, <span class="st">"bar"</span><span class="op">)</span>,</span>
@@ -69,7 +70,7 @@ from the outcome type and study design.</p>
 <span>  show_points <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  show_p <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"t_test"</span>, <span class="st">"welch_t"</span>, <span class="st">"wilcox"</span>, <span class="st">"anova"</span>, <span class="st">"welch_anova"</span>, <span class="st">"kruskal"</span>,</span>
-<span>    <span class="st">"chisq"</span>, <span class="st">"fisher"</span>, <span class="st">"mcnemar"</span><span class="op">)</span>,</span>
+<span>    <span class="st">"chisq"</span>, <span class="st">"fisher"</span>, <span class="st">"mcnemar"</span>, <span class="st">"rm_anova"</span>, <span class="st">"friedman"</span>, <span class="st">"cochran_q"</span><span class="op">)</span>,</span>
 <span>  var_equal <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  palette <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  base_size <span class="op">=</span> <span class="fl">14</span>,</span>
@@ -89,17 +90,17 @@ from the outcome type and study design.</p>
 <dd><p>A data frame.</p></dd>
 
 
-<dt id="arg-outcome">outcome<a class="anchor" aria-label="anchor" href="#arg-outcome"></a></dt>
-<dd><p>Outcome variable, supplied as a bare name or character string.</p></dd>
+<dt id="arg-variable">variable<a class="anchor" aria-label="anchor" href="#arg-variable"></a></dt>
+<dd><p>Outcome or response variable, supplied as a bare name or character string.</p></dd>
 
 
-<dt id="arg-by">by<a class="anchor" aria-label="anchor" href="#arg-by"></a></dt>
+<dt id="arg-group">group<a class="anchor" aria-label="anchor" href="#arg-group"></a></dt>
 <dd><p>Categorical grouping variable, supplied as a bare name or character
 string.</p></dd>
 
 
 <dt id="arg-paired">paired<a class="anchor" aria-label="anchor" href="#arg-paired"></a></dt>
-<dd><p>Logical; whether the continuous measurements are paired.</p></dd>
+<dd><p>Logical; whether observations are paired or repeatedly measured.</p></dd>
 
 
 <dt id="arg-id">id<a class="anchor" aria-label="anchor" href="#arg-id"></a></dt>
@@ -160,7 +161,7 @@ one colour per displayed group or outcome level.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The minimal call is <code>plot_compare(data, outcome, by)</code>. Continuous outcomes
+    <p>The minimal call is <code>plot_compare(data, variable, group)</code>. Continuous outcomes
 are shown as boxplots with individual observations, categorical outcomes as
 stacked within-group proportions, and paired continuous outcomes as
 participant-level connected observations. The returned object is a standard
@@ -173,13 +174,13 @@ complete observations; non-finite continuous values are excluded.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">plot_compare</span><span class="op">(</span><span class="va">mtcars</span>, outcome <span class="op">=</span> <span class="va">mpg</span>, by <span class="op">=</span> <span class="va">am</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">plot_compare</span><span class="op">(</span><span class="va">mtcars</span>, variable <span class="op">=</span> <span class="va">mpg</span>, group <span class="op">=</span> <span class="va">am</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot_compare-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">plot_compare</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">mtcars</span>,</span></span>
-<span class="r-in"><span>  outcome <span class="op">=</span> <span class="va">vs</span>,</span></span>
-<span class="r-in"><span>  by <span class="op">=</span> <span class="va">am</span>,</span></span>
+<span class="r-in"><span>  variable <span class="op">=</span> <span class="va">vs</span>,</span></span>
+<span class="r-in"><span>  group <span class="op">=</span> <span class="va">am</span>,</span></span>
 <span class="r-in"><span>  display <span class="op">=</span> <span class="st">"proportion"</span>,</span></span>
 <span class="r-in"><span>  show_p <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>

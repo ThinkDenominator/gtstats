@@ -1,18 +1,31 @@
-# Correlate two variables
+# Correlation analysis for one pair or several continuous variables
 
-Perform correlation analysis between two continuous variables using
-Pearson or Spearman correlation.
+`correlation()` analyses either one prespecified pair (`x` and `y`) or a
+correlation matrix (`vars`). Matrix mode uses one method throughout,
+retains pairwise sample sizes and inferential results in `$summary`, and
+prints a compact publication-ready matrix. Use
+[`plot_correlation()`](https://gtstats.thinkdenominator.com/reference/plot_correlation.md)
+for a shaded heatmap of a matrix result.
 
 ## Usage
 
 ``` r
 correlation(
   data,
-  x,
-  y,
+  x = NULL,
+  y = NULL,
   method = c("auto", "pearson", "spearman"),
   conf.level = 0.95,
-  digits = 2
+  digits = 2,
+  vars = NULL,
+  triangle = c("lower", "upper", "full"),
+  order = c("input", "alphabetical", "cluster"),
+  show_diagonal = TRUE,
+  display = c("estimate", "estimate_p", "estimate_n", "estimate_p_n", "estimate_ci"),
+  shade = TRUE,
+  missing = c("pairwise"),
+  adjust = c("none", "holm", "bonferroni", "BH"),
+  format = c("table", "tibble")
 )
 ```
 
@@ -20,93 +33,104 @@ correlation(
 
 - data:
 
-  A data.frame.
+  A data frame.
 
-- x:
+- x, y:
 
-  First variable. Can be supplied as a bare name or as a character
-  string.
-
-- y:
-
-  Second variable. Can be supplied as a bare name or as a character
-  string.
+  Two continuous variables supplied as bare names or character strings.
+  Omit these when using `vars`.
 
 - method:
 
-  Correlation method. One of `"auto"`, `"pearson"`, or `"spearman"`.
+  Correlation method: `"auto"`, `"pearson"`, or `"spearman"`.
 
 - conf.level:
 
-  Confidence level for the interval. Default is `0.95`.
+  Confidence level for intervals.
 
 - digits:
 
-  Number of decimal places used when formatting numeric output.
+  Number of decimal places used for display.
+
+- vars:
+
+  Optional vector of at least two continuous variables, supplied as
+  `c(age, weight, outcome)` or a character vector.
+
+- triangle:
+
+  Matrix display: `"lower"`, `"upper"`, or `"full"`.
+
+- order:
+
+  Variable order in matrix mode: `"input"` preserves the order in
+  `vars`, `"alphabetical"` orders display labels, and `"cluster"` places
+  variables with similar absolute correlation patterns together.
+
+- show_diagonal:
+
+  Logical; show self-correlations on the diagonal.
+
+- display:
+
+  Matrix cell content: correlation `"estimate"`, `"estimate_p"`,
+  `"estimate_n"`, `"estimate_p_n"`, or `"estimate_ci"`. Confidence
+  intervals unavailable from the selected method are shown as an em dash
+  in the tidy result and omitted from the matrix cell.
+
+- shade:
+
+  Logical; apply coefficient-based shading to the publication matrix.
+  This affects rendering, not `$summary`.
+
+- missing:
+
+  Matrix missing-data rule. Currently `"pairwise"`: each coefficient
+  uses all complete finite observations for that pair.
+
+- adjust:
+
+  Multiplicity adjustment for matrix p-values: `"none"`, `"holm"`,
+  `"bonferroni"`, or `"BH"`.
+
+- format:
+
+  Output format: `"table"` (default) or a plain console `"tibble"`.
 
 ## Value
 
-A `gt_correlation` object containing:
-
-- `inputs` — function inputs and settings
-
-- `summary` — detailed summary table
-
-- `table` — display-ready table
-
-- `method` — metadata on variable types and method used
-
-- `notes` — explanatory notes
-
-- `call` — matched function call
+A `gt_correlation` object. Matrix results additionally inherit from
+`gt_correlation_matrix` and contain a tidy pair-level `$summary`.
 
 ## Details
 
-This function is designed for practical teaching and applied analysis.
-It accepts two continuous variables, removes incomplete pairs, selects a
-correlation method automatically or uses a user-specified method, and
-returns both a detailed summary and a display-ready table.
-
-In `method = "auto"` mode:
-
-- Pearson correlation is used when both variables are approximately
-  symmetric
-
-- Spearman correlation is used otherwise
-
-The automatic rule uses marginal sample skewness as transparent
-guidance; it does not establish whether the relationship is linear or
-monotonic. Inspect
-[`plot_correlation()`](https://gtstats.thinkdenominator.com/reference/plot_correlation.md)
-before interpreting the coefficient. The selected rule, skewness values,
-and usable-pair count are retained in `$method` and `$diagnostics`.
-
-Printing returns a concise publication-ready table containing the
-variable pair, analysed sample size, correlation coefficient, confidence
-interval when available, and p-value. Detailed method and diagnostic
-information remains available in the returned object.
+In automatic matrix mode, Pearson correlation is used only when every
+selected variable has absolute sample skewness below 1; otherwise
+Spearman correlation is used throughout. This is transparent descriptive
+guidance, not proof of linearity or monotonicity. Inspect the matrix
+heatmap and relevant pairwise plots before interpretation.
 
 ## Examples
 
 ``` r
 correlation(mtcars, x = mpg, y = wt)
-#> <div id="qgirlxyaiu" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-#>   <style>#qgirlxyaiu table {
+#> <div id="jtxhemwkar" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+#>   <style>#jtxhemwkar table {
 #>   font-family: system-ui;
 #>   -webkit-font-smoothing: antialiased;
 #>   -moz-osx-font-smoothing: grayscale;
 #> }
 #> 
-#> #qgirlxyaiu thead, #qgirlxyaiu tbody, #qgirlxyaiu tfoot, #qgirlxyaiu tr, #qgirlxyaiu td, #qgirlxyaiu th {
+#> #jtxhemwkar thead, #jtxhemwkar tbody, #jtxhemwkar tfoot, #jtxhemwkar tr, #jtxhemwkar td, #jtxhemwkar th {
 #>   border-style: none;
 #> }
 #> 
-#> #qgirlxyaiu p {
+#> #jtxhemwkar p {
 #>   margin: 0;
 #>   padding: 0;
 #> }
 #> 
-#> #qgirlxyaiu .gt_table {
+#> #jtxhemwkar .gt_table {
 #>   display: table;
 #>   border-collapse: collapse;
 #>   line-height: normal;
@@ -132,12 +156,12 @@ correlation(mtcars, x = mpg, y = wt)
 #>   border-left-color: #D3D3D3;
 #> }
 #> 
-#> #qgirlxyaiu .gt_caption {
+#> #jtxhemwkar .gt_caption {
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
 #> }
 #> 
-#> #qgirlxyaiu .gt_title {
+#> #jtxhemwkar .gt_title {
 #>   color: #333333;
 #>   font-size: 125%;
 #>   font-weight: initial;
@@ -149,7 +173,7 @@ correlation(mtcars, x = mpg, y = wt)
 #>   border-bottom-width: 0;
 #> }
 #> 
-#> #qgirlxyaiu .gt_subtitle {
+#> #jtxhemwkar .gt_subtitle {
 #>   color: #333333;
 #>   font-size: 85%;
 #>   font-weight: initial;
@@ -161,7 +185,7 @@ correlation(mtcars, x = mpg, y = wt)
 #>   border-top-width: 0;
 #> }
 #> 
-#> #qgirlxyaiu .gt_heading {
+#> #jtxhemwkar .gt_heading {
 #>   background-color: #FFFFFF;
 #>   text-align: left;
 #>   border-bottom-color: #FFFFFF;
@@ -173,13 +197,13 @@ correlation(mtcars, x = mpg, y = wt)
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #qgirlxyaiu .gt_bottom_border {
+#> #jtxhemwkar .gt_bottom_border {
 #>   border-bottom-style: solid;
 #>   border-bottom-width: 2px;
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #qgirlxyaiu .gt_col_headings {
+#> #jtxhemwkar .gt_col_headings {
 #>   border-top-style: solid;
 #>   border-top-width: 2px;
 #>   border-top-color: #D3D3D3;
@@ -194,7 +218,7 @@ correlation(mtcars, x = mpg, y = wt)
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #qgirlxyaiu .gt_col_heading {
+#> #jtxhemwkar .gt_col_heading {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -214,7 +238,7 @@ correlation(mtcars, x = mpg, y = wt)
 #>   overflow-x: hidden;
 #> }
 #> 
-#> #qgirlxyaiu .gt_column_spanner_outer {
+#> #jtxhemwkar .gt_column_spanner_outer {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -226,15 +250,15 @@ correlation(mtcars, x = mpg, y = wt)
 #>   padding-right: 4px;
 #> }
 #> 
-#> #qgirlxyaiu .gt_column_spanner_outer:first-child {
+#> #jtxhemwkar .gt_column_spanner_outer:first-child {
 #>   padding-left: 0;
 #> }
 #> 
-#> #qgirlxyaiu .gt_column_spanner_outer:last-child {
+#> #jtxhemwkar .gt_column_spanner_outer:last-child {
 #>   padding-right: 0;
 #> }
 #> 
-#> #qgirlxyaiu .gt_column_spanner {
+#> #jtxhemwkar .gt_column_spanner {
 #>   border-bottom-style: solid;
 #>   border-bottom-width: 2px;
 #>   border-bottom-color: #D3D3D3;
@@ -246,11 +270,11 @@ correlation(mtcars, x = mpg, y = wt)
 #>   width: 100%;
 #> }
 #> 
-#> #qgirlxyaiu .gt_spanner_row {
+#> #jtxhemwkar .gt_spanner_row {
 #>   border-bottom-style: hidden;
 #> }
 #> 
-#> #qgirlxyaiu .gt_group_heading {
+#> #jtxhemwkar .gt_group_heading {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -276,7 +300,7 @@ correlation(mtcars, x = mpg, y = wt)
 #>   text-align: left;
 #> }
 #> 
-#> #qgirlxyaiu .gt_empty_group_heading {
+#> #jtxhemwkar .gt_empty_group_heading {
 #>   padding: 0.5px;
 #>   color: #333333;
 #>   background-color: #FFFFFF;
@@ -291,15 +315,15 @@ correlation(mtcars, x = mpg, y = wt)
 #>   vertical-align: middle;
 #> }
 #> 
-#> #qgirlxyaiu .gt_from_md > :first-child {
+#> #jtxhemwkar .gt_from_md > :first-child {
 #>   margin-top: 0;
 #> }
 #> 
-#> #qgirlxyaiu .gt_from_md > :last-child {
+#> #jtxhemwkar .gt_from_md > :last-child {
 #>   margin-bottom: 0;
 #> }
 #> 
-#> #qgirlxyaiu .gt_row {
+#> #jtxhemwkar .gt_row {
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
 #>   padding-left: 5px;
@@ -318,7 +342,7 @@ correlation(mtcars, x = mpg, y = wt)
 #>   overflow-x: hidden;
 #> }
 #> 
-#> #qgirlxyaiu .gt_stub {
+#> #jtxhemwkar .gt_stub {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -331,7 +355,7 @@ correlation(mtcars, x = mpg, y = wt)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #qgirlxyaiu .gt_stub_row_group {
+#> #jtxhemwkar .gt_stub_row_group {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -345,15 +369,15 @@ correlation(mtcars, x = mpg, y = wt)
 #>   vertical-align: top;
 #> }
 #> 
-#> #qgirlxyaiu .gt_row_group_first td {
+#> #jtxhemwkar .gt_row_group_first td {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #qgirlxyaiu .gt_row_group_first th {
+#> #jtxhemwkar .gt_row_group_first th {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #qgirlxyaiu .gt_summary_row {
+#> #jtxhemwkar .gt_summary_row {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   text-transform: inherit;
@@ -363,16 +387,16 @@ correlation(mtcars, x = mpg, y = wt)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #qgirlxyaiu .gt_first_summary_row {
+#> #jtxhemwkar .gt_first_summary_row {
 #>   border-top-style: solid;
 #>   border-top-color: #D3D3D3;
 #> }
 #> 
-#> #qgirlxyaiu .gt_first_summary_row.thick {
+#> #jtxhemwkar .gt_first_summary_row.thick {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #qgirlxyaiu .gt_last_summary_row {
+#> #jtxhemwkar .gt_last_summary_row {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -382,7 +406,7 @@ correlation(mtcars, x = mpg, y = wt)
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #qgirlxyaiu .gt_grand_summary_row {
+#> #jtxhemwkar .gt_grand_summary_row {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   text-transform: inherit;
@@ -392,7 +416,7 @@ correlation(mtcars, x = mpg, y = wt)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #qgirlxyaiu .gt_first_grand_summary_row {
+#> #jtxhemwkar .gt_first_grand_summary_row {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -402,7 +426,7 @@ correlation(mtcars, x = mpg, y = wt)
 #>   border-top-color: #D3D3D3;
 #> }
 #> 
-#> #qgirlxyaiu .gt_last_grand_summary_row_top {
+#> #jtxhemwkar .gt_last_grand_summary_row_top {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -412,11 +436,11 @@ correlation(mtcars, x = mpg, y = wt)
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #qgirlxyaiu .gt_striped {
+#> #jtxhemwkar .gt_striped {
 #>   background-color: rgba(128, 128, 128, 0.05);
 #> }
 #> 
-#> #qgirlxyaiu .gt_table_body {
+#> #jtxhemwkar .gt_table_body {
 #>   border-top-style: solid;
 #>   border-top-width: 2px;
 #>   border-top-color: #D3D3D3;
@@ -425,7 +449,7 @@ correlation(mtcars, x = mpg, y = wt)
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #qgirlxyaiu .gt_footnotes {
+#> #jtxhemwkar .gt_footnotes {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   border-bottom-style: none;
@@ -439,7 +463,7 @@ correlation(mtcars, x = mpg, y = wt)
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #qgirlxyaiu .gt_footnote {
+#> #jtxhemwkar .gt_footnote {
 #>   margin: 0px;
 #>   font-size: 90%;
 #>   padding-top: 4px;
@@ -448,7 +472,7 @@ correlation(mtcars, x = mpg, y = wt)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #qgirlxyaiu .gt_sourcenotes {
+#> #jtxhemwkar .gt_sourcenotes {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   border-bottom-style: none;
@@ -462,7 +486,7 @@ correlation(mtcars, x = mpg, y = wt)
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #qgirlxyaiu .gt_sourcenote {
+#> #jtxhemwkar .gt_sourcenote {
 #>   font-size: 90%;
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
@@ -470,72 +494,72 @@ correlation(mtcars, x = mpg, y = wt)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #qgirlxyaiu .gt_left {
+#> #jtxhemwkar .gt_left {
 #>   text-align: left;
 #> }
 #> 
-#> #qgirlxyaiu .gt_center {
+#> #jtxhemwkar .gt_center {
 #>   text-align: center;
 #> }
 #> 
-#> #qgirlxyaiu .gt_right {
+#> #jtxhemwkar .gt_right {
 #>   text-align: right;
 #>   font-variant-numeric: tabular-nums;
 #> }
 #> 
-#> #qgirlxyaiu .gt_font_normal {
+#> #jtxhemwkar .gt_font_normal {
 #>   font-weight: normal;
 #> }
 #> 
-#> #qgirlxyaiu .gt_font_bold {
+#> #jtxhemwkar .gt_font_bold {
 #>   font-weight: bold;
 #> }
 #> 
-#> #qgirlxyaiu .gt_font_italic {
+#> #jtxhemwkar .gt_font_italic {
 #>   font-style: italic;
 #> }
 #> 
-#> #qgirlxyaiu .gt_super {
+#> #jtxhemwkar .gt_super {
 #>   font-size: 65%;
 #> }
 #> 
-#> #qgirlxyaiu .gt_footnote_marks {
+#> #jtxhemwkar .gt_footnote_marks {
 #>   font-size: 75%;
 #>   vertical-align: 0.4em;
 #>   position: initial;
 #> }
 #> 
-#> #qgirlxyaiu .gt_asterisk {
+#> #jtxhemwkar .gt_asterisk {
 #>   font-size: 100%;
 #>   vertical-align: 0;
 #> }
 #> 
-#> #qgirlxyaiu .gt_indent_1 {
+#> #jtxhemwkar .gt_indent_1 {
 #>   text-indent: 5px;
 #> }
 #> 
-#> #qgirlxyaiu .gt_indent_2 {
+#> #jtxhemwkar .gt_indent_2 {
 #>   text-indent: 10px;
 #> }
 #> 
-#> #qgirlxyaiu .gt_indent_3 {
+#> #jtxhemwkar .gt_indent_3 {
 #>   text-indent: 15px;
 #> }
 #> 
-#> #qgirlxyaiu .gt_indent_4 {
+#> #jtxhemwkar .gt_indent_4 {
 #>   text-indent: 20px;
 #> }
 #> 
-#> #qgirlxyaiu .gt_indent_5 {
+#> #jtxhemwkar .gt_indent_5 {
 #>   text-indent: 25px;
 #> }
 #> 
-#> #qgirlxyaiu .katex-display {
+#> #jtxhemwkar .katex-display {
 #>   display: inline-flex !important;
 #>   margin-bottom: 0.75em !important;
 #> }
 #> 
-#> #qgirlxyaiu div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#> #jtxhemwkar div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
 #>   height: 0px !important;
 #> }
 #> </style>
@@ -561,25 +585,24 @@ correlation(mtcars, x = mpg, y = wt)
 #>   </tfoot>
 #> </table>
 #> </div>
-
-correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
-#> <div id="kvvpqnjdvb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-#>   <style>#kvvpqnjdvb table {
+correlation(mtcars, vars = c(mpg, disp, hp, wt))
+#> <div id="nihsrtesaa" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+#>   <style>#nihsrtesaa table {
 #>   font-family: system-ui;
 #>   -webkit-font-smoothing: antialiased;
 #>   -moz-osx-font-smoothing: grayscale;
 #> }
 #> 
-#> #kvvpqnjdvb thead, #kvvpqnjdvb tbody, #kvvpqnjdvb tfoot, #kvvpqnjdvb tr, #kvvpqnjdvb td, #kvvpqnjdvb th {
+#> #nihsrtesaa thead, #nihsrtesaa tbody, #nihsrtesaa tfoot, #nihsrtesaa tr, #nihsrtesaa td, #nihsrtesaa th {
 #>   border-style: none;
 #> }
 #> 
-#> #kvvpqnjdvb p {
+#> #nihsrtesaa p {
 #>   margin: 0;
 #>   padding: 0;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_table {
+#> #nihsrtesaa .gt_table {
 #>   display: table;
 #>   border-collapse: collapse;
 #>   line-height: normal;
@@ -605,12 +628,12 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   border-left-color: #D3D3D3;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_caption {
+#> #nihsrtesaa .gt_caption {
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_title {
+#> #nihsrtesaa .gt_title {
 #>   color: #333333;
 #>   font-size: 125%;
 #>   font-weight: initial;
@@ -622,7 +645,7 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   border-bottom-width: 0;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_subtitle {
+#> #nihsrtesaa .gt_subtitle {
 #>   color: #333333;
 #>   font-size: 85%;
 #>   font-weight: initial;
@@ -634,7 +657,7 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   border-top-width: 0;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_heading {
+#> #nihsrtesaa .gt_heading {
 #>   background-color: #FFFFFF;
 #>   text-align: left;
 #>   border-bottom-color: #FFFFFF;
@@ -646,13 +669,13 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_bottom_border {
+#> #nihsrtesaa .gt_bottom_border {
 #>   border-bottom-style: solid;
 #>   border-bottom-width: 2px;
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_col_headings {
+#> #nihsrtesaa .gt_col_headings {
 #>   border-top-style: solid;
 #>   border-top-width: 2px;
 #>   border-top-color: #D3D3D3;
@@ -667,7 +690,7 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_col_heading {
+#> #nihsrtesaa .gt_col_heading {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -687,7 +710,7 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   overflow-x: hidden;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_column_spanner_outer {
+#> #nihsrtesaa .gt_column_spanner_outer {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -699,15 +722,15 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   padding-right: 4px;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_column_spanner_outer:first-child {
+#> #nihsrtesaa .gt_column_spanner_outer:first-child {
 #>   padding-left: 0;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_column_spanner_outer:last-child {
+#> #nihsrtesaa .gt_column_spanner_outer:last-child {
 #>   padding-right: 0;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_column_spanner {
+#> #nihsrtesaa .gt_column_spanner {
 #>   border-bottom-style: solid;
 #>   border-bottom-width: 2px;
 #>   border-bottom-color: #D3D3D3;
@@ -719,11 +742,11 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   width: 100%;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_spanner_row {
+#> #nihsrtesaa .gt_spanner_row {
 #>   border-bottom-style: hidden;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_group_heading {
+#> #nihsrtesaa .gt_group_heading {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -749,7 +772,7 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   text-align: left;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_empty_group_heading {
+#> #nihsrtesaa .gt_empty_group_heading {
 #>   padding: 0.5px;
 #>   color: #333333;
 #>   background-color: #FFFFFF;
@@ -764,15 +787,15 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   vertical-align: middle;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_from_md > :first-child {
+#> #nihsrtesaa .gt_from_md > :first-child {
 #>   margin-top: 0;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_from_md > :last-child {
+#> #nihsrtesaa .gt_from_md > :last-child {
 #>   margin-bottom: 0;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_row {
+#> #nihsrtesaa .gt_row {
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
 #>   padding-left: 5px;
@@ -791,7 +814,7 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   overflow-x: hidden;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_stub {
+#> #nihsrtesaa .gt_stub {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -804,7 +827,7 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   padding-right: 5px;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_stub_row_group {
+#> #nihsrtesaa .gt_stub_row_group {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -818,15 +841,15 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   vertical-align: top;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_row_group_first td {
+#> #nihsrtesaa .gt_row_group_first td {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_row_group_first th {
+#> #nihsrtesaa .gt_row_group_first th {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_summary_row {
+#> #nihsrtesaa .gt_summary_row {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   text-transform: inherit;
@@ -836,16 +859,16 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   padding-right: 5px;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_first_summary_row {
+#> #nihsrtesaa .gt_first_summary_row {
 #>   border-top-style: solid;
 #>   border-top-color: #D3D3D3;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_first_summary_row.thick {
+#> #nihsrtesaa .gt_first_summary_row.thick {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_last_summary_row {
+#> #nihsrtesaa .gt_last_summary_row {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -855,7 +878,7 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_grand_summary_row {
+#> #nihsrtesaa .gt_grand_summary_row {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   text-transform: inherit;
@@ -865,7 +888,7 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   padding-right: 5px;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_first_grand_summary_row {
+#> #nihsrtesaa .gt_first_grand_summary_row {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -875,7 +898,7 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   border-top-color: #D3D3D3;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_last_grand_summary_row_top {
+#> #nihsrtesaa .gt_last_grand_summary_row_top {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -885,11 +908,11 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_striped {
+#> #nihsrtesaa .gt_striped {
 #>   background-color: rgba(128, 128, 128, 0.05);
 #> }
 #> 
-#> #kvvpqnjdvb .gt_table_body {
+#> #nihsrtesaa .gt_table_body {
 #>   border-top-style: solid;
 #>   border-top-width: 2px;
 #>   border-top-color: #D3D3D3;
@@ -898,7 +921,7 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_footnotes {
+#> #nihsrtesaa .gt_footnotes {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   border-bottom-style: none;
@@ -912,7 +935,7 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_footnote {
+#> #nihsrtesaa .gt_footnote {
 #>   margin: 0px;
 #>   font-size: 90%;
 #>   padding-top: 4px;
@@ -921,7 +944,7 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   padding-right: 5px;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_sourcenotes {
+#> #nihsrtesaa .gt_sourcenotes {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   border-bottom-style: none;
@@ -935,7 +958,7 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_sourcenote {
+#> #nihsrtesaa .gt_sourcenote {
 #>   font-size: 90%;
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
@@ -943,102 +966,116 @@ correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #>   padding-right: 5px;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_left {
+#> #nihsrtesaa .gt_left {
 #>   text-align: left;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_center {
+#> #nihsrtesaa .gt_center {
 #>   text-align: center;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_right {
+#> #nihsrtesaa .gt_right {
 #>   text-align: right;
 #>   font-variant-numeric: tabular-nums;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_font_normal {
+#> #nihsrtesaa .gt_font_normal {
 #>   font-weight: normal;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_font_bold {
+#> #nihsrtesaa .gt_font_bold {
 #>   font-weight: bold;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_font_italic {
+#> #nihsrtesaa .gt_font_italic {
 #>   font-style: italic;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_super {
+#> #nihsrtesaa .gt_super {
 #>   font-size: 65%;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_footnote_marks {
+#> #nihsrtesaa .gt_footnote_marks {
 #>   font-size: 75%;
 #>   vertical-align: 0.4em;
 #>   position: initial;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_asterisk {
+#> #nihsrtesaa .gt_asterisk {
 #>   font-size: 100%;
 #>   vertical-align: 0;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_indent_1 {
+#> #nihsrtesaa .gt_indent_1 {
 #>   text-indent: 5px;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_indent_2 {
+#> #nihsrtesaa .gt_indent_2 {
 #>   text-indent: 10px;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_indent_3 {
+#> #nihsrtesaa .gt_indent_3 {
 #>   text-indent: 15px;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_indent_4 {
+#> #nihsrtesaa .gt_indent_4 {
 #>   text-indent: 20px;
 #> }
 #> 
-#> #kvvpqnjdvb .gt_indent_5 {
+#> #nihsrtesaa .gt_indent_5 {
 #>   text-indent: 25px;
 #> }
 #> 
-#> #kvvpqnjdvb .katex-display {
+#> #nihsrtesaa .katex-display {
 #>   display: inline-flex !important;
 #>   margin-bottom: 0.75em !important;
 #> }
 #> 
-#> #kvvpqnjdvb div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#> #nihsrtesaa div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
 #>   height: 0px !important;
 #> }
 #> </style>
 #>   <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 #>   <thead>
 #>     <tr class="gt_col_headings">
-#>       <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="Variables">Variables</th>
-#>       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="n">n</th>
-#>       <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="Correlation-(95%-CI)">Correlation (95% CI)<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
-#>       <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="p-value">p-value</th>
+#>       <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="Variable">Variable</th>
+#>       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="mpg">mpg</th>
+#>       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="disp">disp</th>
+#>       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="hp">hp</th>
+#>       <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="wt">wt</th>
 #>     </tr>
 #>   </thead>
 #>   <tbody class="gt_table_body">
-#>     <tr><td headers="Variables" class="gt_row gt_left">mpg and disp</td>
-#> <td headers="n" class="gt_row gt_right">32</td>
-#> <td headers="Correlation (95% CI)" class="gt_row gt_left">-0.85 (-0.92 to -0.71)</td>
-#> <td headers="p-value" class="gt_row gt_left">&lt;0.01</td></tr>
+#>     <tr><td headers="Variable" class="gt_row gt_left">mpg</td>
+#> <td headers="mpg" class="gt_row gt_right" style="background-color: #F2F2F2;">1.00</td>
+#> <td headers="disp" class="gt_row gt_right"></td>
+#> <td headers="hp" class="gt_row gt_right"></td>
+#> <td headers="wt" class="gt_row gt_right"></td></tr>
+#>     <tr><td headers="Variable" class="gt_row gt_left">disp</td>
+#> <td headers="mpg" class="gt_row gt_right" style="background-color: #547591;">-0.85</td>
+#> <td headers="disp" class="gt_row gt_right" style="background-color: #F2F2F2;">1.00</td>
+#> <td headers="hp" class="gt_row gt_right"></td>
+#> <td headers="wt" class="gt_row gt_right"></td></tr>
+#>     <tr><td headers="Variable" class="gt_row gt_left">hp</td>
+#> <td headers="mpg" class="gt_row gt_right" style="background-color: #62809A;">-0.78</td>
+#> <td headers="disp" class="gt_row gt_right" style="background-color: #CD8B7D;">0.79</td>
+#> <td headers="hp" class="gt_row gt_right" style="background-color: #F2F2F2;">1.00</td>
+#> <td headers="wt" class="gt_row gt_right"></td></tr>
+#>     <tr><td headers="Variable" class="gt_row gt_left">wt</td>
+#> <td headers="mpg" class="gt_row gt_right" style="background-color: #50728E;">-0.87</td>
+#> <td headers="disp" class="gt_row gt_right" style="background-color: #C77C6D;">0.89</td>
+#> <td headers="hp" class="gt_row gt_right" style="background-color: #D59E93;">0.66</td>
+#> <td headers="wt" class="gt_row gt_right" style="background-color: #F2F2F2;">1.00</td></tr>
 #>   </tbody>
 #>   <tfoot>
-#>     <tr class="gt_footnotes">
-#>       <td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> Pearson correlation</td>
+#>     <tr class="gt_sourcenotes">
+#>       <td class="gt_sourcenote" colspan="5">All selected variables had absolute sample skewness below 1; Pearson was used throughout.</td>
+#>     </tr>
+#>     <tr class="gt_sourcenotes">
+#>       <td class="gt_sourcenote" colspan="5">Pairwise complete finite observations are used; pair-specific N and p-values remain in `$summary`.</td>
 #>     </tr>
 #>   </tfoot>
 #> </table>
 #> </div>
-
-tbl_stats(correlation(mtcars, x = mpg, y = wt))
-
-
-  
-
-Variables
+plot_correlation(correlation(mtcars, vars = c(mpg, disp, hp, wt)))
 ```

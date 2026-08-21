@@ -51,6 +51,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/descriptive-tables.html">Building descriptive tables</a></li>
     <li><a class="dropdown-item" href="../articles/inferential-tests.html">Inferential tests and assumptions</a></li>
+    <li><a class="dropdown-item" href="../articles/inferential-tests.html#default-selection-policy">Automatic test algorithm</a></li>
     <li><a class="dropdown-item" href="../articles/epi-helpers.html">Epidemiology helpers</a></li>
     <li><a class="dropdown-item" href="../articles/styling-export.html">Styling and exporting tables</a></li>
   </ul>
@@ -129,6 +130,11 @@ relevant variables, and optionally supply a grouping variable with
 selected level together with a Wilson score confidence interval by
 default. Exact binomial intervals remain available with
 <code>ci_method = "exact"</code>.</p>
+<p>Its publication table keeps the event count and percentage together
+as <code>n (%)</code> and places the confidence interval in a separate
+column. When <code>by</code> is used, each group becomes a spanning
+header above these two columns. The tidy long-form numerical results
+remain available from <code>$summary</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Overall proportion</span></span>
 <span><span class="fu"><a href="../reference/proportion_stats.html">proportion_stats</a></span><span class="op">(</span><span class="va">mtcars</span>, var <span class="op">=</span> <span class="va">vs</span><span class="op">)</span></span></code></pre></div>
@@ -160,6 +166,11 @@ table builder:</p>
 total person-time and multiplies by a chosen denominator (e.g. 1 000
 person-years). Confidence intervals are calculated using the exact
 Poisson method.</p>
+<p>The publication table places each group above four separate columns:
+events, accumulated person-time, rate and confidence interval. This
+keeps the numerator, denominator and uncertainty visible without
+repeating interval labels inside every rate cell. Record counts and all
+numerical values remain in <code>$summary</code>.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  event <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>

@@ -49,6 +49,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/descriptive-tables.html">Building descriptive tables</a></li>
     <li><a class="dropdown-item" href="../articles/inferential-tests.html">Inferential tests and assumptions</a></li>
+    <li><a class="dropdown-item" href="../articles/inferential-tests.html#default-selection-policy">Automatic test algorithm</a></li>
     <li><a class="dropdown-item" href="../articles/epi-helpers.html">Epidemiology helpers</a></li>
     <li><a class="dropdown-item" href="../articles/styling-export.html">Styling and exporting tables</a></li>
   </ul>
@@ -87,9 +88,9 @@
 </h2>
 <p>The <code>gtstats</code> app is a menu-driven companion to the
 package. It is designed for users who want to understand a dataset,
-create publication-ready tables, run common group comparisons, and
-generate reproducible R code without first memorising every
-argument.</p>
+create publication-ready tables, run common group comparisons and
+correlation analyses, and generate reproducible R code without first
+memorising every argument.</p>
 <p>The app does not replace a reproducible analysis script. Its best use
 is:</p>
 <ol style="list-style-type: decimal">
@@ -189,11 +190,17 @@ changes before analysis.</li>
 <strong>Understand</strong> — inspect types, completeness,
 distribution, and spread.</li>
 <li>
-<strong>Table 1</strong> — create the descriptive table for a
+<strong>Summary table</strong> — create the descriptive table for a
 report.</li>
+<li>
+<strong>Customise table</strong> — refine the completed Summary
+table without changing results.</li>
 <li>
 <strong>Compare groups</strong> — answer one focused inferential
 question.</li>
+<li>
+<strong>Correlation</strong> — analyse a continuous pair or build a
+correlation matrix.</li>
 <li>
 <strong>Crosstabs</strong> — inspect categorical association and 2×2
 measures.</li>
@@ -203,10 +210,15 @@ session.</li>
 <li>
 <strong>Help</strong> — revisit the safe beginner workflow.</li>
 </ol>
-<p>The app will not run Table 1, comparisons, or cross-tabs until you
-press the relevant action button. This prevents accidental analysis
-while the app is loading or while a browser restores an earlier
-session.</p>
+<p>The app will not run a summary table, comparison, correlation, or
+cross-tab until you press the relevant action button. This prevents
+accidental analysis while the app is loading or while a browser restores
+an earlier session.</p>
+<p>The original imported dataset is active automatically. Opening Data
+Prep does not silently replace it. After making changes, click
+<strong>Use prepared data</strong> only when you want later tabs to
+analyse the working copy; otherwise analyses carry forward the original
+data.</p>
 <p>On a phone or narrow screen, use the menu icon in the top-right to
 open the full tab list. The numbered workflow strip remains visible
 below it and can be swiped sideways; no analysis tab is hidden or
@@ -484,17 +496,29 @@ script if these checks informed a reporting decision.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="table-1-tab">Table 1 tab<a class="anchor" aria-label="anchor" href="#table-1-tab"></a>
+<h2 id="summary-table-tab">Summary table tab<a class="anchor" aria-label="anchor" href="#summary-table-tab"></a>
 </h2>
-<p>The <strong>Table 1</strong> tab creates a descriptive,
-publication-ready table. Think of the left-hand controls as a
-recipe:</p>
+<p>The <strong>Summary table</strong> tab creates a descriptive,
+publication-ready table. Think of the left-hand controls as four ordered
+parts:</p>
 <ol style="list-style-type: decimal">
-<li>Choose whether to split columns by a group variable.</li>
-<li>Tick the variables to include.</li>
-<li>Choose the overall column and display style.</li>
-<li>Click <strong>Create Table 1</strong>.</li>
+<li>
+<strong>Choose the table contents</strong>: group, variables, and
+overall column.</li>
+<li>
+<strong>Choose how values are summarised</strong>: optional
+continuous overrides, categorical presentation, missing values,
+precision, and categorical CIs.</li>
+<li>
+<strong>Add statistical comparisons</strong>: optional p-values and
+test overrides.</li>
+<li>
+<strong>Customise appearance</strong>: optional title, theme,
+typography, and striping.</li>
 </ol>
+<p>The statistical and structural controls remain visible. Advanced
+Auto-test settings and cosmetic controls are collapsed until needed,
+keeping the normal beginner route short.</p>
 <div class="section level3">
 <h3 id="choose-a-group">Choose a group<a class="anchor" aria-label="anchor" href="#choose-a-group"></a>
 </h3>
@@ -513,8 +537,30 @@ ordered variables in one selection. The app calls
 <code><a href="../reference/summary_table.html">summary_table()</a></code> once and lets gtstats detect their
 types.</p>
 <p>There is no need to separately select “continuous variables” and
-“categorical variables.” Use one meaningful set of Table 1
+“categorical variables.” Use one meaningful set of summary-table
 variables.</p>
+</div>
+<div class="section level3">
+<h3 id="summary-statistic-overrides">Summary-statistic overrides<a class="anchor" aria-label="anchor" href="#summary-statistic-overrides"></a>
+</h3>
+<p>The app does not create a long row of dropdowns for every selected
+variable. Unlisted continuous variables use <strong>Recommended</strong>
+automatically. Add only exceptions to the compact override box, one per
+line:</p>
+<pre class="text"><code><span><span class="va">age</span> <span class="op">=</span> <span class="va">mean_sd</span></span>
+<span><span class="va">lwt</span> <span class="op">=</span> <span class="va">median_iqr</span></span>
+<span><span class="va">bwt</span> <span class="op">=</span> <span class="va">mean_ci</span></span></code></pre>
+<p>Supported summary values are <code>recommended</code>,
+<code>mean_sd</code>, <code>mean_ci</code>, <code>median_iqr</code>, and
+<code>both</code>. Quotes and commas are not required. Blank lines and
+lines beginning with <code>#</code> are ignored. <strong>Insert
+example</strong> uses selected continuous variables; <strong>Clear
+overrides</strong> returns every variable to Recommended. A live message
+reports how many overrides were recognised.</p>
+<p>For <code>mean_ci</code>, a cell is displayed concisely as
+<code>mean (lower–upper)</code>. The footnote defines the interval as a
+95% CI (or the selected confidence level), so “95% CI” is not repeated
+inside every table cell.</p>
 </div>
 <div class="section level3">
 <h3 id="presentation-controls">Presentation controls<a class="anchor" aria-label="anchor" href="#presentation-controls"></a>
@@ -534,8 +580,9 @@ variables.</p>
 <td>No overall column, or an Overall column first/last</td>
 </tr>
 <tr class="even">
-<td>Continuous display</td>
-<td>Recommended, mean (SD), mean (95% CI), median (IQR), or both</td>
+<td>Summary-statistic overrides</td>
+<td>Optional exceptions; unlisted continuous variables use
+Recommended</td>
 </tr>
 <tr class="odd">
 <td>Categorical display</td>
@@ -567,23 +614,79 @@ displayed groups.</p>
 <p>Check <strong>Add p-values (when grouped)</strong> if a p-value for
 each selected variable is appropriate for your table. A grouping
 variable is required. The app uses <code><a href="../reference/add_p.html">add_p()</a></code> with its
-documented automatic selection policy. For an analysis plan that
-prespecifies tests, use the generated code in RStudio and supply a named
-<code>method</code> vector.</p>
+documented automatic selection policy. Once p-values are enabled, the
+<strong>P-value test overrides</strong> box appears. Unlisted variables
+use Auto. Add only exceptions:</p>
+<pre class="text"><code><span><span class="va">age</span> <span class="op">=</span> <span class="va">welch_t</span></span>
+<span><span class="va">lwt</span> <span class="op">=</span> <span class="va">wilcox</span></span>
+<span><span class="va">race</span> <span class="op">=</span> <span class="va">fisher</span></span>
+<span><span class="va">bwt</span> <span class="op">=</span> <span class="va">none</span></span></code></pre>
+<p>Use <code>none</code> when a displayed variable should remain
+descriptive without a p-value. The app validates variable names,
+duplicate entries, supported option names, and compatibility with the
+detected variable type. Errors identify the specific line and list valid
+choices. Generated code uses a named <code>method</code> vector and an
+<code>include</code> selection when any variable is set to
+<code>none</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="customise-appearance">Customise appearance<a class="anchor" aria-label="anchor" href="#customise-appearance"></a>
+</h3>
+<p>Choose a default, journal, classic, minimal, or compact theme.
+Optional title, subtitle, font size, bold labels, footnotes, and
+alternate-row shading are applied through
+<code><a href="../reference/customise_table.html">customise_table()</a></code>. The preview and every downloaded table
+use the same styling choices.</p>
 </div>
 <div class="section level3">
 <h3 id="preview-export-and-code">Preview, export, and code<a class="anchor" aria-label="anchor" href="#preview-export-and-code"></a>
 </h3>
 <p>Every visible table in the app—data preview, data dictionary, dataset
-description, diagnostics, Table 1, comparison audits, crosstabs, and
-history—has download buttons for DOCX, HTML, PDF, and RTF. PDF needs a
-working browser/webshot setup; DOCX or HTML are the easiest choices for
-most users.</p>
+description, diagnostics, summary table, comparison audits, crosstabs,
+and history—has download buttons for DOCX, HTML, PDF, and RTF. PDF needs
+a working browser/webshot setup; DOCX or HTML are the easiest choices
+for most users.</p>
 <p>Open the <strong>Code</strong> panel to copy or download the complete
-<code><a href="../reference/summary_table.html">summary_table()</a></code> call, including the display choices you
-selected. This is the route from a point-and-click table to a
+<code><a href="../reference/summary_table.html">summary_table()</a></code>, <code><a href="../reference/add_p.html">add_p()</a></code>, and
+<code><a href="../reference/customise_table.html">customise_table()</a></code> pipeline, including each variable’s
+choices. This is the route from a point-and-click table to a
 reproducible manuscript table.</p>
 </div>
+</div>
+<div class="section level2">
+<h2 id="customise-table-tab">Customise table tab<a class="anchor" aria-label="anchor" href="#customise-table-tab"></a>
+</h2>
+<p>Use this tab after creating a Summary table when its presentation
+needs to match a manuscript, journal, report, or local wording
+convention. It follows the same post-processing idea as the gtregression
+app.</p>
+<p>The most recently completed Summary table is carried forward and
+displayed automatically. If no Summary table exists, the app clearly
+directs the user back to the preceding tab.</p>
+<ol style="list-style-type: decimal">
+<li>Review the Summary table already displayed in the preview.</li>
+<li>Optionally provide a title, subtitle, or additional note.</li>
+<li>Relabel columns, variable/row labels, or category levels using one
+<code>current = new</code> mapping per line.</li>
+<li>Choose a theme, font size, label emphasis, footnotes, or row
+shading.</li>
+<li>Optionally hide named columns.</li>
+<li>Click <strong>Apply table changes</strong>.</li>
+</ol>
+<p>The original Summary-table result remains unchanged. Only its display
+is modified. The preview and DOCX, HTML, PDF, and RTF downloads
+therefore contain the same estimates, confidence intervals,
+denominators, and p-values as the selected source table.</p>
+<p>The <strong>Code</strong> panel creates the source table and then
+applies <code><a href="../reference/customise_table.html">customise_table()</a></code>. Copy or download that code
+rather than relying on an unrecorded series of clicks.</p>
+<p>Example mappings are:</p>
+<pre class="text"><code>Overall = All participants
+age = Maternal age (years)
+Yes = Present
+No = Absent</code></pre>
+<p>Column hiding is presentational only. Hiding a p-value column does
+not remove the test from the result object or change the analysis.</p>
 </div>
 <div class="section level2">
 <h2 id="compare-groups-tab">Compare groups tab<a class="anchor" aria-label="anchor" href="#compare-groups-tab"></a>
@@ -620,13 +723,15 @@ and result notes:</p>
 <tbody>
 <tr class="odd">
 <td>Continuous, two independent groups</td>
-<td>Welch t-test by default; Student’s t-test when equal variances are
-explicitly justified; Wilcoxon if marked skew is flagged</td>
+<td>Welch t-test by default; Student’s t-test with
+<code>var_equal = TRUE</code>; Wilcoxon only if marked skewness is
+flagged</td>
 </tr>
 <tr class="even">
 <td>Continuous, 3+ independent groups</td>
-<td>Welch ANOVA by default; classical ANOVA when equal variances are
-explicitly justified; Kruskal-Wallis if marked skew is flagged</td>
+<td>Welch ANOVA by default; classical ANOVA with
+<code>var_equal = TRUE</code>; Kruskal-Wallis only if marked skewness is
+flagged</td>
 </tr>
 <tr class="odd">
 <td>Continuous, paired</td>
@@ -635,8 +740,10 @@ repeated-measures ANOVA/Friedman for 3+ occasions</td>
 </tr>
 <tr class="even">
 <td>Ordinal</td>
-<td>Wilcoxon rank-sum or Kruskal-Wallis when independent; Friedman for
-3+ paired occasions</td>
+<td>Chi-square/Fisher for independent level distributions; Wilcoxon
+signed-rank for two paired occasions or Friedman for 3+ paired
+occasions. Specify Wilcoxon/Kruskal explicitly for an independent
+rank-based ordinal question.</td>
 </tr>
 <tr class="odd">
 <td>Binary/nominal categorical</td>
@@ -649,6 +756,11 @@ are below 5; Fisher exact when sparse</td>
 </tr>
 </tbody>
 </table>
+<p>Marked skewness uses absolute sample skewness at least 1.
+Shapiro-Wilk and lesser asymmetry remain supporting information; neither
+changes Auto alone. For categorical and independent ordinal outcomes,
+Fisher is selected when an expected count is below 1 or more than 20%
+are below 5; otherwise chi-square is used.</p>
 <p>The app also exposes the paired methods: McNemar (two binary
 occasions), Cochran’s Q (three or more binary occasions),
 repeated-measures ANOVA, and Friedman. Turn on <strong>Repeated
@@ -704,6 +816,56 @@ your analysis script.</p>
 </div>
 </div>
 <div class="section level2">
+<h2 id="correlation-tab">Correlation tab<a class="anchor" aria-label="anchor" href="#correlation-tab"></a>
+</h2>
+<p>Use <strong>Correlation</strong> for relationships between continuous
+variables. Choose <strong>One pair</strong> for a conventional
+coefficient and scatterplot, or <strong>Correlation matrix</strong> for
+several variables.</p>
+<p>For one pair:</p>
+<ol style="list-style-type: decimal">
+<li>Choose two different continuous variables.</li>
+<li>Select Auto, Pearson, or Spearman.</li>
+<li>Choose the plotted trend and whether its confidence band is
+shown.</li>
+<li>Click <strong>Create correlation output</strong>.</li>
+</ol>
+<p>For a matrix:</p>
+<ol style="list-style-type: decimal">
+<li>Tick at least two continuous variables.</li>
+<li>Choose lower, upper, or full layout. Lower triangle is the
+publication default; upper triangle places the longest row at the
+top.</li>
+<li>Preserve the selected order, sort labels alphabetically, or cluster
+similar absolute correlation patterns. Input order is best for a
+prespecified publication; clustering is exploratory.</li>
+<li>Choose whether cells contain the coefficient alone, adjusted
+p-value, pairwise n, both p and n, or a confidence interval.</li>
+<li>Optionally hide the diagonal and shade the publication table.</li>
+</ol>
+<p>The <strong>Plot</strong> panel shows the matching scatterplot or
+heatmap and can be downloaded as PNG or PDF. The publication table and
+all three Audit tables can be downloaded as DOCX, HTML, PDF, or RTF. The
+<strong>Code</strong> panel reproduces both the
+<code><a href="../reference/correlation.html">correlation()</a></code> and <code><a href="../reference/plot_correlation.html">plot_correlation()</a></code>
+calls.</p>
+<p>The app reports how many continuous variables are selected. At more
+than 12 it warns that the matrix may be suitable for exploration but too
+wide for a publication. <strong>Tidy CSV</strong> downloads the
+underlying pair-level estimates, p-values, adjusted p-values, confidence
+intervals, and denominators. When pairwise sample sizes differ, a
+visible warning directs you to the Denominators tab. Less frequently
+used ordering, adjustment, diagonal, and shading controls are kept under
+<strong>Advanced matrix options</strong>. <strong>Reset options</strong>
+restores the safe defaults without running an analysis.</p>
+<p>Auto uses Pearson throughout a matrix only when every selected
+variable has absolute sample skewness below 1; otherwise it uses
+Spearman throughout. This does not establish linearity or monotonicity.
+Review the plot, pairwise denominators, influential observations,
+subject-matter meaning, and the fact that correlation does not imply
+causation.</p>
+</div>
+<div class="section level2">
 <h2 id="crosstabs-tab">Crosstabs tab<a class="anchor" aria-label="anchor" href="#crosstabs-tab"></a>
 </h2>
 <p>Use <strong>Crosstabs</strong> for two categorical variables.</p>
@@ -731,14 +893,17 @@ current app session:</p>
 <ul>
 <li>Describe data</li>
 <li>Assess distribution</li>
-<li>Create Table 1</li>
+<li>Create summary table</li>
 <li>Compare groups</li>
+<li>Create a correlation table and plot</li>
 <li>Create crosstab</li>
 </ul>
-<p>It is a simple session log, not a permanent audit database. It clears
-when the app closes, or when you click <strong>Clear history</strong>.
-Use it to orient yourself while exploring; use copied/downloaded code
-for the permanent analysis record.</p>
+<p>The <strong>Complete R script</strong> panel can be copied or
+downloaded and contains the data source, applied preparation steps, and
+analyses run so far. The history is a session log, not a permanent audit
+database. It clears when the app closes, or when you click <strong>Clear
+history</strong>. Use it to orient yourself while exploring; use
+copied/downloaded code for the permanent analysis record.</p>
 </div>
 <div class="section level2">
 <h2 id="help-tab">Help tab<a class="anchor" aria-label="anchor" href="#help-tab"></a>
@@ -748,7 +913,8 @@ for the permanent analysis record.</p>
 <li>Inspect the data.</li>
 <li>Check selected continuous variables before interpreting
 comparisons.</li>
-<li>Build Table 1 using one consistent presentation per variable.</li>
+<li>Build a summary table using one consistent presentation per
+variable.</li>
 <li>Use Compare groups for a focused inferential question.</li>
 <li>Review the output and generated code before reporting.</li>
 </ol>
@@ -806,19 +972,19 @@ clipboard access, use <strong>Download .R</strong> instead.</p>
 <div class="section level3">
 <h3 id="the-app-does-not-open">The app does not open<a class="anchor" aria-label="anchor" href="#the-app-does-not-open"></a>
 </h3>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"shiny"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/gtstats_app.html">gtstats_app</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>If it opens in an external browser and you prefer RStudio, run it
 from an interactive RStudio session. You can also choose explicitly:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gtstats_app.html">gtstats_app</a></span><span class="op">(</span>launch.browser <span class="op">=</span> <span class="fu">rstudioapi</span><span class="fu">::</span><span class="va"><a href="https://rstudio.github.io/rstudioapi/reference/viewer.html" class="external-link">viewer</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="excel-upload-gives-an-error">Excel upload gives an error<a class="anchor" aria-label="anchor" href="#excel-upload-gives-an-error"></a>
 </h3>
 <p>Install <code>rio</code>, restart the app, and try again:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"rio"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">

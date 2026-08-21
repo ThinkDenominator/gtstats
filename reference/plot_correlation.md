@@ -11,8 +11,8 @@ caption.
 ``` r
 plot_correlation(
   data,
-  x,
-  y,
+  x = NULL,
+  y = NULL,
   method = c("auto", "pearson", "spearman"),
   trend = c("auto", "linear", "smooth", "none"),
   show_ci = TRUE,
@@ -25,7 +25,13 @@ plot_correlation(
   title = NULL,
   caption = NULL,
   xlab = NULL,
-  ylab = NULL
+  ylab = NULL,
+  triangle = NULL,
+  show_diagonal = NULL,
+  show_values = TRUE,
+  low_color = "#355C7D",
+  mid_color = "#FFFFFF",
+  high_color = "#C06C5B"
 )
 ```
 
@@ -33,7 +39,8 @@ plot_correlation(
 
 - data:
 
-  A data frame.
+  A data frame, or a matrix result returned by
+  [`correlation()`](https://gtstats.thinkdenominator.com/reference/correlation.md).
 
 - x, y:
 
@@ -80,6 +87,25 @@ plot_correlation(
 
   Optional axis labels.
 
+- triangle:
+
+  Matrix cells to show when `data` is a correlation-matrix result:
+  `"lower"`, `"upper"`, or `"full"`. The matrix object's setting is
+  inherited when `NULL`.
+
+- show_diagonal:
+
+  Logical; show self-correlations in a matrix heatmap. The matrix
+  object's setting is inherited when `NULL`.
+
+- show_values:
+
+  Logical; print coefficients inside heatmap cells.
+
+- low_color, mid_color, high_color:
+
+  Colours used by the matrix heatmap.
+
 ## Value
 
 A `ggplot` object.
@@ -107,5 +133,9 @@ plot_correlation(
   y = wt,
   show_correlation = TRUE
 )
+
+
+matrix_result <- correlation(mtcars, vars = c(mpg, disp, hp, wt))
+plot_correlation(matrix_result)
 
 ```

@@ -9,7 +9,8 @@ and result codes retained by the analysis object.
 ``` r
 assumptions_stats(
   x,
-  output = c("tibble", "gt"),
+  format = c("table", "tibble"),
+  output = NULL,
   title = "Checks before reporting",
   subtitle = NULL,
   view = c("checklist", "audit")
@@ -22,13 +23,17 @@ assumptions_stats(
 
   A `gtstats` result.
 
+- format:
+
+  Output format: `"table"` (default) or `"tibble"`.
+
 - output:
 
-  Return a `"tibble"` or formatted `"gt"` table.
+  Compatibility alias accepting `"gt"`, `"table"`, or `"tibble"`.
 
 - title, subtitle:
 
-  Optional table heading used for `output = "gt"`.
+  Optional table heading used for `format = "table"`.
 
 - view:
 
@@ -44,12 +49,6 @@ A tibble or `gt_tbl`.
 ``` r
 result <- compare_groups(mtcars, variable = mpg, group = am)
 assumptions_stats(result)
-#> # A tibble: 2 × 4
-#>   Variable `Check before reporting`              Action                  Details
-#>   <chr>    <chr>                                 <chr>                   <chr>  
-#> 1 NA       Independent observations              Confirm from study des… Confir…
-#> 2 NA       Distribution and influential outliers Review alongside autom… Inspec…
-assumptions_stats(result, output = "gt")
 
 
   

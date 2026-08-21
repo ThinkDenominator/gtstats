@@ -4,8 +4,9 @@
 
 The `gtstats` app is a menu-driven companion to the package. It is
 designed for users who want to understand a dataset, create
-publication-ready tables, run common group comparisons, and generate
-reproducible R code without first memorising every argument.
+publication-ready tables, run common group comparisons and correlation
+analyses, and generate reproducible R code without first memorising
+every argument.
 
 The app does not replace a reproducible analysis script. Its best use
 is:
@@ -99,15 +100,25 @@ The tabs are deliberately ordered to follow a safe statistical workflow.
     analysis.
 3.  **Understand** — inspect types, completeness, distribution, and
     spread.
-4.  **Table 1** — create the descriptive table for a report.
-5.  **Compare groups** — answer one focused inferential question.
-6.  **Crosstabs** — inspect categorical association and 2×2 measures.
-7.  **History** — see which analyses were run during this session.
-8.  **Help** — revisit the safe beginner workflow.
+4.  **Summary table** — create the descriptive table for a report.
+5.  **Customise table** — refine the completed Summary table without
+    changing results.
+6.  **Compare groups** — answer one focused inferential question.
+7.  **Correlation** — analyse a continuous pair or build a correlation
+    matrix.
+8.  **Crosstabs** — inspect categorical association and 2×2 measures.
+9.  **History** — see which analyses were run during this session.
+10. **Help** — revisit the safe beginner workflow.
 
-The app will not run Table 1, comparisons, or cross-tabs until you press
-the relevant action button. This prevents accidental analysis while the
-app is loading or while a browser restores an earlier session.
+The app will not run a summary table, comparison, correlation, or
+cross-tab until you press the relevant action button. This prevents
+accidental analysis while the app is loading or while a browser restores
+an earlier session.
+
+The original imported dataset is active automatically. Opening Data Prep
+does not silently replace it. After making changes, click **Use prepared
+data** only when you want later tabs to analyse the working copy;
+otherwise analyses carry forward the original data.
 
 On a phone or narrow screen, use the menu icon in the top-right to open
 the full tab list. The numbered workflow strip remains visible below it
@@ -305,15 +316,23 @@ and, when selected,
 calls. Copy this into a script if these checks informed a reporting
 decision.
 
-## Table 1 tab
+## Summary table tab
 
-The **Table 1** tab creates a descriptive, publication-ready table.
-Think of the left-hand controls as a recipe:
+The **Summary table** tab creates a descriptive, publication-ready
+table. Think of the left-hand controls as four ordered parts:
 
-1.  Choose whether to split columns by a group variable.
-2.  Tick the variables to include.
-3.  Choose the overall column and display style.
-4.  Click **Create Table 1**.
+1.  **Choose the table contents**: group, variables, and overall column.
+2.  **Choose how values are summarised**: optional continuous overrides,
+    categorical presentation, missing values, precision, and categorical
+    CIs.
+3.  **Add statistical comparisons**: optional p-values and test
+    overrides.
+4.  **Customise appearance**: optional title, theme, typography, and
+    striping.
+
+The statistical and structural controls remain visible. Advanced
+Auto-test settings and cosmetic controls are collapsed until needed,
+keeping the normal beginner route short.
 
 ### Choose a group
 
@@ -331,14 +350,39 @@ selection. The app calls
 once and lets gtstats detect their types.
 
 There is no need to separately select “continuous variables” and
-“categorical variables.” Use one meaningful set of Table 1 variables.
+“categorical variables.” Use one meaningful set of summary-table
+variables.
+
+### Summary-statistic overrides
+
+The app does not create a long row of dropdowns for every selected
+variable. Unlisted continuous variables use **Recommended**
+automatically. Add only exceptions to the compact override box, one per
+line:
+
+``` text
+age = mean_sd
+lwt = median_iqr
+bwt = mean_ci
+```
+
+Supported summary values are `recommended`, `mean_sd`, `mean_ci`,
+`median_iqr`, and `both`. Quotes and commas are not required. Blank
+lines and lines beginning with `#` are ignored. **Insert example** uses
+selected continuous variables; **Clear overrides** returns every
+variable to Recommended. A live message reports how many overrides were
+recognised.
+
+For `mean_ci`, a cell is displayed concisely as `mean (lower–upper)`.
+The footnote defines the interval as a 95% CI (or the selected
+confidence level), so “95% CI” is not repeated inside every table cell.
 
 ### Presentation controls
 
 | Control | Meaning |
 |----|----|
 | Overall column | No overall column, or an Overall column first/last |
-| Continuous display | Recommended, mean (SD), mean (95% CI), median (IQR), or both |
+| Summary-statistic overrides | Optional exceptions; unlisted continuous variables use Recommended |
 | Categorical display | n (%), n/N (%), n only, or percentage only |
 | Percentage denominator | Column, row, or the entire dataset |
 | Missing values | Show if present, always, or never |
@@ -355,22 +399,88 @@ Check **Add p-values (when grouped)** if a p-value for each selected
 variable is appropriate for your table. A grouping variable is required.
 The app uses
 [`add_p()`](https://gtstats.thinkdenominator.com/reference/add_p.md)
-with its documented automatic selection policy. For an analysis plan
-that prespecifies tests, use the generated code in RStudio and supply a
-named `method` vector.
+with its documented automatic selection policy. Once p-values are
+enabled, the **P-value test overrides** box appears. Unlisted variables
+use Auto. Add only exceptions:
+
+``` text
+age = welch_t
+lwt = wilcox
+race = fisher
+bwt = none
+```
+
+Use `none` when a displayed variable should remain descriptive without a
+p-value. The app validates variable names, duplicate entries, supported
+option names, and compatibility with the detected variable type. Errors
+identify the specific line and list valid choices. Generated code uses a
+named `method` vector and an `include` selection when any variable is
+set to `none`.
+
+### Customise appearance
+
+Choose a default, journal, classic, minimal, or compact theme. Optional
+title, subtitle, font size, bold labels, footnotes, and alternate-row
+shading are applied through
+[`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md).
+The preview and every downloaded table use the same styling choices.
 
 ### Preview, export, and code
 
 Every visible table in the app—data preview, data dictionary, dataset
-description, diagnostics, Table 1, comparison audits, crosstabs, and
-history—has download buttons for DOCX, HTML, PDF, and RTF. PDF needs a
-working browser/webshot setup; DOCX or HTML are the easiest choices for
-most users.
+description, diagnostics, summary table, comparison audits, crosstabs,
+and history—has download buttons for DOCX, HTML, PDF, and RTF. PDF needs
+a working browser/webshot setup; DOCX or HTML are the easiest choices
+for most users.
 
 Open the **Code** panel to copy or download the complete
-[`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md)
-call, including the display choices you selected. This is the route from
-a point-and-click table to a reproducible manuscript table.
+[`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md),
+[`add_p()`](https://gtstats.thinkdenominator.com/reference/add_p.md),
+and
+[`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md)
+pipeline, including each variable’s choices. This is the route from a
+point-and-click table to a reproducible manuscript table.
+
+## Customise table tab
+
+Use this tab after creating a Summary table when its presentation needs
+to match a manuscript, journal, report, or local wording convention. It
+follows the same post-processing idea as the gtregression app.
+
+The most recently completed Summary table is carried forward and
+displayed automatically. If no Summary table exists, the app clearly
+directs the user back to the preceding tab.
+
+1.  Review the Summary table already displayed in the preview.
+2.  Optionally provide a title, subtitle, or additional note.
+3.  Relabel columns, variable/row labels, or category levels using one
+    `current = new` mapping per line.
+4.  Choose a theme, font size, label emphasis, footnotes, or row
+    shading.
+5.  Optionally hide named columns.
+6.  Click **Apply table changes**.
+
+The original Summary-table result remains unchanged. Only its display is
+modified. The preview and DOCX, HTML, PDF, and RTF downloads therefore
+contain the same estimates, confidence intervals, denominators, and
+p-values as the selected source table.
+
+The **Code** panel creates the source table and then applies
+[`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md).
+Copy or download that code rather than relying on an unrecorded series
+of clicks.
+
+Example mappings are:
+
+``` text
+Overall = All participants
+age = Maternal age (years)
+Yes = Present
+No = Absent
+```
+
+Column hiding is presentational only. Hiding a p-value column does not
+remove the test from the result object or change the analysis.
 
 ## Compare groups tab
 
@@ -394,12 +504,18 @@ notes:
 
 | Data structure | Automatic method |
 |----|----|
-| Continuous, two independent groups | Welch t-test by default; Student’s t-test when equal variances are explicitly justified; Wilcoxon if marked skew is flagged |
-| Continuous, 3+ independent groups | Welch ANOVA by default; classical ANOVA when equal variances are explicitly justified; Kruskal-Wallis if marked skew is flagged |
+| Continuous, two independent groups | Welch t-test by default; Student’s t-test with `var_equal = TRUE`; Wilcoxon only if marked skewness is flagged |
+| Continuous, 3+ independent groups | Welch ANOVA by default; classical ANOVA with `var_equal = TRUE`; Kruskal-Wallis only if marked skewness is flagged |
 | Continuous, paired | Paired t-test/Wilcoxon signed-rank for two occasions; repeated-measures ANOVA/Friedman for 3+ occasions |
-| Ordinal | Wilcoxon rank-sum or Kruskal-Wallis when independent; Friedman for 3+ paired occasions |
+| Ordinal | Chi-square/Fisher for independent level distributions; Wilcoxon signed-rank for two paired occasions or Friedman for 3+ paired occasions. Specify Wilcoxon/Kruskal explicitly for an independent rank-based ordinal question. |
 | Binary/nominal categorical | Chi-square when no expected count is below 1 and no more than 20% are below 5; Fisher exact when sparse |
 | Binary, paired | McNemar for two occasions; Cochran’s Q for 3+ occasions |
+
+Marked skewness uses absolute sample skewness at least 1. Shapiro-Wilk
+and lesser asymmetry remain supporting information; neither changes Auto
+alone. For categorical and independent ordinal outcomes, Fisher is
+selected when an expected count is below 1 or more than 20% are below 5;
+otherwise chi-square is used.
 
 The app also exposes the paired methods: McNemar (two binary occasions),
 Cochran’s Q (three or more binary occasions), repeated-measures ANOVA,
@@ -428,6 +544,58 @@ explains what auto selected. The **Audit** panels are important:
 Use the **Code** panel to retain the exact comparison in your analysis
 script.
 
+## Correlation tab
+
+Use **Correlation** for relationships between continuous variables.
+Choose **One pair** for a conventional coefficient and scatterplot, or
+**Correlation matrix** for several variables.
+
+For one pair:
+
+1.  Choose two different continuous variables.
+2.  Select Auto, Pearson, or Spearman.
+3.  Choose the plotted trend and whether its confidence band is shown.
+4.  Click **Create correlation output**.
+
+For a matrix:
+
+1.  Tick at least two continuous variables.
+2.  Choose lower, upper, or full layout. Lower triangle is the
+    publication default; upper triangle places the longest row at the
+    top.
+3.  Preserve the selected order, sort labels alphabetically, or cluster
+    similar absolute correlation patterns. Input order is best for a
+    prespecified publication; clustering is exploratory.
+4.  Choose whether cells contain the coefficient alone, adjusted
+    p-value, pairwise n, both p and n, or a confidence interval.
+5.  Optionally hide the diagonal and shade the publication table.
+
+The **Plot** panel shows the matching scatterplot or heatmap and can be
+downloaded as PNG or PDF. The publication table and all three Audit
+tables can be downloaded as DOCX, HTML, PDF, or RTF. The **Code** panel
+reproduces both the
+[`correlation()`](https://gtstats.thinkdenominator.com/reference/correlation.md)
+and
+[`plot_correlation()`](https://gtstats.thinkdenominator.com/reference/plot_correlation.md)
+calls.
+
+The app reports how many continuous variables are selected. At more than
+12 it warns that the matrix may be suitable for exploration but too wide
+for a publication. **Tidy CSV** downloads the underlying pair-level
+estimates, p-values, adjusted p-values, confidence intervals, and
+denominators. When pairwise sample sizes differ, a visible warning
+directs you to the Denominators tab. Less frequently used ordering,
+adjustment, diagonal, and shading controls are kept under **Advanced
+matrix options**. **Reset options** restores the safe defaults without
+running an analysis.
+
+Auto uses Pearson throughout a matrix only when every selected variable
+has absolute sample skewness below 1; otherwise it uses Spearman
+throughout. This does not establish linearity or monotonicity. Review
+the plot, pairwise denominators, influential observations,
+subject-matter meaning, and the fact that correlation does not imply
+causation.
+
 ## Crosstabs tab
 
 Use **Crosstabs** for two categorical variables.
@@ -453,14 +621,17 @@ The **History** tab records actions run during the current app session:
 
 - Describe data
 - Assess distribution
-- Create Table 1
+- Create summary table
 - Compare groups
+- Create a correlation table and plot
 - Create crosstab
 
-It is a simple session log, not a permanent audit database. It clears
-when the app closes, or when you click **Clear history**. Use it to
-orient yourself while exploring; use copied/downloaded code for the
-permanent analysis record.
+The **Complete R script** panel can be copied or downloaded and contains
+the data source, applied preparation steps, and analyses run so far. The
+history is a session log, not a permanent audit database. It clears when
+the app closes, or when you click **Clear history**. Use it to orient
+yourself while exploring; use copied/downloaded code for the permanent
+analysis record.
 
 ## Help tab
 
@@ -468,7 +639,8 @@ The **Help** tab repeats the safe beginner order:
 
 1.  Inspect the data.
 2.  Check selected continuous variables before interpreting comparisons.
-3.  Build Table 1 using one consistent presentation per variable.
+3.  Build a summary table using one consistent presentation per
+    variable.
 4.  Use Compare groups for a focused inferential question.
 5.  Review the output and generated code before reporting.
 

@@ -75,23 +75,23 @@ Derived from
 
 ``` r
 describe_data(birthwt)
-#> <div id="dfcgqlbczp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-#>   <style>#dfcgqlbczp table {
+#> <div id="bufjgfcdcf" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+#>   <style>#bufjgfcdcf table {
 #>   font-family: system-ui;
 #>   -webkit-font-smoothing: antialiased;
 #>   -moz-osx-font-smoothing: grayscale;
 #> }
 #> 
-#> #dfcgqlbczp thead, #dfcgqlbczp tbody, #dfcgqlbczp tfoot, #dfcgqlbczp tr, #dfcgqlbczp td, #dfcgqlbczp th {
+#> #bufjgfcdcf thead, #bufjgfcdcf tbody, #bufjgfcdcf tfoot, #bufjgfcdcf tr, #bufjgfcdcf td, #bufjgfcdcf th {
 #>   border-style: none;
 #> }
 #> 
-#> #dfcgqlbczp p {
+#> #bufjgfcdcf p {
 #>   margin: 0;
 #>   padding: 0;
 #> }
 #> 
-#> #dfcgqlbczp .gt_table {
+#> #bufjgfcdcf .gt_table {
 #>   display: table;
 #>   border-collapse: collapse;
 #>   line-height: normal;
@@ -117,12 +117,12 @@ describe_data(birthwt)
 #>   border-left-color: #D3D3D3;
 #> }
 #> 
-#> #dfcgqlbczp .gt_caption {
+#> #bufjgfcdcf .gt_caption {
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
 #> }
 #> 
-#> #dfcgqlbczp .gt_title {
+#> #bufjgfcdcf .gt_title {
 #>   color: #333333;
 #>   font-size: 125%;
 #>   font-weight: initial;
@@ -134,7 +134,7 @@ describe_data(birthwt)
 #>   border-bottom-width: 0;
 #> }
 #> 
-#> #dfcgqlbczp .gt_subtitle {
+#> #bufjgfcdcf .gt_subtitle {
 #>   color: #333333;
 #>   font-size: 85%;
 #>   font-weight: initial;
@@ -146,7 +146,7 @@ describe_data(birthwt)
 #>   border-top-width: 0;
 #> }
 #> 
-#> #dfcgqlbczp .gt_heading {
+#> #bufjgfcdcf .gt_heading {
 #>   background-color: #FFFFFF;
 #>   text-align: left;
 #>   border-bottom-color: #FFFFFF;
@@ -158,13 +158,13 @@ describe_data(birthwt)
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #dfcgqlbczp .gt_bottom_border {
+#> #bufjgfcdcf .gt_bottom_border {
 #>   border-bottom-style: solid;
 #>   border-bottom-width: 2px;
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #dfcgqlbczp .gt_col_headings {
+#> #bufjgfcdcf .gt_col_headings {
 #>   border-top-style: solid;
 #>   border-top-width: 2px;
 #>   border-top-color: #D3D3D3;
@@ -179,7 +179,7 @@ describe_data(birthwt)
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #dfcgqlbczp .gt_col_heading {
+#> #bufjgfcdcf .gt_col_heading {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -199,7 +199,7 @@ describe_data(birthwt)
 #>   overflow-x: hidden;
 #> }
 #> 
-#> #dfcgqlbczp .gt_column_spanner_outer {
+#> #bufjgfcdcf .gt_column_spanner_outer {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -211,15 +211,15 @@ describe_data(birthwt)
 #>   padding-right: 4px;
 #> }
 #> 
-#> #dfcgqlbczp .gt_column_spanner_outer:first-child {
+#> #bufjgfcdcf .gt_column_spanner_outer:first-child {
 #>   padding-left: 0;
 #> }
 #> 
-#> #dfcgqlbczp .gt_column_spanner_outer:last-child {
+#> #bufjgfcdcf .gt_column_spanner_outer:last-child {
 #>   padding-right: 0;
 #> }
 #> 
-#> #dfcgqlbczp .gt_column_spanner {
+#> #bufjgfcdcf .gt_column_spanner {
 #>   border-bottom-style: solid;
 #>   border-bottom-width: 2px;
 #>   border-bottom-color: #D3D3D3;
@@ -231,11 +231,11 @@ describe_data(birthwt)
 #>   width: 100%;
 #> }
 #> 
-#> #dfcgqlbczp .gt_spanner_row {
+#> #bufjgfcdcf .gt_spanner_row {
 #>   border-bottom-style: hidden;
 #> }
 #> 
-#> #dfcgqlbczp .gt_group_heading {
+#> #bufjgfcdcf .gt_group_heading {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -261,7 +261,7 @@ describe_data(birthwt)
 #>   text-align: left;
 #> }
 #> 
-#> #dfcgqlbczp .gt_empty_group_heading {
+#> #bufjgfcdcf .gt_empty_group_heading {
 #>   padding: 0.5px;
 #>   color: #333333;
 #>   background-color: #FFFFFF;
@@ -276,15 +276,15 @@ describe_data(birthwt)
 #>   vertical-align: middle;
 #> }
 #> 
-#> #dfcgqlbczp .gt_from_md > :first-child {
+#> #bufjgfcdcf .gt_from_md > :first-child {
 #>   margin-top: 0;
 #> }
 #> 
-#> #dfcgqlbczp .gt_from_md > :last-child {
+#> #bufjgfcdcf .gt_from_md > :last-child {
 #>   margin-bottom: 0;
 #> }
 #> 
-#> #dfcgqlbczp .gt_row {
+#> #bufjgfcdcf .gt_row {
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
 #>   padding-left: 5px;
@@ -303,7 +303,7 @@ describe_data(birthwt)
 #>   overflow-x: hidden;
 #> }
 #> 
-#> #dfcgqlbczp .gt_stub {
+#> #bufjgfcdcf .gt_stub {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -316,7 +316,7 @@ describe_data(birthwt)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #dfcgqlbczp .gt_stub_row_group {
+#> #bufjgfcdcf .gt_stub_row_group {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -330,15 +330,15 @@ describe_data(birthwt)
 #>   vertical-align: top;
 #> }
 #> 
-#> #dfcgqlbczp .gt_row_group_first td {
+#> #bufjgfcdcf .gt_row_group_first td {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #dfcgqlbczp .gt_row_group_first th {
+#> #bufjgfcdcf .gt_row_group_first th {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #dfcgqlbczp .gt_summary_row {
+#> #bufjgfcdcf .gt_summary_row {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   text-transform: inherit;
@@ -348,16 +348,16 @@ describe_data(birthwt)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #dfcgqlbczp .gt_first_summary_row {
+#> #bufjgfcdcf .gt_first_summary_row {
 #>   border-top-style: solid;
 #>   border-top-color: #D3D3D3;
 #> }
 #> 
-#> #dfcgqlbczp .gt_first_summary_row.thick {
+#> #bufjgfcdcf .gt_first_summary_row.thick {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #dfcgqlbczp .gt_last_summary_row {
+#> #bufjgfcdcf .gt_last_summary_row {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -367,7 +367,7 @@ describe_data(birthwt)
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #dfcgqlbczp .gt_grand_summary_row {
+#> #bufjgfcdcf .gt_grand_summary_row {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   text-transform: inherit;
@@ -377,7 +377,7 @@ describe_data(birthwt)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #dfcgqlbczp .gt_first_grand_summary_row {
+#> #bufjgfcdcf .gt_first_grand_summary_row {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -387,7 +387,7 @@ describe_data(birthwt)
 #>   border-top-color: #D3D3D3;
 #> }
 #> 
-#> #dfcgqlbczp .gt_last_grand_summary_row_top {
+#> #bufjgfcdcf .gt_last_grand_summary_row_top {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -397,11 +397,11 @@ describe_data(birthwt)
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #dfcgqlbczp .gt_striped {
+#> #bufjgfcdcf .gt_striped {
 #>   background-color: rgba(128, 128, 128, 0.05);
 #> }
 #> 
-#> #dfcgqlbczp .gt_table_body {
+#> #bufjgfcdcf .gt_table_body {
 #>   border-top-style: solid;
 #>   border-top-width: 2px;
 #>   border-top-color: #D3D3D3;
@@ -410,7 +410,7 @@ describe_data(birthwt)
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #dfcgqlbczp .gt_footnotes {
+#> #bufjgfcdcf .gt_footnotes {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   border-bottom-style: none;
@@ -424,7 +424,7 @@ describe_data(birthwt)
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #dfcgqlbczp .gt_footnote {
+#> #bufjgfcdcf .gt_footnote {
 #>   margin: 0px;
 #>   font-size: 90%;
 #>   padding-top: 4px;
@@ -433,7 +433,7 @@ describe_data(birthwt)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #dfcgqlbczp .gt_sourcenotes {
+#> #bufjgfcdcf .gt_sourcenotes {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   border-bottom-style: none;
@@ -447,7 +447,7 @@ describe_data(birthwt)
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #dfcgqlbczp .gt_sourcenote {
+#> #bufjgfcdcf .gt_sourcenote {
 #>   font-size: 90%;
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
@@ -455,72 +455,72 @@ describe_data(birthwt)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #dfcgqlbczp .gt_left {
+#> #bufjgfcdcf .gt_left {
 #>   text-align: left;
 #> }
 #> 
-#> #dfcgqlbczp .gt_center {
+#> #bufjgfcdcf .gt_center {
 #>   text-align: center;
 #> }
 #> 
-#> #dfcgqlbczp .gt_right {
+#> #bufjgfcdcf .gt_right {
 #>   text-align: right;
 #>   font-variant-numeric: tabular-nums;
 #> }
 #> 
-#> #dfcgqlbczp .gt_font_normal {
+#> #bufjgfcdcf .gt_font_normal {
 #>   font-weight: normal;
 #> }
 #> 
-#> #dfcgqlbczp .gt_font_bold {
+#> #bufjgfcdcf .gt_font_bold {
 #>   font-weight: bold;
 #> }
 #> 
-#> #dfcgqlbczp .gt_font_italic {
+#> #bufjgfcdcf .gt_font_italic {
 #>   font-style: italic;
 #> }
 #> 
-#> #dfcgqlbczp .gt_super {
+#> #bufjgfcdcf .gt_super {
 #>   font-size: 65%;
 #> }
 #> 
-#> #dfcgqlbczp .gt_footnote_marks {
+#> #bufjgfcdcf .gt_footnote_marks {
 #>   font-size: 75%;
 #>   vertical-align: 0.4em;
 #>   position: initial;
 #> }
 #> 
-#> #dfcgqlbczp .gt_asterisk {
+#> #bufjgfcdcf .gt_asterisk {
 #>   font-size: 100%;
 #>   vertical-align: 0;
 #> }
 #> 
-#> #dfcgqlbczp .gt_indent_1 {
+#> #bufjgfcdcf .gt_indent_1 {
 #>   text-indent: 5px;
 #> }
 #> 
-#> #dfcgqlbczp .gt_indent_2 {
+#> #bufjgfcdcf .gt_indent_2 {
 #>   text-indent: 10px;
 #> }
 #> 
-#> #dfcgqlbczp .gt_indent_3 {
+#> #bufjgfcdcf .gt_indent_3 {
 #>   text-indent: 15px;
 #> }
 #> 
-#> #dfcgqlbczp .gt_indent_4 {
+#> #bufjgfcdcf .gt_indent_4 {
 #>   text-indent: 20px;
 #> }
 #> 
-#> #dfcgqlbczp .gt_indent_5 {
+#> #bufjgfcdcf .gt_indent_5 {
 #>   text-indent: 25px;
 #> }
 #> 
-#> #dfcgqlbczp .katex-display {
+#> #bufjgfcdcf .katex-display {
 #>   display: inline-flex !important;
 #>   margin-bottom: 0.75em !important;
 #> }
 #> 
-#> #dfcgqlbczp div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#> #bufjgfcdcf div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
 #>   height: 0px !important;
 #> }
 #> </style>
@@ -617,23 +617,23 @@ describe_data(birthwt)
 #> </table>
 #> </div>
 summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
-#> <div id="qgbviwagpo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-#>   <style>#qgbviwagpo table {
+#> <div id="djpgkpmyiq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+#>   <style>#djpgkpmyiq table {
 #>   font-family: system-ui;
 #>   -webkit-font-smoothing: antialiased;
 #>   -moz-osx-font-smoothing: grayscale;
 #> }
 #> 
-#> #qgbviwagpo thead, #qgbviwagpo tbody, #qgbviwagpo tfoot, #qgbviwagpo tr, #qgbviwagpo td, #qgbviwagpo th {
+#> #djpgkpmyiq thead, #djpgkpmyiq tbody, #djpgkpmyiq tfoot, #djpgkpmyiq tr, #djpgkpmyiq td, #djpgkpmyiq th {
 #>   border-style: none;
 #> }
 #> 
-#> #qgbviwagpo p {
+#> #djpgkpmyiq p {
 #>   margin: 0;
 #>   padding: 0;
 #> }
 #> 
-#> #qgbviwagpo .gt_table {
+#> #djpgkpmyiq .gt_table {
 #>   display: table;
 #>   border-collapse: collapse;
 #>   line-height: normal;
@@ -659,12 +659,12 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   border-left-color: #D3D3D3;
 #> }
 #> 
-#> #qgbviwagpo .gt_caption {
+#> #djpgkpmyiq .gt_caption {
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
 #> }
 #> 
-#> #qgbviwagpo .gt_title {
+#> #djpgkpmyiq .gt_title {
 #>   color: #333333;
 #>   font-size: 125%;
 #>   font-weight: initial;
@@ -676,7 +676,7 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   border-bottom-width: 0;
 #> }
 #> 
-#> #qgbviwagpo .gt_subtitle {
+#> #djpgkpmyiq .gt_subtitle {
 #>   color: #333333;
 #>   font-size: 85%;
 #>   font-weight: initial;
@@ -688,7 +688,7 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   border-top-width: 0;
 #> }
 #> 
-#> #qgbviwagpo .gt_heading {
+#> #djpgkpmyiq .gt_heading {
 #>   background-color: #FFFFFF;
 #>   text-align: left;
 #>   border-bottom-color: #FFFFFF;
@@ -700,13 +700,13 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #qgbviwagpo .gt_bottom_border {
+#> #djpgkpmyiq .gt_bottom_border {
 #>   border-bottom-style: solid;
 #>   border-bottom-width: 2px;
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #qgbviwagpo .gt_col_headings {
+#> #djpgkpmyiq .gt_col_headings {
 #>   border-top-style: solid;
 #>   border-top-width: 2px;
 #>   border-top-color: #D3D3D3;
@@ -721,7 +721,7 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #qgbviwagpo .gt_col_heading {
+#> #djpgkpmyiq .gt_col_heading {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -741,7 +741,7 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   overflow-x: hidden;
 #> }
 #> 
-#> #qgbviwagpo .gt_column_spanner_outer {
+#> #djpgkpmyiq .gt_column_spanner_outer {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -753,15 +753,15 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   padding-right: 4px;
 #> }
 #> 
-#> #qgbviwagpo .gt_column_spanner_outer:first-child {
+#> #djpgkpmyiq .gt_column_spanner_outer:first-child {
 #>   padding-left: 0;
 #> }
 #> 
-#> #qgbviwagpo .gt_column_spanner_outer:last-child {
+#> #djpgkpmyiq .gt_column_spanner_outer:last-child {
 #>   padding-right: 0;
 #> }
 #> 
-#> #qgbviwagpo .gt_column_spanner {
+#> #djpgkpmyiq .gt_column_spanner {
 #>   border-bottom-style: solid;
 #>   border-bottom-width: 2px;
 #>   border-bottom-color: #D3D3D3;
@@ -773,11 +773,11 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   width: 100%;
 #> }
 #> 
-#> #qgbviwagpo .gt_spanner_row {
+#> #djpgkpmyiq .gt_spanner_row {
 #>   border-bottom-style: hidden;
 #> }
 #> 
-#> #qgbviwagpo .gt_group_heading {
+#> #djpgkpmyiq .gt_group_heading {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -803,7 +803,7 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   text-align: left;
 #> }
 #> 
-#> #qgbviwagpo .gt_empty_group_heading {
+#> #djpgkpmyiq .gt_empty_group_heading {
 #>   padding: 0.5px;
 #>   color: #333333;
 #>   background-color: #FFFFFF;
@@ -818,15 +818,15 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   vertical-align: middle;
 #> }
 #> 
-#> #qgbviwagpo .gt_from_md > :first-child {
+#> #djpgkpmyiq .gt_from_md > :first-child {
 #>   margin-top: 0;
 #> }
 #> 
-#> #qgbviwagpo .gt_from_md > :last-child {
+#> #djpgkpmyiq .gt_from_md > :last-child {
 #>   margin-bottom: 0;
 #> }
 #> 
-#> #qgbviwagpo .gt_row {
+#> #djpgkpmyiq .gt_row {
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
 #>   padding-left: 5px;
@@ -845,7 +845,7 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   overflow-x: hidden;
 #> }
 #> 
-#> #qgbviwagpo .gt_stub {
+#> #djpgkpmyiq .gt_stub {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -858,7 +858,7 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #qgbviwagpo .gt_stub_row_group {
+#> #djpgkpmyiq .gt_stub_row_group {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -872,15 +872,15 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   vertical-align: top;
 #> }
 #> 
-#> #qgbviwagpo .gt_row_group_first td {
+#> #djpgkpmyiq .gt_row_group_first td {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #qgbviwagpo .gt_row_group_first th {
+#> #djpgkpmyiq .gt_row_group_first th {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #qgbviwagpo .gt_summary_row {
+#> #djpgkpmyiq .gt_summary_row {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   text-transform: inherit;
@@ -890,16 +890,16 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #qgbviwagpo .gt_first_summary_row {
+#> #djpgkpmyiq .gt_first_summary_row {
 #>   border-top-style: solid;
 #>   border-top-color: #D3D3D3;
 #> }
 #> 
-#> #qgbviwagpo .gt_first_summary_row.thick {
+#> #djpgkpmyiq .gt_first_summary_row.thick {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #qgbviwagpo .gt_last_summary_row {
+#> #djpgkpmyiq .gt_last_summary_row {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -909,7 +909,7 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #qgbviwagpo .gt_grand_summary_row {
+#> #djpgkpmyiq .gt_grand_summary_row {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   text-transform: inherit;
@@ -919,7 +919,7 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #qgbviwagpo .gt_first_grand_summary_row {
+#> #djpgkpmyiq .gt_first_grand_summary_row {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -929,7 +929,7 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   border-top-color: #D3D3D3;
 #> }
 #> 
-#> #qgbviwagpo .gt_last_grand_summary_row_top {
+#> #djpgkpmyiq .gt_last_grand_summary_row_top {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -939,11 +939,11 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #qgbviwagpo .gt_striped {
+#> #djpgkpmyiq .gt_striped {
 #>   background-color: rgba(128, 128, 128, 0.05);
 #> }
 #> 
-#> #qgbviwagpo .gt_table_body {
+#> #djpgkpmyiq .gt_table_body {
 #>   border-top-style: solid;
 #>   border-top-width: 2px;
 #>   border-top-color: #D3D3D3;
@@ -952,7 +952,7 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #qgbviwagpo .gt_footnotes {
+#> #djpgkpmyiq .gt_footnotes {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   border-bottom-style: none;
@@ -966,7 +966,7 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #qgbviwagpo .gt_footnote {
+#> #djpgkpmyiq .gt_footnote {
 #>   margin: 0px;
 #>   font-size: 90%;
 #>   padding-top: 4px;
@@ -975,7 +975,7 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #qgbviwagpo .gt_sourcenotes {
+#> #djpgkpmyiq .gt_sourcenotes {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   border-bottom-style: none;
@@ -989,7 +989,7 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #qgbviwagpo .gt_sourcenote {
+#> #djpgkpmyiq .gt_sourcenote {
 #>   font-size: 90%;
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
@@ -997,72 +997,72 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   padding-right: 5px;
 #> }
 #> 
-#> #qgbviwagpo .gt_left {
+#> #djpgkpmyiq .gt_left {
 #>   text-align: left;
 #> }
 #> 
-#> #qgbviwagpo .gt_center {
+#> #djpgkpmyiq .gt_center {
 #>   text-align: center;
 #> }
 #> 
-#> #qgbviwagpo .gt_right {
+#> #djpgkpmyiq .gt_right {
 #>   text-align: right;
 #>   font-variant-numeric: tabular-nums;
 #> }
 #> 
-#> #qgbviwagpo .gt_font_normal {
+#> #djpgkpmyiq .gt_font_normal {
 #>   font-weight: normal;
 #> }
 #> 
-#> #qgbviwagpo .gt_font_bold {
+#> #djpgkpmyiq .gt_font_bold {
 #>   font-weight: bold;
 #> }
 #> 
-#> #qgbviwagpo .gt_font_italic {
+#> #djpgkpmyiq .gt_font_italic {
 #>   font-style: italic;
 #> }
 #> 
-#> #qgbviwagpo .gt_super {
+#> #djpgkpmyiq .gt_super {
 #>   font-size: 65%;
 #> }
 #> 
-#> #qgbviwagpo .gt_footnote_marks {
+#> #djpgkpmyiq .gt_footnote_marks {
 #>   font-size: 75%;
 #>   vertical-align: 0.4em;
 #>   position: initial;
 #> }
 #> 
-#> #qgbviwagpo .gt_asterisk {
+#> #djpgkpmyiq .gt_asterisk {
 #>   font-size: 100%;
 #>   vertical-align: 0;
 #> }
 #> 
-#> #qgbviwagpo .gt_indent_1 {
+#> #djpgkpmyiq .gt_indent_1 {
 #>   text-indent: 5px;
 #> }
 #> 
-#> #qgbviwagpo .gt_indent_2 {
+#> #djpgkpmyiq .gt_indent_2 {
 #>   text-indent: 10px;
 #> }
 #> 
-#> #qgbviwagpo .gt_indent_3 {
+#> #djpgkpmyiq .gt_indent_3 {
 #>   text-indent: 15px;
 #> }
 #> 
-#> #qgbviwagpo .gt_indent_4 {
+#> #djpgkpmyiq .gt_indent_4 {
 #>   text-indent: 20px;
 #> }
 #> 
-#> #qgbviwagpo .gt_indent_5 {
+#> #djpgkpmyiq .gt_indent_5 {
 #>   text-indent: 25px;
 #> }
 #> 
-#> #qgbviwagpo .katex-display {
+#> #djpgkpmyiq .katex-display {
 #>   display: inline-flex !important;
 #>   margin-bottom: 0.75em !important;
 #> }
 #> 
-#> #qgbviwagpo div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#> #djpgkpmyiq div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
 #>   height: 0px !important;
 #> }
 #> </style>
@@ -1103,7 +1103,7 @@ summary_table(birthwt, by = low, include = c(age, lwt, smoke), overall = TRUE)
 #>   </tbody>
 #>   <tfoot>
 #>     <tr class="gt_footnotes">
-#>       <td class="gt_footnote" colspan="5"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> Continuous data are mean (SD) or median (IQR). Categorical data are n (%).</td>
+#>       <td class="gt_footnote" colspan="5"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> Continuous data: Maternal age (years): mean (SD); Maternal weight (lb): median (IQR). Categorical data are n (%).</td>
 #>     </tr>
 #>   </tfoot>
 #> </table>

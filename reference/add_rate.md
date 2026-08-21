@@ -20,7 +20,8 @@ add_rate(
   time_label = NULL,
   ci = TRUE,
   conf.level = 0.95,
-  digits = 1
+  digits = 1,
+  layout = NULL
 )
 ```
 
@@ -65,6 +66,12 @@ add_rate(
 
   Number of decimal places.
 
+- layout:
+
+  Table layout. `NULL` inherits the parent table layout; `"compact"`
+  keeps rate and CI together and `"separate"` places them in separate
+  columns beneath each cohort header.
+
 ## Value
 
 The updated `gt_desc_table`.
@@ -84,23 +91,23 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
     label = "Carburettor rate",
     multiplier = 1000
   )
-#> <div id="izrjufiqoh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-#>   <style>#izrjufiqoh table {
+#> <div id="hvqltorlvu" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+#>   <style>#hvqltorlvu table {
 #>   font-family: system-ui;
 #>   -webkit-font-smoothing: antialiased;
 #>   -moz-osx-font-smoothing: grayscale;
 #> }
 #> 
-#> #izrjufiqoh thead, #izrjufiqoh tbody, #izrjufiqoh tfoot, #izrjufiqoh tr, #izrjufiqoh td, #izrjufiqoh th {
+#> #hvqltorlvu thead, #hvqltorlvu tbody, #hvqltorlvu tfoot, #hvqltorlvu tr, #hvqltorlvu td, #hvqltorlvu th {
 #>   border-style: none;
 #> }
 #> 
-#> #izrjufiqoh p {
+#> #hvqltorlvu p {
 #>   margin: 0;
 #>   padding: 0;
 #> }
 #> 
-#> #izrjufiqoh .gt_table {
+#> #hvqltorlvu .gt_table {
 #>   display: table;
 #>   border-collapse: collapse;
 #>   line-height: normal;
@@ -126,12 +133,12 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   border-left-color: #D3D3D3;
 #> }
 #> 
-#> #izrjufiqoh .gt_caption {
+#> #hvqltorlvu .gt_caption {
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
 #> }
 #> 
-#> #izrjufiqoh .gt_title {
+#> #hvqltorlvu .gt_title {
 #>   color: #333333;
 #>   font-size: 125%;
 #>   font-weight: initial;
@@ -143,7 +150,7 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   border-bottom-width: 0;
 #> }
 #> 
-#> #izrjufiqoh .gt_subtitle {
+#> #hvqltorlvu .gt_subtitle {
 #>   color: #333333;
 #>   font-size: 85%;
 #>   font-weight: initial;
@@ -155,7 +162,7 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   border-top-width: 0;
 #> }
 #> 
-#> #izrjufiqoh .gt_heading {
+#> #hvqltorlvu .gt_heading {
 #>   background-color: #FFFFFF;
 #>   text-align: left;
 #>   border-bottom-color: #FFFFFF;
@@ -167,13 +174,13 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #izrjufiqoh .gt_bottom_border {
+#> #hvqltorlvu .gt_bottom_border {
 #>   border-bottom-style: solid;
 #>   border-bottom-width: 2px;
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #izrjufiqoh .gt_col_headings {
+#> #hvqltorlvu .gt_col_headings {
 #>   border-top-style: solid;
 #>   border-top-width: 2px;
 #>   border-top-color: #D3D3D3;
@@ -188,7 +195,7 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #izrjufiqoh .gt_col_heading {
+#> #hvqltorlvu .gt_col_heading {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -208,7 +215,7 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   overflow-x: hidden;
 #> }
 #> 
-#> #izrjufiqoh .gt_column_spanner_outer {
+#> #hvqltorlvu .gt_column_spanner_outer {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -220,15 +227,15 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   padding-right: 4px;
 #> }
 #> 
-#> #izrjufiqoh .gt_column_spanner_outer:first-child {
+#> #hvqltorlvu .gt_column_spanner_outer:first-child {
 #>   padding-left: 0;
 #> }
 #> 
-#> #izrjufiqoh .gt_column_spanner_outer:last-child {
+#> #hvqltorlvu .gt_column_spanner_outer:last-child {
 #>   padding-right: 0;
 #> }
 #> 
-#> #izrjufiqoh .gt_column_spanner {
+#> #hvqltorlvu .gt_column_spanner {
 #>   border-bottom-style: solid;
 #>   border-bottom-width: 2px;
 #>   border-bottom-color: #D3D3D3;
@@ -240,11 +247,11 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   width: 100%;
 #> }
 #> 
-#> #izrjufiqoh .gt_spanner_row {
+#> #hvqltorlvu .gt_spanner_row {
 #>   border-bottom-style: hidden;
 #> }
 #> 
-#> #izrjufiqoh .gt_group_heading {
+#> #hvqltorlvu .gt_group_heading {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -270,7 +277,7 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   text-align: left;
 #> }
 #> 
-#> #izrjufiqoh .gt_empty_group_heading {
+#> #hvqltorlvu .gt_empty_group_heading {
 #>   padding: 0.5px;
 #>   color: #333333;
 #>   background-color: #FFFFFF;
@@ -285,15 +292,15 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   vertical-align: middle;
 #> }
 #> 
-#> #izrjufiqoh .gt_from_md > :first-child {
+#> #hvqltorlvu .gt_from_md > :first-child {
 #>   margin-top: 0;
 #> }
 #> 
-#> #izrjufiqoh .gt_from_md > :last-child {
+#> #hvqltorlvu .gt_from_md > :last-child {
 #>   margin-bottom: 0;
 #> }
 #> 
-#> #izrjufiqoh .gt_row {
+#> #hvqltorlvu .gt_row {
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
 #>   padding-left: 5px;
@@ -312,7 +319,7 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   overflow-x: hidden;
 #> }
 #> 
-#> #izrjufiqoh .gt_stub {
+#> #hvqltorlvu .gt_stub {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -325,7 +332,7 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   padding-right: 5px;
 #> }
 #> 
-#> #izrjufiqoh .gt_stub_row_group {
+#> #hvqltorlvu .gt_stub_row_group {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   font-size: 100%;
@@ -339,15 +346,15 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   vertical-align: top;
 #> }
 #> 
-#> #izrjufiqoh .gt_row_group_first td {
+#> #hvqltorlvu .gt_row_group_first td {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #izrjufiqoh .gt_row_group_first th {
+#> #hvqltorlvu .gt_row_group_first th {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #izrjufiqoh .gt_summary_row {
+#> #hvqltorlvu .gt_summary_row {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   text-transform: inherit;
@@ -357,16 +364,16 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   padding-right: 5px;
 #> }
 #> 
-#> #izrjufiqoh .gt_first_summary_row {
+#> #hvqltorlvu .gt_first_summary_row {
 #>   border-top-style: solid;
 #>   border-top-color: #D3D3D3;
 #> }
 #> 
-#> #izrjufiqoh .gt_first_summary_row.thick {
+#> #hvqltorlvu .gt_first_summary_row.thick {
 #>   border-top-width: 2px;
 #> }
 #> 
-#> #izrjufiqoh .gt_last_summary_row {
+#> #hvqltorlvu .gt_last_summary_row {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -376,7 +383,7 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #izrjufiqoh .gt_grand_summary_row {
+#> #hvqltorlvu .gt_grand_summary_row {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   text-transform: inherit;
@@ -386,7 +393,7 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   padding-right: 5px;
 #> }
 #> 
-#> #izrjufiqoh .gt_first_grand_summary_row {
+#> #hvqltorlvu .gt_first_grand_summary_row {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -396,7 +403,7 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   border-top-color: #D3D3D3;
 #> }
 #> 
-#> #izrjufiqoh .gt_last_grand_summary_row_top {
+#> #hvqltorlvu .gt_last_grand_summary_row_top {
 #>   padding-top: 8px;
 #>   padding-bottom: 8px;
 #>   padding-left: 5px;
@@ -406,11 +413,11 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #izrjufiqoh .gt_striped {
+#> #hvqltorlvu .gt_striped {
 #>   background-color: rgba(128, 128, 128, 0.05);
 #> }
 #> 
-#> #izrjufiqoh .gt_table_body {
+#> #hvqltorlvu .gt_table_body {
 #>   border-top-style: solid;
 #>   border-top-width: 2px;
 #>   border-top-color: #D3D3D3;
@@ -419,7 +426,7 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   border-bottom-color: #D3D3D3;
 #> }
 #> 
-#> #izrjufiqoh .gt_footnotes {
+#> #hvqltorlvu .gt_footnotes {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   border-bottom-style: none;
@@ -433,7 +440,7 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #izrjufiqoh .gt_footnote {
+#> #hvqltorlvu .gt_footnote {
 #>   margin: 0px;
 #>   font-size: 90%;
 #>   padding-top: 4px;
@@ -442,7 +449,7 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   padding-right: 5px;
 #> }
 #> 
-#> #izrjufiqoh .gt_sourcenotes {
+#> #hvqltorlvu .gt_sourcenotes {
 #>   color: #333333;
 #>   background-color: #FFFFFF;
 #>   border-bottom-style: none;
@@ -456,7 +463,7 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   border-right-color: #D3D3D3;
 #> }
 #> 
-#> #izrjufiqoh .gt_sourcenote {
+#> #hvqltorlvu .gt_sourcenote {
 #>   font-size: 90%;
 #>   padding-top: 4px;
 #>   padding-bottom: 4px;
@@ -464,72 +471,72 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 #>   padding-right: 5px;
 #> }
 #> 
-#> #izrjufiqoh .gt_left {
+#> #hvqltorlvu .gt_left {
 #>   text-align: left;
 #> }
 #> 
-#> #izrjufiqoh .gt_center {
+#> #hvqltorlvu .gt_center {
 #>   text-align: center;
 #> }
 #> 
-#> #izrjufiqoh .gt_right {
+#> #hvqltorlvu .gt_right {
 #>   text-align: right;
 #>   font-variant-numeric: tabular-nums;
 #> }
 #> 
-#> #izrjufiqoh .gt_font_normal {
+#> #hvqltorlvu .gt_font_normal {
 #>   font-weight: normal;
 #> }
 #> 
-#> #izrjufiqoh .gt_font_bold {
+#> #hvqltorlvu .gt_font_bold {
 #>   font-weight: bold;
 #> }
 #> 
-#> #izrjufiqoh .gt_font_italic {
+#> #hvqltorlvu .gt_font_italic {
 #>   font-style: italic;
 #> }
 #> 
-#> #izrjufiqoh .gt_super {
+#> #hvqltorlvu .gt_super {
 #>   font-size: 65%;
 #> }
 #> 
-#> #izrjufiqoh .gt_footnote_marks {
+#> #hvqltorlvu .gt_footnote_marks {
 #>   font-size: 75%;
 #>   vertical-align: 0.4em;
 #>   position: initial;
 #> }
 #> 
-#> #izrjufiqoh .gt_asterisk {
+#> #hvqltorlvu .gt_asterisk {
 #>   font-size: 100%;
 #>   vertical-align: 0;
 #> }
 #> 
-#> #izrjufiqoh .gt_indent_1 {
+#> #hvqltorlvu .gt_indent_1 {
 #>   text-indent: 5px;
 #> }
 #> 
-#> #izrjufiqoh .gt_indent_2 {
+#> #hvqltorlvu .gt_indent_2 {
 #>   text-indent: 10px;
 #> }
 #> 
-#> #izrjufiqoh .gt_indent_3 {
+#> #hvqltorlvu .gt_indent_3 {
 #>   text-indent: 15px;
 #> }
 #> 
-#> #izrjufiqoh .gt_indent_4 {
+#> #hvqltorlvu .gt_indent_4 {
 #>   text-indent: 20px;
 #> }
 #> 
-#> #izrjufiqoh .gt_indent_5 {
+#> #hvqltorlvu .gt_indent_5 {
 #>   text-indent: 25px;
 #> }
 #> 
-#> #izrjufiqoh .katex-display {
+#> #hvqltorlvu .katex-display {
 #>   display: inline-flex !important;
 #>   margin-bottom: 0.75em !important;
 #> }
 #> 
-#> #izrjufiqoh div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#> #hvqltorlvu div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
 #>   height: 0px !important;
 #> }
 #> </style>

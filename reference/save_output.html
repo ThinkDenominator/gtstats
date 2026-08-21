@@ -33,6 +33,7 @@ filename."><link rel="stylesheet" href="https://thinkdenominator.com/analytics-c
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/descriptive-tables.html">Building descriptive tables</a></li>
     <li><a class="dropdown-item" href="../articles/inferential-tests.html">Inferential tests and assumptions</a></li>
+    <li><a class="dropdown-item" href="../articles/inferential-tests.html#default-selection-policy">Automatic test algorithm</a></li>
     <li><a class="dropdown-item" href="../articles/epi-helpers.html">Epidemiology helpers</a></li>
     <li><a class="dropdown-item" href="../articles/styling-export.html">Styling and exporting tables</a></li>
   </ul></li>
@@ -160,7 +161,7 @@ supplied, so a simple filename saves in the current working directory.</p></dd>
 <span class="r-in"><span><span class="va">table</span> <span class="op">&lt;-</span> <span class="fu"><a href="summary_table.html">summary_table</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="add_summary.html">add_summary</a></span><span class="op">(</span>vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">mpg</span>, <span class="va">wt</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">save_output</span><span class="op">(</span><span class="va">table</span>, <span class="st">"summary.html"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="plot_compare.html">plot_compare</a></span><span class="op">(</span><span class="va">mtcars</span>, outcome <span class="op">=</span> <span class="va">mpg</span>, by <span class="op">=</span> <span class="va">am</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="plot_compare.html">plot_compare</a></span><span class="op">(</span><span class="va">mtcars</span>, variable <span class="op">=</span> <span class="va">mpg</span>, group <span class="op">=</span> <span class="va">am</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">save_output</span><span class="op">(</span><span class="va">plot</span>, <span class="st">"comparison.png"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>

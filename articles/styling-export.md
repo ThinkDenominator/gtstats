@@ -304,8 +304,8 @@ can be saved using
 
 p <- plot_compare(
   mtcars,
-  outcome = mpg,
-  by = am,
+  variable = mpg,
+  group = am,
   show_p = TRUE
 )
 

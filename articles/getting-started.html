@@ -49,6 +49,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/descriptive-tables.html">Building descriptive tables</a></li>
     <li><a class="dropdown-item" href="../articles/inferential-tests.html">Inferential tests and assumptions</a></li>
+    <li><a class="dropdown-item" href="../articles/inferential-tests.html#default-selection-policy">Automatic test algorithm</a></li>
     <li><a class="dropdown-item" href="../articles/epi-helpers.html">Epidemiology helpers</a></li>
     <li><a class="dropdown-item" href="../articles/styling-export.html">Styling and exporting tables</a></li>
   </ul>
@@ -185,9 +186,60 @@ separately:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">variance</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assess_variance.html">assess_variance</a></span><span class="op">(</span><span class="va">birthwt</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">lwt</span><span class="op">)</span>, by <span class="op">=</span> <span class="va">low</span><span class="op">)</span></span>
 <span><span class="va">variance</span></span></code></pre></div>
-<p><code><a href="../reference/assess_variance.html">assess_variance()</a></code> reports SDs, variances, and
-largest/smallest ratios. These are descriptive diagnostics, not a
-test-selection rule: Welch methods do not require equal variances.</p>
+<p><code><a href="../reference/assess_variance.html">assess_variance()</a></code> presents one row per variable: each
+group’s usable <code>n</code>, SD, and variance, the observed SD and
+variance ratios, Levene p, and a short interpretation. These are
+descriptive diagnostics, not a test-selection rule: Welch methods do not
+require equal variances.</p>
+</div>
+<div class="section level3">
+<h3 id="how-auto-chooses-an-inferential-test">How Auto chooses an inferential test<a class="anchor" aria-label="anchor" href="#how-auto-chooses-an-inferential-test"></a>
+</h3>
+<p>The automatic algorithm is deliberately visible and can always be
+overridden:</p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Data structure</th>
+<th>Auto route</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Continuous, 2 independent groups</td>
+<td>Welch t-test when no marked skew is flagged; Student’s t-test only
+with <code>var_equal = TRUE</code>; Wilcoxon rank-sum when marked skew
+is flagged</td>
+</tr>
+<tr class="even">
+<td>Continuous, 3+ independent groups</td>
+<td>Welch ANOVA when no marked skew is flagged; classical ANOVA only
+with <code>var_equal = TRUE</code>; Kruskal-Wallis when marked skew is
+flagged</td>
+</tr>
+<tr class="odd">
+<td>Continuous, paired</td>
+<td>Paired t-test or repeated-measures ANOVA when no marked skew is
+flagged; Wilcoxon signed-rank or Friedman when flagged</td>
+</tr>
+<tr class="even">
+<td>Independent categorical or ordinal</td>
+<td>Chi-square when expected-count guidance is met; Fisher exact when an
+expected count is below 1 or more than 20% are below 5</td>
+</tr>
+<tr class="odd">
+<td>Paired binary</td>
+<td>McNemar for 2 occasions; Cochran’s Q for 3+ occasions</td>
+</tr>
+</tbody>
+</table>
+<p>The skewness threshold—not the Shapiro-Wilk p-value alone—controls
+the continuous rank-based switch. Levene and Bartlett results are
+descriptive support and never change Auto. Inspect the recorded reason
+with <code><a href="../reference/diagnostics_stats.html">diagnostics_stats()</a></code> or
+<code>result$method$selection_rule</code>. The full explanation is in <a href="inferential-tests.html">Inferential tests and assumptions</a>.</p>
 </div>
 <div class="section level3">
 <h3 id="create-a-table-1">3. Create a Table 1<a class="anchor" aria-label="anchor" href="#create-a-table-1"></a>
