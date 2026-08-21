@@ -136,10 +136,15 @@ same core workflow as this guide, adds a data dictionary, Summary-table
 presentation controls, a dedicated <strong>Customise table</strong>
 workspace that automatically carries forward the latest Summary table,
 an in-session history, and copyable or downloadable R code. Result
-tables download as Word, HTML, PDF, or RTF. CSV input works directly;
-Excel input additionally needs <code>rio</code>. Display customisation
-never changes estimates or test selection, and the app does not replace
-a reproducible R script.</p>
+tables download as Word, HTML, PDF, or RTF. Distribution diagnostics
+offer histogram, density, Q-Q and boxplots; comparisons use
+<code><a href="../reference/plot_compare.html">plot_compare()</a></code>; pair correlations and matrices use
+<code><a href="../reference/plot_correlation.html">plot_correlation()</a></code>. Plot labels, display, typography and
+relevant colours can be controlled in the GUI, downloaded as PNG/PDF,
+and reproduced from its Code panel. CSV input works directly; Excel
+input additionally needs <code>rio</code>. Display customisation never
+changes estimates or test selection, and the app does not replace a
+reproducible R script.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"shiny"</span><span class="op">)</span> <span class="co"># once, if needed</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"rio"</span><span class="op">)</span>   <span class="co"># once, only for Excel files</span></span>

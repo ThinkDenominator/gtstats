@@ -447,7 +447,12 @@ example, the birth-weight example generates:</p>
 </h2>
 <p>The <strong>Understand</strong> tab has two jobs: give a compact
 overview of the data and inspect selected continuous variables before
-choosing their descriptive display.</p>
+choosing their descriptive display. Its controls are arranged side by
+side: dataset overview on the left and distribution/spread assessment on
+the right. Results use separate <strong>Overview</strong>,
+<strong>Distribution</strong>, <strong>Variance</strong>, and
+<strong>Plot</strong> tabs, so wide tables and figures do not form one
+long page.</p>
 <div class="section level3">
 <h3 id="describe-data">Describe data<a class="anchor" aria-label="anchor" href="#describe-data"></a>
 </h3>
@@ -475,12 +480,18 @@ spread</strong>, then optionally choose a grouping variable and click
 <p>The recommendation is for <strong>descriptive reporting</strong>, not
 test selection. Shapiro-Wilk is sensitive to sample size; interpret it
 alongside skewness, plots, and subject-matter knowledge.</p>
+<p>Turn on <strong>Create visual distribution diagnostics</strong> to
+inspect any selected variable as a histogram, density plot, Q-Q plot, or
+boxplot. Change the plot type without rerunning the assessment, then
+download the current view as PNG or PDF. Advanced controls expose the
+Shapiro-Wilk switch, skewness threshold, minimum subgroup size, and
+precision used by <code><a href="../reference/assess_distribution.html">assess_distribution()</a></code>.</p>
 </div>
 <div class="section level3">
 <h3 id="show-spread-by-group">Show spread by group<a class="anchor" aria-label="anchor" href="#show-spread-by-group"></a>
 </h3>
-<p>Check <strong>Also show spread by group</strong> only when a grouping
-variable is selected. The app will also run
+<p>Check <strong>Also assess spread by group</strong> only when a
+grouping variable is selected. The app will also run
 <code><a href="../reference/assess_variance.html">assess_variance()</a></code> and show group SDs, variances, and spread
 ratios. These are descriptive diagnostics. They do not impose an
 equal-variance requirement: Welch methods are the package’s parametric
@@ -830,6 +841,10 @@ several variables.</p>
 shown.</li>
 <li>Click <strong>Create correlation output</strong>.</li>
 </ol>
+<p>Under <strong>Advanced plot appearance</strong>, pair plots can
+customise point and trend colours, axis labels, caption, confidence
+level, and base font size. Matrix heatmaps can customise negative, zero,
+and positive correlation colours.</p>
 <p>For a matrix:</p>
 <ol style="list-style-type: decimal">
 <li>Tick at least two continuous variables.</li>
@@ -858,6 +873,20 @@ visible warning directs you to the Denominators tab. Less frequently
 used ordering, adjustment, diagonal, and shading controls are kept under
 <strong>Advanced matrix options</strong>. <strong>Reset options</strong>
 restores the safe defaults without running an analysis.</p>
+</div>
+<div class="section level2">
+<h2 id="comparison-plots">Comparison plots<a class="anchor" aria-label="anchor" href="#comparison-plots"></a>
+</h2>
+<p>The <strong>Compare groups</strong> tab can create the figure that
+accompanies its inferential result. Leave <strong>Create comparison
+plot</strong> selected for the beginner route. Auto chooses an
+appropriate visual for the variable; experienced users can request a
+boxplot or bar chart, switch categorical plots between counts and
+proportions, show or hide observations and the p-value, edit labels and
+caption, choose a colour palette, and change the base font size. The
+figure is downloadable as PNG or PDF, and the Code panel includes the
+matching <code><a href="../reference/plot_compare.html">plot_compare()</a></code> call so the GUI figure can be
+reproduced in a script.</p>
 <p>Auto uses Pearson throughout a matrix only when every selected
 variable has absolute sample skewness below 1; otherwise it uses
 Spearman throughout. This does not establish linearity or monotonicity.

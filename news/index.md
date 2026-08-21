@@ -2,6 +2,14 @@
 
 ## gtstats 1.0.0
 
+- Completed the GUI plotting workflow. Distribution assessments now
+  expose histogram, density, Q-Q and boxplot diagnostics; group
+  comparisons expose
+  [`plot_compare()`](https://gtstats.thinkdenominator.com/reference/plot_compare.md)
+  controls; and correlation plots expose labels, confidence level,
+  typography and colour controls. Every plot is downloadable as PNG or
+  PDF and represented in the generated reproducible R code.
+
 - Added a dedicated **Customise table** workspace immediately after
   Summary table in
   [`gtstats_app()`](https://gtstats.thinkdenominator.com/reference/gtstats_app.md),
