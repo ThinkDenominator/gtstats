@@ -251,6 +251,10 @@ Copy this code first when creating a permanent R script.
 
 The **Understand** tab has two jobs: give a compact overview of the data and
 inspect selected continuous variables before choosing their descriptive display.
+Its controls are arranged side by side: dataset overview on the left and
+distribution/spread assessment on the right. Results use separate **Overview**,
+**Distribution**, **Variance**, and **Plot** tabs, so wide tables and figures do
+not form one long page.
 
 ## Describe data
 
@@ -278,9 +282,15 @@ The recommendation is for **descriptive reporting**, not test selection.
 Shapiro-Wilk is sensitive to sample size; interpret it alongside skewness,
 plots, and subject-matter knowledge.
 
+Turn on **Create visual distribution diagnostics** to inspect any selected
+variable as a histogram, density plot, Q-Q plot, or boxplot. Change the plot
+type without rerunning the assessment, then download the current view as PNG
+or PDF. Advanced controls expose the Shapiro-Wilk switch, skewness threshold,
+minimum subgroup size, and precision used by `assess_distribution()`.
+
 ## Show spread by group
 
-Check **Also show spread by group** only when a grouping variable is selected.
+Check **Also assess spread by group** only when a grouping variable is selected.
 The app will also run `assess_variance()` and show group SDs, variances, and
 spread ratios. These are descriptive diagnostics. They do not impose an
 equal-variance requirement: Welch methods are the package's parametric default
@@ -511,6 +521,10 @@ For one pair:
 3. Choose the plotted trend and whether its confidence band is shown.
 4. Click **Create correlation output**.
 
+Under **Advanced plot appearance**, pair plots can customise point and trend
+colours, axis labels, caption, confidence level, and base font size. Matrix
+heatmaps can customise negative, zero, and positive correlation colours.
+
 For a matrix:
 
 1. Tick at least two continuous variables.
@@ -536,6 +550,17 @@ pairwise sample sizes differ, a visible warning directs you to the Denominators
 tab. Less frequently used ordering, adjustment, diagonal, and shading controls
 are kept under **Advanced matrix options**. **Reset options** restores the safe
 defaults without running an analysis.
+
+# Comparison plots
+
+The **Compare groups** tab can create the figure that accompanies its
+inferential result. Leave **Create comparison plot** selected for the beginner
+route. Auto chooses an appropriate visual for the variable; experienced users
+can request a boxplot or bar chart, switch categorical plots between counts and
+proportions, show or hide observations and the p-value, edit labels and
+caption, choose a colour palette, and change the base font size. The figure is
+downloadable as PNG or PDF, and the Code panel includes the matching
+`plot_compare()` call so the GUI figure can be reproduced in a script.
 
 Auto uses Pearson throughout a matrix only when every selected variable has
 absolute sample skewness below 1; otherwise it uses Spearman throughout. This

@@ -316,41 +316,84 @@ ui <- navbarPage(
         )
       ),
       tabPanel("Understand", value = "understand",
-        br(), fluidRow(
-          column(4, div(class = "cardish",
+        br(),
+        fluidRow(
+          column(4, div(class = "cardish gtx-side",
             tags$h3("Dataset overview"),
             tags$p(class = "help-copy", "Start here. It identifies variable types, missing values, likely ordinal variables, and concise summaries."),
             actionButton("run_describe", "Describe data", class = "btn-primary"),
-            hr(),
+            tags$p(class = "help-copy", "The result opens in the Overview tab below and can be downloaded in publication-ready formats.")
+          )),
+          column(8, div(class = "cardish",
             tags$h3("Distribution / spread"),
-            selectizeInput("diagnostic_vars", "Continuous variables", choices = NULL, multiple = TRUE),
-            selectInput("diagnostic_group", "Group (optional)", choices = NULL),
-            checkboxInput("show_variance", "Also show spread by group", FALSE),
-            conditionalPanel(
-              "input.show_variance && input.diagnostic_group !== ''",
-              selectInput(
-                "variance_test", "Supporting variance test",
-                choices = c(
-                  "Levene / Brown-Forsythe (median-centred)" = "levene",
-                  "None (descriptive spread only)" = "none",
-                  "Bartlett (requires normal group distributions)" = "bartlett"
-                ),
-                selected = "levene"
+            tags$p(class = "help-copy", "Choose variables once, then assess their numerical distribution, visual shape, and—when grouped—observed spread."),
+            fluidRow(
+              column(6,
+                selectizeInput("diagnostic_vars", "Continuous variables", choices = NULL, multiple = TRUE),
+                selectInput("diagnostic_group", "Group (optional)", choices = NULL),
+                checkboxInput("show_variance", "Also assess spread by group", FALSE),
+                conditionalPanel(
+                  "input.show_variance && input.diagnostic_group !== ''",
+                  selectInput(
+                    "variance_test", "Supporting variance test",
+                    choices = c(
+                      "Levene / Brown-Forsythe (median-centred)" = "levene",
+                      "None (descriptive spread only)" = "none",
+                      "Bartlett (requires normal group distributions)" = "bartlett"
+                    ),
+                    selected = "levene"
+                  ),
+                  tags$p(class = "help-copy", "Supporting evidence only; it does not change Auto test selection.")
+                )
               ),
-              tags$p(
-                class = "help-copy",
-                "The p-value is supporting evidence only. It does not prove equal variances or change Auto test selection."
+              column(6,
+                checkboxInput("distribution_plots", "Create visual distribution diagnostics", TRUE),
+                conditionalPanel(
+                  "input.distribution_plots",
+                  selectInput("distribution_plot_variable", "Variable to plot", choices = NULL),
+                  selectInput("distribution_plot_type", "Diagnostic plot", choices = c(
+                    "Histogram" = "histogram", "Density plot" = "density",
+                    "Q-Q plot" = "qq", "Boxplot" = "boxplot"
+                  )),
+                  tags$p(class = "help-copy", "Choose one view at a time. Switch views after assessment without rerunning it.")
+                ),
+                tags$details(class = "gtx-details",
+                  tags$summary("Advanced distribution settings"),
+                  checkboxInput("distribution_shapiro", "Include Shapiro-Wilk supporting information", TRUE),
+                  numericInput("distribution_skew_cutoff", "Marked-skewness threshold", 1, min = 0.1, step = 0.1),
+                  numericInput("distribution_min_n", "Minimum observations", 3, min = 3, step = 1),
+                  numericInput("distribution_digits", "Decimal places", 2, min = 0, max = 5, step = 1)
+                )
               )
             ),
             actionButton("run_distribution", "Assess distribution", class = "btn-primary")
+          ))
+        ),
+        tabsetPanel(
+          id = "understand_results_tab",
+          tabPanel("Overview", div(class = "cardish",
+            tags$h3("What is in this dataset?"),
+            download_strip("describe"), gt::gt_output("describe_table")
           )),
-          column(8,
-            div(class = "cardish", tags$h3("What is in this dataset?"), download_strip("describe"), gt::gt_output("describe_table")),
-            div(class = "cardish", tags$h3("Continuous-variable diagnostics"), download_strip("distribution"), gt::gt_output("distribution_table")),
-            conditionalPanel("output.has_variance === true", div(class = "cardish", tags$h3("Spread by group"), download_strip("variance"), gt::gt_output("variance_table"))),
-            code_card("understand_code")
-          )
-        )
+          tabPanel("Distribution", div(class = "cardish",
+            tags$h3("Continuous-variable diagnostics"),
+            download_strip("distribution"), gt::gt_output("distribution_table")
+          )),
+          tabPanel("Variance", div(class = "cardish",
+            tags$h3("Spread by group"),
+            tags$p(class = "help-copy", "Select a group and turn on Also assess spread by group to populate this panel."),
+            conditionalPanel("output.has_variance === true", download_strip("variance"), gt::gt_output("variance_table"))
+          )),
+          tabPanel("Plot", div(class = "cardish",
+            tags$h3("Visual distribution diagnostic"),
+            tags$p(class = "help-copy", "Histogram, density, Q-Q, and boxplot views are available from the selector above."),
+            conditionalPanel("output.has_distribution_plot === true",
+              download_plot_strip("distribution_plot"),
+              plotOutput("distribution_plot", height = "540px")
+            )
+          ))
+        ),
+        code_card("understand_code")
       ),
       tabPanel("Data Prep", value = "data_prep",
         br(), gtstats:::mod_data_prep_ui("data_prep")
@@ -492,6 +535,23 @@ ui <- navbarPage(
             conditionalPanel("input.compare_paired", selectInput("compare_id", "Participant ID", choices = NULL), tags$p(class = "help-copy", "Each participant must occur once at every compared occasion. Auto selects paired t/Wilcoxon, repeated-measures ANOVA/Friedman, McNemar, or Cochran's Q as appropriate.")),
             conditionalPanel("!input.compare_paired", checkboxInput("compare_var_equal", "For auto: equal variances are justified", FALSE), tags$p(class = "help-copy", "This only changes a suitable independent, non-skewed continuous auto comparison to Student's t-test or classical ANOVA. It does not run a variance test.")),
             checkboxInput("compare_effect", "Include effect size when supported", FALSE),
+            checkboxInput("compare_make_plot", "Create comparison plot", TRUE),
+            conditionalPanel("input.compare_make_plot",
+              selectInput("compare_plot_type", "Plot type", choices = c("Automatic" = "auto", "Boxplot" = "box", "Bar chart" = "bar")),
+              selectInput("compare_plot_display", "Categorical bars", choices = c("Proportions" = "proportion", "Counts" = "count")),
+              checkboxInput("compare_plot_points", "Show individual continuous observations", TRUE),
+              checkboxInput("compare_plot_p", "Show test and p-value in caption", TRUE),
+              tags$details(class = "gtx-details",
+                tags$summary("Advanced plot appearance"),
+                textInput("compare_plot_title", "Plot title (optional)"),
+                textInput("compare_plot_caption", "Additional caption (optional)"),
+                textInput("compare_plot_xlab", "X-axis label (optional)"),
+                textInput("compare_plot_ylab", "Y-axis label (optional)"),
+                textInput("compare_plot_legend", "Legend title (optional)"),
+                textInput("compare_plot_palette", "Colours (optional)", placeholder = "#333333, #999999"),
+                numericInput("compare_plot_size", "Base font size", 14, min = 8, max = 30, step = 1)
+              )
+            ),
             actionButton("run_compare", "Compare groups", class = "btn-primary")
           )),
           column(8,
@@ -500,6 +560,11 @@ ui <- navbarPage(
                 download_strip("comparison"), gt::gt_output("comparison_table"),
                 tags$h4("What did auto choose?"), verbatimTextOutput("comparison_note"),
                 tags$div(class = "gtx-step", tags$strong("What next? "), "Review the Audit tabs before reporting a comparison, then copy the code to preserve the decision you made.")
+              )),
+              tabPanel("Plot", div(class = "gtx-card",
+                tags$h3("Publication-ready comparison plot"),
+                download_plot_strip("comparison_plot"),
+                plotOutput("comparison_plot", height = "600px")
               )),
               tabPanel("Audit", tabsetPanel(
                 tabPanel("Diagnostics", div(class = "gtx-card", download_strip("comparison_diagnostics"), gt::gt_output("comparison_diagnostics"))),
@@ -551,6 +616,23 @@ ui <- navbarPage(
             selectInput("correlation_method", "Method", choices = c("Auto" = "auto", "Pearson" = "pearson", "Spearman" = "spearman")),
             numericInput("correlation_digits", "Decimal places", 2, min = 0, max = 5, step = 1),
             textInput("correlation_title", "Plot title (optional)", placeholder = "Example: Correlation matrix"),
+            tags$details(class = "gtx-details",
+              tags$summary("Advanced plot appearance"),
+              textInput("correlation_caption", "Additional caption (optional)"),
+              textInput("correlation_xlab", "X-axis label (pair plot only)"),
+              textInput("correlation_ylab", "Y-axis label (pair plot only)"),
+              numericInput("correlation_conf_level", "Confidence level", 0.95, min = 0.50, max = 0.999, step = 0.01),
+              numericInput("correlation_plot_size", "Base font size", 14, min = 8, max = 30, step = 1),
+              conditionalPanel("input.correlation_mode === 'pair'",
+                textInput("correlation_point_color", "Point colour", value = "#4472C4"),
+                textInput("correlation_line_color", "Trend-line colour", value = "#ED7D31")
+              ),
+              conditionalPanel("input.correlation_mode === 'matrix'",
+                textInput("correlation_low_color", "Negative-correlation colour", value = "#355C7D"),
+                textInput("correlation_mid_color", "Zero-correlation colour", value = "#FFFFFF"),
+                textInput("correlation_high_color", "Positive-correlation colour", value = "#C06C5B")
+              )
+            ),
             tags$div(class = "button-row",
               actionButton("run_correlation", "Create correlation output", class = "btn-primary"),
               actionButton("reset_correlation", "Reset options", class = "btn-default")
@@ -829,9 +911,26 @@ server <- function(input, output, session) {
     updateCheckboxInput(session, "correlation_show_result", value = TRUE)
     updateNumericInput(session, "correlation_digits", value = 2)
     updateTextInput(session, "correlation_title", value = "")
+    updateTextInput(session, "correlation_caption", value = "")
+    updateTextInput(session, "correlation_xlab", value = "")
+    updateTextInput(session, "correlation_ylab", value = "")
+    updateNumericInput(session, "correlation_conf_level", value = 0.95)
+    updateNumericInput(session, "correlation_plot_size", value = 14)
+    updateTextInput(session, "correlation_point_color", value = "#4472C4")
+    updateTextInput(session, "correlation_line_color", value = "#ED7D31")
+    updateTextInput(session, "correlation_low_color", value = "#355C7D")
+    updateTextInput(session, "correlation_mid_color", value = "#FFFFFF")
+    updateTextInput(session, "correlation_high_color", value = "#C06C5B")
     correlation_result(NULL)
     showNotification("Correlation options reset. No analysis was run.", type = "message")
   }, ignoreInit = TRUE)
+
+  observeEvent(input$diagnostic_vars, {
+    variables <- input$diagnostic_vars %||% character()
+    current <- input$distribution_plot_variable %||% ""
+    selected <- if (current %in% variables) current else if (length(variables)) variables[[1L]] else character()
+    updateSelectInput(session, "distribution_plot_variable", choices = variables, selected = selected)
+  }, ignoreInit = FALSE)
 
   output$table_vars_ui <- renderUI({
     variables <- names(selected_data())
@@ -977,12 +1076,34 @@ server <- function(input, output, session) {
     vars <- input$diagnostic_vars
     validate(need(length(vars) > 0L, "Select at least one continuous variable."))
     group <- input$diagnostic_group
-    args <- list(data = selected_data(), vars = vars)
+    args <- list(
+      data = selected_data(), vars = vars,
+      normality_test = isTRUE(input$distribution_shapiro),
+      skew_cutoff = input$distribution_skew_cutoff %||% 1,
+      min_n = input$distribution_min_n %||% 3,
+      plots = isTRUE(input$distribution_plots),
+      digits = input$distribution_digits %||% 2
+    )
     if (nzchar(group)) args$by <- group
     diagnostic_result(do.call(gtstats::assess_distribution, args))
   }, ignoreInit = TRUE)
   output$distribution_table <- render_result(diagnostic_result)
   download_result(output, "distribution", diagnostic_result)
+  distribution_plot_result <- reactive({
+    result <- diagnostic_result()
+    req(result, isTRUE(input$distribution_plots))
+    variable <- input$distribution_plot_variable %||% ""
+    type <- input$distribution_plot_type %||% "histogram"
+    req(nzchar(variable), !is.null(result$plots[[variable]][[type]]))
+    result$plots[[variable]][[type]]
+  })
+  output$has_distribution_plot <- reactive({
+    !is.null(diagnostic_result()) && isTRUE(input$distribution_plots) &&
+      nzchar(input$distribution_plot_variable %||% "")
+  })
+  outputOptions(output, "has_distribution_plot", suspendWhenHidden = FALSE)
+  output$distribution_plot <- renderPlot(distribution_plot_result(), res = 110)
+  download_plot_result(output, "distribution_plot", distribution_plot_result)
 
   variance_result <- reactiveVal(NULL)
   observeEvent(input$run_distribution, {
@@ -1005,7 +1126,12 @@ server <- function(input, output, session) {
     distribution <- if (length(input$diagnostic_vars)) {
       paste0(
         "\n\nassess_distribution(data, vars = ", code_vector(input$diagnostic_vars),
-        if (nzchar(group)) paste0(", by = ", group) else "", " )"
+        if (nzchar(group)) paste0(", by = ", group) else "",
+        ", normality_test = ", if (isTRUE(input$distribution_shapiro)) "TRUE" else "FALSE",
+        ", skew_cutoff = ", input$distribution_skew_cutoff %||% 1,
+        ", min_n = ", input$distribution_min_n %||% 3,
+        ", plots = ", if (isTRUE(input$distribution_plots)) "TRUE" else "FALSE",
+        ", digits = ", input$distribution_digits %||% 2, ")"
       )
     } else ""
     variance <- if (isTRUE(input$show_variance) && nzchar(group) && length(input$diagnostic_vars)) {
@@ -1190,6 +1316,31 @@ server <- function(input, output, session) {
     note <- result$notes
     if (length(note)) paste(note, collapse = "\n") else "See the result object for method details."
   })
+  comparison_plot_result <- reactive({
+    req(comparison_result(), isTRUE(input$compare_make_plot))
+    palette <- parse_name_list(input$compare_plot_palette)
+    args <- list(
+      data = selected_data(), variable = input$compare_variable,
+      group = input$compare_group, paired = isTRUE(input$compare_paired),
+      type = input$compare_plot_type %||% "auto",
+      display = input$compare_plot_display %||% "proportion",
+      show_points = isTRUE(input$compare_plot_points),
+      show_p = isTRUE(input$compare_plot_p),
+      test = input$compare_test %||% "auto",
+      var_equal = isTRUE(input$compare_var_equal),
+      base_size = input$compare_plot_size %||% 14,
+      title = if (nzchar(input$compare_plot_title %||% "")) input$compare_plot_title else NULL,
+      caption = if (nzchar(input$compare_plot_caption %||% "")) input$compare_plot_caption else NULL,
+      xlab = if (nzchar(input$compare_plot_xlab %||% "")) input$compare_plot_xlab else NULL,
+      ylab = if (nzchar(input$compare_plot_ylab %||% "")) input$compare_plot_ylab else NULL,
+      legend_title = if (nzchar(input$compare_plot_legend %||% "")) input$compare_plot_legend else NULL
+    )
+    if (length(palette)) args$palette <- palette
+    if (isTRUE(input$compare_paired)) args$id <- input$compare_id
+    do.call(gtstats::plot_compare, args)
+  })
+  output$comparison_plot <- renderPlot(comparison_plot_result(), res = 110)
+  download_plot_result(output, "comparison_plot", comparison_plot_result)
   comparison_code <- reactive({
     paired_lines <- if (isTRUE(input$compare_paired)) paste0(",\n  paired = TRUE,\n  id = ", input$compare_id) else ""
     paste0("compare_groups(\n  data,\n  variable = ", input$compare_variable,
@@ -1198,8 +1349,34 @@ server <- function(input, output, session) {
       ",\n  var_equal = ", if (isTRUE(input$compare_var_equal)) "TRUE" else "FALSE",
       ",\n  effect_size = ", if (isTRUE(input$compare_effect)) "TRUE" else "FALSE", "\n)")
   })
-  output$comparison_code <- renderText(comparison_code())
-  download_code(output, "comparison_code", comparison_code)
+  comparison_plot_code <- reactive({
+    if (!isTRUE(input$compare_make_plot)) return("")
+    palette <- parse_name_list(input$compare_plot_palette)
+    optional <- c(
+      if (isTRUE(input$compare_paired)) paste0("  paired = TRUE,\n  id = ", input$compare_id, ",") else character(),
+      if (length(palette)) paste0("  palette = ", code_vector(palette), ",") else character(),
+      if (nzchar(input$compare_plot_title %||% "")) paste0("  title = ", sprintf('"%s"', input$compare_plot_title), ",") else character(),
+      if (nzchar(input$compare_plot_caption %||% "")) paste0("  caption = ", sprintf('"%s"', input$compare_plot_caption), ",") else character(),
+      if (nzchar(input$compare_plot_xlab %||% "")) paste0("  xlab = ", sprintf('"%s"', input$compare_plot_xlab), ",") else character(),
+      if (nzchar(input$compare_plot_ylab %||% "")) paste0("  ylab = ", sprintf('"%s"', input$compare_plot_ylab), ",") else character(),
+      if (nzchar(input$compare_plot_legend %||% "")) paste0("  legend_title = ", sprintf('"%s"', input$compare_plot_legend), ",") else character()
+    )
+    paste0(
+      "\n\ncomparison_plot <- plot_compare(\n  data,\n  variable = ", input$compare_variable,
+      ",\n  group = ", input$compare_group, ",\n",
+      if (length(optional)) paste0(paste(optional, collapse = "\n"), "\n") else "",
+      "  type = ", sprintf('"%s"', input$compare_plot_type %||% "auto"), ",\n",
+      "  display = ", sprintf('"%s"', input$compare_plot_display %||% "proportion"), ",\n",
+      "  show_points = ", if (isTRUE(input$compare_plot_points)) "TRUE" else "FALSE", ",\n",
+      "  show_p = ", if (isTRUE(input$compare_plot_p)) "TRUE" else "FALSE", ",\n",
+      "  test = ", sprintf('"%s"', input$compare_test %||% "auto"), ",\n",
+      "  var_equal = ", if (isTRUE(input$compare_var_equal)) "TRUE" else "FALSE", ",\n",
+      "  base_size = ", input$compare_plot_size %||% 14, "\n)"
+    )
+  })
+  comparison_full_code <- reactive(paste0(comparison_code(), comparison_plot_code()))
+  output$comparison_code <- renderText(comparison_full_code())
+  download_code(output, "comparison_code", comparison_full_code)
 
   correlation_result <- reactiveVal(NULL)
   observeEvent(input$run_correlation, {
@@ -1217,6 +1394,7 @@ server <- function(input, output, session) {
         display = input$correlation_display %||% "estimate",
         shade = isTRUE(input$correlation_shade),
         adjust = input$correlation_adjust %||% "none",
+        conf.level = input$correlation_conf_level %||% 0.95,
         digits = input$correlation_digits %||% 2L
       ))
     } else {
@@ -1227,6 +1405,7 @@ server <- function(input, output, session) {
       correlation_result(gtstats::correlation(
         selected_data(), x = input$correlation_x, y = input$correlation_y,
         method = input$correlation_method %||% "auto",
+        conf.level = input$correlation_conf_level %||% 0.95,
         digits = input$correlation_digits %||% 2L
       ))
     }
@@ -1262,11 +1441,18 @@ server <- function(input, output, session) {
     req(result)
     title <- input$correlation_title %||% ""
     title <- if (nzchar(title)) title else NULL
+    caption <- input$correlation_caption %||% ""
+    caption <- if (nzchar(caption)) caption else NULL
     if (inherits(result, "gt_correlation_matrix")) {
       gtstats::plot_correlation(
         result,
         show_values = isTRUE(input$correlation_plot_values),
-        title = title
+        base_size = input$correlation_plot_size %||% 14,
+        title = title,
+        caption = caption,
+        low_color = input$correlation_low_color %||% "#355C7D",
+        mid_color = input$correlation_mid_color %||% "#FFFFFF",
+        high_color = input$correlation_high_color %||% "#C06C5B"
       )
     } else {
       gtstats::plot_correlation(
@@ -1275,8 +1461,15 @@ server <- function(input, output, session) {
         trend = input$correlation_trend %||% "auto",
         show_ci = isTRUE(input$correlation_show_ci),
         show_correlation = isTRUE(input$correlation_show_result),
+        conf.level = input$correlation_conf_level %||% 0.95,
         digits = input$correlation_digits %||% 2L,
-        title = title
+        point_color = input$correlation_point_color %||% "#4472C4",
+        line_color = input$correlation_line_color %||% "#ED7D31",
+        base_size = input$correlation_plot_size %||% 14,
+        title = title,
+        caption = caption,
+        xlab = if (nzchar(input$correlation_xlab %||% "")) input$correlation_xlab else NULL,
+        ylab = if (nzchar(input$correlation_ylab %||% "")) input$correlation_ylab else NULL
       )
     }
   })
@@ -1305,6 +1498,10 @@ server <- function(input, output, session) {
   correlation_code <- reactive({
     title <- input$correlation_title %||% ""
     title_code <- if (nzchar(title)) paste0(", title = ", sprintf('"%s"', title)) else ""
+    optional_text <- function(name, value) {
+      value <- value %||% ""
+      if (nzchar(value)) paste0(",\n  ", name, " = ", sprintf('"%s"', value)) else ""
+    }
     if (identical(input$correlation_mode, "matrix")) {
       analysis <- paste0(
         "correlation_result <- correlation(\n  data,\n  vars = ", code_vector(input$correlation_vars %||% character()),
@@ -1315,18 +1512,25 @@ server <- function(input, output, session) {
         ",\n  display = ", sprintf('"%s"', input$correlation_display %||% "estimate"),
         ",\n  shade = ", if (isTRUE(input$correlation_shade)) "TRUE" else "FALSE",
         ",\n  adjust = ", sprintf('"%s"', input$correlation_adjust %||% "none"),
+        ",\n  conf.level = ", input$correlation_conf_level %||% 0.95,
         ",\n  digits = ", input$correlation_digits %||% 2L, "\n)"
       )
       plot <- paste0(
         "plot_correlation(\n  correlation_result,\n  show_values = ",
         if (isTRUE(input$correlation_plot_values)) "TRUE" else "FALSE",
-        title_code, "\n)"
+        ",\n  base_size = ", input$correlation_plot_size %||% 14,
+        ",\n  low_color = ", sprintf('"%s"', input$correlation_low_color %||% "#355C7D"),
+        ",\n  mid_color = ", sprintf('"%s"', input$correlation_mid_color %||% "#FFFFFF"),
+        ",\n  high_color = ", sprintf('"%s"', input$correlation_high_color %||% "#C06C5B"),
+        title_code,
+        optional_text("caption", input$correlation_caption), "\n)"
       )
     } else {
       analysis <- paste0(
         "correlation_result <- correlation(\n  data,\n  x = ", input$correlation_x,
         ",\n  y = ", input$correlation_y,
         ",\n  method = ", sprintf('"%s"', input$correlation_method %||% "auto"),
+        ",\n  conf.level = ", input$correlation_conf_level %||% 0.95,
         ",\n  digits = ", input$correlation_digits %||% 2L, "\n)"
       )
       plot <- paste0(
@@ -1336,8 +1540,15 @@ server <- function(input, output, session) {
         ",\n  trend = ", sprintf('"%s"', input$correlation_trend %||% "auto"),
         ",\n  show_ci = ", if (isTRUE(input$correlation_show_ci)) "TRUE" else "FALSE",
         ",\n  show_correlation = ", if (isTRUE(input$correlation_show_result)) "TRUE" else "FALSE",
+        ",\n  conf.level = ", input$correlation_conf_level %||% 0.95,
         ",\n  digits = ", input$correlation_digits %||% 2L,
-        title_code, "\n)"
+        ",\n  point_color = ", sprintf('"%s"', input$correlation_point_color %||% "#4472C4"),
+        ",\n  line_color = ", sprintf('"%s"', input$correlation_line_color %||% "#ED7D31"),
+        ",\n  base_size = ", input$correlation_plot_size %||% 14,
+        title_code,
+        optional_text("caption", input$correlation_caption),
+        optional_text("xlab", input$correlation_xlab),
+        optional_text("ylab", input$correlation_ylab), "\n)"
       )
     }
     paste(analysis, plot, sep = "\n\n")
@@ -1463,9 +1674,11 @@ server <- function(input, output, session) {
   download_code(output, "customised_code", customised_code)
 
   observeEvent(input$run_describe, {
+    updateTabsetPanel(session, "understand_results_tab", selected = "Overview")
     record_history("Describe data", "Dataset overview", isolate("describe_data(data)"))
   }, ignoreInit = TRUE)
   observeEvent(input$run_distribution, {
+    updateTabsetPanel(session, "understand_results_tab", selected = "Distribution")
     distribution_code <- isolate({
       group <- input$diagnostic_group %||% ""
       code <- paste0("assess_distribution(data, vars = ", code_vector(input$diagnostic_vars), if (nzchar(group)) paste0(", by = ", group) else "", ")")
@@ -1487,7 +1700,7 @@ server <- function(input, output, session) {
     record_history("Summary table", paste(length(input$table_vars), "variable(s)"), isolate(summary_code()))
   }, ignoreInit = TRUE)
   observeEvent(input$run_compare, {
-    record_history("Compare groups", paste(input$compare_variable, "by", input$compare_group), isolate(comparison_code()))
+    record_history("Compare groups", paste(input$compare_variable, "by", input$compare_group), isolate(comparison_full_code()))
   }, ignoreInit = TRUE)
   observeEvent(input$run_correlation, {
     details <- if (identical(input$correlation_mode, "matrix")) {

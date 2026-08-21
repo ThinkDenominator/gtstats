@@ -14,9 +14,16 @@ test_that("the Shiny app is bundled with gtstats", {
   expect_match(app_text, "overflow-x: auto", fixed = TRUE)
   expect_match(app_text, "download_strip(\"describe\")", fixed = TRUE)
   expect_match(app_text, "download_strip(\"distribution\")", fixed = TRUE)
+  expect_match(app_text, "Create visual distribution diagnostics", fixed = TRUE)
+  expect_match(app_text, "Q-Q plot", fixed = TRUE)
+  expect_match(app_text, "Choose one view at a time", fixed = TRUE)
+  expect_match(app_text, 'id = "understand_results_tab"', fixed = TRUE)
+  expect_match(app_text, "download_plot_strip(\"distribution_plot\")", fixed = TRUE)
   expect_match(app_text, "download_strip(\"comparison_diagnostics\")", fixed = TRUE)
   expect_match(app_text, "download_strip(\"history\")", fixed = TRUE)
   expect_match(app_text, "Repeated measurements from the same participant", fixed = TRUE)
+  expect_match(app_text, "Create comparison plot", fixed = TRUE)
+  expect_match(app_text, "download_plot_strip(\"comparison_plot\")", fixed = TRUE)
   expect_match(app_text, "Cochran's Q test", fixed = TRUE)
   expect_match(app_text, "Summary table", fixed = TRUE)
   expect_match(app_text, "Summary-statistic overrides", fixed = TRUE)
@@ -39,6 +46,8 @@ test_that("the Shiny app is bundled with gtstats", {
   expect_match(app_text, "download_plot_strip(\"correlation_plot\")", fixed = TRUE)
   expect_match(app_text, "Tidy CSV", fixed = TRUE)
   expect_match(app_text, "Advanced matrix options", fixed = TRUE)
+  expect_match(app_text, "Advanced plot appearance", fixed = TRUE)
+  expect_match(app_text, "Negative-correlation colour", fixed = TRUE)
   expect_match(app_text, "Pairwise denominators differ", fixed = TRUE)
   expect_match(app_text, "Reset options", fixed = TRUE)
   prep_text <- paste(deparse(body(gtstats:::mod_data_prep_ui)), collapse = "\n")
@@ -65,10 +74,16 @@ test_that("the GUI runs the core birth-weight workflow", {
 
     session$setInputs(
       diagnostic_vars = c("age", "lwt"), diagnostic_group = "low",
+      distribution_plots = TRUE, distribution_plot_variable = "age",
+      distribution_plot_type = "qq", distribution_shapiro = TRUE,
+      distribution_skew_cutoff = 1, distribution_min_n = 3,
+      distribution_digits = 2,
       run_distribution = 1
     )
     session$flushReact()
     expect_s3_class(diagnostic_result(), "gt_distribution")
+    expect_s3_class(distribution_plot_result(), "ggplot")
+    expect_match(understand_code(), "plots = TRUE", fixed = TRUE)
 
     session$setInputs(
       table_vars = c("age", "smoke"), table_group = "low",
@@ -95,13 +110,18 @@ test_that("the GUI runs the core birth-weight workflow", {
 
     session$setInputs(
       compare_variable = "age", compare_group = "low", compare_test = "auto",
-      compare_effect = FALSE, run_compare = 1
+      compare_effect = FALSE, compare_make_plot = TRUE,
+      compare_plot_type = "auto", compare_plot_display = "proportion",
+      compare_plot_points = TRUE, compare_plot_p = TRUE,
+      compare_plot_size = 14, run_compare = 1
     )
     session$flushReact()
     expect_s3_class(comparison_result(), "gt_compare")
     expect_s3_class(comparison_diagnostics_result(), "gt_tbl")
     expect_s3_class(comparison_assumptions_result(), "gt_tbl")
     expect_s3_class(comparison_denominators_result(), "gt_tbl")
+    expect_s3_class(comparison_plot_result(), "ggplot")
+    expect_match(comparison_full_code(), "plot_compare", fixed = TRUE)
 
     session$setInputs(
       correlation_mode = "matrix",
@@ -111,6 +131,10 @@ test_that("the GUI runs the core birth-weight workflow", {
       correlation_display = "estimate_p_n", correlation_adjust = "holm",
       correlation_shade = TRUE, correlation_plot_values = TRUE,
       correlation_digits = 2, correlation_title = "Birth-weight correlations",
+      correlation_caption = "Teaching example", correlation_plot_size = 15,
+      correlation_conf_level = 0.95,
+      correlation_low_color = "#355C7D", correlation_mid_color = "#FFFFFF",
+      correlation_high_color = "#C06C5B",
       run_correlation = 1
     )
     session$flushReact()
@@ -123,6 +147,8 @@ test_that("the GUI runs the core birth-weight workflow", {
     expect_false(correlation_result()$inputs$show_diagonal)
     expect_match(correlation_code(), 'display = "estimate_p_n"', fixed = TRUE)
     expect_match(correlation_code(), "plot_correlation", fixed = TRUE)
+    expect_match(correlation_code(), 'low_color = "#355C7D"', fixed = TRUE)
+    expect_match(correlation_code(), "base_size = 15", fixed = TRUE)
     expect_match(
       paste(unlist(output$correlation_selection_note), collapse = " "),
       "3 continuous variables selected", fixed = TRUE

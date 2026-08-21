@@ -42,7 +42,11 @@ adds a data dictionary, Summary-table presentation controls, a dedicated
 **Customise table** workspace that automatically carries forward the latest
 Summary table, an in-session history,
 and copyable or downloadable R code. Result tables download as Word, HTML,
-PDF, or RTF. CSV input works directly; Excel input additionally needs `rio`.
+PDF, or RTF. Distribution diagnostics offer histogram, density, Q-Q and
+boxplots; comparisons use `plot_compare()`; pair correlations and matrices use
+`plot_correlation()`. Plot labels, display, typography and relevant colours can
+be controlled in the GUI, downloaded as PNG/PDF, and reproduced from its Code
+panel. CSV input works directly; Excel input additionally needs `rio`.
 Display customisation never changes estimates or test selection, and the app
 does not replace a reproducible R script.
 
