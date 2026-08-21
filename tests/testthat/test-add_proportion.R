@@ -48,7 +48,9 @@ test_that("add_proportion() supports custom label", {
     add_proportion(var = vs, label = "Engine shape")
 
   expect_s3_class(res, "gt_desc_table")
-  expect_true(any(grepl("^Engine shape", res$table$Variable)))
+  expect_true(any(res$table$Variable == "Engine shape"))
+  expect_false(any(res$table$Variable == "Engine shape (1)"))
+  expect_match(res$footnotes, "selected-event descriptive row")
 })
 
 test_that("add_proportion() validates a custom label", {
@@ -183,4 +185,18 @@ test_that("add_proportion() shares interval and display choices", {
   expect_match(exact$footnotes, "exact binomial")
   expect_match(exact$footnotes, "range after the semicolon")
   expect_identical(percent$table$Value, "43.8%")
+})
+
+test_that("add_proportion() supports a separate publication layout", {
+  result <- summary_table(
+    mtcars, by = am, overall = TRUE, layout = "separate"
+  ) |>
+    add_proportion(vs, level = "1")
+
+  expect_identical(result$layout, "separate")
+  expect_equal(nrow(result$display_columns), 3L)
+  expect_true(all(result$display_columns$estimate_label == "n (%)"))
+  expect_true(all(grepl("_ci$", result$display_columns$ci)))
+  expect_false(any(grepl("95% CI", unlist(result$table), fixed = TRUE)))
+  expect_s3_class(tbl_stats(result), "gt_tbl")
 })

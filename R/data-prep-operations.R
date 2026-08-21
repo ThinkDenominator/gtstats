@@ -13,6 +13,17 @@ gt_dp_rename <- function(data, variable, new_name) {
   data
 }
 
+gt_dp_set_label <- function(data, variable, label = "") {
+  if (!variable %in% names(data)) stop("Selected variable was not found.", call. = FALSE)
+  label <- trimws(as.character(label))
+  if (length(label) != 1L || is.na(label)) {
+    stop("Display labels must be a single non-missing value.", call. = FALSE)
+  }
+  attr(data[[variable]], "label") <- if (nzchar(label)) label else NULL
+  attr(data, "gt_dp_affected") <- sum(!is.na(data[[variable]]))
+  data
+}
+
 gt_dp_recode <- function(data, variable, from, to, preserve = TRUE) {
   if (!variable %in% names(data)) stop("Selected variable was not found.", call. = FALSE)
   from <- as.character(from)
@@ -231,6 +242,11 @@ gt_dp_code_line <- function(operation, ...) {
   quote_value <- function(x) encodeString(as.character(x), quote = '"')
   switch(operation,
     rename = paste0("data <- dplyr::rename(data, ", args$new_name, " = ", args$variable, ")"),
+    label = if (nzchar(args$label)) {
+      paste0("attr(data$", args$variable, ", \"label\") <- ", quote_value(args$label))
+    } else {
+      paste0("attr(data$", args$variable, ", \"label\") <- NULL")
+    },
     recode = paste0("data$", args$variable, " <- dplyr::recode(as.character(data$", args$variable,
       "), ", paste(paste0(quote_value(args$from), " = ", quote_value(args$to)), collapse = ", "), ")"),
     missing = paste0("data$", args$variable, "[as.character(data$", args$variable, ") %in% ",

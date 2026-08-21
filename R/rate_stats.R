@@ -14,6 +14,9 @@
 #' When a grouping variable is supplied, rates are calculated
 #' separately within each group. Confidence intervals are calculated
 #' using [stats::poisson.test()].
+#' The publication table uses each group as a spanning header, with separate
+#' columns for events, accumulated time, rate, and confidence interval. The
+#' tidy long-form numerical results remain available in `$summary`.
 #'
 #' @param data A data.frame.
 #' @param event Event variable. Can be supplied as a bare name or as a
@@ -31,6 +34,8 @@
 #'   `0.95`.
 #' @param digits Number of decimal places used when formatting rates.
 #'   Default is `1`.
+#' @param format Output format: `"table"` (default) or a plain console
+#'   `"tibble"`.
 #'
 #' @return A `gt_rate` object containing:
 #' \itemize{
@@ -63,8 +68,10 @@ rate_stats <- function(
     multiplier = 1000,
     time_label = NULL,
     conf.level = 0.95,
-    digits = 1
+    digits = 1,
+    format = c("table", "tibble")
 ) {
+  format <- match.arg(format)
   # Validate input data
   if (!is.data.frame(data)) {
     stop("`data` must be a data frame.", call. = FALSE)
@@ -228,7 +235,12 @@ rate_stats <- function(
     rate_est <- rate_result$rate
     rate_low <- rate_result$conf_low
     rate_high <- rate_result$conf_high
-    display <- .format_rate_summary(rate_result, digits = digits)
+    display <- .format_rate_summary(rate_result, digits = digits, ci = FALSE)
+    ci_display <- if (is.na(rate_low) || is.na(rate_high)) {
+      NA_character_
+    } else {
+      .format_ci(rate_low, rate_high, digits = digits)
+    }
 
     tibble::tibble(
       variable = event_name,
@@ -241,7 +253,8 @@ rate_stats <- function(
       rate = rate_est,
       conf_low = rate_low,
       conf_high = rate_high,
-      display = display
+      display = display,
+      ci_display = ci_display
     )
   }
 
@@ -258,18 +271,23 @@ rate_stats <- function(
     )
 
     table_tbl <- tibble::tibble(
-      Group = "Overall",
-      Observations = summary_tbl$n,
+      Event = .get_var_label(data, event_name),
       Events = summary_tbl$events
     )
     table_tbl[[.sentence_case(display_time_label)]] <- summary_tbl$person_time
-    table_tbl[[paste0(
+    rate_label <- paste0(
       "Rate per ",
-      format(multiplier, scientific = FALSE, trim = TRUE, big.mark = ","),
-      " (",
-      .conf_level_label(conf.level),
-      ")"
-    )]] <- summary_tbl$display
+      format(multiplier, scientific = FALSE, trim = TRUE, big.mark = ",")
+    )
+    table_tbl[[rate_label]] <- summary_tbl$display
+    table_tbl[[.conf_level_label(conf.level)]] <- summary_tbl$ci_display
+    display_columns <- tibble::tibble(
+      group = "Overall",
+      events = "Events",
+      time = .sentence_case(display_time_label),
+      rate = rate_label,
+      ci = .conf_level_label(conf.level)
+    )
   } else {
     observed_groups <- unique(as.character(stats::na.omit(df[[by_name]])))
     group_values_chr <- if (is.factor(data[[by_name]])) {
@@ -291,29 +309,30 @@ rate_stats <- function(
 
     summary_tbl <- dplyr::bind_rows(summary_list)
 
-    table_tbl <- summary_tbl[, c(
-      "group",
-      "n",
-      "events",
-      "person_time",
-      "display"
-    )]
-
-    names(table_tbl) <- c(
-      "Group",
-      "Observations",
-      "Events",
-      .sentence_case(display_time_label),
-      paste0(
-        "Rate per ",
-        format(multiplier, scientific = FALSE, trim = TRUE, big.mark = ","),
-        " (",
-        .conf_level_label(conf.level),
-        ")"
-      )
+    rate_label <- paste0(
+      "Rate per ",
+      format(multiplier, scientific = FALSE, trim = TRUE, big.mark = ",")
     )
-
-    table_tbl <- tibble::as_tibble(table_tbl)
+    table_tbl <- tibble::tibble(Event = .get_var_label(data, event_name))
+    display_columns <- vector("list", nrow(summary_tbl))
+    for (i in seq_len(nrow(summary_tbl))) {
+      event_col <- paste0("group_", i, "_events")
+      time_col <- paste0("group_", i, "_time")
+      rate_col <- paste0("group_", i, "_rate")
+      ci_col <- paste0("group_", i, "_ci")
+      table_tbl[[event_col]] <- summary_tbl$events[[i]]
+      table_tbl[[time_col]] <- summary_tbl$person_time[[i]]
+      table_tbl[[rate_col]] <- summary_tbl$display[[i]]
+      table_tbl[[ci_col]] <- summary_tbl$ci_display[[i]]
+      display_columns[[i]] <- tibble::tibble(
+        group = summary_tbl$group[[i]],
+        events = event_col,
+        time = time_col,
+        rate = rate_col,
+        ci = ci_col
+      )
+    }
+    display_columns <- dplyr::bind_rows(display_columns)
   }
 
   audit_groups <- if (is.null(by_name)) {
@@ -370,7 +389,8 @@ rate_stats <- function(
     method = list(
       estimate = "Event rate",
       interval = "Exact Poisson",
-      multiplier = multiplier
+      multiplier = multiplier,
+      display_columns = display_columns
     ),
     assumptions = .assumptions_tbl(
       assumption = c(
@@ -476,5 +496,6 @@ rate_stats <- function(
   )
 
   class(result) <- c("gt_rate", "gtstats", "list")
+  if (identical(format, "tibble")) return(result$table)
   result
 }

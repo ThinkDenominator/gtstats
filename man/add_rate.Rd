@@ -13,7 +13,8 @@ add_rate(
   time_label = NULL,
   ci = TRUE,
   conf.level = 0.95,
-  digits = 1
+  digits = 1,
+  layout = NULL
 )
 }
 \arguments{
@@ -36,6 +37,10 @@ character string. Logical values are accepted as binary event indicators.}
 \item{conf.level}{Confidence level.}
 
 \item{digits}{Number of decimal places.}
+
+\item{layout}{Table layout. \code{NULL} inherits the parent table layout;
+\code{"compact"} keeps rate and CI together and \code{"separate"} places them in
+separate columns beneath each cohort header.}
 }
 \value{
 The updated \code{gt_desc_table}.

@@ -66,12 +66,12 @@ test_that("add_summary() supports mean_ci format", {
     stats::qt(0.975, df = nrow(mtcars) - 1) *
     stats::sd(mtcars$mpg) / sqrt(nrow(mtcars))
 
-  expect_match(res$table[["am = 1"]][[1L]], "95% CI")
-  expect_match(res$table[["am = 0"]][[1L]], "95% CI")
+  expect_false(grepl("95% CI", res$table[["am = 1"]][[1L]], fixed = TRUE))
+  expect_false(grepl("95% CI", res$table[["am = 0"]][[1L]], fixed = TRUE))
   expect_true(any(grepl("mean \\(95% CI\\)", res$footnotes)))
   expect_equal(
     res$table$Overall[[1L]],
-    paste0("20.1 (95% CI ", sprintf("%.1f", expected[[1L]]), "–",
+    paste0("20.1 (", sprintf("%.1f", expected[[1L]]), "–",
            sprintf("%.1f", expected[[2L]]), ")")
   )
 })
@@ -89,7 +89,12 @@ test_that("add_summary() supports recommended format", {
     add_summary(vars = c(mpg), continuous_format = "recommended")
 
   expect_s3_class(res, "gt_desc_table")
-  expect_true(any(grepl("as appropriate", res$footnotes, ignore.case = TRUE)))
+  expect_identical(unname(res$summary_statistics[["mpg"]]), "mean_sd")
+  expect_identical(
+    unname(res$summary_statistics_requested[["mpg"]]),
+    "recommended"
+  )
+  expect_true(any(grepl("mean \\(SD\\)", res$footnotes, ignore.case = TRUE)))
 })
 
 test_that("add_summary() supports both format", {

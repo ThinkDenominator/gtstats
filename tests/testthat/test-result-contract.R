@@ -2,7 +2,7 @@ test_that("analytical results expose the shared result contract", {
   rate_data <- data.frame(events = c(1, 2), time = c(10, 12))
   objects <- list(
     compare_groups(mtcars, variable = mpg, group = am),
-    effect_size(mtcars, outcome = mpg, by = am),
+    effect_size(mtcars, variable = mpg, group = am),
     correlation(mtcars, x = mpg, y = wt),
     proportion_stats(mtcars, var = vs),
     rate_stats(rate_data, event = events, time = time),
@@ -65,20 +65,22 @@ test_that("summary table builder retains structured inferential metadata", {
 test_that("inspection helpers return tibble and gt routes", {
   result <- compare_groups(mtcars, variable = vs, group = am)
 
-  expect_s3_class(assumptions_stats(result), "tbl_df")
+  expect_s3_class(assumptions_stats(result), "gt_tbl")
   expect_named(
-    assumptions_stats(result),
+    assumptions_stats(result, format = "tibble"),
     c("Variable", "Check before reporting", "Action", "Details")
   )
-  expect_true("status" %in% names(assumptions_stats(result, view = "audit")))
-  expect_s3_class(diagnostics_stats(result), "tbl_df")
-  expect_s3_class(denominators_stats(result), "tbl_df")
+  expect_true("status" %in% names(assumptions_stats(result, format = "tibble", view = "audit")))
+  expect_s3_class(diagnostics_stats(result), "gt_tbl")
+  expect_s3_class(denominators_stats(result), "gt_tbl")
   expect_true(all(c("Check", "Observed value", "Interpretation") %in%
-    names(diagnostics_stats(result))))
+    names(diagnostics_stats(result, format = "tibble"))))
+  expect_true(all(diagnostics_stats(result, format = "tibble")$Variable == "vs"))
+  expect_true(all(assumptions_stats(result, format = "tibble")$Variable == "vs"))
   expect_true(all(c("Used in analysis", "Missing / excluded", "Rule") %in%
-    names(denominators_stats(result))))
-  expect_true("check" %in% names(diagnostics_stats(result, view = "audit")))
-  expect_true("n_nonmissing" %in% names(denominators_stats(result, view = "audit")))
+    names(denominators_stats(result, format = "tibble"))))
+  expect_true("check" %in% names(diagnostics_stats(result, format = "tibble", view = "audit")))
+  expect_true("n_nonmissing" %in% names(denominators_stats(result, format = "tibble", view = "audit")))
   expect_s3_class(assumptions_stats(result, output = "gt"), "gt_tbl")
   expect_s3_class(diagnostics_stats(result, output = "gt"), "gt_tbl")
   expect_s3_class(denominators_stats(result, output = "gt"), "gt_tbl")

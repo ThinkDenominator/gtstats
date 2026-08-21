@@ -1,8 +1,9 @@
 #' Launch the gtstats graphical interface
 #'
 #' Open a guided Shiny interface for the most common \pkg{gtstats} workflows:
-#' inspecting a dataset, assessing a continuous variable, building a Table 1,
-#' comparing groups, and producing a cross-tabulation. It accepts CSV uploads;
+#' inspecting a dataset, assessing a continuous variable, building a summary
+#' table, comparing groups, producing correlation tables and plots, and
+#' producing a cross-tabulation. It accepts CSV uploads;
 #' Excel uploads are also available when the suggested [rio] package is
 #' installed.
 #'

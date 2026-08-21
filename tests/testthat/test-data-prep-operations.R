@@ -100,6 +100,8 @@ test_that("Data Prep direct actions expose working transform and filter routes",
 
   shiny::testServer(gtstats:::mod_data_prep_server, args = list(source_data = source_data), {
     session$flushReact()
+    expect_identical(session$returned$result(), source_data())
+    expect_false(session$returned$using_prepared())
 
     session$setInputs(menu_recode = 1)
     session$flushReact()
@@ -194,4 +196,18 @@ test_that("Data Prep direct actions expose working transform and filter routes",
     session$flushReact()
     expect_equal(session$returned$working_data()$age, c(20, 70))
   })
+})
+test_that("data prep sets and removes publication display labels", {
+  data <- data.frame(age = c(20, 30))
+  labelled <- gtstats:::gt_dp_set_label(data, "age", "Maternal age (years)")
+  expect_identical(attr(labelled$age, "label"), "Maternal age (years)")
+  expect_identical(attr(labelled, "gt_dp_affected"), 2L)
+
+  unlabelled <- gtstats:::gt_dp_set_label(labelled, "age", "")
+  expect_null(attr(unlabelled$age, "label", exact = TRUE))
+  expect_match(
+    gtstats:::gt_dp_code_line("label", variable = "age", label = "Maternal age (years)"),
+    'attr(data$age, "label")', fixed = TRUE
+  )
+  expect_error(gtstats:::gt_dp_set_label(data, "missing", "Label"), "not found")
 })

@@ -72,8 +72,14 @@ test_that("summary_table() supports mean_ci without p-values", {
 
   expect_false("p-value" %in% names(res$table))
   value_columns <- setdiff(names(res$table), c("Variable", "Level"))
-  expect_true(all(grepl("90% CI", unlist(res$table[value_columns]), fixed = TRUE)))
+  expect_false(any(grepl("90% CI", unlist(res$table[value_columns]), fixed = TRUE)))
+  expect_true(all(grepl(
+    "^[-0-9.]+ \\([-0-9.]+–[-0-9.]+\\)$",
+    unlist(res$table[value_columns])
+  )))
   expect_true(any(grepl("mean \\(90% CI\\)", res$footnotes)))
+  expect_false(any(grepl("Categorical", res$footnotes, fixed = TRUE)))
+  expect_false(any(grepl("Missing-value", res$footnotes, fixed = TRUE)))
 })
 
 test_that("summary_table() supports percentage denominators", {
@@ -140,6 +146,51 @@ test_that("summary_table() positions overall first or last", {
 
   expect_equal(names(first$table)[[3L]], "Overall")
   expect_equal(tail(names(last$table), 1L), "Overall")
+})
+
+test_that("recommended continuous summaries use one format across all columns", {
+  data <- data.frame(
+    arm = factor(rep(c("A", "B"), each = 10)),
+    value = c(rep(c(-2, -1, 0, 1, 2), 2), rep(1, 9), 100)
+  )
+
+  result <- summary_table(
+    data,
+    by = arm,
+    include = value,
+    overall = TRUE,
+    statistic = "recommended"
+  )
+
+  expect_identical(unname(result$summary_statistics[["value"]]), "median_iqr")
+  expect_identical(
+    unname(result$summary_statistics_requested[["value"]]),
+    "recommended"
+  )
+  expect_true(all(grepl("–", unlist(result$table[1, 3:5]), fixed = TRUE)))
+
+  explicit <- summary_table(
+    data,
+    by = arm,
+    include = value,
+    overall = TRUE,
+    statistic = "mean_sd"
+  )
+  expect_identical(unname(explicit$summary_statistics[["value"]]), "mean_sd")
+})
+
+test_that("summary_table() exposes Wilson and exact categorical CI methods", {
+  data <- data.frame(outcome = factor(c(rep("No", 7), rep("Yes", 3))))
+  wilson <- summary_table(data, include = outcome, ci = TRUE)
+  exact <- summary_table(
+    data, include = outcome, ci = TRUE, ci_method = "exact"
+  )
+
+  expect_identical(wilson$ci_method, "wilson")
+  expect_identical(exact$ci_method, "exact")
+  expect_false(identical(wilson$table$Value, exact$table$Value))
+  expect_true(any(grepl("Wilson score", wilson$footnotes, fixed = TRUE)))
+  expect_true(any(grepl("exact binomial", exact$footnotes, fixed = TRUE)))
 })
 
 test_that("summary_table() validates the combined overall setting", {

@@ -274,8 +274,8 @@ Plots created with `plot_compare()` can be saved using `save_output()`.
 ```{r}
 p <- plot_compare(
   mtcars,
-  outcome = mpg,
-  by = am,
+  variable = mpg,
+  group = am,
   show_p = TRUE
 )
 

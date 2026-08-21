@@ -61,6 +61,31 @@ download_strip <- function(id) {
   )
 }
 
+download_plot_strip <- function(id) {
+  tags$div(
+    class = "download-strip",
+    downloadButton(paste0(id, "_png"), "PNG"),
+    downloadButton(paste0(id, "_pdf"), "PDF")
+  )
+}
+
+download_plot_result <- function(output, id, result) {
+  for (extension in c("png", "pdf")) {
+    local({
+      file_extension <- extension
+      output[[paste0(id, "_", file_extension)]] <- downloadHandler(
+        filename = function() paste0("gtstats-", id, ".", file_extension),
+        content = function(file) {
+          ggplot2::ggsave(
+            filename = file, plot = result(), device = file_extension,
+            width = 8, height = 6, units = "in", dpi = 300
+          )
+        }
+      )
+    })
+  }
+}
+
 download_code <- function(output, id, code) {
   output[[paste0(id, "_r")]] <- downloadHandler(
     filename = function() paste0("gtstats-", gsub("_", "-", id), ".R"),
@@ -87,6 +112,80 @@ code_vector <- function(x) {
   paste0("c(", paste(sprintf('"%s"', x), collapse = ", "), ")")
 }
 
+code_named_vector <- function(x) {
+  if (!length(x)) return("character(0)")
+  paste0("c(", paste(sprintf('"%s" = "%s"', names(x), unname(x)), collapse = ", "), ")")
+}
+
+parse_label_mapping <- function(text, label) {
+  lines <- unlist(strsplit(text %||% "", "\n", fixed = TRUE), use.names = FALSE)
+  lines <- trimws(lines)
+  lines <- lines[nzchar(lines) & !startsWith(lines, "#")]
+  if (!length(lines)) return(character())
+  values <- character()
+  for (line in lines) {
+    separator <- regexpr("=", line, fixed = TRUE)[[1L]]
+    if (separator < 1L) {
+      stop(label, ': use one `current = new` mapping per line. Problem: "', line, '".', call. = FALSE)
+    }
+    current <- trimws(substr(line, 1L, separator - 1L))
+    replacement <- trimws(substr(line, separator + 1L, nchar(line)))
+    current <- sub("^`(.*)`$", "\\1", current)
+    if (!nzchar(current) || !nzchar(replacement)) {
+      stop(label, ': both sides of `=` must contain text. Problem: "', line, '".', call. = FALSE)
+    }
+    if (current %in% names(values)) {
+      stop(label, ': "', current, '" is listed more than once.', call. = FALSE)
+    }
+    values[[current]] <- replacement
+  }
+  values
+}
+
+parse_name_list <- function(text) {
+  values <- trimws(unlist(strsplit(text %||% "", ",", fixed = TRUE), use.names = FALSE))
+  unique(values[nzchar(values)])
+}
+
+parse_override_lines <- function(text, selected, types, allowed_by_type, kind) {
+  lines <- unlist(strsplit(text %||% "", "\n", fixed = TRUE), use.names = FALSE)
+  lines <- trimws(lines)
+  lines <- lines[nzchar(lines) & !startsWith(lines, "#")]
+  if (!length(lines)) return(list(values = character(), errors = character()))
+  values <- character()
+  errors <- character()
+  for (line in lines) {
+    pieces <- strsplit(line, "=", fixed = TRUE)[[1L]]
+    if (length(pieces) != 2L) {
+      errors <- c(errors, paste0('Use `variable = option` for: "', line, '".'))
+      next
+    }
+    variable <- trimws(pieces[[1L]])
+    variable <- sub("^`(.*)`$", "\\1", variable)
+    choice <- tolower(trimws(pieces[[2L]]))
+    choice <- sub('^["\'](.*)["\']$', "\\1", choice)
+    if (!variable %in% selected) {
+      errors <- c(errors, paste0('Variable "', variable, '" is not selected in the summary table.'))
+      next
+    }
+    if (variable %in% names(values)) {
+      errors <- c(errors, paste0('Variable "', variable, '" is listed more than once.'))
+      next
+    }
+    type <- types[[variable]] %||% "categorical"
+    allowed <- allowed_by_type[[type]] %||% character()
+    if (!choice %in% allowed) {
+      errors <- c(errors, paste0(
+        '"', choice, '" is not a supported ', kind, ' for ', variable,
+        '. Use one of: ', paste(allowed, collapse = ", "), "."
+      ))
+      next
+    }
+    values[[variable]] <- choice
+  }
+  list(values = values, errors = unique(errors))
+}
+
 data_type_note <- function(data) {
   paste0(nrow(data), " rows · ", ncol(data), " variables")
 }
@@ -111,6 +210,12 @@ body { color: var(--gtx-text); background: var(--gtx-soft); font-family: system-
 .gtx-badge { display: inline-block; padding: 3px 8px; border-radius: 999px; background: #E7E7E4; color: #353532; font-size: .76rem; font-weight: 800; letter-spacing: .02em; }
 .gtx-step { border-left: 4px solid #555552; background: #FAFAF8; padding: 11px 13px; margin: 12px 0; color: #3D3D39; border-radius: 0 8px 8px 0; }
 .gtx-note { background: #FFF8EE; border: 1px solid #F7D6A6; border-radius: 8px; padding: 11px 13px; color: #7A4015; margin: 12px 0; }
+.gtx-details { border: 1px solid var(--gtx-line); border-radius: 8px; padding: 9px 11px; margin: 10px 0 14px; background: #FAFAF8; }
+.gtx-details > summary { cursor: pointer; font-weight: 750; color: var(--gtx-charcoal); }
+.gtx-details[open] > summary { margin-bottom: 12px; }
+.gtx-control-section { border-top: 1px solid var(--gtx-line); padding-top: 14px; margin-top: 16px; }
+.gtx-control-title { display: flex; align-items: center; gap: 8px; margin: 0 0 5px; font-size: 1.08rem; font-weight: 800; color: var(--gtx-charcoal); }
+.gtx-control-number { display: inline-flex; align-items: center; justify-content: center; width: 25px; height: 25px; border-radius: 50%; background: var(--gtx-charcoal); color: #fff; font-size: .78rem; }
 .btn { border-radius: 7px; font-weight: 650; transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease; }
 .btn-primary { background: var(--gtx-charcoal); border-color: var(--gtx-charcoal); }
 .btn-primary:hover, .btn-primary:focus { background: var(--gtx-charcoal-dark); border-color: var(--gtx-charcoal-dark); }
@@ -137,6 +242,10 @@ pre { background: #F8FAFC; border: 1px solid var(--gtx-line); border-radius: 8px
 .nav-tabs > li.active > a { color: var(--gtx-charcoal); border-color: var(--gtx-line) var(--gtx-line) #fff; }
 .form-group label { font-weight: 750; margin-bottom: 5px; }
 .shiny-output-error { color: #B42318; font-weight: 700; }
+.gtx-variable-options { overflow-x: auto; margin: 14px 0; }
+.gtx-variable-options table { min-width: 500px; }
+.gtx-variable-options td, .gtx-variable-options th { vertical-align: middle !important; }
+.gtx-variable-options .form-group { margin-bottom: 0; }
 @media (max-width: 767px) { body { font-size: 14px; } .gtx-card, .cardish { padding: 14px; border-radius: 10px; } .gtx-side { position: static; } .navbar-header { min-height: 58px; } .navbar-collapse { border-top-color: rgba(255,255,255,.18); box-shadow: none; } .navbar-nav { margin-top: 0; margin-bottom: 0; } .navbar-nav > li > a { padding: 12px 15px; } .gtx-session-bar { padding: 9px 15px; font-size: .88rem; } .gtx-workflow { margin-top: 10px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; } .gtx-workflow-step { flex: 0 0 auto; } .download-strip { display: flex; flex-wrap: wrap; gap: 5px; } .download-strip .btn { margin: 0; } .app-close { right: 12px; bottom: 12px; } }
 "
 
@@ -217,6 +326,22 @@ ui <- navbarPage(
             selectizeInput("diagnostic_vars", "Continuous variables", choices = NULL, multiple = TRUE),
             selectInput("diagnostic_group", "Group (optional)", choices = NULL),
             checkboxInput("show_variance", "Also show spread by group", FALSE),
+            conditionalPanel(
+              "input.show_variance && input.diagnostic_group !== ''",
+              selectInput(
+                "variance_test", "Supporting variance test",
+                choices = c(
+                  "Levene / Brown-Forsythe (median-centred)" = "levene",
+                  "None (descriptive spread only)" = "none",
+                  "Bartlett (requires normal group distributions)" = "bartlett"
+                ),
+                selected = "levene"
+              ),
+              tags$p(
+                class = "help-copy",
+                "The p-value is supporting evidence only. It does not prove equal variances or change Auto test selection."
+              )
+            ),
             actionButton("run_distribution", "Assess distribution", class = "btn-primary")
           )),
           column(8,
@@ -230,36 +355,126 @@ ui <- navbarPage(
       tabPanel("Data Prep", value = "data_prep",
         br(), gtstats:::mod_data_prep_ui("data_prep")
       ),
-      tabPanel("Table 1", value = "table1",
+      tabPanel("Summary table", value = "table1",
         br(), fluidRow(
-          column(4, div(class = "cardish gtx-side",
+          column(5, div(class = "cardish gtx-side",
             tags$h3("The recipe"),
-            tags$ol(tags$li("Choose the group columns (optional)."), tags$li("Choose the variables to summarise."), tags$li("Choose the overall column and display style."), tags$li("Create the table.")),
-            selectInput("table_group", "Group columns by", choices = NULL),
-            uiOutput("table_vars_ui"),
-            tags$div(class = "button-row",
-              actionButton("table_select_all", "Select all"),
-              actionButton("table_clear_all", "Clear")
+            tags$p(class = "help-copy", "Work from top to bottom. Defaults are suitable for most first tables; change only what your report needs."),
+            tags$div(class = "gtx-control-section",
+              tags$div(class = "gtx-control-title", tags$span(class = "gtx-control-number", "1"), "Choose the table contents"),
+              tags$p(class = "help-copy", "A group creates comparison columns. Leave it blank for one overall descriptive table."),
+              selectInput("table_group", "Group columns by (optional)", choices = NULL),
+              uiOutput("table_vars_ui"),
+              tags$div(class = "button-row",
+                actionButton("table_select_all", "Select all"),
+                actionButton("table_clear_all", "Clear")
+              ),
+              selectInput("table_overall", "Overall column", choices = c("No overall column" = "false", "First" = "first", "Last" = "last"))
             ),
-            selectInput("table_overall", "Overall column", choices = c("No overall column" = "false", "First" = "first", "Last" = "last")),
-            tags$h4("Presentation"),
-            selectInput("table_statistic", "Continuous display", choices = c("Recommended for each variable" = "recommended", "Mean (SD)" = "mean_sd", "Mean (95% CI)" = "mean_ci", "Median (IQR)" = "median_iqr", "Both mean (SD) and median (IQR)" = "both")),
-            selectInput("table_categorical", "Categorical display", choices = c("n (%)" = "n_percent", "n/N (%)" = "n_over_N_percent", "n only" = "n", "% only" = "percent")),
-            tags$div(class = "card-heading", tags$h4("Percentage denominator"), actionLink("percent_help", "Why?")),
-            selectInput("table_percent", NULL, choices = c("Within each column" = "column", "Within each row" = "row", "Whole dataset" = "overall")),
-            selectInput("table_missing", "Missing values", choices = c("Show when present" = "ifany", "Always show" = "always", "Do not show" = "no")),
-            numericInput("table_digits", "Decimal places", 1, min = 0, max = 5, step = 1),
-            checkboxInput("table_p", "Add p-values (when grouped)", FALSE),
-            actionButton("run_table", "Create Table 1", class = "btn-primary")
+            tags$div(class = "gtx-control-section",
+              tags$div(class = "gtx-control-title", tags$span(class = "gtx-control-number", "2"), "Choose how values are summarised"),
+              tags$p(class = "help-copy", "Unlisted continuous variables use Recommended. Enter only exceptions, one per line."),
+              textAreaInput(
+                "table_stat_overrides", "Summary-statistic overrides (optional)", rows = 4,
+                placeholder = "age = mean_sd\nlwt = median_iqr\nbwt = mean_ci"
+              ),
+              tags$div(class = "button-row",
+                actionButton("table_stat_example", "Insert example"),
+                actionButton("table_stat_clear", "Clear overrides")
+              ),
+              uiOutput("table_stat_override_status"),
+              selectInput("table_categorical", "Categorical display", choices = c("n (%)" = "n_percent", "n/N (%)" = "n_over_N_percent", "n only" = "n", "% only" = "percent")),
+              tags$div(class = "card-heading", tags$h4("Percentage denominator"), actionLink("percent_help", "Why?")),
+              selectInput("table_percent", NULL, choices = c("Within each column" = "column", "Within each row" = "row", "Whole dataset" = "overall")),
+              selectInput("table_missing", "Missing values", choices = c("Show when present" = "ifany", "Always show" = "always", "Do not show" = "no")),
+              numericInput("table_digits", "Decimal places", 1, min = 0, max = 5, step = 1),
+              checkboxInput("table_ci", "Add confidence intervals for categorical percentages", FALSE),
+              conditionalPanel(
+                "input.table_ci",
+                selectInput("table_ci_method", "Confidence-interval method", choices = c("Wilson (recommended)" = "wilson", "Exact binomial" = "exact")),
+                selectInput("table_layout", "Confidence-interval layout", choices = c("Separate columns (less crowded)" = "separate", "Compact in each cell" = "compact")),
+                tags$p(class = "help-copy", "Separate columns place Summary and 95% CI beneath each cohort heading. Compact keeps the familiar Table 1 width.")
+              )
+            ),
+            tags$div(class = "gtx-control-section",
+              tags$div(class = "gtx-control-title", tags$span(class = "gtx-control-number", "3"), "Add statistical comparisons"),
+              checkboxInput("table_p", "Add p-values (requires a group)", FALSE),
+              conditionalPanel(
+                "input.table_p",
+                tags$p(class = "help-copy", "Auto is used for every unlisted variable. Enter only exceptions; use none to keep a variable descriptive without testing it."),
+                textAreaInput(
+                  "table_test_overrides", "P-value test overrides (optional)", rows = 5,
+                  placeholder = "age = welch_t\nlwt = wilcox\nrace = fisher\nbwt = none"
+                ),
+                tags$div(class = "button-row",
+                  actionButton("table_test_example", "Insert example"),
+                  actionButton("table_test_clear", "Clear overrides")
+                ),
+                uiOutput("table_test_override_status"),
+                tags$details(class = "gtx-details",
+                  tags$summary("Advanced Auto-test settings"),
+                  checkboxInput("table_distribution_check", "Use distribution guidance in Auto", TRUE),
+                  checkboxInput("table_var_equal", "For Auto: equal variances are justified", FALSE),
+                  tags$p(class = "help-copy", "Distribution guidance uses marked skewness, not Shapiro-Wilk alone. Equal variances changes only suitable independent parametric tests; it does not run a variance test.")
+                )
+              )
+            ),
+            tags$details(class = "gtx-details gtx-control-section",
+              tags$summary(tags$span(class = "gtx-control-title", tags$span(class = "gtx-control-number", "4"), "Customise appearance")),
+              selectInput("table_theme", "Table theme", choices = c("GTstats default" = "default", "Journal" = "journal", "Classic" = "classic", "Minimal" = "minimal", "Compact" = "compact")),
+              textInput("table_title", "Title (optional)", placeholder = "Example: Participant characteristics"),
+              textInput("table_subtitle", "Subtitle (optional)"),
+              checkboxInput("table_bold_labels", "Bold variable labels", TRUE),
+              checkboxInput("table_footnotes", "Show relevant footnotes", TRUE),
+              checkboxInput("table_striping", "Alternate row shading", FALSE),
+              numericInput("table_font_size", "Font size", 14, min = 9, max = 24, step = 1)
+            ),
+            actionButton("run_table", "Create summary table", class = "btn-primary")
           )),
-          column(8,
+          column(7,
             tabsetPanel(
               tabPanel("Table", div(class = "gtx-card",
                 tags$h3("Publication-ready preview"),
                 download_strip("summary"), gt::gt_output("summary_table"),
-                tags$div(class = "gtx-step", tags$strong("What next? "), "Copy or download the R code for your report. Use the display controls on the left to tailor Table 1 before exporting.")
+                tags$div(class = "gtx-step", tags$strong("What next? "), "Copy or download the R code for your report. Use the controls on the left to tailor the summary table before exporting.")
               )),
               tabPanel("Code", code_card("summary_code"))
+            )
+          )
+        )
+      ),
+      tabPanel("Customise table", value = "customise",
+        br(), fluidRow(
+          column(4, div(class = "cardish gtx-side",
+            tags$h3("Refine your summary table"),
+            tags$p(class = "help-copy", "Your completed Summary table is carried forward automatically. If it has not been created yet, return to Summary table and click Create summary table."),
+            uiOutput("custom_source_ui"),
+            tags$h4("Text and labels"),
+            textInput("custom_title", "Title (optional)", placeholder = "Example: Participant characteristics"),
+            textInput("custom_subtitle", "Subtitle (optional)"),
+            textAreaInput("custom_col_labels", "Column labels", rows = 3, placeholder = "p-value = P value\nOverall = All participants"),
+            tags$p(class = "help-copy", "One `current column = new label` per line. Use the column names shown in the completed table."),
+            textAreaInput("custom_row_labels", "Variable or row labels", rows = 3, placeholder = "age = Maternal age (years)\nsmoke = Smoking status"),
+            textAreaInput("custom_level_labels", "Category level labels", rows = 3, placeholder = "Yes = Present\nNo = Absent"),
+            textAreaInput("custom_source_note", "Additional note (optional)", rows = 2, placeholder = "Values are based on available observations."),
+            tags$h4("Appearance"),
+            selectInput("custom_theme", "Table theme", choices = c("GTstats default" = "default", "Journal" = "journal", "Classic" = "classic", "Minimal" = "minimal", "Compact" = "compact")),
+            checkboxInput("custom_bold_labels", "Bold variable labels", TRUE),
+            checkboxInput("custom_footnotes", "Keep relevant footnotes", TRUE),
+            checkboxInput("custom_striping", "Alternate row shading", FALSE),
+            numericInput("custom_font_size", "Font size", 14, min = 9, max = 24, step = 1),
+            textInput("custom_hide_cols", "Hide columns (optional)", placeholder = "Example: p-value, Overall"),
+            tags$p(class = "help-copy", "Enter exact column names separated by commas."),
+            actionButton("run_customise", "Apply table changes", class = "btn-primary")
+          )),
+          column(8,
+            tabsetPanel(
+              tabPanel("Table", div(class = "gtx-card",
+                tags$h3("Summary-table preview"),
+                uiOutput("custom_preview_message"),
+                download_strip("customised"), gt::gt_output("customised_table")
+              )),
+              tabPanel("Code", code_card("customised_code"))
             )
           )
         )
@@ -296,6 +511,78 @@ ui <- navbarPage(
           )
         )
       ),
+      tabPanel("Correlation", value = "correlation",
+        br(), fluidRow(
+          column(4, div(class = "cardish gtx-side",
+            tags$h3("Explore relationships"),
+            tags$p(class = "help-copy", "Analyse one continuous-variable pair or build a publication correlation matrix. The table and plot always use the same coefficients."),
+            radioButtons(
+              "correlation_mode", "Analysis",
+              choices = c("One pair" = "pair", "Correlation matrix" = "matrix"),
+              selected = "matrix", inline = TRUE
+            ),
+            conditionalPanel(
+              "input.correlation_mode === 'pair'",
+              selectInput("correlation_x", "First variable", choices = NULL),
+              selectInput("correlation_y", "Second variable", choices = NULL),
+              selectInput("correlation_trend", "Plot trend", choices = c("Automatic" = "auto", "Linear" = "linear", "Smooth" = "smooth", "None" = "none")),
+              checkboxInput("correlation_show_ci", "Show trend confidence band", TRUE),
+              checkboxInput("correlation_show_result", "Show correlation in plot caption", TRUE)
+            ),
+            conditionalPanel(
+              "input.correlation_mode === 'matrix'",
+              checkboxGroupInput("correlation_vars", "Continuous variables", choices = NULL),
+              uiOutput("correlation_selection_note"),
+              tags$div(class = "button-row",
+                actionButton("correlation_select_all", "Select all"),
+                actionButton("correlation_clear_all", "Clear")
+              ),
+              selectInput("correlation_triangle", "Matrix layout", choices = c("Lower triangle (publication standard)" = "lower", "Upper triangle (longest row first)" = "upper", "Full matrix" = "full")),
+              selectInput("correlation_display", "Cell content", choices = c("Coefficient only" = "estimate", "Coefficient + adjusted p-value" = "estimate_p", "Coefficient + pairwise n" = "estimate_n", "Coefficient + adjusted p-value + pairwise n" = "estimate_p_n", "Coefficient + confidence interval" = "estimate_ci")),
+              tags$details(class = "gtx-details",
+                tags$summary("Advanced matrix options"),
+                selectInput("correlation_order", "Variable order", choices = c("As selected" = "input", "Alphabetical labels" = "alphabetical", "Cluster similar correlations" = "cluster")),
+                checkboxInput("correlation_diagonal", "Show diagonal self-correlations", TRUE),
+                selectInput("correlation_adjust", "P-value adjustment", choices = c("None" = "none", "Holm" = "holm", "Bonferroni" = "bonferroni", "Benjamini-Hochberg" = "BH")),
+                checkboxInput("correlation_shade", "Shade publication-table cells", TRUE),
+                checkboxInput("correlation_plot_values", "Show coefficients on heatmap", TRUE)
+              )
+            ),
+            selectInput("correlation_method", "Method", choices = c("Auto" = "auto", "Pearson" = "pearson", "Spearman" = "spearman")),
+            numericInput("correlation_digits", "Decimal places", 2, min = 0, max = 5, step = 1),
+            textInput("correlation_title", "Plot title (optional)", placeholder = "Example: Correlation matrix"),
+            tags$div(class = "button-row",
+              actionButton("run_correlation", "Create correlation output", class = "btn-primary"),
+              actionButton("reset_correlation", "Reset options", class = "btn-default")
+            )
+          )),
+          column(8,
+            tabsetPanel(
+              tabPanel("Table", div(class = "gtx-card",
+                tags$h3("Publication-ready correlation table"),
+                tags$div(class = "download-strip",
+                  downloadButton("correlation_csv", "Tidy CSV")
+                ),
+                download_strip("correlation"),
+                uiOutput("correlation_missingness_note"),
+                gt::gt_output("correlation_table"),
+                tags$div(class = "gtx-step", tags$strong("How to read it: "), "The coefficient describes direction and strength. Pairwise n may differ when values are missing. Correlation does not imply causation.")
+              )),
+              tabPanel("Plot", div(class = "gtx-card",
+                tags$h3("Visual assessment"),
+                download_plot_strip("correlation_plot"),
+                plotOutput("correlation_plot", height = "620px")
+              )),
+              tabPanel("Audit", tabsetPanel(
+                tabPanel("Diagnostics", div(class = "gtx-card", download_strip("correlation_diagnostics"), gt::gt_output("correlation_diagnostics"))),
+                tabPanel("Assumptions", div(class = "gtx-card", download_strip("correlation_assumptions"), gt::gt_output("correlation_assumptions"))),
+                tabPanel("Denominators", div(class = "gtx-card", download_strip("correlation_denominators"), gt::gt_output("correlation_denominators")))
+              )),
+              tabPanel("Code", code_card("correlation_code"))
+            )
+          )
+        )
+      ),
       tabPanel("Crosstabs", value = "crosstabs",
         br(), fluidRow(
           column(4, div(class = "cardish",
@@ -326,8 +613,11 @@ ui <- navbarPage(
             downloadButton("download_session_script", "Download complete R script", class = "btn-primary"),
             actionButton("clear_history", "Clear history", class = "btn-default")
           )),
-          column(8, div(class = "cardish",
-            tags$h3("Recent analyses"), download_strip("history"), gt::gt_output("history_table")
+          column(8, tabsetPanel(
+            tabPanel("Recent analyses", div(class = "cardish",
+              tags$h3("Recent analyses"), download_strip("history"), gt::gt_output("history_table")
+            )),
+            tabPanel("Complete R script", code_card("session_code"))
           ))
         )
       ),
@@ -336,7 +626,7 @@ ui <- navbarPage(
           tags$h3("From click to code"),
           tags$p(class = "help-copy", "This interface is designed to help you learn the package, not hide the analysis. Each analysis tab provides the matching R code. Copy it into an R script or Quarto document to make your work reproducible."),
           tags$h4("A safe beginner workflow"),
-          tags$ol(tags$li("Inspect the data with Describe data."), tags$li("For continuous variables, inspect distribution and spread before interpreting comparisons."), tags$li("Build Table 1 with one consistent summary per variable."), tags$li("Use Compare groups for a focused inferential question."), tags$li("Review the output and the analysis code before reporting a result.")),
+          tags$ol(tags$li("Inspect the data with Describe data."), tags$li("For continuous variables, inspect distribution and spread before interpreting comparisons."), tags$li("Build a summary table with one consistent summary per variable."), tags$li("Use Compare groups for a focused inferential question."), tags$li("Review the output and the analysis code before reporting a result.")),
           tags$p(class = "help-copy", "Auto test selection is transparent but is not a replacement for study design, clinical judgement, or a prespecified analysis plan."),
           tags$div(class = "gtx-note", "To finish, click Close app in the bottom-right corner. This cleanly stops the local Shiny session and returns you to RStudio.")
         )
@@ -351,7 +641,8 @@ server <- function(input, output, session) {
   script_steps <- reactiveVal(list())
   table_selection <- reactiveVal(NULL)
   initial_clicks <- reactiveValues(
-    distribution = NULL, table = NULL, comparison = NULL, crosstab = NULL
+    distribution = NULL, table = NULL, comparison = NULL, correlation = NULL,
+    crosstab = NULL, customise = NULL
   )
 
   # A browser can restore a previous Shiny session's action-button values.
@@ -362,7 +653,9 @@ server <- function(input, output, session) {
       initial_clicks$distribution <- input$run_distribution %||% 0
       initial_clicks$table <- input$run_table %||% 0
       initial_clicks$comparison <- input$run_compare %||% 0
+      initial_clicks$correlation <- input$run_correlation %||% 0
       initial_clicks$crosstab <- input$run_cross %||% 0
+      initial_clicks$customise <- input$run_customise %||% 0
     })
   }, once = TRUE)
 
@@ -448,7 +741,7 @@ server <- function(input, output, session) {
     tags$div(class = "gtx-session-bar", paste0(source, " · ", nrow(data), " rows · ", ncol(data), " variables · Analyses use ", state))
   })
   output$workflow_progress <- renderUI({
-    steps <- c(data = "1 Data", data_prep = "2 Prepare", understand = "3 Understand", table1 = "4 Table 1", compare = "5 Compare", crosstabs = "6 Crosstabs")
+    steps <- c(data = "1 Data", data_prep = "2 Prepare", understand = "3 Understand", table1 = "4 Summary table", customise = "5 Customise", compare = "6 Compare", correlation = "7 Correlation", crosstabs = "8 Crosstabs")
     current <- input$workflow %||% "data"
     tags$div(class = "gtx-workflow", lapply(names(steps), function(step) {
       tags$span(class = paste("gtx-workflow-step", if (identical(step, current)) "active" else ""), steps[[step]])
@@ -474,6 +767,14 @@ server <- function(input, output, session) {
     updateSelectInput(session, "compare_variable", choices = variables, selected = compare_default)
     updateSelectInput(session, "compare_group", choices = group_variables, selected = if ("low" %in% group_variables) "low" else group_variables[[1L]])
     updateSelectInput(session, "compare_id", choices = variables, selected = variables[[1L]])
+    correlation_default <- head(continuous, min(4L, length(continuous)))
+    correlation_x_default <- if (length(continuous)) continuous[[1L]] else ""
+    correlation_y_default <- if (length(continuous) >= 2L) continuous[[2L]] else correlation_x_default
+    updateSelectInput(session, "correlation_x", choices = continuous, selected = correlation_x_default)
+    updateSelectInput(session, "correlation_y", choices = continuous,
+      selected = correlation_y_default)
+    updateCheckboxGroupInput(session, "correlation_vars", choices = continuous,
+      selected = correlation_default)
     updateSelectInput(session, "cross_row", choices = group_variables, selected = if ("smoke" %in% group_variables) "smoke" else group_variables[[1L]])
     updateSelectInput(session, "cross_col", choices = group_variables, selected = if ("low" %in% group_variables) "low" else group_variables[[min(2L, length(group_variables))]])
     table_selection(NULL)
@@ -484,6 +785,53 @@ server <- function(input, output, session) {
   })
   observeEvent(input$table_clear_all, table_selection(character()))
   observeEvent(input$table_vars, table_selection(input$table_vars), ignoreInit = TRUE)
+
+  observeEvent(input$correlation_select_all, {
+    continuous <- table_type_map()
+    continuous <- names(continuous)[continuous == "continuous"]
+    updateCheckboxGroupInput(session, "correlation_vars", selected = continuous)
+  }, ignoreInit = TRUE)
+  observeEvent(input$correlation_clear_all, {
+    updateCheckboxGroupInput(session, "correlation_vars", selected = character())
+  }, ignoreInit = TRUE)
+  output$correlation_selection_note <- renderUI({
+    selected <- input$correlation_vars %||% character()
+    count <- length(selected)
+    if (count > 12L) {
+      tags$div(
+        class = "gtx-note",
+        tags$strong(paste(count, "variables selected. ")),
+        "Large matrices are useful for exploration but rarely readable in a publication. Consider 12 or fewer variables or export the tidy CSV."
+      )
+    } else {
+      tags$p(
+        class = "help-copy",
+        paste0(count, " continuous variable", if (count == 1L) " selected" else "s selected")
+      )
+    }
+  })
+  observeEvent(input$reset_correlation, {
+    types <- table_type_map()
+    continuous <- names(types)[types == "continuous"]
+    selected <- head(continuous, min(4L, length(continuous)))
+    updateRadioButtons(session, "correlation_mode", selected = "matrix")
+    updateCheckboxGroupInput(session, "correlation_vars", selected = selected)
+    updateSelectInput(session, "correlation_method", selected = "auto")
+    updateSelectInput(session, "correlation_triangle", selected = "lower")
+    updateSelectInput(session, "correlation_order", selected = "input")
+    updateCheckboxInput(session, "correlation_diagonal", value = TRUE)
+    updateSelectInput(session, "correlation_display", selected = "estimate")
+    updateSelectInput(session, "correlation_adjust", selected = "none")
+    updateCheckboxInput(session, "correlation_shade", value = TRUE)
+    updateCheckboxInput(session, "correlation_plot_values", value = TRUE)
+    updateSelectInput(session, "correlation_trend", selected = "auto")
+    updateCheckboxInput(session, "correlation_show_ci", value = TRUE)
+    updateCheckboxInput(session, "correlation_show_result", value = TRUE)
+    updateNumericInput(session, "correlation_digits", value = 2)
+    updateTextInput(session, "correlation_title", value = "")
+    correlation_result(NULL)
+    showNotification("Correlation options reset. No analysis was run.", type = "message")
+  }, ignoreInit = TRUE)
 
   output$table_vars_ui <- renderUI({
     variables <- names(selected_data())
@@ -496,6 +844,96 @@ server <- function(input, output, session) {
       "table_vars", "Select variables to summarise",
       choices = choices, selected = selected
     )
+  })
+
+  table_type_map <- reactive({
+    overview <- gtstats::describe_data(selected_data(), output = "tibble")
+    stats::setNames(overview$type, overview$variable)
+  })
+  table_override_settings <- reactive({
+    vars <- input$table_vars %||% character()
+    types <- table_type_map()
+    summary_allowed <- list(
+      continuous = c("recommended", "mean_sd", "mean_ci", "median_iqr", "both"),
+      binary = character(), categorical = character(), ordinal = character()
+    )
+    test_allowed <- list(
+      continuous = c("auto", "none", "welch_t", "t_test", "wilcox", "welch_anova", "anova", "kruskal"),
+      binary = c("auto", "none", "chisq", "fisher"),
+      categorical = c("auto", "none", "chisq", "fisher"),
+      ordinal = c("auto", "none", "chisq", "fisher", "wilcox", "kruskal")
+    )
+    list(
+      statistic = parse_override_lines(
+        input$table_stat_overrides, vars, types, summary_allowed,
+        "summary statistic"
+      ),
+      method = parse_override_lines(
+        input$table_test_overrides, vars, types, test_allowed,
+        "p-value test"
+      )
+    )
+  })
+  override_status <- function(parsed, fallback, noun) {
+    if (length(parsed$errors)) {
+      return(tags$div(class = "gtx-note", tags$strong("Please fix: "),
+        tags$ul(lapply(parsed$errors, tags$li))))
+    }
+    count <- length(parsed$values)
+    remaining <- max(0L, length(input$table_vars %||% character()) - count)
+    tags$p(class = "help-copy", paste0(
+      count, " override", if (count == 1L) "" else "s", " recognised. ",
+      remaining, " other variable", if (remaining == 1L) "" else "s",
+      " will use ", fallback, "."
+    ))
+  }
+  output$table_stat_override_status <- renderUI({
+    override_status(table_override_settings()$statistic, "Recommended", "summary")
+  })
+  output$table_test_override_status <- renderUI({
+    parsed <- table_override_settings()$method
+    if (length(parsed$errors)) return(override_status(parsed, "Auto", "test"))
+    none <- sum(parsed$values == "none")
+    explicit <- sum(parsed$values != "none")
+    remaining <- max(0L, length(input$table_vars %||% character()) - length(parsed$values))
+    tags$p(class = "help-copy", paste0(
+      explicit, " explicit test", if (explicit == 1L) "" else "s", " recognised; ",
+      none, " variable", if (none == 1L) "" else "s", " set to no test; ",
+      remaining, " will use Auto."
+    ))
+  })
+  observeEvent(input$table_stat_example, {
+    vars <- input$table_vars %||% character()
+    types <- table_type_map()
+    continuous <- vars[types[vars] == "continuous"]
+    if (!length(continuous)) {
+      showNotification("Select at least one continuous variable first.", type = "warning")
+    } else {
+      choices <- c("mean_sd", "median_iqr", "mean_ci")
+      example <- paste0(head(continuous, 3L), " = ", head(choices, length(head(continuous, 3L))))
+      updateTextAreaInput(session, "table_stat_overrides", value = paste(example, collapse = "\n"))
+    }
+  }, ignoreInit = TRUE)
+  observeEvent(input$table_stat_clear, {
+    updateTextAreaInput(session, "table_stat_overrides", value = "")
+  }, ignoreInit = TRUE)
+  observeEvent(input$table_test_example, {
+    vars <- input$table_vars %||% character()
+    types <- table_type_map()
+    continuous <- vars[types[vars] == "continuous"]
+    categorical <- vars[types[vars] %in% c("binary", "categorical", "ordinal")]
+    example <- character()
+    if (length(continuous)) example <- c(example, paste0(continuous[[1L]], " = welch_t"))
+    if (length(continuous) >= 2L) example <- c(example, paste0(continuous[[2L]], " = wilcox"))
+    if (length(categorical)) example <- c(example, paste0(categorical[[1L]], " = fisher"))
+    if (!length(example)) {
+      showNotification("Select variables before inserting an example.", type = "warning")
+    } else {
+      updateTextAreaInput(session, "table_test_overrides", value = paste(example, collapse = "\n"))
+    }
+  }, ignoreInit = TRUE)
+  observeEvent(input$table_test_clear, {
+    updateTextAreaInput(session, "table_test_overrides", value = "")
   })
 
   output$data_caption <- renderText(data_type_note(selected_data()))
@@ -551,7 +989,12 @@ server <- function(input, output, session) {
     req(!is.null(initial_clicks$distribution),
       (input$run_distribution %||% 0) > initial_clicks$distribution)
     req(isTRUE(input$show_variance), nzchar(input$diagnostic_group))
-    variance_result(gtstats::assess_variance(selected_data(), vars = input$diagnostic_vars, by = input$diagnostic_group))
+    variance_result(gtstats::assess_variance(
+      selected_data(),
+      vars = input$diagnostic_vars,
+      by = input$diagnostic_group,
+      test = input$variance_test %||% "levene"
+    ))
   }, ignoreInit = TRUE)
   output$has_variance <- reactive({ isTRUE(input$show_variance) && nzchar(input$diagnostic_group) })
   outputOptions(output, "has_variance", suspendWhenHidden = FALSE)
@@ -566,7 +1009,14 @@ server <- function(input, output, session) {
       )
     } else ""
     variance <- if (isTRUE(input$show_variance) && nzchar(group) && length(input$diagnostic_vars)) {
-      paste0("\n\nassess_variance(data, vars = ", code_vector(input$diagnostic_vars), ", by = ", group, ")")
+      paste0(
+        "\n\nassess_variance(data, vars = ",
+        code_vector(input$diagnostic_vars), ", by = ", group,
+        if (!identical(input$variance_test %||% "levene", "levene")) {
+          paste0(', test = "', input$variance_test, '"')
+        } else "",
+        ")"
+      )
     } else ""
     paste0("describe_data(data)", distribution, variance)
   })
@@ -578,42 +1028,118 @@ server <- function(input, output, session) {
     req(!is.null(initial_clicks$table),
       (input$run_table %||% 0) > initial_clicks$table)
     vars <- input$table_vars
-    validate(need(length(vars) > 0L, "Choose at least one variable for Table 1."))
+    validate(need(length(vars) > 0L, "Choose at least one variable for the summary table."))
     table_digits <- input$table_digits %||% 1L
+    settings <- table_override_settings()
+    validate(need(!length(settings$statistic$errors), paste(settings$statistic$errors, collapse = "\n")))
+    validate(need(!length(settings$method$errors), paste(settings$method$errors, collapse = "\n")))
+    statistic_arg <- if (length(settings$statistic$values)) {
+      settings$statistic$values
+    } else {
+      "recommended"
+    }
     args <- list(data = selected_data(), include = vars,
-      statistic = input$table_statistic %||% "recommended",
+      statistic = statistic_arg,
       categorical = input$table_categorical %||% "n_percent",
       percent = input$table_percent %||% "column",
-      missing = input$table_missing %||% "ifany", digits = table_digits)
+      missing = input$table_missing %||% "ifany", digits = table_digits,
+      ci = isTRUE(input$table_ci),
+      ci_method = input$table_ci_method %||% "wilson",
+      layout = if (isTRUE(input$table_ci)) input$table_layout %||% "separate" else "compact")
     if (nzchar(input$table_group)) args$by <- input$table_group
     if (identical(input$table_overall, "first")) args$overall <- "first"
     if (identical(input$table_overall, "last")) args$overall <- "last"
     result <- do.call(gtstats::summary_table, args)
     if (isTRUE(input$table_p)) {
       validate(need(nzchar(input$table_group), "P-values require a grouping variable."))
-      result <- gtstats::add_p(result)
+      method_overrides <- settings$method$values
+      excluded_vars <- names(method_overrides)[method_overrides == "none"]
+      tested_vars <- setdiff(vars, excluded_vars)
+      explicit_methods <- method_overrides[method_overrides != "none"]
+      if (length(tested_vars) > 0L) {
+        result <- gtstats::add_p(
+          result,
+          method = if (length(explicit_methods)) explicit_methods else "auto",
+          include = tidyselect::all_of(tested_vars),
+          distribution_check = isTRUE(input$table_distribution_check),
+          var_equal = isTRUE(input$table_var_equal)
+        )
+      }
     }
     table_result(result)
   }, ignoreInit = TRUE)
-  output$summary_table <- render_result(table_result)
-  download_result(output, "summary", table_result)
+  summary_display_result <- reactive({
+    result <- table_result()
+    req(result)
+    gtstats::customise_table(
+      result,
+      theme = input$table_theme %||% "default",
+      title = if (nzchar(input$table_title %||% "")) input$table_title else NULL,
+      subtitle = if (nzchar(input$table_subtitle %||% "")) input$table_subtitle else NULL,
+      bold_labels = isTRUE(input$table_bold_labels),
+      show_footnotes = isTRUE(input$table_footnotes),
+      row_striping = isTRUE(input$table_striping),
+      font_size = input$table_font_size %||% 14
+    )
+  })
+  output$summary_table <- render_result(summary_display_result)
+  download_result(output, "summary", summary_display_result)
   summary_code <- reactive({
     group <- input$table_group
     lines <- c("summary_table(", "  data,")
     if (nzchar(group)) lines <- c(lines, paste0("  by = ", group, ","))
+    settings <- table_override_settings()
+    statistic_code <- if (length(settings$statistic$values)) {
+      code_named_vector(settings$statistic$values)
+    } else {
+      '"recommended"'
+    }
     lines <- c(
       lines,
       paste0("  include = ", code_vector(input$table_vars), ","),
-      paste0("  statistic = ", sprintf('"%s"', input$table_statistic %||% "recommended"), ","),
+      paste0("  statistic = ", statistic_code, ","),
       paste0("  categorical = ", sprintf('"%s"', input$table_categorical %||% "n_percent"), ","),
       paste0("  percent = ", sprintf('"%s"', input$table_percent %||% "column"), ","),
-      paste0("  missing = ", sprintf('"%s"', input$table_missing %||% "ifany"), ",")
+      paste0("  missing = ", sprintf('"%s"', input$table_missing %||% "ifany"), ","),
+      paste0("  ci = ", if (isTRUE(input$table_ci)) "TRUE" else "FALSE", ","),
+      paste0("  ci_method = ", sprintf('"%s"', input$table_ci_method %||% "wilson"), ","),
+      paste0("  layout = ", sprintf('"%s"', if (isTRUE(input$table_ci)) input$table_layout %||% "separate" else "compact"), ",")
     )
     if (!identical(input$table_overall, "false")) {
       lines <- c(lines, paste0("  overall = ", sprintf('"%s"', input$table_overall), ","))
     }
     lines <- c(lines, paste0("  digits = ", input$table_digits %||% 1L), ")")
-    paste(c(lines, if (isTRUE(input$table_p)) "|> add_p()"), collapse = "\n")
+    additions <- character()
+    if (isTRUE(input$table_p)) {
+      method_overrides <- settings$method$values
+      excluded_vars <- names(method_overrides)[method_overrides == "none"]
+      tested_vars <- setdiff(input$table_vars %||% character(), excluded_vars)
+      explicit_methods <- method_overrides[method_overrides != "none"]
+      if (length(tested_vars) > 0L) {
+        method_code <- if (length(explicit_methods)) code_named_vector(explicit_methods) else '"auto"'
+        include_code <- if (length(excluded_vars)) {
+          paste0(", include = ", code_vector(tested_vars))
+        } else ""
+        additions <- c(additions, paste0(
+          "|>\n  add_p(method = ", method_code,
+          include_code,
+          ", distribution_check = ",
+          if (isTRUE(input$table_distribution_check)) "TRUE" else "FALSE",
+          ", var_equal = ",
+          if (isTRUE(input$table_var_equal)) "TRUE" else "FALSE", ")"
+        ))
+      }
+    }
+    additions <- c(additions, paste0(
+      "|>\n  customise_table(theme = ", sprintf('"%s"', input$table_theme %||% "default"),
+      if (nzchar(input$table_title %||% "")) paste0(", title = ", sprintf('"%s"', input$table_title)) else "",
+      if (nzchar(input$table_subtitle %||% "")) paste0(", subtitle = ", sprintf('"%s"', input$table_subtitle)) else "",
+      ", bold_labels = ", if (isTRUE(input$table_bold_labels)) "TRUE" else "FALSE",
+      ", show_footnotes = ", if (isTRUE(input$table_footnotes)) "TRUE" else "FALSE",
+      ", row_striping = ", if (isTRUE(input$table_striping)) "TRUE" else "FALSE",
+      ", font_size = ", input$table_font_size %||% 14, ")"
+    ))
+    paste(c(lines, additions), collapse = "\n")
   })
   output$summary_code <- renderText(summary_code())
   download_code(output, "summary_code", summary_code)
@@ -641,21 +1167,21 @@ server <- function(input, output, session) {
   comparison_diagnostics_result <- reactive({
     result <- comparison_result()
     req(result)
-    gt::gt(gtstats::diagnostics_stats(result))
+    gtstats::diagnostics_stats(result)
   })
   output$comparison_diagnostics <- render_result(comparison_diagnostics_result)
   download_result(output, "comparison_diagnostics", comparison_diagnostics_result)
   comparison_assumptions_result <- reactive({
     result <- comparison_result()
     req(result)
-    gt::gt(gtstats::assumptions_stats(result))
+    gtstats::assumptions_stats(result)
   })
   output$comparison_assumptions <- render_result(comparison_assumptions_result)
   download_result(output, "comparison_assumptions", comparison_assumptions_result)
   comparison_denominators_result <- reactive({
     result <- comparison_result()
     req(result)
-    gt::gt(gtstats::denominators_stats(result))
+    gtstats::denominators_stats(result)
   })
   output$comparison_denominators <- render_result(comparison_denominators_result)
   download_result(output, "comparison_denominators", comparison_denominators_result)
@@ -674,6 +1200,150 @@ server <- function(input, output, session) {
   })
   output$comparison_code <- renderText(comparison_code())
   download_code(output, "comparison_code", comparison_code)
+
+  correlation_result <- reactiveVal(NULL)
+  observeEvent(input$run_correlation, {
+    req(!is.null(initial_clicks$correlation),
+      (input$run_correlation %||% 0) > initial_clicks$correlation)
+    if (identical(input$correlation_mode, "matrix")) {
+      vars <- input$correlation_vars %||% character()
+      validate(need(length(vars) >= 2L, "Select at least two continuous variables for a matrix."))
+      correlation_result(gtstats::correlation(
+        selected_data(), vars = vars,
+        method = input$correlation_method %||% "auto",
+        triangle = input$correlation_triangle %||% "lower",
+        order = input$correlation_order %||% "input",
+        show_diagonal = isTRUE(input$correlation_diagonal),
+        display = input$correlation_display %||% "estimate",
+        shade = isTRUE(input$correlation_shade),
+        adjust = input$correlation_adjust %||% "none",
+        digits = input$correlation_digits %||% 2L
+      ))
+    } else {
+      validate(need(nzchar(input$correlation_x %||% "") && nzchar(input$correlation_y %||% ""),
+        "Choose two continuous variables."))
+      validate(need(!identical(input$correlation_x, input$correlation_y),
+        "The two correlation variables must be different."))
+      correlation_result(gtstats::correlation(
+        selected_data(), x = input$correlation_x, y = input$correlation_y,
+        method = input$correlation_method %||% "auto",
+        digits = input$correlation_digits %||% 2L
+      ))
+    }
+  }, ignoreInit = TRUE)
+  output$correlation_table <- render_result(correlation_result)
+  download_result(output, "correlation", correlation_result)
+  output$correlation_csv <- downloadHandler(
+    filename = function() "gtstats-correlation-tidy.csv",
+    content = function(file) {
+      result <- correlation_result()
+      req(result)
+      utils::write.csv(result$summary, file, row.names = FALSE, na = "")
+    }
+  )
+  output$correlation_missingness_note <- renderUI({
+    result <- correlation_result()
+    req(result)
+    if (!inherits(result, "gt_correlation_matrix")) return(NULL)
+    pair_n <- result$summary$n
+    if (length(unique(pair_n)) <= 1L) return(NULL)
+    tags$div(
+      class = "gtx-note",
+      tags$strong("Pairwise denominators differ. "),
+      paste0(
+        "The displayed correlations use between ", min(pair_n), " and ",
+        max(pair_n), " complete pairs. Review the Denominators tab before comparing coefficients."
+      )
+    )
+  })
+
+  correlation_plot_result <- reactive({
+    result <- correlation_result()
+    req(result)
+    title <- input$correlation_title %||% ""
+    title <- if (nzchar(title)) title else NULL
+    if (inherits(result, "gt_correlation_matrix")) {
+      gtstats::plot_correlation(
+        result,
+        show_values = isTRUE(input$correlation_plot_values),
+        title = title
+      )
+    } else {
+      gtstats::plot_correlation(
+        selected_data(), x = input$correlation_x, y = input$correlation_y,
+        method = input$correlation_method %||% "auto",
+        trend = input$correlation_trend %||% "auto",
+        show_ci = isTRUE(input$correlation_show_ci),
+        show_correlation = isTRUE(input$correlation_show_result),
+        digits = input$correlation_digits %||% 2L,
+        title = title
+      )
+    }
+  })
+  output$correlation_plot <- renderPlot(correlation_plot_result(), res = 110)
+  download_plot_result(output, "correlation_plot", correlation_plot_result)
+
+  correlation_diagnostics_result <- reactive({
+    result <- correlation_result(); req(result)
+    gtstats::diagnostics_stats(result)
+  })
+  correlation_assumptions_result <- reactive({
+    result <- correlation_result(); req(result)
+    gtstats::assumptions_stats(result)
+  })
+  correlation_denominators_result <- reactive({
+    result <- correlation_result(); req(result)
+    gtstats::denominators_stats(result)
+  })
+  output$correlation_diagnostics <- render_result(correlation_diagnostics_result)
+  output$correlation_assumptions <- render_result(correlation_assumptions_result)
+  output$correlation_denominators <- render_result(correlation_denominators_result)
+  download_result(output, "correlation_diagnostics", correlation_diagnostics_result)
+  download_result(output, "correlation_assumptions", correlation_assumptions_result)
+  download_result(output, "correlation_denominators", correlation_denominators_result)
+
+  correlation_code <- reactive({
+    title <- input$correlation_title %||% ""
+    title_code <- if (nzchar(title)) paste0(", title = ", sprintf('"%s"', title)) else ""
+    if (identical(input$correlation_mode, "matrix")) {
+      analysis <- paste0(
+        "correlation_result <- correlation(\n  data,\n  vars = ", code_vector(input$correlation_vars %||% character()),
+        ",\n  method = ", sprintf('"%s"', input$correlation_method %||% "auto"),
+        ",\n  triangle = ", sprintf('"%s"', input$correlation_triangle %||% "lower"),
+        ",\n  order = ", sprintf('"%s"', input$correlation_order %||% "input"),
+        ",\n  show_diagonal = ", if (isTRUE(input$correlation_diagonal)) "TRUE" else "FALSE",
+        ",\n  display = ", sprintf('"%s"', input$correlation_display %||% "estimate"),
+        ",\n  shade = ", if (isTRUE(input$correlation_shade)) "TRUE" else "FALSE",
+        ",\n  adjust = ", sprintf('"%s"', input$correlation_adjust %||% "none"),
+        ",\n  digits = ", input$correlation_digits %||% 2L, "\n)"
+      )
+      plot <- paste0(
+        "plot_correlation(\n  correlation_result,\n  show_values = ",
+        if (isTRUE(input$correlation_plot_values)) "TRUE" else "FALSE",
+        title_code, "\n)"
+      )
+    } else {
+      analysis <- paste0(
+        "correlation_result <- correlation(\n  data,\n  x = ", input$correlation_x,
+        ",\n  y = ", input$correlation_y,
+        ",\n  method = ", sprintf('"%s"', input$correlation_method %||% "auto"),
+        ",\n  digits = ", input$correlation_digits %||% 2L, "\n)"
+      )
+      plot <- paste0(
+        "plot_correlation(\n  data,\n  x = ", input$correlation_x,
+        ",\n  y = ", input$correlation_y,
+        ",\n  method = ", sprintf('"%s"', input$correlation_method %||% "auto"),
+        ",\n  trend = ", sprintf('"%s"', input$correlation_trend %||% "auto"),
+        ",\n  show_ci = ", if (isTRUE(input$correlation_show_ci)) "TRUE" else "FALSE",
+        ",\n  show_correlation = ", if (isTRUE(input$correlation_show_result)) "TRUE" else "FALSE",
+        ",\n  digits = ", input$correlation_digits %||% 2L,
+        title_code, "\n)"
+      )
+    }
+    paste(analysis, plot, sep = "\n\n")
+  })
+  output$correlation_code <- renderText(correlation_code())
+  download_code(output, "correlation_code", correlation_code)
 
   crosstab_result <- reactiveVal(NULL)
   observeEvent(input$run_cross, {
@@ -696,6 +1366,102 @@ server <- function(input, output, session) {
   output$crosstab_code <- renderText(crosstab_code())
   download_code(output, "crosstab_code", crosstab_code)
 
+  output$custom_source_ui <- renderUI({
+    if (is.null(table_result())) {
+      return(tags$div(
+        class = "gtx-note",
+        tags$strong("No Summary table yet. "),
+        "Open Summary table, choose the variables, and click Create summary table."
+      ))
+    }
+    tags$div(
+      class = "gtx-step",
+      tags$strong("Using: "), "the most recently created Summary table"
+    )
+  })
+  selected_completed_table <- reactive({
+    req(table_result())
+    table_result()
+  })
+  completed_table_code <- reactive({
+    req(table_result())
+    summary_code()
+  })
+  custom_settings <- reactive({
+    list(
+      col_labels = parse_label_mapping(input$custom_col_labels, "Column labels"),
+      row_labels = parse_label_mapping(input$custom_row_labels, "Row labels"),
+      level_labels = parse_label_mapping(input$custom_level_labels, "Category level labels"),
+      hide_cols = parse_name_list(input$custom_hide_cols)
+    )
+  })
+  customised_result <- reactiveVal(NULL)
+  observeEvent(table_result(), {
+    customised_result(NULL)
+  }, ignoreInit = TRUE)
+  observeEvent(input$run_customise, {
+    req(!is.null(initial_clicks$customise),
+      (input$run_customise %||% 0) > initial_clicks$customise)
+    settings <- tryCatch(custom_settings(), error = function(error) error)
+    if (inherits(settings, "error")) {
+      validate(need(FALSE, conditionMessage(settings)))
+    }
+    source <- selected_completed_table()
+    customised_result(gtstats::customise_table(
+      source,
+      theme = input$custom_theme %||% "default",
+      title = if (nzchar(input$custom_title %||% "")) input$custom_title else NULL,
+      subtitle = if (nzchar(input$custom_subtitle %||% "")) input$custom_subtitle else NULL,
+      source_note = if (nzchar(input$custom_source_note %||% "")) input$custom_source_note else NULL,
+      col_labels = if (length(settings$col_labels)) settings$col_labels else NULL,
+      row_labels = if (length(settings$row_labels)) settings$row_labels else NULL,
+      level_labels = if (length(settings$level_labels)) settings$level_labels else NULL,
+      hide_cols = if (length(settings$hide_cols)) settings$hide_cols else NULL,
+      font_size = input$custom_font_size %||% 14,
+      row_striping = isTRUE(input$custom_striping),
+      bold_labels = isTRUE(input$custom_bold_labels),
+      show_footnotes = isTRUE(input$custom_footnotes)
+    ))
+  }, ignoreInit = TRUE)
+  customised_display_result <- reactive({
+    customised_result() %||% table_result()
+  })
+  output$custom_preview_message <- renderUI({
+    if (is.null(table_result())) return(NULL)
+    if (is.null(customised_result())) {
+      tags$p(class = "help-copy", "This is the current Summary table. Change the controls and click Apply table changes to create a customised copy.")
+    } else {
+      tags$p(class = "help-copy", "Customisation applied. The underlying Summary-table statistics are unchanged.")
+    }
+  })
+  output$customised_table <- render_result(customised_display_result)
+  download_result(output, "customised", customised_display_result)
+  customised_code <- reactive({
+    settings <- tryCatch(custom_settings(), error = function(error) NULL)
+    settings <- settings %||% list(col_labels = character(), row_labels = character(), level_labels = character(), hide_cols = character())
+    arguments <- c(
+      paste0('  theme = "', input$custom_theme %||% "default", '"'),
+      if (nzchar(input$custom_title %||% "")) paste0("  title = ", sprintf('"%s"', input$custom_title)) else character(),
+      if (nzchar(input$custom_subtitle %||% "")) paste0("  subtitle = ", sprintf('"%s"', input$custom_subtitle)) else character(),
+      if (nzchar(input$custom_source_note %||% "")) paste0("  source_note = ", sprintf('"%s"', input$custom_source_note)) else character(),
+      if (length(settings$col_labels)) paste0("  col_labels = ", code_named_vector(settings$col_labels)) else character(),
+      if (length(settings$row_labels)) paste0("  row_labels = ", code_named_vector(settings$row_labels)) else character(),
+      if (length(settings$level_labels)) paste0("  level_labels = ", code_named_vector(settings$level_labels)) else character(),
+      if (length(settings$hide_cols)) paste0("  hide_cols = ", code_vector(settings$hide_cols)) else character(),
+      paste0("  font_size = ", input$custom_font_size %||% 14),
+      paste0("  row_striping = ", if (isTRUE(input$custom_striping)) "TRUE" else "FALSE"),
+      paste0("  bold_labels = ", if (isTRUE(input$custom_bold_labels)) "TRUE" else "FALSE"),
+      paste0("  show_footnotes = ", if (isTRUE(input$custom_footnotes)) "TRUE" else "FALSE")
+    )
+    paste0(
+      "completed_table <- ", completed_table_code(), "\n\n",
+      "customised_table <- customise_table(\n  completed_table,\n",
+      paste(arguments, collapse = ",\n"), "\n)"
+    )
+  })
+  output$customised_code <- renderText(customised_code())
+  download_code(output, "customised_code", customised_code)
+
   observeEvent(input$run_describe, {
     record_history("Describe data", "Dataset overview", isolate("describe_data(data)"))
   }, ignoreInit = TRUE)
@@ -703,19 +1469,40 @@ server <- function(input, output, session) {
     distribution_code <- isolate({
       group <- input$diagnostic_group %||% ""
       code <- paste0("assess_distribution(data, vars = ", code_vector(input$diagnostic_vars), if (nzchar(group)) paste0(", by = ", group) else "", ")")
-      if (isTRUE(input$show_variance) && nzchar(group)) code <- paste0(code, "\n\nassess_variance(data, vars = ", code_vector(input$diagnostic_vars), ", by = ", group, ")")
+      if (isTRUE(input$show_variance) && nzchar(group)) {
+        code <- paste0(
+          code, "\n\nassess_variance(data, vars = ",
+          code_vector(input$diagnostic_vars), ", by = ", group,
+          if (!identical(input$variance_test %||% "levene", "levene")) {
+            paste0(', test = "', input$variance_test, '"')
+          } else "",
+          ")"
+        )
+      }
       code
     })
     record_history("Assess distribution", paste(length(input$diagnostic_vars), "variable(s)"), distribution_code)
   }, ignoreInit = TRUE)
   observeEvent(input$run_table, {
-    record_history("Table 1", paste(length(input$table_vars), "variable(s)"), isolate(summary_code()))
+    record_history("Summary table", paste(length(input$table_vars), "variable(s)"), isolate(summary_code()))
   }, ignoreInit = TRUE)
   observeEvent(input$run_compare, {
     record_history("Compare groups", paste(input$compare_variable, "by", input$compare_group), isolate(comparison_code()))
   }, ignoreInit = TRUE)
+  observeEvent(input$run_correlation, {
+    details <- if (identical(input$correlation_mode, "matrix")) {
+      paste(length(input$correlation_vars %||% character()), "variable matrix")
+    } else {
+      paste(input$correlation_x, "with", input$correlation_y)
+    }
+    record_history("Correlation", details, isolate(correlation_code()))
+  }, ignoreInit = TRUE)
   observeEvent(input$run_cross, {
     record_history("Crosstab", paste(input$cross_row, "by", input$cross_col), isolate(crosstab_code()))
+  }, ignoreInit = TRUE)
+  observeEvent(input$run_customise, {
+    req(!is.null(customised_result()))
+    record_history("Customise table", "Summary table", isolate(customised_code()))
   }, ignoreInit = TRUE)
   observeEvent(input$clear_history, {
     showModal(modalDialog(
@@ -760,6 +1547,8 @@ server <- function(input, output, session) {
     filename = function() "gtstats-session.R",
     content = function(file) writeLines(complete_script(), file, useBytes = TRUE)
   )
+  output$session_code <- renderText(complete_script())
+  download_code(output, "session_code", complete_script)
 }
 
 shinyApp(ui, server)

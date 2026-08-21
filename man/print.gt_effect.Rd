@@ -18,7 +18,7 @@ The input object, invisibly.
 Print the publication-ready table stored by a \code{gt_effect} object.
 }
 \examples{
-x <- effect_size(mtcars, outcome = mpg, by = am)
+x <- effect_size(mtcars, variable = mpg, group = am)
 print(x)
 
 }

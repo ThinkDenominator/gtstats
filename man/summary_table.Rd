@@ -17,7 +17,10 @@ summary_table(
   missing = c("ifany", "always", "no"),
   ci = FALSE,
   conf.level = 0.95,
-  label = NULL
+  ci_method = c("wilson", "exact"),
+  layout = c("compact", "separate"),
+  label = NULL,
+  format = c("table", "tibble")
 )
 }
 \arguments{
@@ -56,7 +59,18 @@ continuous variables; a named vector can override individual variables.}
 
 \item{conf.level}{Confidence level for categorical proportion intervals.}
 
+\item{ci_method}{Binomial confidence-interval method: \code{"wilson"} (default)
+or \code{"exact"}.}
+
+\item{layout}{Table layout. \code{"compact"} keeps each summary in one cell.
+\code{"separate"} places summaries and confidence intervals in separate
+columns beneath each cohort header.}
+
 \item{label}{Optional named character vector overriding variable labels.}
+
+\item{format}{Display format: \code{"table"} (default) or \code{"tibble"}. The
+builder remains composable; this option changes how the completed object
+prints without discarding its audit components.}
 }
 \value{
 A \code{gt_desc_table} object containing the source data,

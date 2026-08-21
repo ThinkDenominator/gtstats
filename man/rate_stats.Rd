@@ -12,7 +12,8 @@ rate_stats(
   multiplier = 1000,
   time_label = NULL,
   conf.level = 0.95,
-  digits = 1
+  digits = 1,
+  format = c("table", "tibble")
 )
 }
 \arguments{
@@ -39,6 +40,9 @@ example \code{1000} or \code{100000}. Default is \code{1000}.}
 
 \item{digits}{Number of decimal places used when formatting rates.
 Default is \code{1}.}
+
+\item{format}{Output format: \code{"table"} (default) or a plain console
+\code{"tibble"}.}
 }
 \value{
 A \code{gt_rate} object containing:
@@ -66,6 +70,9 @@ not estimable rather than silently converted to a rate.
 When a grouping variable is supplied, rates are calculated
 separately within each group. Confidence intervals are calculated
 using \code{\link[stats:poisson.test]{stats::poisson.test()}}.
+The publication table uses each group as a spanning header, with separate
+columns for events, accumulated time, rate, and confidence interval. The
+tidy long-form numerical results remain available in \verb{$summary}.
 }
 \examples{
 df <- data.frame(

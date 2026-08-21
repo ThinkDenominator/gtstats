@@ -9,8 +9,9 @@ assess_variance(
   vars = NULL,
   by,
   digits = 2,
-  test = c("none", "bartlett"),
-  output = c("table", "tibble")
+  test = c("levene", "none", "bartlett"),
+  format = c("table", "tibble"),
+  output = NULL
 )
 }
 \arguments{
@@ -27,17 +28,22 @@ two observed groups.}
 
 \item{digits}{Number of decimal places.}
 
-\item{test}{Variance hypothesis test to display: \code{"none"} (default) or
-\code{"bartlett"}. Bartlett's test is sensitive to non-normality and is a
-diagnostic, not a gatekeeper for ANOVA or Welch methods.}
+\item{test}{Variance hypothesis test to display: \code{"levene"} (default),
+\code{"none"}, or \code{"bartlett"}. Levene's test is median-centred (the robust
+Brown-Forsythe form). Both are supporting diagnostics, not gatekeepers for
+ANOVA or Welch methods.}
 
-\item{output}{Either \code{"table"} (the default) or \code{"tibble"}.}
+\item{format}{Output format: \code{"table"} (default) or \code{"tibble"}.}
+
+\item{output}{Compatibility alias for \code{format}.}
 }
 \value{
-With \code{output = "table"}, a \code{gt_variance} object that prints as a
-publication-ready table. \verb{$summary} contains all group-level values and
-repeated variable-level diagnostics. With \code{output = "tibble"}, the
-detailed summary tibble is returned.
+With \code{format = "table"}, a \code{gt_variance} object that prints as one
+readable row per variable: each group's \code{n} and SD, the observed SD ratio,
+the requested test p-value, and a plain-language interpretation.
+\verb{$summary} contains the full group-level values and \verb{$diagnostics} retains
+technical test metadata. With \code{format = "tibble"}, the detailed summary
+tibble is returned.
 }
 \description{
 Describe the spread of continuous numeric variables within groups. This is a
@@ -49,15 +55,20 @@ variation visible before a group comparison is interpreted.
 variances, and the ratio of the largest to the smallest group SD and
 variance. These ratios are descriptive diagnostics, not pass/fail tests.
 The function deliberately does not run a variance hypothesis test by
-default, and it does not choose an inferential test. In particular, Welch
-t-tests and Welch ANOVA do not require equal variances.
-Set \code{test = "bartlett"} to add Bartlett's test as supporting information.
-Bartlett's test assumes normal group distributions and is deliberately not
-used to select a test in \code{compare_groups()}.
+default, and it does not choose an inferential test. Welch t-tests and Welch
+ANOVA do not require equal variances for \emph{independent} groups; this function
+does not assess pairing, repeated-measures sphericity, or select a
+repeated-measures method.
+The default is the median-centred Levene test (often called the
+Brown-Forsythe modification) as supporting information. It is less sensitive
+to non-normality than Bartlett's test. Set \code{test = "none"} for descriptive
+spread only, or \code{test = "bartlett"} when the normal-distribution assumption
+is justified. Neither test is used to select a test in \code{\link[=compare_groups]{compare_groups()}}.
 }
 \examples{
 assess_variance(mtcars, vars = c(mpg, wt), by = am)
 assess_variance(mtcars, vars = "mpg", by = am, digits = 1)
 assess_variance(mtcars, vars = "mpg", by = am, test = "bartlett")
+assess_variance(mtcars, vars = "mpg", by = am, test = "levene")
 
 }

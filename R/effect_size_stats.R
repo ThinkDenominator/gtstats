@@ -18,8 +18,8 @@
 #' duplicated here; use [crosstabs()] for those epidemiological measures.
 #'
 #' @param data A data frame.
-#' @param outcome Outcome variable.
-#' @param by Grouping variable.
+#' @param variable Outcome or response variable.
+#' @param group Grouping variable.
 #' @param method Effect-size method: `"auto"`, `"hedges_g"`,
 #'   `"rank_biserial"`, `"omega_squared"`, `"epsilon_squared"`, or
 #'   `"cramers_v"`.
@@ -30,18 +30,20 @@
 #'   These labels are generic teaching aids and are not clinical importance
 #'   thresholds.
 #' @param digits Number of decimal places.
+#' @param format Output format: `"table"` (default) or a plain console
+#'   `"tibble"`.
 #'
 #' @return A publication-ready `gt_effect` object containing `summary`, `table`,
 #'   `inputs`, `method`, `assumptions`, `diagnostics`, `denominators`, and
 #'   `notes`.
 #'
 #' @examples
-#' effect_size(mtcars, outcome = mpg, by = am)
+#' effect_size(mtcars, variable = mpg, group = am)
 #'
 #' effect_size(
 #'   mtcars,
-#'   outcome = mpg,
-#'   by = am,
+#'   variable = mpg,
+#'   group = am,
 #'   method = "hedges_g",
 #'   interpretation = TRUE
 #' )
@@ -49,8 +51,8 @@
 #' @export
 effect_size <- function(
     data,
-    outcome,
-    by,
+    variable,
+    group,
     method = c(
       "auto", "hedges_g", "rank_biserial",
       "omega_squared", "epsilon_squared", "cramers_v"
@@ -59,8 +61,10 @@ effect_size <- function(
     id = NULL,
     conf.level = 0.95,
     interpretation = FALSE,
-    digits = 2
+    digits = 2,
+    format = c("table", "tibble")
 ) {
+  format <- match.arg(format)
   method <- match.arg(method)
   .validate_flag(paired, "paired")
   .validate_flag(interpretation, "interpretation")
@@ -71,11 +75,11 @@ effect_size <- function(
   }
 
   outcome_name <- .resolve_var_arg(
-    substitute(outcome),
+    substitute(variable),
     env = parent.frame()
   )
   by_name <- .resolve_var_arg(
-    substitute(by),
+    substitute(group),
     env = parent.frame()
   )
   id_name <- .resolve_var_arg(
@@ -88,7 +92,7 @@ effect_size <- function(
     c(outcome_name, by_name, id_name %||% character())
   )
   if (identical(outcome_name, by_name)) {
-    stop("`outcome` and `by` must be different variables.", call. = FALSE)
+    stop("`variable` and `group` must be different variables.", call. = FALSE)
   }
 
   outcome_type <- .detect_type(data[[outcome_name]])
@@ -106,7 +110,7 @@ effect_size <- function(
   rank_outcome <- outcome_type %in% c("continuous", "ordinal")
 
   if (n_groups < 2L) {
-    stop("`by` must have at least 2 observed groups.", call. = FALSE)
+    stop("`group` must have at least 2 observed groups.", call. = FALSE)
   }
   if (isTRUE(paired) && n_groups != 2L) {
     stop("Paired effect sizes require exactly 2 groups.", call. = FALSE)
@@ -212,8 +216,8 @@ effect_size <- function(
   }
 
   summary_tbl <- tibble::tibble(
-    outcome = outcome_name,
-    by = by_name,
+    variable = outcome_name,
+    group = by_name,
     measure = infer$effect_size_type[[1L]],
     symbol = infer$effect_size_symbol[[1L]],
     contrast = contrast,
@@ -273,8 +277,8 @@ effect_size <- function(
     table = table_tbl,
     inputs = list(
       data_name = deparse(substitute(data)),
-      outcome = outcome_name,
-      by = by_name,
+      variable = outcome_name,
+      group = by_name,
       method = method,
       paired = paired,
       id = id_name,
@@ -297,5 +301,6 @@ effect_size <- function(
     call = match.call()
   )
   class(result) <- c("gt_effect", "gtstats", "list")
+  if (identical(format, "tibble")) return(result$table)
   result
 }

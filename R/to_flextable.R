@@ -75,13 +75,91 @@ to_flextable <- function(
 
   # Build the base flextable
   ft <- flextable::flextable(df)
+  if (inherits(x, "gt_prop") && !is.null(x$inputs$by) &&
+      is.data.frame(x$method$display_columns)) {
+    display_columns <- x$method$display_columns
+    child_labels <- c(Event = "Event")
+    for (i in seq_len(nrow(display_columns))) {
+      child_labels[[display_columns$estimate[[i]]]] <- display_columns$estimate_label[[i]]
+      child_labels[[display_columns$ci[[i]]]] <- .conf_level_label(x$inputs$conf.level)
+    }
+    ft <- do.call(
+      flextable::set_header_labels,
+      c(list(x = ft), as.list(child_labels))
+    )
+    ft <- flextable::add_header_row(
+      ft,
+      values = c("", display_columns$group),
+      colwidths = c(1L, rep(2L, nrow(display_columns))),
+      top = TRUE
+    )
+  }
+  if (inherits(x, "gt_rate") && !is.null(x$inputs$by) &&
+      is.data.frame(x$method$display_columns)) {
+    display_columns <- x$method$display_columns
+    child_labels <- c(Event = "Event")
+    for (i in seq_len(nrow(display_columns))) {
+      child_labels[[display_columns$events[[i]]]] <- "Events"
+      child_labels[[display_columns$time[[i]]]] <- .sentence_case(x$inputs$time_label)
+      child_labels[[display_columns$rate[[i]]]] <- paste0(
+        "Rate per ",
+        format(x$inputs$multiplier, scientific = FALSE, trim = TRUE, big.mark = ",")
+      )
+      child_labels[[display_columns$ci[[i]]]] <- .conf_level_label(x$inputs$conf.level)
+    }
+    ft <- do.call(
+      flextable::set_header_labels,
+      c(list(x = ft), as.list(child_labels))
+    )
+    ft <- flextable::add_header_row(
+      ft,
+      values = c("", display_columns$group),
+      colwidths = c(1L, rep(4L, nrow(display_columns))),
+      top = TRUE
+    )
+  }
   if (inherits(x, "gt_desc_table")) {
-    header_labels <- .builder_display_headers(x)
-    if (length(header_labels) > 0L) {
+    if (identical(x$layout %||% "compact", "separate") &&
+        is.data.frame(x$display_columns)) {
+      child_labels <- c(Variable = "Variable", Level = "")
+      for (i in seq_len(nrow(x$display_columns))) {
+        child_labels[[x$display_columns$estimate[[i]]]] <-
+          x$display_columns$estimate_label[[i]]
+        child_labels[[x$display_columns$ci[[i]]]] <-
+          x$display_columns$ci_label[[i]]
+      }
+      trailing <- setdiff(names(df), c(
+        "Variable", "Level",
+        x$display_columns$estimate,
+        x$display_columns$ci
+      ))
+      for (column in trailing) child_labels[[column]] <- column
       ft <- do.call(
         flextable::set_header_labels,
-        c(list(x = ft), as.list(header_labels))
+        c(list(x = ft), as.list(child_labels))
       )
+      ft <- flextable::add_header_row(
+        ft,
+        values = c(
+          rep("", length(intersect(c("Variable", "Level"), names(df)))),
+          x$display_columns$group,
+          rep("", length(trailing))
+        ),
+        colwidths = c(
+          rep(1L, length(intersect(c("Variable", "Level"), names(df)))),
+          rep(2L, nrow(x$display_columns)),
+          rep(1L, length(trailing))
+        ),
+        top = TRUE
+      )
+    } else {
+      header_labels <- .builder_display_headers(x)
+      if (length(header_labels) > 0L) {
+        ft <- do.call(
+          flextable::set_header_labels,
+          c(list(x = ft), as.list(header_labels))
+        )
+      }
     }
   }
   ft <- flextable::theme_booktabs(ft)
@@ -93,7 +171,7 @@ to_flextable <- function(
 
   # Align label columns left and value columns right
   text_cols <- intersect(
-    c("Variable", "Level", "Measure", "Group"),
+    c("Variable", "Level", "Measure", "Group", "Event"),
     names(df)
   )
   value_cols <- setdiff(names(df), text_cols)

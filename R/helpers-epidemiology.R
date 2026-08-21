@@ -445,7 +445,7 @@
           as.character(exposure_raw) == exposed_level) - exposed_n,
         numerator = a,
         denominator = exposed_n,
-        rule = paste0("Complete pairs; event level = ", event_level)
+        rule = paste0("Complete row/outcome observations; event level = ", event_level)
       ),
       .denominators_tbl(
         variable = outcome_name,
@@ -458,7 +458,7 @@
           as.character(exposure_raw) == unexposed_level) - unexposed_n,
         numerator = c,
         denominator = unexposed_n,
-        rule = paste0("Complete pairs; event level = ", event_level)
+        rule = paste0("Complete row/outcome observations; event level = ", event_level)
       )
     ),
     notes = c(
@@ -473,7 +473,7 @@
         .get_var_label(data, outcome_name),
         " = ",
         event_level,
-        ". Complete pairs: N = ",
+        ". Complete observations: N = ",
         total_n,
         "."
       ),

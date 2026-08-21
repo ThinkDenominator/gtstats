@@ -54,7 +54,7 @@ test_that("compare_groups() creates a concise categorical publication table", {
   expect_false(any(res$diagnostics$check == "Observed group spread"))
 })
 
-test_that("compare_groups() treats ordered outcomes as ordinal", {
+test_that("compare_groups() treats an independent ordered outcome as categorical by default", {
   data <- data.frame(
     arm = factor(rep(c("Control", "Treatment"), each = 12)),
     response = ordered(
@@ -67,13 +67,18 @@ test_that("compare_groups() treats ordered outcomes as ordinal", {
   res <- compare_groups(data, response, group = arm)
 
   expect_equal(res$method$outcome_type, "ordinal")
-  expect_equal(res$inferential$test_used, "Wilcoxon rank-sum test")
+  # One level is absent in each arm, so the categorical sparse-cell rule
+  # correctly selects Fisher rather than chi-square.
+  expect_equal(res$inferential$test_used, "Fisher's exact test (Monte Carlo p-value)")
   expect_equal(res$table$Level, levels(data$response))
+
+  rank_res <- compare_groups(data, response, group = arm, test = "wilcox")
+  expect_equal(rank_res$inferential$test_used, "Wilcoxon rank-sum test")
 })
 
 test_that("compare_groups() rejects retired public arguments but accepts var_equal", {
   expect_error(
-    compare_groups(mtcars, mpg, group = am, normality_check = FALSE),
+    compare_groups(mtcars, mpg, group = am, distribution_check = FALSE),
     "Unused arguments"
   )
   expect_error(
@@ -89,11 +94,11 @@ test_that("compare_groups() rejects retired public arguments but accepts var_equ
 test_that("var_equal changes only the independent parametric auto route", {
   two_group <- compare_groups(
     mtcars, mpg, group = am, var_equal = TRUE,
-    .normality_check = FALSE
+    .distribution_check = FALSE
   )
   multi_group <- compare_groups(
     mtcars, mpg, group = cyl, var_equal = TRUE,
-    .normality_check = FALSE
+    .distribution_check = FALSE
   )
 
   expect_equal(two_group$inferential$test_used[[1]], "Student t-test")
@@ -121,7 +126,7 @@ test_that("skewness, pairing, and categorical routes ignore var_equal", {
   )
   paired_result <- compare_groups(
     paired, value, visit, paired = TRUE, id = id, var_equal = TRUE,
-    .normality_check = FALSE
+    .distribution_check = FALSE
   )
   expect_equal(paired_result$inferential$test_used[[1]], "Paired t-test")
 
@@ -547,7 +552,7 @@ test_that("compare_groups() supports multi-group effect sizes", {
   expect_lte(res2$inferential$effect_size[1], 1)
 })
 
-test_that("compare_groups() returns epsilon-squared for multi-level ordinal outcome", {
+test_that("compare_groups() uses categorical association for independent multi-level ordinal outcomes", {
   dat <- data.frame(
     arm = factor(rep(c("A", "B", "C"), each = 12)),
     response = ordered(
@@ -563,10 +568,20 @@ test_that("compare_groups() returns epsilon-squared for multi-level ordinal outc
     effect_size = TRUE
   )
 
-  expect_equal(res$inferential$test_used, "Kruskal-Wallis test")
-  expect_equal(res$inferential$effect_size_type, "Epsilon-squared")
+  expect_equal(res$inferential$test_used, "Fisher's exact test (Monte Carlo p-value)")
+  expect_equal(res$inferential$effect_size_type, "Cramer's V")
   expect_gte(res$inferential$effect_size, 0)
   expect_lte(res$inferential$effect_size, 1)
+
+  rank_res <- compare_groups(
+    dat,
+    variable = response,
+    group = arm,
+    test = "kruskal",
+    effect_size = TRUE
+  )
+  expect_equal(rank_res$inferential$test_used, "Kruskal-Wallis test")
+  expect_equal(rank_res$inferential$effect_size_type, "Epsilon-squared")
 })
 
 test_that("compare_groups() displays blank group values safely", {
@@ -593,4 +608,93 @@ test_that("compare_groups() supports three or more paired occasions", {
   expect_equal(continuous$inferential$test_used, "Repeated-measures ANOVA")
   expect_equal(ordinal$inferential$test_used, "Friedman test")
   expect_true(any(continuous$assumptions$assumption == "Sphericity"))
+})
+
+test_that("compare_groups() clearly rejects multiple outcomes", {
+  expect_error(
+    compare_groups(mtcars, variable = c(mpg, wt), group = am),
+    "one `variable` at a time",
+    fixed = TRUE
+  )
+  expect_error(
+    compare_groups(mtcars, variable = c("mpg", "wt"), group = am),
+    "summary_table()",
+    fixed = TRUE
+  )
+})
+
+test_that("paired output identifies within-pair estimates and exclusions", {
+  dat <- data.frame(
+    id = rep(1:4, each = 2),
+    visit = rep(c("Baseline", "Follow-up"), 4),
+    score = c(10, 12, 20, NA, 30, 34, 40, 41)
+  )
+  result <- compare_groups(
+    dat,
+    variable = score,
+    group = visit,
+    paired = TRUE,
+    id = id,
+    test = "t_test"
+  )
+  expect_true(any(grepl("Mean within-pair difference", names(result$table))))
+  expect_true(any(grepl("within-pair difference is Baseline minus Follow-up", result$notes)))
+  expect_true(any(grepl("1 participant was excluded", result$notes)))
+  rendered <- tbl_stats(result)
+  expect_match(paste(capture.output(rendered), collapse = " "), "complete pairs")
+})
+
+test_that("paired binary notes do not describe a continuous difference", {
+  dat <- data.frame(
+    id = rep(1:6, 2),
+    visit = rep(c("Before", "After"), each = 6),
+    outcome = factor(c("No", "No", "Yes", "Yes", "No", "Yes",
+                       "No", "Yes", "Yes", "Yes", "No", "Yes"))
+  )
+  result <- compare_groups(dat, outcome, visit, paired = TRUE, id = id)
+  expect_equal(result$inferential$test_used, "McNemar test")
+  expect_true(any(grepl("matched binary pairs", result$notes)))
+  expect_false(any(grepl("within-pair difference|Distribution checks", result$notes)))
+})
+
+test_that("Friedman rejects data with no within-participant variation", {
+  dat <- data.frame(
+    id = rep(1:4, 3),
+    visit = factor(rep(c("Baseline", "Week 4", "Week 12"), each = 4)),
+    severity = ordered(rep(c("Mild", "Moderate", "Severe", "Mild"), 3))
+  )
+  expect_error(
+    compare_groups(dat, severity, visit, paired = TRUE, id = id),
+    "no within-participant variation"
+  )
+})
+
+test_that("repeated-measures ANOVA table flags the sphericity review", {
+  dat <- data.frame(
+    id = rep(1:6, 3),
+    visit = factor(rep(c("Baseline", "Week 4", "Week 12"), each = 6),
+                   levels = c("Baseline", "Week 4", "Week 12")),
+    score = c(1:6, 2:7, 3:8)
+  )
+  result <- compare_groups(dat, score, visit, paired = TRUE, id = id,
+                           test = "rm_anova")
+  rendered <- tbl_stats(result)
+  expect_match(paste(capture.output(rendered), collapse = " "), "Greenhouse-Geisser")
+})
+
+test_that("simulated Fisher tests are reproducible and preserve RNG state", {
+  dat <- data.frame(
+    response = factor(rep(c("A", "B", "C"), each = 12)),
+    arm = factor(rep(c("one", "two", "three"), 12))
+  )
+  set.seed(77)
+  before <- .Random.seed
+  first <- compare_groups(dat, response, arm, test = "fisher",
+                          fisher_seed = 999)
+  expect_identical(.Random.seed, before)
+  second <- compare_groups(dat, response, arm, test = "fisher",
+                           fisher_seed = 999)
+  expect_equal(first$inferential$p_value, second$inferential$p_value)
+  expect_error(compare_groups(dat, response, arm, fisher_seed = "x"),
+               "fisher_seed")
 })

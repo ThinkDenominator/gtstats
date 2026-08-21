@@ -48,6 +48,21 @@
   out
 }
 
+.inspect_default_variable <- function(x) {
+  if (!is.null(x$inferential) && "label" %in% names(x$inferential) &&
+      length(x$inferential$label) > 0L) {
+    return(as.character(x$inferential$label[[1L]]))
+  }
+  if (!is.null(x$inputs$col) && length(x$inputs$col) > 0L) {
+    col_name <- as.character(x$inputs$col[[1L]])
+    if (!is.null(x$data) && is.data.frame(x$data) && col_name %in% names(x$data)) {
+      return(.get_var_label(x$data, col_name))
+    }
+    return(col_name)
+  }
+  NA_character_
+}
+
 .inspect_display_table <- function(value, output, title, subtitle) {
   if (identical(output, "tibble")) return(value)
   gt::gt(value) |>
@@ -67,24 +82,29 @@
 #' result codes retained by the analysis object.
 #'
 #' @param x A `gtstats` result.
-#' @param output Return a `"tibble"` or formatted `"gt"` table.
+#' @param format Output format: `"table"` (default) or `"tibble"`.
+#' @param output Compatibility alias accepting `"gt"`, `"table"`, or
+#'   `"tibble"`.
 #' @param view Either `"checklist"` (the default, plain-language view) or
 #'   `"audit"` (technical status and result codes).
-#' @param title,subtitle Optional table heading used for `output = "gt"`.
+#' @param title,subtitle Optional table heading used for `format = "table"`.
 #' @return A tibble or `gt_tbl`.
 #' @examples
 #' result <- compare_groups(mtcars, variable = mpg, group = am)
 #' assumptions_stats(result)
-#' assumptions_stats(result, output = "gt")
+#' assumptions_stats(result, format = "tibble")
 #' @export
 assumptions_stats <- function(
     x,
-    output = c("tibble", "gt"),
+    format = c("table", "tibble"),
+    output = NULL,
     title = "Checks before reporting",
     subtitle = NULL,
     view = c("checklist", "audit")
 ) {
-  output <- match.arg(output)
+  if (!is.null(output)) format <- if (identical(output, "gt")) "table" else output
+  format <- match.arg(format, c("table", "tibble"))
+  output <- if (identical(format, "table")) "gt" else "tibble"
   view <- match.arg(view)
   if (identical(view, "audit")) {
     return(.inspect_stats_component(
@@ -100,7 +120,7 @@ assumptions_stats <- function(
   }
   assumptions <- tibble::as_tibble(x$assumptions)
   if (!"variable" %in% names(assumptions)) {
-    assumptions$variable <- NA_character_
+    assumptions$variable <- rep(.inspect_default_variable(x), nrow(assumptions))
   }
   variable_display <- .inspect_variable_labels(x, assumptions$variable)
   checklist <- tibble::tibble(
@@ -141,12 +161,15 @@ assumptions_stats <- function(
 #' @export
 diagnostics_stats <- function(
     x,
-    output = c("tibble", "gt"),
+    format = c("table", "tibble"),
+    output = NULL,
     title = "Diagnostics",
     subtitle = NULL,
     view = c("readable", "audit")
 ) {
-  output <- match.arg(output)
+  if (!is.null(output)) format <- if (identical(output, "gt")) "table" else output
+  format <- match.arg(format, c("table", "tibble"))
+  output <- if (identical(format, "table")) "gt" else "tibble"
   view <- match.arg(view)
   if (identical(view, "audit")) {
     return(.inspect_stats_component(
@@ -159,7 +182,7 @@ diagnostics_stats <- function(
   }
   diagnostics <- tibble::as_tibble(x$diagnostics)
   if (!"variable" %in% names(diagnostics)) {
-    diagnostics$variable <- NA_character_
+    diagnostics$variable <- rep(.inspect_default_variable(x), nrow(diagnostics))
   }
   readable <- tibble::tibble(
     Variable = .inspect_variable_labels(x, diagnostics$variable),
@@ -187,12 +210,15 @@ diagnostics_stats <- function(
 #' @export
 denominators_stats <- function(
     x,
-    output = c("tibble", "gt"),
+    format = c("table", "tibble"),
+    output = NULL,
     title = "Denominator audit",
     subtitle = NULL,
     view = c("readable", "audit")
 ) {
-  output <- match.arg(output)
+  if (!is.null(output)) format <- if (identical(output, "gt")) "table" else output
+  format <- match.arg(format, c("table", "tibble"))
+  output <- if (identical(format, "table")) "gt" else "tibble"
   view <- match.arg(view)
   if (identical(view, "audit")) {
     return(.inspect_stats_component(

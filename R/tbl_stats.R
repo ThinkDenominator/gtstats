@@ -113,7 +113,13 @@
         paste0(
           "Categorical proportions include ",
           round(100 * (object$conf.level %||% 0.95)),
-          "% exact binomial CIs."
+          "% ",
+          if (identical(object$ci_method %||% "wilson", "wilson")) {
+            "Wilson score"
+          } else {
+            "exact binomial"
+          },
+          " CIs."
         )
       )
     }
@@ -312,18 +318,26 @@ tbl_stats <- function(
     gt_tbl <- .apply_header(gt_tbl, title = title, subtitle = subtitle)
     gt_tbl <- .style_common(gt_tbl)
 
-    if (show_footnotes && "SD ratio" %in% names(x$table)) {
+    if (show_footnotes && "Observed SD ratio" %in% names(x$table)) {
       gt_tbl <- gt::tab_footnote(
         gt_tbl,
         footnote = x$notes[["ratios"]],
-        locations = gt::cells_column_labels(columns = "SD ratio")
+        locations = gt::cells_column_labels(columns = "Observed SD ratio")
       )
     }
-    if (show_footnotes && "Interpretation" %in% names(x$table)) {
+    variance_test_column <- intersect(c("Levene p", "Bartlett p"), names(x$table))
+    if (show_footnotes && length(variance_test_column) == 1L) {
+      variance_test_note <- unlist(
+        x$notes[c("levene", "bartlett", "welch")],
+        use.names = FALSE
+      )
+      variance_test_note <- variance_test_note[
+        !is.na(variance_test_note) & nzchar(variance_test_note)
+      ]
       gt_tbl <- gt::tab_footnote(
         gt_tbl,
-        footnote = paste(x$notes[["welch"]], x$notes[["review"]]),
-        locations = gt::cells_column_labels(columns = "Interpretation")
+        footnote = paste(variance_test_note, collapse = " "),
+        locations = gt::cells_column_labels(columns = variance_test_column)
       )
     }
     return(.add_audit_note(gt_tbl, x))
@@ -396,9 +410,35 @@ tbl_stats <- function(
     gt_tbl <- .style_common(gt_tbl)
 
     if (show_footnotes && "p-value" %in% names(tbl)) {
+      paired_analysis_note <- if (isTRUE(x$inferential$paired[[1L]])) {
+        denominator <- x$denominators$denominator[[1L]] %||% NA_real_
+        excluded <- x$denominators$n_missing[[1L]] %||% NA_real_
+        if (is.finite(denominator) && is.finite(excluded)) {
+          paste0(
+            "Paired analysis used ", denominator, " complete ",
+            if (x$inferential$group_levels[[1L]] == 2L) "pairs" else "participants",
+            "; ", excluded, " excluded because complete matched observations were unavailable."
+          )
+        } else {
+          NULL
+        }
+      } else {
+        NULL
+      }
+      repeated_anova_note <- if (identical(
+        x$inferential$test_used[[1L]],
+        "Repeated-measures ANOVA"
+      )) {
+        "Greenhouse-Geisser-corrected degrees of freedom are used for sphericity."
+      } else {
+        NULL
+      }
       gt_tbl <- gt::tab_footnote(
         gt_tbl,
-        footnote = x$inferential$test_used[[1L]],
+        footnote = paste(
+          c(x$inferential$test_used[[1L]], paired_analysis_note, repeated_anova_note),
+          collapse = " "
+        ),
         locations = gt::cells_column_labels(
           columns = "p-value"
         )
@@ -487,6 +527,44 @@ tbl_stats <- function(
 
     gt_tbl <- .style_common(gt_tbl)
 
+    if (inherits(x, "gt_correlation_matrix")) {
+      if (isTRUE(x$inputs$shade)) {
+        palette <- grDevices::colorRamp(c("#355C7D", "#FFFFFF", "#C06C5B"))
+        labels <- names(x$table)[-1L]
+        values <- diag(length(labels))
+        rownames(values) <- colnames(values) <- labels
+        for (i in seq_len(nrow(x$summary))) {
+          a <- labels[match(x$summary$x[[i]], x$inputs$vars)]
+          b <- labels[match(x$summary$y[[i]], x$inputs$vars)]
+          values[a, b] <- values[b, a] <- x$summary$estimate[[i]]
+        }
+        for (row in seq_along(labels)) {
+          for (column in seq_along(labels)) {
+            if (!nzchar(x$table[[column + 1L]][[row]])) next
+            if (row == column) {
+              fill <- "#F2F2F2"
+            } else {
+              rgb <- palette((values[row, column] + 1) / 2) / 255
+              fill <- grDevices::rgb(rgb[[1L]], rgb[[2L]], rgb[[3L]])
+            }
+            gt_tbl <- gt::tab_style(
+              gt_tbl,
+              style = gt::cell_fill(color = fill),
+              locations = gt::cells_body(columns = column + 1L, rows = row)
+            )
+          }
+        }
+      }
+      if (show_footnotes) {
+        gt_tbl <- gt::tab_source_note(gt_tbl, source_note = x$method$selection_rule)
+        gt_tbl <- gt::tab_source_note(
+          gt_tbl,
+          source_note = "Pairwise complete finite observations are used; pair-specific N and p-values remain in `$summary`."
+        )
+      }
+      return(.add_audit_note(gt_tbl, x))
+    }
+
     correlation_column <- grep(
       "^Correlation",
       names(x$table),
@@ -509,6 +587,29 @@ tbl_stats <- function(
   if (inherits(x, "gt_prop")) {
     gt_tbl <- gt::gt(x$table)
 
+    display_columns <- x$method$display_columns
+    if (!is.null(x$inputs$by) && is.data.frame(display_columns)) {
+      for (i in seq_len(nrow(display_columns))) {
+        child_columns <- c(
+          display_columns$estimate[[i]],
+          display_columns$ci[[i]]
+        )
+        gt_tbl <- gt::tab_spanner(
+          gt_tbl,
+          label = display_columns$group[[i]],
+          columns = tidyselect::all_of(child_columns)
+        )
+        labels <- stats::setNames(
+          list(
+            display_columns$estimate_label[[i]],
+            .conf_level_label(x$inputs$conf.level)
+          ),
+          child_columns
+        )
+        gt_tbl <- do.call(gt::cols_label, c(list(.data = gt_tbl), labels))
+      }
+    }
+
     gt_tbl <- .apply_header(
       gt_tbl,
       title = title,
@@ -518,7 +619,7 @@ tbl_stats <- function(
     gt_tbl <- .style_common(gt_tbl)
 
     text_cols <- intersect(
-      "Group",
+      "Event",
       names(x$table)
     )
     value_cols <- setdiff(names(x$table), text_cols)
@@ -540,12 +641,23 @@ tbl_stats <- function(
     }
 
     if (show_footnotes) {
-      note_col <- names(x$table)[ncol(x$table)]
+      ci_columns <- if (is.data.frame(display_columns)) {
+        display_columns$ci
+      } else {
+        names(x$table)[ncol(x$table)]
+      }
 
       gt_tbl <- gt::tab_footnote(
         gt_tbl,
-        footnote = x$notes[[1L]],
-        locations = gt::cells_column_labels(columns = note_col)
+        footnote = paste0(
+          x$method$interval,
+          " ",
+          round(x$inputs$conf.level * 100),
+          "% confidence interval."
+        ),
+        locations = gt::cells_column_labels(
+          columns = tidyselect::all_of(ci_columns)
+        )
       )
     }
 
@@ -582,6 +694,31 @@ tbl_stats <- function(
 
     gt_tbl <- gt::gt(tbl)
 
+    if (identical(x$layout %||% "compact", "separate") &&
+        is.data.frame(x$display_columns)) {
+      for (i in seq_len(nrow(x$display_columns))) {
+        child_columns <- c(
+          x$display_columns$estimate[[i]],
+          x$display_columns$ci[[i]]
+        )
+        gt_tbl <- gt::tab_spanner(
+          gt_tbl,
+          label = gt::md(sub(
+            "\n", "  \n", x$display_columns$group[[i]], fixed = TRUE
+          )),
+          columns = tidyselect::all_of(child_columns)
+        )
+        labels <- stats::setNames(
+          list(
+            x$display_columns$estimate_label[[i]],
+            x$display_columns$ci_label[[i]]
+          ),
+          child_columns
+        )
+        gt_tbl <- do.call(gt::cols_label, c(list(.data = gt_tbl), labels))
+      }
+    }
+
     gt_tbl <- .apply_header(
       gt_tbl,
       title = title,
@@ -607,7 +744,11 @@ tbl_stats <- function(
       gt_tbl <- gt::cols_label(gt_tbl, Level = "")
     }
 
-    header_labels <- .builder_display_headers(x)
+    header_labels <- if (identical(x$layout %||% "compact", "separate")) {
+      character()
+    } else {
+      .builder_display_headers(x)
+    }
     if (length(header_labels) > 0L) {
       gt_labels <- lapply(
         header_labels,
@@ -670,6 +811,15 @@ tbl_stats <- function(
           )
         )
       }
+
+      if ("p-value" %in% names(tbl) &&
+          length(x$paired_p_notes %||% character()) > 0L) {
+        gt_tbl <- gt::tab_footnote(
+          gt_tbl,
+          footnote = paste(x$paired_p_notes, collapse = " "),
+          locations = gt::cells_column_labels(columns = "p-value")
+        )
+      }
     }
 
     return(.add_audit_note(gt_tbl, x))
@@ -678,6 +828,33 @@ tbl_stats <- function(
   # Render rate tables
   if (inherits(x, "gt_rate")) {
     gt_tbl <- gt::gt(x$table)
+
+    display_columns <- x$method$display_columns
+    if (!is.null(x$inputs$by) && is.data.frame(display_columns)) {
+      for (i in seq_len(nrow(display_columns))) {
+        child_columns <- unname(unlist(display_columns[i, c(
+          "events", "time", "rate", "ci"
+        )]))
+        gt_tbl <- gt::tab_spanner(
+          gt_tbl,
+          label = display_columns$group[[i]],
+          columns = tidyselect::all_of(child_columns)
+        )
+        labels <- stats::setNames(
+          list(
+            "Events",
+            .sentence_case(x$inputs$time_label),
+            paste0(
+              "Rate per ",
+              format(x$inputs$multiplier, scientific = FALSE, trim = TRUE, big.mark = ",")
+            ),
+            .conf_level_label(x$inputs$conf.level)
+          ),
+          child_columns
+        )
+        gt_tbl <- do.call(gt::cols_label, c(list(.data = gt_tbl), labels))
+      }
+    }
 
     gt_tbl <- .apply_header(
       gt_tbl,
@@ -688,7 +865,7 @@ tbl_stats <- function(
     gt_tbl <- .style_common(gt_tbl)
 
     text_cols <- intersect(
-      "Group",
+      "Event",
       names(x$table)
     )
     value_cols <- setdiff(names(x$table), text_cols)
@@ -710,12 +887,22 @@ tbl_stats <- function(
     }
 
     if (show_footnotes) {
-      note_col <- names(x$table)[ncol(x$table)]
+      ci_columns <- if (is.data.frame(display_columns)) {
+        display_columns$ci
+      } else {
+        names(x$table)[ncol(x$table)]
+      }
 
       gt_tbl <- gt::tab_footnote(
         gt_tbl,
-        footnote = x$notes[[1L]],
-        locations = gt::cells_column_labels(columns = note_col)
+        footnote = paste0(
+          "Exact Poisson ",
+          round(x$inputs$conf.level * 100),
+          "% confidence interval."
+        ),
+        locations = gt::cells_column_labels(
+          columns = tidyselect::all_of(ci_columns)
+        )
       )
     }
 

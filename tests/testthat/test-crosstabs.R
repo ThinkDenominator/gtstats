@@ -11,6 +11,9 @@ test_that("crosstabs() creates a publication-ready 2x2 table", {
   expect_true(any(result$diagnostics$check == "Zero cells"))
   expect_false(is.null(result$inputs$row_level))
   expect_false(is.null(result$inputs$col_level))
+  expect_false(any(grepl("Complete pairs", result$notes, fixed = TRUE)))
+  expect_true(any(grepl("Complete observations: N = 32", result$notes, fixed = TRUE)))
+  expect_true(all(diagnostics_stats(result, format = "tibble")$Variable == "vs"))
 })
 
 test_that("crosstabs() supports row, column, total, and combined percentages", {

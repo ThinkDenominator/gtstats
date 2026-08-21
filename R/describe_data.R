@@ -324,13 +324,13 @@
 #' @param data A data.frame.
 #' @param vars Optional character vector of variables. Default is all variables.
 #' @param digits Number of decimal places in concise numeric summaries.
-#' @param output Requested output route, retained for consistency with other
-#'   gtstats functions.
+#' @param format Output format: `"table"` (default) or `"tibble"`.
+#' @param output Compatibility alias for `format`.
 #'
-#' @return With `output = "table"`, a `gt_describe` object that prints as a
+#' @return With `format = "table"`, a `gt_describe` object that prints as a
 #'   publication-ready table. `$summary` is the concise variable overview and
 #'   `$issues` contains only findings requiring review. With
-#'   `output = "tibble"`, the concise summary tibble is returned directly.
+#'   `format = "tibble"`, the concise summary tibble is returned directly.
 #'
 #' @examples
 #' describe_data(mtcars)
@@ -342,9 +342,13 @@ describe_data <- function(
     data,
     vars = NULL,
     digits = 2,
-    output = c("table", "tibble")
+    format = c("table", "tibble"),
+    output = NULL
 ) {
-  output <- match.arg(output)
+  if (!is.null(output)) {
+    format <- output
+  }
+  format <- match.arg(format, c("table", "tibble"))
   vars <- .validate_vars(data, vars)
   if (!is.numeric(digits) || length(digits) != 1L ||
       is.na(digits) || digits < 0) {
@@ -412,7 +416,7 @@ describe_data <- function(
     "Variable", "Type", "Complete", "Unique", "Overview", "Range / levels"
   )
 
-  if (identical(output, "tibble")) {
+  if (identical(format, "tibble")) {
     return(summary_tbl)
   }
 
@@ -421,7 +425,7 @@ describe_data <- function(
       data_name = deparse(substitute(data)),
       vars = vars,
       digits = digits,
-      output = output
+      format = format
     ),
     summary = summary_tbl,
     issues = tibble::as_tibble(issues_tbl),

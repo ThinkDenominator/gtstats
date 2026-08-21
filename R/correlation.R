@@ -50,8 +50,8 @@
 #'
 #' tbl_stats(correlation(mtcars, x = mpg, y = wt))
 #'
-#' @export
-correlation <- function(
+#' @noRd
+.correlation_pair <- function(
     data,
     x,
     y,

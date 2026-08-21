@@ -29,6 +29,9 @@
 #' @param ci_method Confidence-interval method: `"wilson"` or `"exact"`.
 #' @param display Cell display: `"n_percent"`, `"percent"`, or
 #'   `"n_over_N_percent"`.
+#' @param layout Table layout. `NULL` inherits the parent table layout;
+#'   `"compact"` keeps the estimate and CI together and `"separate"` places
+#'   them in separate columns beneath each cohort header.
 #' @param digits Number of decimal places used when formatting percentages.
 #' @param label Optional row label. Defaults to the variable label if available,
 #'   otherwise the variable name.
@@ -54,12 +57,15 @@ add_proportion <- function(
     conf.level = 0.95,
     ci_method = c("wilson", "exact"),
     display = c("n_percent", "percent", "n_over_N_percent"),
+    layout = NULL,
     digits = 1,
     label = NULL
 ) {
   .validate_summary_builder(x, "add_proportion", mode = "summary")
   ci_method <- match.arg(ci_method)
   display <- match.arg(display)
+  if (is.null(layout)) layout <- x$layout %||% "compact"
+  layout <- match.arg(layout, c("compact", "separate"))
   .validate_flag(ci, "ci")
   .validate_conf_level(conf.level)
   .validate_digits(digits)
@@ -101,6 +107,7 @@ add_proportion <- function(
   level <- .select_target_level(v_chr, level)
 
   # Use variable label if present; otherwise fall back to variable name
+  label_supplied <- !is.null(label)
   if (is.null(label)) {
     label <- .get_var_label(x$data, var_name)
   }
@@ -129,20 +136,56 @@ add_proportion <- function(
     )
   }
 
-  # Start the new row with the selected label and level in the Variable column
+  .make_parts <- function(values) {
+    result <- .proportion_summary(
+      values, level = level, conf.level = conf.level, method = ci_method
+    )
+    estimate <- .format_proportion_display(
+      result, display = display, digits = digits, ci = FALSE
+    )
+    interval <- if (!isTRUE(ci) || is.na(result$conf_low) ||
+                    is.na(result$conf_high)) {
+      ""
+    } else {
+      paste0(
+        .format_ci(100 * result$conf_low, 100 * result$conf_high, digits),
+        "%"
+      )
+    }
+    c(estimate = estimate, ci = interval)
+  }
+
+  # Preserve an explicit publication label exactly. When the default variable
+  # label is used, append the selected level so the highlighted event remains
+  # visible without requiring the reader to inspect metadata.
+  display_label <- if (label_supplied) label else paste0(label, " (", level, ")")
   row_tbl <- tibble::tibble(
-    Variable = paste0(label, " (", level, ")"),
+    Variable = display_label,
     Level = ""
   )
 
+  if (identical(layout, "separate")) {
+    estimate_label <- switch(
+      display,
+      n_percent = "n (%)",
+      percent = "%",
+      n_over_N_percent = "n/N (%)"
+    )
+    x <- .builder_use_separate_layout(
+      x, conf.level = conf.level, estimate_label = estimate_label
+    )
+  }
+
   # Add overall proportion if the descriptive table includes an Overall column
   if (isTRUE(x$overall)) {
-    row_tbl$Overall <- .make_display(
-      values = v_chr,
-      ci = ci,
-      conf.level = conf.level,
-      digits = digits
-    )
+    parts <- .make_parts(values = v_chr)
+    if (identical(layout, "separate")) {
+      row_tbl <- .builder_set_separate_cell(
+        row_tbl, x, "Overall", parts[["estimate"]], parts[["ci"]]
+      )
+    } else {
+      row_tbl$Overall <- .make_display(v_chr, ci, conf.level, digits)
+    }
   }
 
   # Add group-specific proportions if the descriptive table is grouped
@@ -156,21 +199,26 @@ add_proportion <- function(
       idx <- !is.na(by_var) & as.character(by_var) == g
       vg <- v_chr[idx]
 
-      row_tbl[[group_labels[[i]]]] <- .make_display(
-        values = vg,
-        ci = ci,
-        conf.level = conf.level,
-        digits = digits
-      )
+      parts <- .make_parts(vg)
+      if (identical(layout, "separate")) {
+        row_tbl <- .builder_set_separate_cell(
+          row_tbl, x, unname(group_labels[[i]]),
+          parts[["estimate"]], parts[["ci"]]
+        )
+      } else {
+        row_tbl[[group_labels[[i]]]] <- .make_display(vg, ci, conf.level, digits)
+      }
     }
   } else if (!isTRUE(x$overall)) {
     # Use a single Value column when neither grouping nor overall is used
-    row_tbl$Value <- .make_display(
-      values = v_chr,
-      ci = ci,
-      conf.level = conf.level,
-      digits = digits
-    )
+    parts <- .make_parts(v_chr)
+    if (identical(layout, "separate")) {
+      row_tbl <- .builder_set_separate_cell(
+        row_tbl, x, "Value", parts[["estimate"]], parts[["ci"]]
+      )
+    } else {
+      row_tbl$Value <- .make_display(v_chr, ci, conf.level, digits)
+    }
   }
 
   row_tbl <- tibble::as_tibble(row_tbl)
@@ -219,6 +267,13 @@ add_proportion <- function(
   } else {
     paste0("Selected event: ", label, " = ", level, ".")
   }
+
+  footnote_text <- paste0(
+    footnote_text,
+    " This is a selected-event descriptive row. `add_p()` tests the full ",
+    "variable association and therefore does not add a separate p-value to ",
+    "this highlighted row."
+  )
 
   x$footnotes <- unique(c(x$footnotes, footnote_text))
 

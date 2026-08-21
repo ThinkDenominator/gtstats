@@ -184,7 +184,20 @@ add_row <- function(
   }
 
   row_tbl <- tibble::as_tibble(row_tbl)
-  row_tbl <- .builder_order_display_columns(x, row_tbl)
+  if (identical(x$layout %||% "compact", "separate")) {
+    x <- .builder_use_separate_layout(x, conf.level = x$conf.level %||% 0.95)
+    compact_row <- row_tbl
+    row_tbl <- compact_row[, intersect(c("Variable", "Level"), names(compact_row)), drop = FALSE]
+    for (source in intersect(
+      .builder_base_display_columns(x), names(compact_row)
+    )) {
+      row_tbl <- .builder_set_separate_cell(
+        row_tbl, x, source, compact_row[[source]][[1L]]
+      )
+    }
+  } else {
+    row_tbl <- .builder_order_display_columns(x, row_tbl)
+  }
 
   if (is.null(x$table)) {
     # Ensure full structure even when the table is empty

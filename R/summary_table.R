@@ -44,7 +44,15 @@
 #' @param missing Missing-row display: `"ifany"`, `"always"`, or `"no"`.
 #' @param ci Logical; include confidence intervals for categorical proportions.
 #' @param conf.level Confidence level for categorical proportion intervals.
+#' @param ci_method Binomial confidence-interval method: `"wilson"` (default)
+#'   or `"exact"`.
+#' @param layout Table layout. `"compact"` keeps each summary in one cell.
+#'   `"separate"` places summaries and confidence intervals in separate
+#'   columns beneath each cohort header.
 #' @param label Optional named character vector overriding variable labels.
+#' @param format Display format: `"table"` (default) or `"tibble"`. The
+#'   builder remains composable; this option changes how the completed object
+#'   prints without discarding its audit components.
 #'
 #' @return A `gt_desc_table` object containing the source data,
 #'   structural settings, and placeholders for table components.
@@ -103,12 +111,18 @@ summary_table <- function(
     missing = c("ifany", "always", "no"),
     ci = FALSE,
     conf.level = 0.95,
-    label = NULL
+    ci_method = c("wilson", "exact"),
+    layout = c("compact", "separate"),
+    label = NULL,
+    format = c("table", "tibble")
 ) {
+  format <- match.arg(format)
   mode <- match.arg(mode)
   categorical <- match.arg(categorical)
   percent <- match.arg(percent)
   missing <- match.arg(missing)
+  ci_method <- match.arg(ci_method)
+  layout <- match.arg(layout)
   if (is.logical(overall) && length(overall) == 1L && !is.na(overall)) {
     overall_position <- "first"
     overall_requested <- isTRUE(overall)
@@ -191,6 +205,9 @@ summary_table <- function(
     mode = mode,
     overall = overall_requested,
     overall_position = overall_position,
+    layout = layout,
+    format = format,
+    display_columns = NULL,
     table = NULL,
     components = character(),
     footnotes = character(),
@@ -239,7 +256,9 @@ summary_table <- function(
       digits = digits,
       missing = missing,
       ci = ci,
-      conf.level = conf.level
+      conf.level = conf.level,
+      ci_method = ci_method,
+      layout = layout
     )
   }
 

@@ -47,7 +47,7 @@ test_that("publication tables exclude analyst audit instructions", {
 
   expect_match(
     footnote_text,
-    "Continuous data are mean \\(SD\\) or median \\(IQR\\)"
+    "Continuous data are (mean \\(SD\\)|median \\(IQR\\))"
   )
   expect_match(footnote_text, "Welch|Wilcoxon|Chi-square|Fisher")
   expect_match(footnote_text, "range after the semicolon")
@@ -82,7 +82,10 @@ test_that("publication footnotes describe only statistics present in the table",
 
   expect_match(categorical_notes, "Categorical data are n \\(%)")
   expect_false(grepl("Continuous data", categorical_notes, fixed = TRUE))
-  expect_match(continuous_notes, "Continuous data are mean \\(SD\\) or median")
+  expect_match(
+    continuous_notes,
+    "Continuous data are (mean \\(SD\\)|median \\(IQR\\))"
+  )
   expect_false(grepl("Categorical data", continuous_notes, fixed = TRUE))
 })
 

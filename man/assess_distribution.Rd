@@ -13,7 +13,8 @@ assess_distribution(
   min_n = 3,
   plots = FALSE,
   digits = 2,
-  output = c("table", "tibble")
+  format = c("table", "tibble"),
+  output = NULL
 )
 }
 \arguments{
@@ -40,13 +41,15 @@ are stored in \verb{$plots} (or \code{attr(result, "plots")} for tibble output).
 
 \item{digits}{Number of decimal places.}
 
-\item{output}{Either \code{"table"} (the default) or \code{"tibble"}.}
+\item{format}{Output format: \code{"table"} (default) or \code{"tibble"}.}
+
+\item{output}{Compatibility alias for \code{format}.}
 }
 \value{
-With \code{output = "table"}, a \code{gt_distribution} object that prints as a
+With \code{format = "table"}, a \code{gt_distribution} object that prints as a
 publication-ready table. \verb{$summary} contains group-level diagnostics and
 \verb{$recommendations} contains one descriptive recommendation per variable.
-With \code{output = "tibble"}, the group-level summary tibble is returned.
+With \code{format = "tibble"}, the group-level summary tibble is returned.
 }
 \description{
 Assess the empirical distribution of continuous numeric variables to support

@@ -35,6 +35,8 @@
 #' @param ci Logical; append binomial confidence intervals to categorical
 #'   proportions.
 #' @param conf.level Confidence level for categorical proportion intervals.
+#' @param ci_method Binomial confidence-interval method: `"wilson"` or
+#'   `"exact"`.
 #' @param ci_digits Decimal places used for confidence limits.
 #' @param missing How to display missingness. One of `"ifany"`,
 #'   `"no"`, or `"always"`.
@@ -81,6 +83,7 @@
     categorical = c("n_percent", "n_over_N_percent", "n", "percent"),
     ci = FALSE,
     conf.level = 0.95,
+    ci_method = c("wilson", "exact"),
     ci_digits = digits,
     missing = c("ifany", "no", "always"),
     digits = 1,
@@ -92,6 +95,7 @@
   continuous_format <- match.arg(continuous_format)
   percent <- match.arg(percent)
   categorical <- match.arg(categorical)
+  ci_method <- match.arg(ci_method)
   missing <- match.arg(missing)
   output <- match.arg(output)
   if (!is.numeric(digits) || length(digits) != 1 ||
@@ -212,7 +216,7 @@
         successes = count,
         total = denominator,
         conf.level = conf.level,
-        method = "exact"
+        method = ci_method
       )
       interval_text <- paste0(
         .fmt_num(interval[[1L]], ci_digits),
@@ -252,7 +256,7 @@
       sd_value / sqrt(n_value)
     paste0(
       .fmt_num(mean_value, digits),
-      " (", round(100 * conf.level), "% CI ",
+      " (",
       .fmt_num(mean_value - margin, ci_digits), "\u2013",
       .fmt_num(mean_value + margin, ci_digits), ")"
     )
@@ -886,6 +890,7 @@
       categorical = categorical,
       ci = ci,
       conf.level = conf.level,
+      ci_method = ci_method,
       ci_digits = ci_digits,
       missing = missing,
       digits = digits,

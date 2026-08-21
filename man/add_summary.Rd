@@ -13,6 +13,8 @@ add_summary(
   categorical = c("n_percent", "n_over_N_percent", "n", "percent"),
   ci = FALSE,
   conf.level = 0.95,
+  ci_method = c("wilson", "exact"),
+  layout = NULL,
   missing = c("ifany", "always", "no"),
   digits = 1
 )
@@ -43,6 +45,13 @@ across groups, \code{"overall"} uses the overall non-missing denominator, and
 \item{ci}{Logical; append confidence intervals to categorical proportions.}
 
 \item{conf.level}{Confidence level for categorical proportion intervals.}
+
+\item{ci_method}{Binomial confidence-interval method: \code{"wilson"} (default)
+or \code{"exact"}.}
+
+\item{layout}{Table layout. \code{"compact"} keeps each summary in one cell;
+\code{"separate"} places summaries and confidence intervals in separate
+columns. When omitted, the layout chosen in \code{\link[=summary_table]{summary_table()}} is used.}
 
 \item{missing}{Whether explicit missing-value rows are shown: \code{"ifany"},
 \code{"always"}, or \code{"no"}.}

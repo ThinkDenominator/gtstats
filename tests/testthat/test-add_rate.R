@@ -44,6 +44,23 @@ test_that("add_rate() adds a rate row to grouped descriptive table with overall"
   expect_true(any(res$table$Variable == "Event rate"))
 })
 
+test_that("add_rate() supports a separate publication layout", {
+  df <- data.frame(
+    arm = factor(c("A", "A", "B", "B")),
+    event = c(1, 2, 0, 3),
+    denom = c(10, 20, 15, 25)
+  )
+  result <- summary_table(
+    df, by = arm, overall = TRUE, mode = "rate", layout = "separate"
+  ) |>
+    add_rate(event, denom, multiplier = 100)
+
+  expect_equal(nrow(result$display_columns), 3L)
+  expect_true(all(grepl("Rate per 100", result$display_columns$estimate_label)))
+  expect_true(all(nzchar(unlist(result$table[result$display_columns$ci]))))
+  expect_s3_class(tbl_stats(result), "gt_tbl")
+})
+
 test_that("add_rate() works with character variable names", {
   df <- data.frame(
     event = c(1, 0, 1, 0, 1, 1),

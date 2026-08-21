@@ -6,8 +6,8 @@
 \usage{
 plot_correlation(
   data,
-  x,
-  y,
+  x = NULL,
+  y = NULL,
   method = c("auto", "pearson", "spearman"),
   trend = c("auto", "linear", "smooth", "none"),
   show_ci = TRUE,
@@ -20,11 +20,17 @@ plot_correlation(
   title = NULL,
   caption = NULL,
   xlab = NULL,
-  ylab = NULL
+  ylab = NULL,
+  triangle = NULL,
+  show_diagonal = NULL,
+  show_values = TRUE,
+  low_color = "#355C7D",
+  mid_color = "#FFFFFF",
+  high_color = "#C06C5B"
 )
 }
 \arguments{
-\item{data}{A data frame.}
+\item{data}{A data frame, or a matrix result returned by \code{\link[=correlation]{correlation()}}.}
 
 \item{x, y}{Continuous variables, supplied as bare names or character strings.}
 
@@ -48,6 +54,17 @@ caption.}
 \item{title, caption}{Optional plot title and caption.}
 
 \item{xlab, ylab}{Optional axis labels.}
+
+\item{triangle}{Matrix cells to show when \code{data} is a correlation-matrix
+result: \code{"lower"}, \code{"upper"}, or \code{"full"}. The matrix object's setting is
+inherited when \code{NULL}.}
+
+\item{show_diagonal}{Logical; show self-correlations in a matrix heatmap.
+The matrix object's setting is inherited when \code{NULL}.}
+
+\item{show_values}{Logical; print coefficients inside heatmap cells.}
+
+\item{low_color, mid_color, high_color}{Colours used by the matrix heatmap.}
 }
 \value{
 A \code{ggplot} object.
@@ -75,5 +92,8 @@ plot_correlation(
   y = wt,
   show_correlation = TRUE
 )
+
+matrix_result <- correlation(mtcars, vars = c(mpg, disp, hp, wt))
+plot_correlation(matrix_result)
 
 }

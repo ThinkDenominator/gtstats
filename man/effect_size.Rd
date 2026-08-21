@@ -6,23 +6,24 @@
 \usage{
 effect_size(
   data,
-  outcome,
-  by,
+  variable,
+  group,
   method = c("auto", "hedges_g", "rank_biserial", "omega_squared", "epsilon_squared",
     "cramers_v"),
   paired = FALSE,
   id = NULL,
   conf.level = 0.95,
   interpretation = FALSE,
-  digits = 2
+  digits = 2,
+  format = c("table", "tibble")
 )
 }
 \arguments{
 \item{data}{A data frame.}
 
-\item{outcome}{Outcome variable.}
+\item{variable}{Outcome or response variable.}
 
-\item{by}{Grouping variable.}
+\item{group}{Grouping variable.}
 
 \item{method}{Effect-size method: \code{"auto"}, \code{"hedges_g"},
 \code{"rank_biserial"}, \code{"omega_squared"}, \code{"epsilon_squared"}, or
@@ -39,6 +40,9 @@ These labels are generic teaching aids and are not clinical importance
 thresholds.}
 
 \item{digits}{Number of decimal places.}
+
+\item{format}{Output format: \code{"table"} (default) or a plain console
+\code{"tibble"}.}
 }
 \value{
 A publication-ready \code{gt_effect} object containing \code{summary}, \code{table},
@@ -67,12 +71,12 @@ Risk ratios, odds ratios, and risk differences are intentionally not
 duplicated here; use \code{\link[=crosstabs]{crosstabs()}} for those epidemiological measures.
 }
 \examples{
-effect_size(mtcars, outcome = mpg, by = am)
+effect_size(mtcars, variable = mpg, group = am)
 
 effect_size(
   mtcars,
-  outcome = mpg,
-  by = am,
+  variable = mpg,
+  group = am,
   method = "hedges_g",
   interpretation = TRUE
 )

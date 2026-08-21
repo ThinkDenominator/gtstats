@@ -12,8 +12,12 @@
 #' @param ci_method Confidence-interval method: `"wilson"` (default) or
 #'   `"exact"`.
 #' @param display Estimate display: `"n_percent"`, `"percent"`, or
-#'   `"n_over_N_percent"`.
+#'   `"n_over_N_percent"`. The publication table places the confidence
+#'   interval in a separate column; with `by`, each group spans its estimate
+#'   and interval columns.
 #' @param digits Number of decimal places.
+#' @param format Output format: `"table"` (default) or a plain console
+#'   `"tibble"`.
 #' @return A `gt_prop` object containing numeric results and a display table.
 #' @examples
 #' proportion_stats(mtcars, var = vs)
@@ -27,8 +31,10 @@ proportion_stats <- function(
     conf.level = 0.95,
     ci_method = c("wilson", "exact"),
     display = c("n_percent", "percent", "n_over_N_percent"),
-    digits = 1
+    digits = 1,
+    format = c("table", "tibble")
 ) {
+  format <- match.arg(format)
   data_name <- deparse(substitute(data))
   ci_method <- match.arg(ci_method)
   display <- match.arg(display)
@@ -54,6 +60,7 @@ proportion_stats <- function(
   )
   result$inputs$data_name <- data_name
   result$call <- match.call()
+  if (identical(format, "tibble")) return(result$table)
   result
 }
 
@@ -90,6 +97,8 @@ proportion_stats <- function(
 #' @param simulate_B Number of simulations for the automatic Fisher test in a
 #'   sparse table larger than 2x2.
 #' @param digits Number of decimal places.
+#' @param format Output format: `"table"` (default) or a plain console
+#'   `"tibble"`.
 #' @return A `gt_twobytwo` object.
 #' @examples
 #' crosstabs(mtcars, row = am, col = vs)
@@ -108,8 +117,10 @@ crosstabs <- function(
     test = c("auto", "none", "chisq", "fisher"),
     zero_correction = c("haldane_anscombe", "none"),
     simulate_B = 10000,
-    digits = 2
+    digits = 2,
+    format = c("table", "tibble")
 ) {
+  format <- match.arg(format)
   data_name <- deparse(substitute(data))
   risk_ci <- match.arg(risk_ci)
   test <- match.arg(test)
@@ -156,6 +167,13 @@ crosstabs <- function(
     if (nrow(tab) == 2L && ncol(tab) == 2L) "Chi-square test with Yates correction" else "Pearson chi-square test"
   } else if (fisher_simulated) "Fisher's exact test (Monte Carlo p-value)" else "Fisher's exact test"
   total_n <- sum(tab)
+  collapse_cell <- function(bits) {
+    if (identical(format, "tibble")) {
+      if (length(bits) == 1L) return(bits[[1L]])
+      return(paste0(bits[[1L]], " (", paste(bits[-1L], collapse = "; "), ")"))
+    }
+    paste(bits, collapse = "<br>")
+  }
   format_cell <- function(n, r, c) {
     bits <- as.character(n)
     if (!identical(percent, "none")) {
@@ -164,7 +182,7 @@ crosstabs <- function(
       if ("column" %in% percent) bits <- c(bits, paste0(if (multi_percent) "Col " else "", formatC(100 * n / sum(tab[, c]), format = "f", digits = digits), "%"))
       if ("total" %in% percent) bits <- c(bits, paste0(if (multi_percent) "Total " else "", formatC(100 * n / total_n, format = "f", digits = digits), "%"))
     }
-    paste(bits, collapse = "<br>")
+    collapse_cell(bits)
   }
   display <- matrix("", nrow(tab), ncol(tab), dimnames = dimnames(tab))
   for (i in seq_len(nrow(tab))) for (j in seq_len(ncol(tab))) display[i, j] <- format_cell(tab[i, j], i, j)
@@ -174,8 +192,19 @@ crosstabs <- function(
   )
   names(table_tbl)[-1L] <- .display_level(colnames(tab))
   if (isTRUE(totals)) {
-    table_tbl$Total <- paste0(rowSums(tab), "<br>", formatC(100 * rowSums(tab) / total_n, format = "f", digits = digits), "%")
-    total_row <- c("Total", paste0(colSums(tab), "<br>100.00%"), paste0(total_n, "<br>100.00%"))
+    table_tbl$Total <- vapply(
+      seq_len(nrow(tab)),
+      function(index) collapse_cell(c(
+        as.character(rowSums(tab)[[index]]),
+        paste0(formatC(100 * rowSums(tab)[[index]] / total_n, format = "f", digits = digits), "%")
+      )),
+      character(1)
+    )
+    total_row <- c(
+      "Total",
+      vapply(colSums(tab), function(value) collapse_cell(c(as.character(value), "100.00%")), character(1)),
+      collapse_cell(c(as.character(total_n), "100.00%"))
+    )
     table_tbl <- rbind(table_tbl, stats::setNames(as.data.frame(as.list(total_row), stringsAsFactors = FALSE), names(table_tbl)))
   }
   names(table_tbl)[[1L]] <- .get_var_label(data, row_name)
@@ -312,6 +341,7 @@ crosstabs <- function(
   result$notes <- notes
   result$call <- match.call()
   class(result) <- c("gt_twobytwo", "gtstats", "list")
+  if (identical(format, "tibble")) return(result$table)
   result
 }
 
@@ -343,7 +373,7 @@ crosstabs <- function(
 #' table <- summary_table(mtcars) |> add_summary(vars = c(mpg, wt))
 #' save_output(table, "summary.html")
 #'
-#' plot <- plot_compare(mtcars, outcome = mpg, by = am)
+#' plot <- plot_compare(mtcars, variable = mpg, group = am)
 #' save_output(plot, "comparison.png")
 #' }
 #' @export

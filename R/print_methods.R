@@ -46,9 +46,10 @@ print.gt_distribution <- function(x, ...) {
 
 #' Print a gtstats variance object
 #'
-#' Print publication-ready variance diagnostics. Group-level standard deviations
-#' and variances remain in `$summary`; variable-level ratios and explanatory
-#' text remain available in `$diagnostics`.
+#' Print publication-ready variance diagnostics. Group-level sample sizes,
+#' standard deviations, variances, and observed spread ratios are displayed;
+#' the underlying values and explanatory metadata remain available in
+#' `$summary` and `$diagnostics`.
 #'
 #' @param x A `gt_variance` object.
 #' @param ... Further arguments passed to methods.
@@ -119,7 +120,7 @@ print.gt_correlation <- function(x, ...) {
 #' @return The input object, invisibly.
 #'
 #' @examples
-#' x <- effect_size(mtcars, outcome = mpg, by = am)
+#' x <- effect_size(mtcars, variable = mpg, group = am)
 #' print(x)
 #'
 #' @export
@@ -156,6 +157,8 @@ print.gt_desc_table <- function(x, ...) {
       "rate, or custom row.\n",
       sep = ""
     )
+  } else if (identical(x$format %||% "table", "tibble")) {
+    print(x$table)
   } else {
     print(tbl_stats(x, ...))
   }

@@ -15,6 +15,81 @@ test_that("add_p() adds p-values with default auto method", {
     names(res$diagnostics)))
 })
 
+test_that("add_p() can omit selected variables while retaining their summaries", {
+  data("birthwt", package = "gtstats")
+
+  result <- summary_table(
+    birthwt,
+    by = low,
+    include = c(age, bwt, smoke)
+  ) |>
+    add_p(include = -bwt)
+
+  expect_setequal(result$p_values$variable, c("age", "smoke"))
+  expect_false("bwt" %in% result$p_values$variable)
+  expect_true("Birth weight (g)" %in% result$table$Variable)
+  bwt_row <- which(result$table$Variable == "Birth weight (g)")[[1L]]
+  expect_identical(result$table$`p-value`[[bwt_row]], "")
+})
+
+test_that("add_p() include supports positive tidy-selection", {
+  result <- summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>
+    add_p(include = c(mpg, cyl))
+
+  expect_setequal(result$p_values$variable, c("mpg", "cyl"))
+  expect_false("wt" %in% result$p_values$variable)
+})
+
+test_that("add_p() and compare_groups() use the same automatic routes", {
+  data("birthwt", package = "gtstats")
+
+  age_comparison <- compare_groups(birthwt, variable = age, group = low)
+  visit_comparison <- compare_groups(
+    birthwt,
+    variable = antenatal_visits,
+    group = low
+  )
+  table_one <- summary_table(
+    birthwt,
+    by = low,
+    include = c(age, antenatal_visits)
+  ) |>
+    add_p()
+
+  selected <- table_one$p_values
+  expect_equal(age_comparison$inferential$test_used[[1L]], "Welch t-test")
+  expect_equal(visit_comparison$inferential$test_used[[1L]], "Chi-square test")
+  expect_equal(
+    selected$test[selected$variable == "age"],
+    age_comparison$inferential$test_used[[1L]]
+  )
+  expect_equal(
+    selected$test[selected$variable == "antenatal_visits"],
+    visit_comparison$inferential$test_used[[1L]]
+  )
+})
+
+test_that("add_p() replaces a previous p-value audit when rerun", {
+  base <- summary_table(mtcars, by = am, include = mpg)
+  first <- add_p(base, method = c(mpg = "wilcox"))
+  rerun <- add_p(first, method = c(mpg = "welch_t"))
+
+  expect_equal(rerun$p_values$test, "Welch t-test")
+  selection <- rerun$diagnostics[
+    rerun$diagnostics$check == "Automatic test selection" &
+      rerun$diagnostics$variable == "mpg",
+    , drop = FALSE
+  ]
+  # Explicit tests do not create an automatic-selection diagnostic. The
+  # rerun must nevertheless have replaced the original Wilcoxon audit.
+  expect_equal(nrow(selection), 0L)
+  expect_equal(
+    sum(rerun$assumptions$variable == "mpg", na.rm = TRUE),
+    sum(first$assumptions$variable == "mpg", na.rm = TRUE)
+  )
+  expect_equal(length(rerun$assumption_notes), 1L)
+})
+
 test_that("add_p() uses distribution-aware automatic selection by default", {
   dat <- data.frame(
     group = rep(c("A", "B"), each = 20),
@@ -40,7 +115,7 @@ test_that("add_p() supports Welch ANOVA for more than two groups", {
 
   res <- summary_table(dat, by = group) |>
     add_summary(vars = value) |>
-    add_p(normality_check = FALSE)
+    add_p(distribution_check = FALSE)
 
   expect_true(any(grepl("Welch ANOVA", res$pvalue_method_footnotes)))
 })
@@ -48,10 +123,10 @@ test_that("add_p() supports Welch ANOVA for more than two groups", {
 test_that("add_p() forwards var_equal through two- and multi-group auto routes", {
   two_group <- summary_table(mtcars, by = am) |>
     add_summary(vars = mpg) |>
-    add_p(normality_check = FALSE, var_equal = TRUE)
+    add_p(distribution_check = FALSE, var_equal = TRUE)
   multi_group <- summary_table(mtcars, by = cyl) |>
     add_summary(vars = mpg) |>
-    add_p(normality_check = FALSE, var_equal = TRUE)
+    add_p(distribution_check = FALSE, var_equal = TRUE)
 
   expect_true(any(grepl("Student t-test", two_group$pvalue_method_footnotes)))
   expect_true(any(grepl("ANOVA", multi_group$pvalue_method_footnotes)))
@@ -102,6 +177,31 @@ test_that("add_p() preserves clinical labels containing parentheses", {
   expect_true(any(grepl("Wilcoxon", res$pvalue_method_footnotes)))
 })
 
+test_that("add_p() retains source identity when labels are duplicated", {
+  dat <- data.frame(
+    group = factor(rep(c("A", "B"), each = 12)),
+    visits_numeric = seq_len(24),
+    visits_ordinal = ordered(rep(c("None", "One", "Two or more"), 8)),
+    check.names = FALSE
+  )
+  attr(dat$visits_numeric, "label") <- "Antenatal visits"
+  attr(dat$visits_ordinal, "label") <- "Antenatal visits"
+
+  result <- summary_table(
+    dat,
+    by = group,
+    include = c(visits_numeric, visits_ordinal)
+  ) |>
+    add_p(distribution_check = FALSE)
+
+  expect_equal(result$p_values$variable, c("visits_numeric", "visits_ordinal"))
+  expect_equal(
+    result$p_values$test,
+    c("Welch t-test", "Fisher's exact test (Monte Carlo p-value)")
+  )
+  expect_equal(sum(nzchar(result$table$`p-value`)), 2L)
+})
+
 test_that("add_p() supports paired t-test", {
   dat <- data.frame(
     id = rep(1:4, 2),
@@ -117,6 +217,19 @@ test_that("add_p() supports paired t-test", {
   expect_true("p-value" %in% names(res$table))
   expect_true(any(res$table$`p-value` != ""))
   expect_true(any(grepl("Paired t-test", res$pvalue_method_footnotes)))
+})
+
+test_that("add_p() retains complete-pair counts for publication footnotes", {
+  dat <- data.frame(
+    id = rep(1:4, each = 2),
+    visit = rep(c("Baseline", "Follow-up"), 4),
+    score = c(10, 11, 20, NA, 30, 32, 40, 43)
+  )
+  result <- summary_table(dat, by = visit, include = score) |>
+    add_p(paired = TRUE, id = id)
+
+  expect_match(result$paired_p_notes, "3 complete pairs")
+  expect_match(result$paired_p_notes, "1 excluded")
 })
 
 test_that("add_p() supports paired Wilcoxon signed-rank test", {

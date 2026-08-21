@@ -14,7 +14,10 @@ test_that("proportion_stats() works with grouping", {
 
   expect_s3_class(res, "gt_prop")
   expect_equal(res$inputs$by, "am")
-  expect_equal(nrow(res$table), 2)
+  expect_equal(nrow(res$table), 1)
+  expect_equal(ncol(res$table), 5)
+  expect_identical(res$table$Event, res$inputs$level)
+  expect_equal(nrow(res$summary), 2)
 })
 
 test_that("proportion_stats() accepts character input", {
@@ -42,22 +45,36 @@ test_that("proportion_stats() validates confidence level consistently", {
 test_that("proportion_stats() returns formatted proportion strings", {
   res <- proportion_stats(mtcars, var = vs)
 
-  expect_identical(names(res$table), c("Group", "N", "Estimate (95% CI)"))
-  expect_true(any(grepl("%", res$table[["Estimate (95% CI)"]])))
-  expect_true(any(grepl("–", res$table[["Estimate (95% CI)"]], fixed = TRUE)))
+  expect_identical(names(res$table), c("Event", "n (%)", "95% CI"))
+  expect_true(any(grepl("%", res$table[["n (%)"]])))
+  expect_false(any(grepl("–", res$table[["n (%)"]], fixed = TRUE)))
+  expect_true(any(grepl("–", res$table[["95% CI"]], fixed = TRUE)))
 })
 
-test_that("proportion_stats() grouped output includes Group column", {
+test_that("proportion_stats() grouped publication output uses paired group columns", {
   res <- proportion_stats(mtcars, var = vs, by = am)
 
-  expect_true("Group" %in% names(res$table))
+  expect_identical(names(res$table), c(
+    "Event", "group_1_estimate", "group_1_ci",
+    "group_2_estimate", "group_2_ci"
+  ))
+  expect_identical(res$method$display_columns$group, res$summary$group)
 })
 
 test_that("tbl_stats() works on proportion_stats output", {
-  gt_obj <- proportion_stats(mtcars, var = vs, by = am) |>
+  result <- proportion_stats(mtcars, var = vs, by = am)
+  gt_obj <- result |>
     tbl_stats()
 
   expect_s3_class(gt_obj, "gt_tbl")
+  expect_identical(
+    as.character(unlist(gt_obj[["_spanners"]]$spanner_label)),
+    result$summary$group
+  )
+  expect_identical(
+    as.character(gt_obj[["_boxhead"]]$column_label[-1L]),
+    rep(c("n (%)", "95% CI"), nrow(result$summary))
+  )
 })
 
 test_that("to_flextable() works on proportion_stats output", {
@@ -117,12 +134,17 @@ test_that("proportion_stats() supports all display choices", {
     mtcars, var = vs, display = "n_over_N_percent"
   )
 
-  expect_match(n_percent$table[["Estimate (95% CI)"]], "^14 \\(43.8%\\)")
-  expect_match(percent$table[["Estimate (95% CI)"]], "^43.8%")
+  expect_match(n_percent$table[["n (%)"]], "^14 \\(43.8%\\)")
+  expect_match(percent$table[["%"]], "^43.8%")
   expect_match(
-    fraction$table[["Estimate (95% CI)"]],
+    fraction$table[["n/N (%)"]],
     "^14/32 \\(43.8%\\)"
   )
+  expect_true(all(vapply(
+    list(n_percent, percent, fraction),
+    function(x) grepl("–", x$table[[ncol(x$table)]], fixed = TRUE),
+    logical(1)
+  )))
 })
 
 test_that("proportion_stats() handles zero and all events", {
@@ -147,7 +169,7 @@ test_that("proportion_stats() uses non-missing outcome denominators", {
   )
   res <- proportion_stats(dat, event, by = group, level = "Yes")
 
-  expect_equal(res$table$N, c(2, 1))
+  expect_equal(res$summary$n, c(2, 1))
   expect_equal(res$summary$count, c(1, 1))
   expect_equal(res$denominators$n_missing, c(1, 0))
 })

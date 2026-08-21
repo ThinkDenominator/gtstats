@@ -44,8 +44,8 @@ event-time records. The right denominator depends on the scientific question.
 | `denominator` | Eligible observations or total person-time used for the estimate |
 | `rule` | Plain-language record of how the denominator was formed |
 
-`denominators_stats()` returns this audit as a tibble by default, or a formatted
-table with `output = "gt"`. For categorical summaries, it records the level
+`denominators_stats()` returns a formatted table by default, or a plain console
+tibble with `format = "tibble"`. For categorical summaries, it records the level
 as well as the group, so row and overall percentages can be checked against the
 exact denominator used in the displayed cell.
 
@@ -202,6 +202,8 @@ assess_variance(dat, vars = age, by = arm)
 - Is the analysis population the same for every variable? If not, is this clear?
 - For rates, is the denominator person-time rather than participants?
 - For paired analysis, have you reported the number of complete pairs?
+- For repeated-measures ANOVA, have you reviewed sphericity rather than using a
+  cross-occasion variance test as a substitute?
 - Have you reviewed `denominators_stats()` where exclusions affect interpretation?
 
 ## What gtstats does not do automatically

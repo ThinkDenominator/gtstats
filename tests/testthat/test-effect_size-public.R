@@ -1,5 +1,5 @@
 test_that("effect_size() selects Hedges' g for two continuous groups", {
-  res <- effect_size(mtcars, outcome = mpg, by = am)
+  res <- effect_size(mtcars, variable = mpg, group = am)
 
   expect_s3_class(res, "gt_effect")
   expect_s3_class(res, "gtstats")
@@ -15,7 +15,7 @@ test_that("effect_size() selects Hedges' g for two continuous groups", {
 })
 
 test_that("effect_size() selects an omnibus measure for multiple groups", {
-  res <- effect_size(mtcars, outcome = mpg, by = cyl)
+  res <- effect_size(mtcars, variable = mpg, group = cyl)
 
   expect_match(res$summary$measure, "Omega-squared")
   expect_gte(res$summary$estimate, 0)
@@ -24,7 +24,7 @@ test_that("effect_size() selects an omnibus measure for multiple groups", {
 })
 
 test_that("effect_size() selects Cramer's V for categorical association", {
-  res <- effect_size(mtcars, outcome = vs, by = am)
+  res <- effect_size(mtcars, variable = vs, group = am)
 
   expect_identical(res$summary$measure, "Cramer's V")
   expect_gte(res$summary$estimate, 0)
@@ -38,14 +38,14 @@ test_that("effect_size() selects Cramer's V for categorical association", {
 test_that("effect_size() supports explicit non-parametric measures", {
   rank <- effect_size(
     mtcars,
-    outcome = mpg,
-    by = am,
+    variable = mpg,
+    group = am,
     method = "rank_biserial"
   )
   epsilon <- effect_size(
     mtcars,
-    outcome = mpg,
-    by = cyl,
+    variable = mpg,
+    group = cyl,
     method = "epsilon_squared"
   )
 
@@ -60,7 +60,7 @@ test_that("effect_size() supports explicit non-parametric measures", {
   expect_lte(epsilon$summary$estimate, 1)
 })
 
-test_that("effect_size() automatically recognises an ordinal outcome", {
+test_that("effect_size() uses categorical association for an independent ordinal outcome", {
   dat <- data.frame(
     group = factor(rep(c("A", "B"), each = 6)),
     response = ordered(c(1, 1, 2, 2, 3, 3, 2, 3, 3, 4, 4, 5))
@@ -70,9 +70,13 @@ test_that("effect_size() automatically recognises an ordinal outcome", {
 
   expect_identical(
     res$summary$measure,
-    "Rank-biserial correlation"
+    "Cramer's V"
   )
-  expect_identical(res$table$Contrast, "group: A \u2212 B")
+  expect_identical(res$table$Contrast, "\u2014")
+
+  rank_res <- effect_size(dat, response, group, method = "rank_biserial")
+  expect_identical(rank_res$summary$measure, "Rank-biserial correlation")
+  expect_identical(rank_res$table$Contrast, "group: A \u2212 B")
 })
 
 test_that("effect_size() supports paired Hedges' g and complete pairs", {
@@ -89,8 +93,8 @@ test_that("effect_size() supports paired Hedges' g and complete pairs", {
 
   res <- effect_size(
     dat,
-    outcome = score,
-    by = visit,
+    variable = score,
+    group = visit,
     paired = TRUE,
     id = id,
     method = "hedges_g"

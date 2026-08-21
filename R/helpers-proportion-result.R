@@ -24,7 +24,10 @@
 #' @param conf.level Confidence level for the interval. Default is
 #'   `0.95`.
 #' @param ci_method Confidence-interval method.
-#' @param display Estimate display.
+#' @param display Estimate display: event count and percentage (`"n_percent"`),
+#'   percentage only (`"percent"`), or event count over denominator and
+#'   percentage (`"n_over_N_percent"`). The confidence interval is displayed
+#'   in a separate publication-table column.
 #' @param digits Number of decimal places used when formatting percentages.
 #'
 #' @return A `gt_prop` object containing:
@@ -146,6 +149,12 @@
 
   v_chr <- as.character(v)
   level <- .select_target_level(v_chr, level)
+  estimate_label <- switch(
+    display,
+    n_percent = "n (%)",
+    percent = "%",
+    n_over_N_percent = "n/N (%)"
+  )
 
   # Build one summary row for one group or for the overall sample
   .make_row <- function(
@@ -174,8 +183,14 @@
     display_value <- .format_proportion_display(
       prop_result,
       display = display,
-      digits = digits
+      digits = digits,
+      ci = FALSE
     )
+    ci_value <- if (is.na(low) || is.na(high)) {
+      NA_character_
+    } else {
+      paste0(.format_ci(low, high, digits = digits), "%")
+    }
 
     tibble::tibble(
       variable = var_name,
@@ -187,7 +202,8 @@
       proportion = prop,
       conf_low = low,
       conf_high = high,
-      display = display_value
+      display = display_value,
+      ci_display = ci_value
     )
   }
 
@@ -202,9 +218,17 @@
     )
 
     table_tbl <- tibble::tibble(
-      Group = "Overall",
-      N = summary_tbl$n,
-      Estimate = summary_tbl$display
+      Event = level,
+      estimate = summary_tbl$display,
+      `95% CI` = summary_tbl$ci_display
+    )
+    names(table_tbl)[[2L]] <- estimate_label
+    names(table_tbl)[[3L]] <- .conf_level_label(conf.level)
+    display_columns <- tibble::tibble(
+      group = "Overall",
+      estimate = estimate_label,
+      estimate_label = estimate_label,
+      ci = .conf_level_label(conf.level)
     )
   } else {
     by_var <- data[[by_name]]
@@ -229,15 +253,22 @@
 
     summary_tbl <- dplyr::bind_rows(summary_list)
 
-    table_tbl <- summary_tbl[, c("group", "n", "display")]
-    names(table_tbl) <- c("Group", "N", "Estimate")
-    table_tbl <- tibble::as_tibble(table_tbl)
+    table_tbl <- tibble::tibble(Event = level)
+    display_columns <- vector("list", nrow(summary_tbl))
+    for (i in seq_len(nrow(summary_tbl))) {
+      estimate_col <- paste0("group_", i, "_estimate")
+      ci_col <- paste0("group_", i, "_ci")
+      table_tbl[[estimate_col]] <- summary_tbl$display[[i]]
+      table_tbl[[ci_col]] <- summary_tbl$ci_display[[i]]
+      display_columns[[i]] <- tibble::tibble(
+        group = summary_tbl$group[[i]],
+        estimate = estimate_col,
+        estimate_label = estimate_label,
+        ci = ci_col
+      )
+    }
+    display_columns <- dplyr::bind_rows(display_columns)
   }
-  names(table_tbl)[names(table_tbl) == "Estimate"] <- paste0(
-    "Estimate (",
-    .conf_level_label(conf.level),
-    ")"
-  )
 
   denominator_audit <- .data_denominators(
     data,
@@ -269,6 +300,7 @@
       } else {
         "Exact binomial"
       },
+      display_columns = display_columns,
       comparison_test = NULL
     ),
     assumptions = .assumptions_tbl(

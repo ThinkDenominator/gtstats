@@ -25,12 +25,13 @@
 #' @param plots Logical; create histogram, density, Q-Q, and box plots. Plots
 #'   are stored in `$plots` (or `attr(result, "plots")` for tibble output).
 #' @param digits Number of decimal places.
-#' @param output Either `"table"` (the default) or `"tibble"`.
+#' @param format Output format: `"table"` (default) or `"tibble"`.
+#' @param output Compatibility alias for `format`.
 #'
-#' @return With `output = "table"`, a `gt_distribution` object that prints as a
+#' @return With `format = "table"`, a `gt_distribution` object that prints as a
 #'   publication-ready table. `$summary` contains group-level diagnostics and
 #'   `$recommendations` contains one descriptive recommendation per variable.
-#'   With `output = "tibble"`, the group-level summary tibble is returned.
+#'   With `format = "tibble"`, the group-level summary tibble is returned.
 #'
 #' @examples
 #' assess_distribution(mtcars, vars = c(mpg, wt))
@@ -48,9 +49,13 @@ assess_distribution <- function(
     min_n = 3,
     plots = FALSE,
     digits = 2,
-    output = c("table", "tibble")
+    format = c("table", "tibble"),
+    output = NULL
 ) {
-  output <- match.arg(output)
+  if (!is.null(output)) {
+    format <- output
+  }
+  format <- match.arg(format, c("table", "tibble"))
   if (!is.data.frame(data)) {
     stop("`data` must be a data.frame.", call. = FALSE)
   }
@@ -319,7 +324,7 @@ assess_distribution <- function(
   }
   plot_list <- if (isTRUE(plots)) stats::setNames(lapply(vars_names, .make_plots), vars_names) else NULL
 
-  if (identical(output, "tibble")) {
+  if (identical(format, "tibble")) {
     attr(summary_tbl, "recommendations") <- recommendations
     attr(summary_tbl, "plots") <- plot_list
     return(summary_tbl)
@@ -328,7 +333,7 @@ assess_distribution <- function(
   result <- list(
     inputs = list(data_name = deparse(substitute(data)), vars = vars_names,
       by = by_name, normality_test = normality_test, skew_cutoff = skew_cutoff,
-      min_n = min_n, plots = plots, digits = digits, output = output),
+      min_n = min_n, plots = plots, digits = digits, format = format),
     summary = summary_tbl,
     recommendations = recommendations,
     table = tibble::as_tibble(table_tbl),

@@ -3,7 +3,7 @@
 #' Create a publication-ready comparison plot using a sensible visual selected
 #' from the outcome type and study design.
 #'
-#' The minimal call is `plot_compare(data, outcome, by)`. Continuous outcomes
+#' The minimal call is `plot_compare(data, variable, group)`. Continuous outcomes
 #' are shown as boxplots with individual observations, categorical outcomes as
 #' stacked within-group proportions, and paired continuous outcomes as
 #' participant-level connected observations. The returned object is a standard
@@ -15,10 +15,10 @@
 #' complete observations; non-finite continuous values are excluded.
 #'
 #' @param data A data frame.
-#' @param outcome Outcome variable, supplied as a bare name or character string.
-#' @param by Categorical grouping variable, supplied as a bare name or character
+#' @param variable Outcome or response variable, supplied as a bare name or character string.
+#' @param group Categorical grouping variable, supplied as a bare name or character
 #'   string.
-#' @param paired Logical; whether the continuous measurements are paired.
+#' @param paired Logical; whether observations are paired or repeatedly measured.
 #' @param id Participant identifier required when `paired = TRUE`.
 #' @param type Plot type: `"auto"`, `"box"`, or `"bar"`.
 #' @param display Categorical display: within-group `"proportion"` or `"count"`.
@@ -39,12 +39,12 @@
 #' @return A `ggplot` object.
 #'
 #' @examples
-#' plot_compare(mtcars, outcome = mpg, by = am)
+#' plot_compare(mtcars, variable = mpg, group = am)
 #'
 #' plot_compare(
 #'   mtcars,
-#'   outcome = vs,
-#'   by = am,
+#'   variable = vs,
+#'   group = am,
 #'   display = "proportion",
 #'   show_p = TRUE
 #' )
@@ -52,8 +52,8 @@
 #' @export
 plot_compare <- function(
     data,
-    outcome,
-    by,
+    variable,
+    group,
     paired = FALSE,
     id = NULL,
     type = c("auto", "box", "bar"),
@@ -62,7 +62,8 @@ plot_compare <- function(
     show_p = FALSE,
     test = c(
       "auto", "t_test", "welch_t", "wilcox",
-      "anova", "welch_anova", "kruskal", "chisq", "fisher", "mcnemar"
+      "anova", "welch_anova", "kruskal", "chisq", "fisher", "mcnemar",
+      "rm_anova", "friedman", "cochran_q"
     ),
     var_equal = FALSE,
     palette = NULL,
@@ -96,8 +97,8 @@ plot_compare <- function(
     stop("`base_size` must be a single positive number.", call. = FALSE)
   }
 
-  outcome_name <- .resolve_var_arg(substitute(outcome), env = parent.frame())
-  by_name <- .resolve_var_arg(substitute(by), env = parent.frame())
+  outcome_name <- .resolve_var_arg(substitute(variable), env = parent.frame())
+  by_name <- .resolve_var_arg(substitute(group), env = parent.frame())
   id_name <- .resolve_var_arg(
     substitute(id),
     env = parent.frame(),
@@ -114,7 +115,7 @@ plot_compare <- function(
     )
   }
   if (identical(outcome_name, by_name)) {
-    stop("`outcome` and `by` must be different variables.", call. = FALSE)
+    stop("`variable` and `group` must be different variables.", call. = FALSE)
   }
   if (isTRUE(paired) && is.null(id_name)) {
     stop("`id` is required when `paired = TRUE`.", call. = FALSE)
@@ -127,17 +128,10 @@ plot_compare <- function(
   by_type <- .detect_type(data[[by_name]])
   if (identical(by_type, "continuous")) {
     stop(
-      "`by` should be a categorical, binary, or ordinal variable.",
+      "`group` should be a categorical, binary, or ordinal variable.",
       call. = FALSE
     )
   }
-  if (isTRUE(paired) && !identical(outcome_type, "continuous")) {
-    stop(
-      "Paired plotting currently supports continuous outcomes only.",
-      call. = FALSE
-    )
-  }
-
   if (identical(type, "auto")) {
     type <- if (identical(outcome_type, "continuous")) "box" else "bar"
   }
@@ -176,7 +170,23 @@ plot_compare <- function(
   by_levels <- by_levels[by_levels %in% as.character(dat[[by_name]])]
   dat[[by_name]] <- factor(as.character(dat[[by_name]]), levels = by_levels)
   if (nlevels(dat[[by_name]]) < 2L) {
-    stop("`by` must contain at least two observed groups.", call. = FALSE)
+    stop("`group` must contain at least two observed groups.", call. = FALSE)
+  }
+
+  if (isTRUE(paired)) {
+    duplicate_key <- duplicated(dat[, c(id_name, by_name)]) |
+      duplicated(dat[, c(id_name, by_name)], fromLast = TRUE)
+    if (any(duplicate_key)) {
+      stop("Each `id` must have at most one observation in each group.",
+           call. = FALSE)
+    }
+    id_counts <- table(dat[[id_name]])
+    complete_ids <- names(id_counts)[id_counts == nlevels(dat[[by_name]])]
+    dat <- dat[as.character(dat[[id_name]]) %in% complete_ids, , drop = FALSE]
+    if (length(complete_ids) < 2L) {
+      stop("At least two complete paired participants are required.",
+           call. = FALSE)
+    }
   }
 
   default_palette <- c(
@@ -252,24 +262,6 @@ plot_compare <- function(
     if (is.null(ylab)) ylab <- outcome_label
 
     if (isTRUE(paired)) {
-      if (nlevels(dat[[by_name]]) != 2L) {
-        stop("Paired plots require exactly two groups.", call. = FALSE)
-      }
-      duplicate_key <- duplicated(dat[, c(id_name, by_name)]) |
-        duplicated(dat[, c(id_name, by_name)], fromLast = TRUE)
-      if (any(duplicate_key)) {
-        stop(
-          "Each `id` must have at most one observation in each group.",
-          call. = FALSE
-        )
-      }
-      pair_counts <- table(dat[[id_name]])
-      complete_ids <- names(pair_counts)[pair_counts == 2L]
-      dat <- dat[as.character(dat[[id_name]]) %in% complete_ids, ,
-                 drop = FALSE]
-      if (length(complete_ids) < 2L) {
-        stop("At least two complete pairs are required.", call. = FALSE)
-      }
       group_labels <- stats::setNames(
         paste0(by_levels, "\nN = ", length(complete_ids)),
         by_levels
@@ -298,7 +290,7 @@ plot_compare <- function(
         )
       }
       p <- p +
-        ggplot2::scale_fill_manual(values = colours_for(2L)) +
+        ggplot2::scale_fill_manual(values = colours_for(length(by_levels))) +
         ggplot2::scale_x_discrete(labels = group_labels)
     } else {
       group_n <- table(dat[[by_name]])

@@ -12,7 +12,8 @@ proportion_stats(
   conf.level = 0.95,
   ci_method = c("wilson", "exact"),
   display = c("n_percent", "percent", "n_over_N_percent"),
-  digits = 1
+  digits = 1,
+  format = c("table", "tibble")
 )
 }
 \arguments{
@@ -31,9 +32,14 @@ omitted.}
 \code{"exact"}.}
 
 \item{display}{Estimate display: \code{"n_percent"}, \code{"percent"}, or
-\code{"n_over_N_percent"}.}
+\code{"n_over_N_percent"}. The publication table places the confidence
+interval in a separate column; with \code{by}, each group spans its estimate
+and interval columns.}
 
 \item{digits}{Number of decimal places.}
+
+\item{format}{Output format: \code{"table"} (default) or a plain console
+\code{"tibble"}.}
 }
 \value{
 A \code{gt_prop} object containing numeric results and a display table.

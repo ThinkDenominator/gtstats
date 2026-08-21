@@ -54,7 +54,7 @@ automatic decisions for review.
 |----|----|----|
 | Understand | `describe_data()` | Variable type, completeness, levels/range, and concise data overview |
 | Assess | `assess_distribution()` | Distribution diagnostics and descriptive guidance for continuous variables |
-| Assess | `assess_variance()` | Group SDs, variances, and descriptive spread ratios |
+| Assess | `assess_variance()` | Group SDs, variances, spread ratios, and median-centred Levene support |
 | Describe | `summary_table()` | Publication-ready participant-characteristics table |
 | Compare | `compare_groups()` | One focused group comparison with a clearly identified test and automatic-selection rule |
 | Audit | `assumptions_stats()`, `diagnostics_stats()`, `denominators_stats()` | Transparent decisions and analysis population |
@@ -138,6 +138,13 @@ that gap:
 - the table builder offers simple defaults with optional layers of
   control.
 
+The automatic algorithm is documented in full: marked skewness—not a
+Shapiro-Wilk p-value alone—triggers rank-based continuous tests; sparse
+categorical tables use Fisher’s exact test when an expected count is
+below 1 or more than 20% are below 5; and paired/repeated designs use
+their dedicated methods. See the [inferential tests and assumptions
+guide](https://gtstats.thinkdenominator.com/articles/inferential-tests.html).
+
 `gtstats` uses established R statistical engines such as `stats`,
 `dplyr`, `ggplot2`, `gt`, and `flextable`; it provides a coherent
 teaching and reporting workflow around them.
@@ -195,6 +202,8 @@ overview <- describe_data(birthwt)
 
 distribution <- assess_distribution(birthwt, vars = c(age, lwt), by = low)
 variance <- assess_variance(birthwt, vars = c(age, lwt), by = low)
+# Use `test = "none"` for descriptive spreads only, or `test = "bartlett"`
+# when the stronger normal-distribution assumption is justified.
 
 table_one <- summary_table(
   birthwt,
@@ -233,6 +242,29 @@ table_one |>
 | Every argument and default | [Function options](https://gtstats.thinkdenominator.com/articles/function-options.html) |
 | All functions | [Reference index](https://gtstats.thinkdenominator.com/reference/index.html) |
 
+## Publication tables and console output
+
+Core statistical functions produce a publication-ready table by default.
+In a terminal, automated test, or plain-text workflow, request a real
+tibble:
+
+``` r
+compare_groups(birthwt_data, variable = age, group = low)
+
+compare_groups(
+  birthwt_data,
+  variable = age,
+  group = low,
+  format = "tibble"
+)
+```
+
+The same `format = "table"` or `format = "tibble"` choice is available
+for data description, distribution and variance assessment, effect
+sizes, correlations, proportions, rates, and cross-tabulations. A
+summary-table builder stays composable in either format, so `add_p()`
+and other layers still work before the completed tibble is printed.
+
 ## Function map
 
 | Workflow | Functions |
@@ -245,6 +277,16 @@ table_one |>
 | Visualise | `plot_compare()`, `plot_correlation()` |
 | Guided interface | `gtstats_app()` |
 | Polish and export | `tbl_stats()`, `customise_table()`, `to_flextable()`, `save_output()` |
+
+`correlation()` handles both a prespecified pair and an exploratory
+matrix. The matrix retains pair-specific denominators and p-values in
+`$summary`, while `plot_correlation()` provides a labelled coefficient
+heatmap.
+
+``` r
+correlation(mtcars, vars = c(mpg, disp, hp, wt)) |>
+  plot_correlation()
+```
 
 ## Citation
 

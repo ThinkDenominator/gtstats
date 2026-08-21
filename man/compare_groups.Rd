@@ -16,6 +16,8 @@ compare_groups(
   conf.level = 0.95,
   digits = 2,
   var_equal = FALSE,
+  fisher_seed = 1049L,
+  format = c("table", "tibble"),
   ...
 )
 }
@@ -55,6 +57,13 @@ Welch methods. This is a prespecified user choice and is not tested or
 inferred from the observed variances. It does not affect paired,
 categorical, ordinal, or rank-based comparisons.}
 
+\item{fisher_seed}{Integer seed used only for simulated Fisher exact tests
+on tables larger than 2 x 2. The default makes results reproducible.
+Set to \code{NULL} to use the current random-number state.}
+
+\item{format}{Output format: \code{"table"} (default) or a plain console
+\code{"tibble"}.}
+
 \item{...}{Reserved for internal package use.}
 }
 \value{
@@ -68,6 +77,12 @@ A \code{gt_compare} object containing:
 \item \code{notes} — explanatory notes
 \item \code{call} — matched function call
 }
+
+For paired or repeated analyses, only complete, uniquely matched identifiers
+are analysed. The number retained and excluded is available in
+\verb{$denominators} and \verb{$notes}; rendered tables also identify the complete-pair
+denominator. Friedman and Cochran's Q require within-participant variation
+and fail clearly when it is absent.
 }
 \description{
 Compare a variable across groups using a practical set of common
@@ -115,22 +130,26 @@ analysis plan.
 \itemize{
 \item \strong{Continuous outcome, two independent groups:} Welch t-test by default,
 or Student's t-test when \code{var_equal = TRUE}, unless
-distribution guidance flags skewness in either group, then Wilcoxon
+marked skewness is flagged in either group, then Wilcoxon
 rank-sum test.
 \item \strong{Continuous outcome, three or more independent groups:} Welch ANOVA by
 default, or classical one-way ANOVA when \code{var_equal = TRUE}, unless
-unless distribution guidance flags skewness in any group, then
+marked skewness is flagged in any group, then
 Kruskal-Wallis test.
 \item \strong{Paired continuous outcome:} for two occasions, paired t-test unless
-within-pair differences are flagged, then Wilcoxon signed-rank; for three
-or more occasions, repeated-measures ANOVA unless shape is flagged, then
-Friedman test. Sphericity is a user check for repeated-measures ANOVA.
-\item \strong{Ordinal outcome:} Wilcoxon rank-sum/signed-rank for two groups;
-Kruskal-Wallis for three or more independent groups; Friedman for three
-or more paired occasions.
-\item \strong{Independent binary or nominal categorical outcome:} Pearson chi-square
+marked skewness in within-pair differences is flagged, then Wilcoxon
+signed-rank; for three or more occasions, repeated-measures ANOVA unless
+marked skewness is flagged, then
+Friedman test. Repeated-measures ANOVA reports a conservative
+Greenhouse-Geisser-corrected p-value.
+\item \strong{Independent ordinal, binary, or nominal categorical outcome:} Pearson chi-square
 test when no expected count is below 1 and no more than 20\% are below 5;
 Fisher's exact test otherwise (Monte Carlo p-value for larger tables).
+This compares the distribution of all levels, which is the usual Table 1
+question. Use an explicit rank test (\code{"wilcox"} or \code{"kruskal"}) when the
+ordered scale itself is the intended estimand.
+\item \strong{Paired ordinal outcome:} Wilcoxon signed-rank for two occasions;
+Friedman for three or more paired occasions.
 \item \strong{Paired binary outcome:} McNemar test for two occasions; Cochran's Q
 test for three or more occasions.
 }

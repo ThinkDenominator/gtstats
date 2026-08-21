@@ -20,3 +20,6 @@
 ^data-raw$
 ^workshop$
 ^README\.html$
+^Rplots\.pdf$
+^not-a-plot\.png$
+^cran-comments\.md$

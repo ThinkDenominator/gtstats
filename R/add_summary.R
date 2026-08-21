@@ -36,6 +36,11 @@
 #'   `"n_over_N_percent"`, `"n"`, or `"percent"`.
 #' @param ci Logical; append confidence intervals to categorical proportions.
 #' @param conf.level Confidence level for categorical proportion intervals.
+#' @param ci_method Binomial confidence-interval method: `"wilson"` (default)
+#'   or `"exact"`.
+#' @param layout Table layout. `"compact"` keeps each summary in one cell;
+#'   `"separate"` places summaries and confidence intervals in separate
+#'   columns. When omitted, the layout chosen in [summary_table()] is used.
 #' @param missing Whether explicit missing-value rows are shown: `"ifany"`,
 #'   `"always"`, or `"no"`.
 #' @param digits One number applied throughout, or a named numeric vector using
@@ -63,14 +68,19 @@ add_summary <- function(
     categorical = c("n_percent", "n_over_N_percent", "n", "percent"),
     ci = FALSE,
     conf.level = 0.95,
+    ci_method = c("wilson", "exact"),
+    layout = NULL,
     missing = c("ifany", "always", "no"),
     digits = 1
 ) {
+  .validate_summary_builder(x, "add_summary", mode = "summary")
   continuous_format <- match.arg(continuous_format)
   percent <- match.arg(percent)
   categorical <- match.arg(categorical)
+  ci_method <- match.arg(ci_method)
+  if (is.null(layout)) layout <- x$layout %||% "compact"
+  layout <- match.arg(layout, c("compact", "separate"))
   missing <- match.arg(missing)
-  .validate_summary_builder(x, "add_summary", mode = "summary")
   .validate_flag(ci, "ci")
   .validate_conf_level(conf.level)
   digits_map <- .resolve_summary_digits(digits)
@@ -130,6 +140,38 @@ add_summary <- function(
     }
   }
 
+  # Resolve the automatic choice once per variable. A comparative table should
+  # use one descriptive format across Overall and every displayed group.
+  statistic_requested <- statistic_map
+  resolve_recommended <- function(variable) {
+    if (!identical(.detect_type(x$data[[variable]]), "continuous")) {
+      return(statistic_map[[variable]])
+    }
+    populations <- list(x$data[[variable]])
+    if (!is.null(x$by)) {
+      observed_groups <- unique(x$data[[x$by]][!is.na(x$data[[x$by]])])
+      grouped <- lapply(observed_groups, function(group_value) {
+        x$data[[variable]][
+          !is.na(x$data[[x$by]]) &
+            as.character(x$data[[x$by]]) == as.character(group_value)
+        ]
+      })
+      populations <- c(if (isTRUE(x$overall)) populations else list(), grouped)
+    }
+    skewness <- vapply(populations, function(values) {
+      values <- values[is.finite(values)]
+      if (length(values) < 3L) return(NA_real_)
+      spread <- stats::sd(values)
+      if (!is.finite(spread) || spread == 0) return(0)
+      mean((values - mean(values))^3) / spread^3
+    }, numeric(1))
+    if (any(abs(skewness) >= 1, na.rm = TRUE)) "median_iqr" else "mean_sd"
+  }
+  recommended <- names(statistic_map)[statistic_map == "recommended"]
+  if (length(recommended) > 0L) {
+    statistic_map[recommended] <- vapply(recommended, resolve_recommended, character(1))
+  }
+
   build_summary_table <- function(by = NULL) {
     pieces <- lapply(vars_names, function(variable) {
       variable_type <- .detect_type(x$data[[variable]])
@@ -151,6 +193,7 @@ add_summary <- function(
         categorical = categorical,
         ci = ci,
         conf.level = conf.level,
+        ci_method = ci_method,
         ci_digits = digits_map[["ci"]],
         missing = "no",
         digits = variable_digits
@@ -280,16 +323,26 @@ add_summary <- function(
     x <- .append_builder_rows(x, tbl)
   }
 
+  x$layout <- layout
+  if (identical(layout, "separate")) {
+    x <- .builder_use_separate_layout(x, conf.level = conf.level)
+  }
+
   # Record component type
   x$components <- unique(c(x$components, "summary"))
   x$summary_statistics <- c(
     x$summary_statistics %||% character(),
     statistic_map
   )
+  x$summary_statistics_requested <- c(
+    x$summary_statistics_requested %||% character(),
+    statistic_requested
+  )
   x$percent <- percent
   x$categorical <- categorical
   x$ci <- ci
   x$conf.level <- conf.level
+  x$ci_method <- ci_method
   x$digits <- digits_map
   x$missing <- missing
   x$method$percentage_denominator <- percent
@@ -330,74 +383,37 @@ add_summary <- function(
   )
 
   # Add explanatory footnote describing how values are displayed
-  has_by <- !is.null(x$by)
-  footnote_format <- unique(unname(statistic_map))
+  variable_types <- vapply(
+    vars_names, function(variable) .detect_type(x$data[[variable]]), character(1)
+  )
+  has_continuous <- any(variable_types == "continuous")
+  has_categorical <- any(variable_types != "continuous")
+  continuous_variables <- names(variable_types)[variable_types == "continuous"]
+  footnote_format <- unique(unname(statistic_map[continuous_variables]))
   footnote_format <- if (length(footnote_format) == 1L) {
     footnote_format[[1L]]
   } else {
     "mixed"
   }
 
-  footnote_text <- if (footnote_format == "mean_sd") {
-    if (has_by) {
-      paste0(
-        "Continuous variables are shown as mean (SD); ",
-        "categorical variables as n (%) within each group."
-      )
-    } else {
-      paste0(
-        "Continuous variables are shown as mean (SD); ",
-        "categorical variables as n (%)."
-      )
-    }
+  footnote_text <- if (!has_continuous) {
+    character()
+  } else if (footnote_format == "mean_sd") {
+    "Continuous variables are shown as mean (SD)."
   } else if (footnote_format == "mean_ci") {
-    if (has_by) {
-      paste0(
-        "Continuous variables are shown as mean (", round(100 * conf.level),
-        "% CI); categorical variables as n (%) within each group."
-      )
-    } else {
-      paste0(
-        "Continuous variables are shown as mean (", round(100 * conf.level),
-        "% CI); categorical variables as n (%)."
-      )
-    }
+    paste0(
+      "Continuous variables are shown as mean (", round(100 * conf.level),
+      "% CI)."
+    )
   } else if (footnote_format == "median_iqr") {
-    if (has_by) {
-      paste0(
-        "Continuous variables are shown as median (IQR); ",
-        "categorical variables as n (%) within each group."
-      )
-    } else {
-      paste0(
-        "Continuous variables are shown as median (IQR); ",
-        "categorical variables as n (%)."
-      )
-    }
+    "Continuous variables are shown as median (IQR)."
   } else if (footnote_format == "recommended") {
-    if (has_by) {
-      paste0(
-        "Continuous variables are shown as mean (SD) or median (IQR) ",
-        "as appropriate; categorical variables as n (%) within each group."
-      )
-    } else {
-      paste0(
-        "Continuous variables are shown as mean (SD) or median (IQR) ",
-        "as appropriate; categorical variables as n (%)."
-      )
-    }
+    paste0(
+      "Continuous variables are shown as mean (SD) or median (IQR) ",
+      "as appropriate."
+    )
   } else if (footnote_format == "both") {
-    if (has_by) {
-      paste0(
-        "Continuous variables are shown as mean (SD) and median (IQR); ",
-        "categorical variables as n (%) within each group."
-      )
-    } else {
-      paste0(
-        "Continuous variables are shown as mean (SD) and median (IQR); ",
-        "categorical variables as n (%)."
-      )
-    }
+    "Continuous variables are shown as mean (SD) and median (IQR)."
   } else {
     "Continuous variables use the specified summary statistics."
   }
@@ -405,7 +421,9 @@ add_summary <- function(
   x$footnotes <- unique(c(
     x$footnotes,
     footnote_text,
-    if (identical(categorical, "n") || identical(percent, "none")) {
+    if (!has_categorical) {
+      character()
+    } else if (identical(categorical, "n") || identical(percent, "none")) {
       "Categorical variables are shown as counts."
     } else if (identical(categorical, "percent")) {
       "Categorical variables are shown as percentages."
@@ -417,16 +435,20 @@ add_summary <- function(
     } else {
       paste0("Categorical percentages use the ", percent, " denominator.")
     },
-    if (isTRUE(ci)) {
+    if (isTRUE(ci) && has_categorical) {
       paste0(
         "Categorical proportions include ",
         round(100 * conf.level),
-        "% exact binomial confidence intervals."
+        "% ",
+        if (identical(ci_method, "wilson")) "Wilson score" else "exact binomial",
+        " confidence intervals."
       )
     } else {
       character()
     },
-    if (!identical(missing, "no")) {
+    if (!identical(missing, "no") &&
+        (identical(missing, "always") ||
+         any(vapply(x$data[vars_names], function(value) anyNA(value), logical(1))))) {
       paste0("Missing-value rows are shown ", missing, ".")
     } else {
       character()

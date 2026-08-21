@@ -4,7 +4,13 @@
 \alias{describe_data}
 \title{Understand a dataset before analysis}
 \usage{
-describe_data(data, vars = NULL, digits = 2, output = c("table", "tibble"))
+describe_data(
+  data,
+  vars = NULL,
+  digits = 2,
+  format = c("table", "tibble"),
+  output = NULL
+)
 }
 \arguments{
 \item{data}{A data.frame.}
@@ -13,14 +19,15 @@ describe_data(data, vars = NULL, digits = 2, output = c("table", "tibble"))
 
 \item{digits}{Number of decimal places in concise numeric summaries.}
 
-\item{output}{Requested output route, retained for consistency with other
-gtstats functions.}
+\item{format}{Output format: \code{"table"} (default) or \code{"tibble"}.}
+
+\item{output}{Compatibility alias for \code{format}.}
 }
 \value{
-With \code{output = "table"}, a \code{gt_describe} object that prints as a
+With \code{format = "table"}, a \code{gt_describe} object that prints as a
 publication-ready table. \verb{$summary} is the concise variable overview and
 \verb{$issues} contains only findings requiring review. With
-\code{output = "tibble"}, the concise summary tibble is returned directly.
+\code{format = "tibble"}, the concise summary tibble is returned directly.
 }
 \description{
 Create a concise, clinically oriented first look at a dataset. One row is

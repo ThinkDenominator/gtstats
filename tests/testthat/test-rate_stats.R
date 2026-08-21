@@ -25,7 +25,9 @@ test_that("rate_stats() works with grouping", {
 
   expect_s3_class(res, "gt_rate")
   expect_equal(res$inputs$by, "arm")
-  expect_equal(nrow(res$table), 2)
+  expect_equal(nrow(res$table), 1)
+  expect_equal(ncol(res$table), 9)
+  expect_equal(nrow(res$summary), 2)
 })
 
 test_that("rate_stats() accepts character input", {
@@ -51,12 +53,13 @@ test_that("rate_stats() returns formatted rate strings", {
 
   res <- rate_stats(df, event = event, time = ptime)
 
-  rate_column <- names(res$table)[ncol(res$table)]
-  expect_match(rate_column, "Rate per 1,000", fixed = TRUE)
-  expect_true(any(grepl("\\(", res$table[[rate_column]])))
+  expect_true("Rate per 1,000" %in% names(res$table))
+  expect_true("95% CI" %in% names(res$table))
+  expect_false(any(grepl("\\(", res$table[["Rate per 1,000"]])))
+  expect_true(any(grepl("–", res$table[["95% CI"]], fixed = TRUE)))
 })
 
-test_that("rate_stats() grouped output includes Group column", {
+test_that("rate_stats() grouped publication output uses group column blocks", {
   df <- data.frame(
     event = c(1, 0, 1, 0, 1, 1),
     ptime = c(10, 12, 8, 9, 11, 7),
@@ -65,7 +68,12 @@ test_that("rate_stats() grouped output includes Group column", {
 
   res <- rate_stats(df, event = event, time = ptime, by = arm)
 
-  expect_true("Group" %in% names(res$table))
+  expect_identical(names(res$table), c(
+    "Event",
+    "group_1_events", "group_1_time", "group_1_rate", "group_1_ci",
+    "group_2_events", "group_2_time", "group_2_rate", "group_2_ci"
+  ))
+  expect_identical(res$method$display_columns$group, res$summary$group)
 })
 
 test_that("rate_stats() respects multiplier", {
@@ -79,10 +87,7 @@ test_that("rate_stats() respects multiplier", {
 
   expect_s3_class(res1, "gt_rate")
   expect_s3_class(res2, "gt_rate")
-  expect_false(identical(
-    res1$table[[ncol(res1$table)]],
-    res2$table[[ncol(res2$table)]]
-  ))
+  expect_false(identical(res1$table[["Rate per 1,000"]], res2$table[["Rate per 100"]]))
 })
 
 test_that("tbl_stats() works on rate_stats output", {
@@ -92,10 +97,18 @@ test_that("tbl_stats() works on rate_stats output", {
     arm = c("A", "A", "A", "B", "B", "B")
   )
 
-  gt_obj <- rate_stats(df, event = event, time = ptime, by = arm) |>
-    tbl_stats()
+  result <- rate_stats(df, event = event, time = ptime, by = arm)
+  gt_obj <- tbl_stats(result)
 
   expect_s3_class(gt_obj, "gt_tbl")
+  expect_identical(
+    as.character(unlist(gt_obj[["_spanners"]]$spanner_label)),
+    result$summary$group
+  )
+  expect_identical(
+    as.character(gt_obj[["_boxhead"]]$column_label[-1L]),
+    rep(c("Events", "Person-time", "Rate per 1,000", "95% CI"), 2L)
+  )
 })
 
 test_that("to_flextable() works on rate_stats output", {
@@ -230,9 +243,11 @@ test_that("rate_stats() respects factor order and custom time label", {
     time_label = "person-years"
   )
 
-  expect_identical(result$table$Group, c("A", "B"))
-  expect_true("Person-years" %in% names(result$table))
-  expect_match(names(result$table)[ncol(result$table)], "Rate per 1,000")
+  expect_identical(result$summary$group, c("A", "B"))
+  expect_identical(result$method$display_columns$group, c("A", "B"))
+  rendered <- tbl_stats(result)
+  expect_true("Person-years" %in% rendered[["_boxhead"]]$column_label)
+  expect_true("Rate per 1,000" %in% rendered[["_boxhead"]]$column_label)
   expect_identical(result$inputs$time_label, "person-years")
 })
 

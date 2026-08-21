@@ -178,3 +178,19 @@ test_that("add_proportion() errors for missing variable", {
     "not found"
   )
 })
+test_that("summary_table() separates estimates and confidence intervals", {
+  result <- summary_table(
+    mtcars,
+    by = am,
+    include = c(mpg, vs),
+    overall = TRUE,
+    ci = TRUE,
+    layout = "separate"
+  )
+
+  expect_identical(result$layout, "separate")
+  expect_equal(nrow(result$display_columns), 3L)
+  expect_true(all(result$display_columns$ci %in% names(result$table)))
+  expect_true(any(nzchar(result$table[[result$display_columns$ci[[1L]]]])))
+  expect_s3_class(tbl_stats(result), "gt_tbl")
+})

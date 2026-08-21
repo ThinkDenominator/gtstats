@@ -56,10 +56,20 @@ add_total <- function(
     Variable = label,
     Level = ""
   )
+  separate <- identical(x$layout %||% "compact", "separate")
+  if (separate) {
+    x <- .builder_use_separate_layout(x, conf.level = x$conf.level %||% 0.95)
+  }
 
   # Add overall total if the descriptive table includes an Overall column
   if (isTRUE(x$overall)) {
-    total_row$Overall <- as.character(nrow(x$data))
+    if (separate) {
+      total_row <- .builder_set_separate_cell(
+        total_row, x, "Overall", as.character(nrow(x$data))
+      )
+    } else {
+      total_row$Overall <- as.character(nrow(x$data))
+    }
   }
 
   # Add group-specific totals when the table is grouped
@@ -70,11 +80,23 @@ add_total <- function(
     for (i in seq_along(group_values_chr)) {
       g <- group_values_chr[[i]]
       n_g <- sum(!is.na(x$data[[x$by]]) & as.character(x$data[[x$by]]) == g)
-      total_row[[group_labels[[i]]]] <- as.character(n_g)
+      if (separate) {
+        total_row <- .builder_set_separate_cell(
+          total_row, x, unname(group_labels[[i]]), as.character(n_g)
+        )
+      } else {
+        total_row[[group_labels[[i]]]] <- as.character(n_g)
+      }
     }
   } else if (!isTRUE(x$overall)) {
     # Use a single Value column when neither grouping nor overall is used
-    total_row$Value <- as.character(nrow(x$data))
+    if (separate) {
+      total_row <- .builder_set_separate_cell(
+        total_row, x, "Value", as.character(nrow(x$data))
+      )
+    } else {
+      total_row$Value <- as.character(nrow(x$data))
+    }
   }
 
   total_row <- tibble::as_tibble(total_row)

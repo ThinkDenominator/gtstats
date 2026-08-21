@@ -6,8 +6,8 @@
 \usage{
 plot_compare(
   data,
-  outcome,
-  by,
+  variable,
+  group,
   paired = FALSE,
   id = NULL,
   type = c("auto", "box", "bar"),
@@ -15,7 +15,7 @@ plot_compare(
   show_points = TRUE,
   show_p = FALSE,
   test = c("auto", "t_test", "welch_t", "wilcox", "anova", "welch_anova", "kruskal",
-    "chisq", "fisher", "mcnemar"),
+    "chisq", "fisher", "mcnemar", "rm_anova", "friedman", "cochran_q"),
   var_equal = FALSE,
   palette = NULL,
   base_size = 14,
@@ -29,12 +29,12 @@ plot_compare(
 \arguments{
 \item{data}{A data frame.}
 
-\item{outcome}{Outcome variable, supplied as a bare name or character string.}
+\item{variable}{Outcome or response variable, supplied as a bare name or character string.}
 
-\item{by}{Categorical grouping variable, supplied as a bare name or character
+\item{group}{Categorical grouping variable, supplied as a bare name or character
 string.}
 
-\item{paired}{Logical; whether the continuous measurements are paired.}
+\item{paired}{Logical; whether observations are paired or repeatedly measured.}
 
 \item{id}{Participant identifier required when \code{paired = TRUE}.}
 
@@ -72,7 +72,7 @@ Create a publication-ready comparison plot using a sensible visual selected
 from the outcome type and study design.
 }
 \details{
-The minimal call is \code{plot_compare(data, outcome, by)}. Continuous outcomes
+The minimal call is \code{plot_compare(data, variable, group)}. Continuous outcomes
 are shown as boxplots with individual observations, categorical outcomes as
 stacked within-group proportions, and paired continuous outcomes as
 participant-level connected observations. The returned object is a standard
@@ -84,12 +84,12 @@ with the p-value. The annotation and plotted denominators use the same
 complete observations; non-finite continuous values are excluded.
 }
 \examples{
-plot_compare(mtcars, outcome = mpg, by = am)
+plot_compare(mtcars, variable = mpg, group = am)
 
 plot_compare(
   mtcars,
-  outcome = vs,
-  by = am,
+  variable = vs,
+  group = am,
   display = "proportion",
   show_p = TRUE
 )

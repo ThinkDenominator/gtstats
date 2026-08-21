@@ -18,7 +18,8 @@ crosstabs(
   test = c("auto", "none", "chisq", "fisher"),
   zero_correction = c("haldane_anscombe", "none"),
   simulate_B = 10000,
-  digits = 2
+  digits = 2,
+  format = c("table", "tibble")
 )
 }
 \arguments{
@@ -57,6 +58,9 @@ level is selected when omitted; set this explicitly for reporting.}
 sparse table larger than 2x2.}
 
 \item{digits}{Number of decimal places.}
+
+\item{format}{Output format: \code{"table"} (default) or a plain console
+\code{"tibble"}.}
 }
 \value{
 A \code{gt_twobytwo} object.

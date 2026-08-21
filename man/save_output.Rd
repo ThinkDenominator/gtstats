@@ -71,7 +71,7 @@ determines the export route automatically. The file type is inferred from
 table <- summary_table(mtcars) |> add_summary(vars = c(mpg, wt))
 save_output(table, "summary.html")
 
-plot <- plot_compare(mtcars, outcome = mpg, by = am)
+plot <- plot_compare(mtcars, variable = mpg, group = am)
 save_output(plot, "comparison.png")
 }
 }

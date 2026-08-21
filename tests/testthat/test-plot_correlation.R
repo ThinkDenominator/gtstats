@@ -101,3 +101,23 @@ test_that("plot_correlation() validates its inputs", {
     "single colour"
   )
 })
+
+test_that("plot_correlation() visualises a correlation matrix", {
+  result <- correlation(mtcars, vars = c(mpg, disp, hp, wt))
+  p <- plot_correlation(result)
+
+  expect_s3_class(p, "ggplot")
+  expect_identical(attr(p, "source"), "plot_correlation_matrix")
+  expect_identical(attr(p, "correlation_method"), result$method$method_used)
+  expect_equal(nrow(p$data), 10L)
+
+  full <- plot_correlation(result, triangle = "full", show_values = FALSE)
+  expect_equal(nrow(full$data), 16L)
+
+  upper_no_diagonal <- correlation(
+    mtcars, vars = c(mpg, disp, hp, wt),
+    triangle = "upper", show_diagonal = FALSE
+  )
+  inherited <- plot_correlation(upper_no_diagonal)
+  expect_equal(nrow(inherited$data), 6L)
+})

@@ -66,3 +66,8 @@ how every analysis population and displayed percentage is formed.
 
 For a compact, user-facing table of arguments and defaults for every exported
 function, see [Function options](function-options.html).
+
+For the complete and auditable `test = "auto"` decision table—including Welch
+versus Student/ANOVA, marked-skew rank routes, sparse categorical tables, and
+paired/repeated methods—see [Inferential tests and
+assumptions](inferential-tests.html).

@@ -15,9 +15,10 @@
 The input object, invisibly.
 }
 \description{
-Print publication-ready variance diagnostics. Group-level standard deviations
-and variances remain in \verb{$summary}; variable-level ratios and explanatory
-text remain available in \verb{$diagnostics}.
+Print publication-ready variance diagnostics. Group-level sample sizes,
+standard deviations, variances, and observed spread ratios are displayed;
+the underlying values and explanatory metadata remain available in
+\verb{$summary} and \verb{$diagnostics}.
 }
 \examples{
 x <- assess_variance(mtcars, vars = c(mpg, wt), by = am)

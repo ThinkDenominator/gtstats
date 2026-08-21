@@ -12,6 +12,7 @@ add_proportion(
   conf.level = 0.95,
   ci_method = c("wilson", "exact"),
   display = c("n_percent", "percent", "n_over_N_percent"),
+  layout = NULL,
   digits = 1,
   label = NULL
 )
@@ -33,6 +34,10 @@ automatically.}
 
 \item{display}{Cell display: \code{"n_percent"}, \code{"percent"}, or
 \code{"n_over_N_percent"}.}
+
+\item{layout}{Table layout. \code{NULL} inherits the parent table layout;
+\code{"compact"} keeps the estimate and CI together and \code{"separate"} places
+them in separate columns beneath each cohort header.}
 
 \item{digits}{Number of decimal places used when formatting percentages.}
 

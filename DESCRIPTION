@@ -4,8 +4,21 @@ Title: Beginner-Friendly Statistics and Publication-Ready Tables
 Version: 1.0.0
 Authors@R: c(
     person(given = "Rubeshkumar", family = "Polani",
-    email = "rubesh@thinkdenominator.com", 
-    role = c("aut", "cre"), comment = c(ORCID = "0000-0002-0418-7592")))
+    email = "rubesh@thinkdenominator.com",
+    role = c("aut", "cre"), comment = c(ORCID = "0000-0002-0418-7592")),
+    person(given = "Mogan", family = "Kaviprawin",
+    email = "moganka1994@gmail.com", role = "aut",
+    comment = c(ORCID = "0000-0002-1659-059X")),
+    person(given = "Manikandanesan", family = "Sakthivel",
+    email = "nesanmbbs@gmail.com", role = "aut",
+    comment = c(ORCID = "0000-0002-5438-3970")),
+    person(given = "Salin K", family = "Eliyas",
+    email = "salins13@gmail.com", role = "aut",
+    comment = c(ORCID = "0000-0002-8020-5860")),
+    person(given = "Yuvaraj", family = "Krishnamoorthy",
+    email = "yuvaraj@propulevidence.org", role = "aut",
+    comment = c(ORCID = "0000-0003-4688-510X"))
+  )
 Description: Provides beginner-friendly functions for common descriptive and
     inferential statistical analyses, together with tools for creating
     publication-ready tables. The package includes data description, summary
@@ -26,7 +39,8 @@ Imports:
     gt,
     flextable,
     stats,
-    ggplot2
+    ggplot2,
+    tidyselect
 Suggests:
     shiny,
     rstudioapi,

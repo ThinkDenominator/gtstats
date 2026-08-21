@@ -17,6 +17,11 @@ test_that("correlation() accepts character input", {
   expect_equal(res$inputs$y, "wt")
 })
 
+test_that("correlation() preserves the original positional method API", {
+  res <- correlation(mtcars, mpg, wt, "spearman")
+  expect_identical(res$summary$method_used, "Spearman correlation")
+})
+
 test_that("correlation() uses complete observation pairs", {
   dat <- mtcars
   dat$mpg[c(1, 3)] <- NA_real_
@@ -155,4 +160,71 @@ test_that("correlation() errors clearly for constant finite variables", {
     correlation(dat, x, y),
     "at least two distinct finite values"
   )
+})
+
+test_that("correlation() creates a tidy publication matrix", {
+  res <- correlation(mtcars, vars = c(mpg, disp, hp, wt))
+
+  expect_s3_class(res, "gt_correlation_matrix")
+  expect_s3_class(res, "gt_correlation")
+  expect_equal(nrow(res$summary), 6L)
+  expect_equal(nrow(res$table), 4L)
+  expect_equal(names(res$table), c("Variable", "mpg", "disp", "hp", "wt"))
+  expect_identical(res$method$method_used, "pearson")
+  expect_true(all(c("p_adjusted", "adjust_method") %in% names(res$summary)))
+  expect_s3_class(tbl_stats(res), "gt_tbl")
+  expect_s3_class(to_flextable(res), "flextable")
+})
+
+test_that("matrix mode uses one transparent method and pairwise denominators", {
+  dat <- mtcars
+  dat$mpg[[1L]] <- NA_real_
+  dat$disp[[2L]] <- NA_real_
+  dat$hp <- dat$hp^3
+  res <- correlation(
+    dat,
+    vars = c(mpg, disp, hp),
+    method = "auto",
+    display = "estimate_p",
+    adjust = "holm"
+  )
+
+  expect_identical(res$method$method_used, "spearman")
+  expect_true(all(res$summary$method_used == "Spearman correlation"))
+  expect_true(length(unique(res$summary$n)) > 1L)
+  expect_true(all(res$summary$p_adjusted >= res$summary$p_value))
+  expect_match(res$method$selection_rule, "Spearman was used throughout")
+})
+
+test_that("matrix mode validates mutually exclusive and continuous inputs", {
+  expect_error(
+    correlation(mtcars, x = mpg, y = wt, vars = c(mpg, wt)),
+    "either `x` and `y`, or `vars`"
+  )
+  expect_error(correlation(mtcars, vars = mpg), "at least two")
+  expect_error(correlation(mtcars, vars = c(mpg, am)), "not a continuous")
+})
+
+test_that("matrix mode supports layout, ordering, diagonal, and cell content", {
+  upper <- correlation(
+    mtcars,
+    vars = c(wt, mpg, hp, disp),
+    triangle = "upper",
+    order = "alphabetical",
+    show_diagonal = FALSE,
+    display = "estimate_p_n"
+  )
+
+  expect_identical(names(upper$table), c("Variable", "disp", "hp", "mpg", "wt"))
+  expect_true(all(vapply(seq_len(4L), function(i) upper$table[[i + 1L]][[i]] == "", logical(1))))
+  expect_true(any(grepl("n = 32", unlist(upper$table), fixed = TRUE)))
+
+  clustered <- correlation(
+    mtcars,
+    vars = c(mpg, disp, hp, wt),
+    order = "cluster",
+    display = "estimate_n"
+  )
+  expect_setequal(clustered$inputs$vars, c("mpg", "disp", "hp", "wt"))
+  expect_identical(clustered$inputs$order, "cluster")
 })

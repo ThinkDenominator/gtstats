@@ -62,6 +62,8 @@ navbar:
           href: articles/descriptive-tables.html
         - text: "Inferential tests and assumptions"
           href: articles/inferential-tests.html
+        - text: "Automatic test algorithm"
+          href: articles/inferential-tests.html#default-selection-policy
         - text: "Epidemiology helpers"
           href: articles/epi-helpers.html
         - text: "Styling and exporting tables"

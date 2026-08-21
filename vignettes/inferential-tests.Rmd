@@ -25,7 +25,7 @@ Use `effect_size()` when the question is how large a difference or association
 is. Its default output is deliberately smaller than `compare_groups()`:
 
 ```{r effect-size}
-effect_size(mtcars, outcome = mpg, by = am)
+effect_size(mtcars, variable = mpg, group = am)
 ```
 
 The automatic measure follows the comparison structure:
@@ -49,8 +49,8 @@ An explicit method remains available when the scientific question requires it:
 ```{r effect-size-rank}
 effect_size(
   mtcars,
-  outcome = mpg,
-  by = am,
+  variable = mpg,
+  group = am,
   method = "rank_biserial"
 )
 ```
@@ -69,23 +69,27 @@ inputs in `$method`, `$diagnostics`, and `$notes`.
 
 | Comparison | What auto checks | Test selected |
 |---|---|---|
-| Continuous, two independent groups | Skewness guidance within each group; `var_equal` | Welch t-test by default; Student's t-test when `var_equal = TRUE`; Wilcoxon rank-sum if one or more groups are flagged |
-| Continuous, three or more independent groups | Skewness guidance within each group; `var_equal` | Welch ANOVA by default; classical ANOVA when `var_equal = TRUE`; Kruskal-Wallis if one or more groups are flagged |
-| Continuous, paired (two occasions) | Skewness guidance for within-pair differences | Paired t-test if not flagged; Wilcoxon signed-rank if flagged |
-| Continuous, paired (3+ occasions) | Skewness guidance at each occasion | Repeated-measures ANOVA if not flagged; Friedman test if flagged; review sphericity for repeated-measures ANOVA |
-| Ordinal, two groups | Outcome is ordered | Wilcoxon rank-sum |
-| Ordinal, three or more groups | Outcome is ordered | Kruskal-Wallis (independent) or Friedman (paired) |
+| Continuous, two independent groups | Marked skewness within each group; `var_equal` | Welch t-test by default; Student's t-test when `var_equal = TRUE`; Wilcoxon rank-sum only if one or more groups have marked skewness |
+| Continuous, three or more independent groups | Marked skewness within each group; `var_equal` | Welch ANOVA by default; classical ANOVA when `var_equal = TRUE`; Kruskal-Wallis if one or more groups have marked skewness |
+| Continuous, paired (two occasions) | Marked skewness of within-pair differences | Paired t-test if not flagged; Wilcoxon signed-rank if flagged |
+| Continuous, paired (3+ occasions) | Marked skewness at each occasion | Repeated-measures ANOVA with Greenhouse-Geisser-corrected degrees of freedom if not flagged; Friedman test if flagged |
+| Ordinal, independent | Expected cell counts | Pearson chi-square when no expected count is below 1 and no more than 20% are below 5; Fisher's exact otherwise |
+| Ordinal, paired | Outcome is ordered | Wilcoxon signed-rank (two occasions) or Friedman (3+ occasions) |
 | Binary or nominal categorical, independent | Expected cell counts | Pearson chi-square when no expected count is below 1 and no more than 20% are below 5; Fisher's exact otherwise |
 | Binary, paired | Paired design and binary outcome | McNemar test (two occasions) or Cochran's Q test (3+ occasions) |
 
-The continuous-variable rule uses the package skewness guidance, not a
-normality-test p-value. Shapiro-Wilk is supporting information only and does
-not alone switch the test. `add_p()` uses the same rules.
+The continuous-variable switch means **marked** absolute sample skewness
+(default cut-off 1), not any asymmetry and not a normality-test p-value.
+Shapiro-Wilk is supporting information only and does not alone switch the
+test. `add_p()` uses the same rules.
 
 ## Ordinal values: make the meaning explicit
 
-`compare_groups()` treats an `ordered` factor as ordinal and uses rank-based
-methods. A numeric variable with a few values (for example `0`, `1`, `2`, `3`
+`compare_groups()` retains an `ordered` factor's ordinal classification, but for
+an **independent Table 1 comparison** it uses chi-square/Fisher to compare the
+distribution of all levels. Request `test = "wilcox"` or `test = "kruskal"` if
+the clinical question is specifically about the ordered ranks. A numeric variable
+with a few values (for example `0`, `1`, `2`, `3`
 visits or cancer stages coded `1`--`4`) is deliberately treated as a
 categorical/count-coded variable unless its order is explicitly declared. This
 avoids silently treating a clinical code as a numerical scale. Convert a true
@@ -93,7 +97,8 @@ ordered variable before comparing it:
 
 ```r
 data$stage <- ordered(data$stage, levels = c(1, 2, 3, 4))
-compare_groups(data, variable = stage, group = arm)
+compare_groups(data, variable = stage, group = arm) # categorical distribution
+compare_groups(data, variable = stage, group = arm, test = "wilcox") # rank shift
 ```
 
 `describe_data()` makes this distinction visible: explicit ordered factors are
@@ -162,11 +167,14 @@ equal-variance hypothesis test.
 
 Use `assess_variance()` to make the observed group spread visible before
 interpreting a comparison. It reports SDs, variances, and largest/smallest
-spread ratios but deliberately does not run a variance-test gatekeeper or
-change the automatic choice.
+spread ratios and displays the median-centred Levene test by default. Bartlett
+is available as optional supporting information. These tests are never
+gatekeepers and do not change the automatic choice.
 
 ```{r variance-diagnostics}
 assess_variance(mtcars, vars = mpg, by = am)
+assess_variance(mtcars, vars = mpg, by = am, test = "none")
+assess_variance(mtcars, vars = mpg, by = am, test = "bartlett")
 ```
 
 The same observed-spread diagnostic is retained in an independent continuous
@@ -227,7 +235,7 @@ summary_table(mtcars, by = am) |>
       wt = "wilcox",
       vs = "fisher"
     ),
-    normality_check = FALSE
+    distribution_check = FALSE
 )
 ```
 
@@ -256,6 +264,28 @@ monotonic. Inspect `plot_correlation()` before reporting the coefficient.
 number of complete finite pairs used.
 - Both require independent observation pairs without dominating influential
   observations.
+
+For exploratory work with several continuous variables, supply `vars` instead
+of `x` and `y`. One method is deliberately used throughout the matrix, avoiding
+a confusing mixture of Pearson and Spearman coefficients. Each pair may have a
+different denominator when values are missing, so inspect `$summary` before
+reporting selected results.
+
+```{r correlation-matrix}
+matrix_result <- correlation(
+  mtcars,
+  vars = c(mpg, disp, hp, wt),
+  display = "estimate_p",
+  adjust = "holm"
+)
+
+matrix_result
+plot_correlation(matrix_result)
+```
+
+The heatmap shows direction and magnitude, not importance or causality.
+Multiplicity adjustment is available for exploratory p-values, but a matrix
+does not replace a prespecified research question.
 
 ## Rates
 
@@ -300,7 +330,7 @@ assumptions_stats(result)
 diagnostics_stats(result)
 denominators_stats(result)
 
-denominators_stats(result, output = "gt")
+denominators_stats(result, format = "tibble")
 ```
 
 These audit helpers are intentionally separate from the publication table:

@@ -6,7 +6,8 @@
 \usage{
 diagnostics_stats(
   x,
-  output = c("tibble", "gt"),
+  format = c("table", "tibble"),
+  output = NULL,
   title = "Diagnostics",
   subtitle = NULL,
   view = c("readable", "audit")
@@ -15,9 +16,12 @@ diagnostics_stats(
 \arguments{
 \item{x}{A \code{gtstats} result.}
 
-\item{output}{Return a \code{"tibble"} or formatted \code{"gt"} table.}
+\item{format}{Output format: \code{"table"} (default) or \code{"tibble"}.}
 
-\item{title, subtitle}{Optional table heading used for \code{output = "gt"}.}
+\item{output}{Compatibility alias accepting \code{"gt"}, \code{"table"}, or
+\code{"tibble"}.}
+
+\item{title, subtitle}{Optional table heading used for \code{format = "table"}.}
 
 \item{view}{Either \code{"readable"} (the default, plain-language headings) or
 \code{"audit"} (raw diagnostic codes retained by the analysis object).}

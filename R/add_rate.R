@@ -20,6 +20,9 @@
 #' @param ci Logical; display an exact Poisson confidence interval.
 #' @param conf.level Confidence level.
 #' @param digits Number of decimal places.
+#' @param layout Table layout. `NULL` inherits the parent table layout;
+#'   `"compact"` keeps rate and CI together and `"separate"` places them in
+#'   separate columns beneath each cohort header.
 #'
 #' @return The updated `gt_desc_table`.
 #'
@@ -42,12 +45,15 @@ add_rate <- function(
     time_label = NULL,
     ci = TRUE,
     conf.level = 0.95,
-    digits = 1
+    digits = 1,
+    layout = NULL
 ) {
   .validate_summary_builder(x, "add_rate", mode = "rate")
   .validate_flag(ci, "ci")
   .validate_conf_level(conf.level)
   .validate_digits(digits)
+  if (is.null(layout)) layout <- x$layout %||% "compact"
+  layout <- match.arg(layout, c("compact", "separate"))
   if (!is.numeric(multiplier) || length(multiplier) != 1L ||
       is.na(multiplier) || multiplier <= 0) {
     stop("`multiplier` must be a single positive number.", call. = FALSE)
@@ -112,7 +118,7 @@ add_rate <- function(
     stop("`label` must be NULL or one non-empty string.", call. = FALSE)
   }
 
-  make_display <- function(idx) {
+  make_parts <- function(idx) {
     complete <- idx & !is.na(event_var) & !is.na(time_var)
     result <- .poisson_rate_summary(
       events = sum(event_var[complete]),
@@ -120,28 +126,68 @@ add_rate <- function(
       multiplier = multiplier,
       conf.level = conf.level
     )
-    display <- .format_rate_summary(result, digits = digits, ci = ci)
-    if (is.na(display)) "\u2014" else display
+    estimate <- .format_rate_summary(result, digits = digits, ci = FALSE)
+    interval <- if (!isTRUE(ci) || is.na(result$conf_low) ||
+                    is.na(result$conf_high)) {
+      ""
+    } else {
+      .format_ci(result$conf_low, result$conf_high, digits)
+    }
+    c(
+      estimate = if (is.na(estimate)) "\u2014" else estimate,
+      ci = interval,
+      compact = {
+        value <- .format_rate_summary(result, digits = digits, ci = ci)
+        if (is.na(value)) "\u2014" else value
+      }
+    )
   }
 
   row_tbl <- tibble::tibble(Variable = label, Level = "")
+  part_values <- list()
   if (isTRUE(x$overall)) {
-    row_tbl$Overall <- make_display(rep(TRUE, nrow(x$data)))
+    part_values$Overall <- make_parts(rep(TRUE, nrow(x$data)))
+    row_tbl$Overall <- part_values$Overall[["compact"]]
   }
   if (!is.null(x$by)) {
     by_var <- x$data[[x$by]]
     group_values <- .builder_group_values(x)
     group_columns <- .builder_group_columns(x)
     for (group in group_values) {
-      row_tbl[[group_columns[[group]]]] <- make_display(
+      source <- unname(group_columns[[group]])
+      part_values[[source]] <- make_parts(
         !is.na(by_var) & as.character(by_var) == group
       )
+      row_tbl[[source]] <- part_values[[source]][["compact"]]
     }
   } else if (!isTRUE(x$overall)) {
-    row_tbl$Value <- make_display(rep(TRUE, nrow(x$data)))
+    part_values$Value <- make_parts(rep(TRUE, nrow(x$data)))
+    row_tbl$Value <- part_values$Value[["compact"]]
   }
   row_tbl <- .builder_order_display_columns(x, tibble::as_tibble(row_tbl))
   x <- .append_builder_rows(x, row_tbl)
+  x$layout <- layout
+  if (identical(layout, "separate")) {
+    x <- .builder_use_separate_layout(
+      x,
+      conf.level = conf.level,
+      estimate_label = paste0("Rate per ", format(
+        multiplier, scientific = FALSE, trim = TRUE, big.mark = ","
+      ))
+    )
+    row_index <- nrow(x$table)
+    for (source in names(part_values)) {
+      mapping <- x$display_columns[
+        x$display_columns$source == source, , drop = FALSE
+      ]
+      if (nrow(mapping) == 1L) {
+        x$table[[mapping$estimate[[1L]]]][[row_index]] <-
+          part_values[[source]][["estimate"]]
+        x$table[[mapping$ci[[1L]]]][[row_index]] <-
+          part_values[[source]][["ci"]]
+      }
+    }
+  }
   x$components <- unique(c(x$components, "rate"))
 
   audit_groups <- .builder_audit_groups(x)

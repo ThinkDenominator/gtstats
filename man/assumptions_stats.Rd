@@ -6,7 +6,8 @@
 \usage{
 assumptions_stats(
   x,
-  output = c("tibble", "gt"),
+  format = c("table", "tibble"),
+  output = NULL,
   title = "Checks before reporting",
   subtitle = NULL,
   view = c("checklist", "audit")
@@ -15,9 +16,12 @@ assumptions_stats(
 \arguments{
 \item{x}{A \code{gtstats} result.}
 
-\item{output}{Return a \code{"tibble"} or formatted \code{"gt"} table.}
+\item{format}{Output format: \code{"table"} (default) or \code{"tibble"}.}
 
-\item{title, subtitle}{Optional table heading used for \code{output = "gt"}.}
+\item{output}{Compatibility alias accepting \code{"gt"}, \code{"table"}, or
+\code{"tibble"}.}
+
+\item{title, subtitle}{Optional table heading used for \code{format = "table"}.}
 
 \item{view}{Either \code{"checklist"} (the default, plain-language view) or
 \code{"audit"} (technical status and result codes).}
@@ -33,5 +37,5 @@ result codes retained by the analysis object.
 \examples{
 result <- compare_groups(mtcars, variable = mpg, group = am)
 assumptions_stats(result)
-assumptions_stats(result, output = "gt")
+assumptions_stats(result, format = "tibble")
 }

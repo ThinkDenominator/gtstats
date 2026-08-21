@@ -9,6 +9,7 @@ mod_data_prep_ui <- function(id) {
       shiny::tags$p(class = "help-copy", "Choose one clear task below. Each change is made to a working copy, can be undone, and becomes reproducible R code."),
       shiny::div(class = "gtx-prep-toolbar",
         shiny::tags$ul(class = "nav nav-pills",
+          shiny::tags$li(shiny::actionLink(ns("menu_label"), "Set display label")),
           shiny::tags$li(shiny::actionLink(ns("menu_rename"), "Rename variable")),
           shiny::tags$li(shiny::actionLink(ns("menu_recode"), "Recode values")),
           shiny::tags$li(shiny::actionLink(ns("menu_type"), "Set type & order")),
@@ -44,9 +45,10 @@ mod_data_prep_ui <- function(id) {
       shiny::actionButton(ns("redo"), "Redo"),
       shiny::actionButton(ns("reset"), "Reset all"),
       shiny::tags$hr(),
-      shiny::tags$strong("Choose the data for analysis: "),
-      shiny::actionButton(ns("continue_original"), "Use original data"),
+      shiny::tags$strong("Analysis dataset: "),
+      shiny::actionButton(ns("continue_original"), "Use original data", class = "btn-default"),
       shiny::actionButton(ns("use_prepared"), "Use prepared data", class = "btn-success"),
+      shiny::tags$p(class = "help-copy", "Original data is active automatically after loading. Choose prepared data only after applying changes."),
       shiny::tags$hr(),
       shiny::tags$strong("Download the prepared data: "),
       shiny::selectInput(ns("prepared_format"), NULL, choices = c("CSV" = "csv", "Excel (.xlsx)" = "xlsx", "R data (.rds)" = "rds", "Stata (.dta)" = "dta"), selected = "csv", width = "160px"),
@@ -67,16 +69,17 @@ mod_data_prep_server <- function(id, source_data) {
     state <- shiny::reactiveValues(raw_data = NULL, working_data = NULL, history = list(), redo_stack = list(), result = NULL, using_prepared = FALSE)
     shiny::observeEvent(source_data(), {
       state$raw_data <- source_data(); state$working_data <- source_data()
-      state$history <- list(); state$redo_stack <- list(); state$result <- NULL; state$using_prepared <- FALSE
+      state$history <- list(); state$redo_stack <- list(); state$result <- state$raw_data; state$using_prepared <- FALSE
     }, ignoreInit = FALSE)
     variables <- shiny::reactive(names(state$working_data %||% data.frame()))
-    operation <- shiny::reactiveVal("rename")
+    operation <- shiny::reactiveVal("label")
     transform_mode <- shiny::reactiveVal("arithmetic")
     choose_operation <- function(selected_operation, mode = NULL) {
       operation(selected_operation)
       if (!is.null(mode)) transform_mode(mode)
     }
     shiny::observeEvent(input$menu_rename, choose_operation("rename"), ignoreInit = TRUE)
+    shiny::observeEvent(input$menu_label, choose_operation("label"), ignoreInit = TRUE)
     shiny::observeEvent(input$menu_recode, choose_operation("recode"), ignoreInit = TRUE)
     shiny::observeEvent(input$menu_type, choose_operation("type"), ignoreInit = TRUE)
     shiny::observeEvent(input$menu_missing, choose_operation("missing"), ignoreInit = TRUE)
@@ -84,6 +87,15 @@ mod_data_prep_server <- function(id, source_data) {
     shiny::observeEvent(input$menu_keep, choose_operation("keep"), ignoreInit = TRUE)
     shiny::observeEvent(input$menu_calculation, choose_operation("transform", "arithmetic"), ignoreInit = TRUE)
     shiny::observeEvent(input$menu_groups, choose_operation("transform", "case_when"), ignoreInit = TRUE)
+    shiny::observeEvent(list(operation(), input$variable), {
+      if (!identical(operation(), "label")) return(NULL)
+      variable <- input$variable %||% ""
+      if (!nzchar(variable) || !variable %in% names(state$working_data)) return(NULL)
+      label <- attr(state$working_data[[variable]], "label", exact = TRUE) %||% ""
+      session$onFlushed(function() {
+        shiny::updateTextInput(session, "variable_label", value = label)
+      }, once = TRUE)
+    }, ignoreInit = TRUE)
     numeric_variable <- function(preferred = NULL) {
       data <- state$working_data
       if (is.null(data)) return("")
@@ -151,6 +163,10 @@ mod_data_prep_server <- function(id, source_data) {
     }, ignoreInit = TRUE)
     output$operation_hint <- shiny::renderUI({
       hint <- switch(operation(),
+        label = shiny::tagList(
+          shiny::tags$strong("Give a variable a publication-ready display label."),
+          shiny::tags$p(class = "help-copy", "Keep a short internal name such as `age`, but display Maternal age (years) in tables and plots. Leave the field empty to remove an existing label.")
+        ),
         rename = shiny::tagList(
           shiny::tags$strong("Give a variable a clearer name."),
           shiny::tags$p(class = "help-copy", "Example: rename `smoke` to `smoking_status`. This changes the column name only; values are unchanged.")
@@ -186,6 +202,10 @@ mod_data_prep_server <- function(id, source_data) {
       ns <- session$ns; vars <- variables(); shiny::req(length(vars))
       if (identical(operation(), "rename")) shiny::tagList(
         shiny::selectInput(ns("variable"), "Existing variable", vars), shiny::textInput(ns("new_name"), "New variable name")
+      ) else if (identical(operation(), "label")) shiny::tagList(
+        shiny::selectInput(ns("variable"), "Variable", vars),
+        shiny::textInput(ns("variable_label"), "Display label", placeholder = "Example: Maternal age (years)"),
+        shiny::tags$p(class = "help-copy", "The internal variable name is unchanged. Publication-ready tables and plots use this display label.")
       ) else if (identical(operation(), "recode")) shiny::tagList(
         shiny::selectInput(ns("variable"), "Variable", vars),
         shiny::uiOutput(ns("recode_mapping")),
@@ -527,6 +547,11 @@ mod_data_prep_server <- function(id, source_data) {
         if (identical(operation(), "rename")) {
           after <- gt_dp_rename(state$working_data, input$variable, input$new_name)
           apply_change(paste("Rename", input$variable, "to", input$new_name), after, gt_dp_code_line("rename", variable = input$variable, new_name = input$new_name))
+        } else if (identical(operation(), "label")) {
+          label <- trimws(input$variable_label %||% "")
+          after <- gt_dp_set_label(state$working_data, input$variable, label)
+          action_label <- if (nzchar(label)) paste("Label", input$variable, "as", label) else paste("Remove display label from", input$variable)
+          apply_change(action_label, after, gt_dp_code_line("label", variable = input$variable, label = label))
         } else if (identical(operation(), "recode")) {
           from <- recode_values(); to <- recode_labels()
           if (!length(from) || any(!nzchar(to))) stop("Enter a new label for every displayed recorded value.", call. = FALSE)
@@ -615,7 +640,7 @@ mod_data_prep_server <- function(id, source_data) {
       ))
     }, ignoreInit = TRUE)
     shiny::observeEvent(input$confirm_reset, {
-      state$working_data <- state$raw_data; state$history <- list(); state$redo_stack <- list(); state$result <- NULL; state$using_prepared <- FALSE
+      state$working_data <- state$raw_data; state$history <- list(); state$redo_stack <- list(); state$result <- state$raw_data; state$using_prepared <- FALSE
       shiny::removeModal()
       shiny::showNotification("Data preparation reset. Analyses now use the original data until you choose otherwise.", type = "message")
     }, ignoreInit = TRUE)

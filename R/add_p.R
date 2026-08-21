@@ -29,9 +29,12 @@
 #' [compare_groups()] using the same fixed selection policy: Welch t-test or
 #' Welch ANOVA by default when distribution guidance does not flag skewness;
 #' Student's t-test or classical ANOVA when `var_equal = TRUE`; rank-based tests
-#' when skewness is flagged; and chi-square or Fisher's exact test according to
-#' expected cell counts. Shapiro-Wilk is supporting information only and does
-#' not itself select a test.
+#' when marked skewness is flagged; and chi-square or Fisher's exact test according to
+#' expected cell counts. For independent ordered factors, automatic mode uses
+#' the same chi-square/Fisher distribution comparison as other categorical
+#' variables; select `"wilcox"` or `"kruskal"` explicitly when a rank-based
+#' ordinal comparison is wanted. Shapiro-Wilk is supporting information only
+#' and does not itself select a test.
 #'
 #' The publication table contains only the p-value and compact test markers.
 #' The full per-variable audit trail is retained in `$assumptions`,
@@ -47,9 +50,14 @@
 #'   named character vector/list specifying methods for individual variables.
 #'   Names may match either displayed variable labels or underlying variable
 #'   names.
+#' @param include Variables in the descriptive table for which p-values should
+#'   be calculated. Uses tidy-select syntax and defaults to all summarized
+#'   variables. For example, `include = -bwt` keeps birth weight in the
+#'   descriptive table but omits its p-value when the grouping variable was
+#'   derived from birth weight.
 #' @param paired Logical; whether comparisons should be treated as paired.
 #' @param id Pair or participant identifier required when `paired = TRUE`.
-#' @param normality_check Logical; when `method = "auto"`, use distribution
+#' @param distribution_check Logical; when `method = "auto"`, use distribution
 #'   guidance to choose parametric or rank-based tests. This guidance is based
 #'   on skewness; Shapiro-Wilk is supporting information only. For paired
 #'   analyses the check is applied to within-pair differences.
@@ -60,11 +68,16 @@
 #'   rank-based comparisons.
 #' @param correction Logical; apply continuity correction to chi-square and
 #'   McNemar tests where applicable.
+#' @param fisher_seed Integer seed for simulated Fisher exact tests on tables
+#'   larger than 2 x 2. Use `NULL` to use the current random-number state.
 #' @param p_adjust Multiplicity adjustment applied across displayed variable
 #'   tests. One of [stats::p.adjust.methods]; default `"none"`.
 #' @param digits Number of decimal places used when formatting p-values.
 #'
 #' @return An updated `gt_desc_table` object with a `p-value` column added.
+#'   When `paired = TRUE`, `$paired_p_notes` records the complete-pair
+#'   denominator for each displayed p-value; [tbl_stats()] displays this as a
+#'   concise p-value footnote.
 #'
 #' @examples
 #' summary_table(mtcars, by = am) |>
@@ -75,21 +88,26 @@
 #'   add_summary(vars = c(mpg, wt, cyl)) |>
 #'   add_p(method = c(mpg = "welch_t", wt = "wilcox", cyl = "chisq"))
 #'
+#' summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>
+#'   add_p(include = c(mpg, wt))
+#'
 #' @export
 add_p <- function(
     x,
     method = "auto",
+    include = tidyselect::everything(),
     paired = FALSE,
     id = NULL,
-    normality_check = TRUE,
+    distribution_check = TRUE,
     var_equal = FALSE,
     correction = TRUE,
+    fisher_seed = 1049L,
     p_adjust = c("none", setdiff(stats::p.adjust.methods, "none")),
     digits = 3
 ) {
   p_adjust <- match.arg(p_adjust)
   .validate_flag(paired, "paired")
-  .validate_flag(normality_check, "normality_check")
+  .validate_flag(distribution_check, "distribution_check")
   .validate_flag(var_equal, "var_equal")
   .validate_flag(correction, "correction")
   .validate_digits(digits)
@@ -133,6 +151,27 @@ add_p <- function(
       Add summary or proportion rows before `add_p()`.",
       call. = FALSE
     )
+  }
+
+  # Re-running `add_p()` is common in an interactive workflow. Replace the
+  # previous p-value audit rather than retaining stale methods/diagnostics from
+  # the earlier call.
+  previous_p_values <- x$p_values %||% tibble::tibble()
+  previous_p_variables <- if ("variable" %in% names(previous_p_values)) {
+    unique(previous_p_values$variable)
+  } else {
+    character()
+  }
+  remove_previous_p_audit <- function(existing) {
+    if (is.null(existing) || nrow(existing) == 0L) return(existing)
+    if ("analysis_component" %in% names(existing)) {
+      return(existing[is.na(existing$analysis_component) |
+        existing$analysis_component != "add_p", , drop = FALSE])
+    }
+    if (length(previous_p_variables) > 0L && "variable" %in% names(existing)) {
+      return(existing[!existing$variable %in% previous_p_variables, , drop = FALSE])
+    }
+    existing
   }
   # Helper to format p-values consistently for display
 
@@ -197,11 +236,6 @@ add_p <- function(
       call. = FALSE
     )
   }
-  # Remove trailing level text from displayed labels, e.g. "vs (1)" -> "vs"
-
-  .base_label <- function(v) {
-    sub("\\s*\\([^)]*\\)$", "", v)
-  }
   # Superscript symbols used to link p-values to statistical test footnotes
 
   superscripts <- c(
@@ -218,67 +252,65 @@ add_p <- function(
 
   test_symbol_map <- list()
 
-  data_names <- names(x$data)
-  data_labels <- vapply(
-    data_names,
-    function(v) .get_var_label(x$data, v),
-    character(1)
-  )
-  # Match displayed table labels back to original variable names in the data
-
-  .find_var_name <- function(display_label) {
-    # Match the complete display label first. Parentheses are often a genuine
-    # part of a clinical label, for example "Maternal age (years)".
-    hit_label <- data_names[data_labels == display_label]
-    if (length(hit_label) > 0) {
-      return(hit_label[1])
-    }
-
-    hit_name <- data_names[data_names == display_label]
-    if (length(hit_name) > 0) {
-      return(hit_name[1])
-    }
-
-    # Only strip a trailing parenthesised value as a fallback for rows created
-    # by add_proportion(), such as "Smoking prevalence (Yes)".
-    base_label <- .base_label(display_label)
-    hit_label <- data_names[data_labels == base_label]
-    if (length(hit_label) > 0) {
-      return(hit_label[1])
-    }
-
-    hit_name <- data_names[data_names == base_label]
-    if (length(hit_name) > 0) {
-      return(hit_name[1])
-    }
-
-    NA_character_
+  tbl <- x$table
+  summary_vars <- unique(names(x$summary_statistics %||% character()))
+  if (length(summary_vars) == 0L) {
+    stop(
+      "`add_p()` requires variables added by `add_summary()` or the ",
+      "`include` argument of `summary_table()`.",
+      call. = FALSE
+    )
   }
 
-  tbl <- x$table
-  var_order <- unique(tbl$Variable)
-  skip_labels <- c("Total", "Total (N)", "Total participants")
+  include_expr <- substitute(include)
+  selected_positions <- tidyselect::eval_select(
+    include_expr,
+    data = x$data,
+    env = parent.frame()
+  )
+  selected_vars <- names(selected_positions)
+  summary_vars <- summary_vars[summary_vars %in% selected_vars]
+
+  # Retain source-variable identity instead of reverse-matching labels. Two
+  # variables may legitimately share a publication label, and label matching
+  # alone can silently attach the wrong test and superscript.
+  cursor <- 1L
+  test_targets <- lapply(summary_vars, function(var_name) {
+    var_label <- .get_var_label(x$data, var_name)
+    candidates <- which(
+      seq_len(nrow(tbl)) >= cursor & tbl$Variable == var_label
+    )
+    if (length(candidates) == 0L) return(NULL)
+    row_index <- candidates[[1L]]
+    observed_levels <- unique(as.character(
+      x$data[[var_name]][!is.na(x$data[[var_name]])]
+    ))
+    block_rows <- if (identical(.detect_type(x$data[[var_name]]), "continuous")) {
+      1L
+    } else {
+      max(length(observed_levels), 1L)
+    }
+    if (identical(x$missing %||% "no", "always") ||
+        (identical(x$missing %||% "no", "ifany") &&
+         anyNA(x$data[[var_name]]))) {
+      block_rows <- block_rows + 1L
+    }
+    cursor <<- row_index + block_rows
+    list(variable = var_name, label = var_label, row_index = row_index)
+  })
+  test_targets <- Filter(Negate(is.null), test_targets)
 
   p_map <- list()
   p_records <- list()
   tests_used <- character()
   assumption_rows <- list()
   diagnostic_rows <- list()
+  paired_notes <- character()
 
-  # Work through each displayed variable once and calculate its p-value
-
-  for (var_label in var_order) {
-    # Skip total rows or empty labels because these are not tested
-    if (var_label %in% skip_labels ||
-        identical(var_label, "")
-        || is.na(var_label)) {
-      next
-    }
-    # Resolve displayed label back to source variable name
-    var_name <- .find_var_name(var_label)
-    if (is.na(var_name)) {
-      next
-    }
+  # Work through each source summary variable once and calculate its p-value.
+  for (target in test_targets) {
+    var_name <- target$variable
+    var_label <- target$label
     # Choose method either globally or variable-specific
     chosen_method <- .resolve_method(
       var_label = var_label,
@@ -295,8 +327,9 @@ add_p <- function(
         id = id_name,
         test = chosen_method,
         digits = digits,
-        .normality_check = normality_check,
+        .distribution_check = distribution_check,
         var_equal = var_equal,
+        fisher_seed = fisher_seed,
         .correction = correction
       ),
       error = function(e) {
@@ -306,17 +339,34 @@ add_p <- function(
     )
 
     if (is.null(cmp)) {
-      p_map[[var_label]] <- ""
+      p_map[[as.character(target$row_index)]] <- ""
       next
+    }
+    if (isTRUE(paired) && !is.null(cmp$denominators) &&
+        nrow(cmp$denominators) > 0L) {
+      denominator <- cmp$denominators$denominator[[1L]]
+      excluded <- cmp$denominators$n_missing[[1L]]
+      if (is.finite(denominator) && is.finite(excluded)) {
+        paired_notes <- c(
+          paired_notes,
+          paste0(
+            var_label, ": paired p-value used ", denominator,
+            " complete ", if (cmp$inferential$group_levels[[1L]] == 2L) "pairs" else "participants",
+            "; ", excluded, " excluded because complete matched observations were unavailable."
+          )
+        )
+      }
     }
     if (!is.null(cmp$assumptions) && nrow(cmp$assumptions) > 0) {
       cmp_assumptions <- cmp$assumptions
       cmp_assumptions$variable <- var_name
+      cmp_assumptions$analysis_component <- "add_p"
       assumption_rows[[length(assumption_rows) + 1L]] <- cmp_assumptions
     }
     if (!is.null(cmp$diagnostics) && nrow(cmp$diagnostics) > 0) {
       cmp_diagnostics <- cmp$diagnostics
       cmp_diagnostics$variable <- var_name
+      cmp_diagnostics$analysis_component <- "add_p"
       diagnostic_rows[[length(diagnostic_rows) + 1L]] <- cmp_diagnostics
     }
     # Extract p-value and test name from compare_groups() output
@@ -343,6 +393,7 @@ add_p <- function(
     p_records[[length(p_records) + 1L]] <- tibble::tibble(
       variable = var_name,
       label = var_label,
+      row_index = target$row_index,
       test = test_used,
       symbol = symbol,
       p_value = p_val
@@ -361,22 +412,18 @@ add_p <- function(
       p_values$p_adjusted
     }
     for (i in seq_len(nrow(p_values))) {
-      p_map[[p_values$label[[i]]]] <- paste0(
+      p_map[[as.character(p_values$row_index[[i]])]] <- paste0(
         .fmt_p(display_p[[i]], digits),
         p_values$symbol[[i]]
       )
     }
   }
-  # Show the p-value only on the first row for each variable
+  # Show the p-value only on the recorded first row for each source variable.
   p_col <- rep("", nrow(tbl))
-  first_idx <- !duplicated(tbl$Variable)
-
-  for (i in seq_len(nrow(tbl))) {
-    if (first_idx[i]) {
-      var_label <- tbl$Variable[i]
-      if (!is.null(p_map[[var_label]])) {
-        p_col[i] <- p_map[[var_label]]
-      }
+  for (row_name in names(p_map)) {
+    row_index <- as.integer(row_name)
+    if (is.finite(row_index) && row_index >= 1L && row_index <= nrow(tbl)) {
+      p_col[[row_index]] <- p_map[[row_name]]
     }
   }
   # Append p-value column to table
@@ -385,7 +432,15 @@ add_p <- function(
 
    # Track that p-values were added and record which tests were used
   x$components <- unique(c(x$components, "p_value"))
-  x$methods_used <- unique(c(x$methods_used, tests_used))
+  previous_tests <- if ("test" %in% names(previous_p_values)) {
+    unique(previous_p_values$test)
+  } else {
+    character()
+  }
+  x$methods_used <- unique(c(
+    setdiff(x$methods_used %||% character(), previous_tests),
+    tests_used
+  ))
 
   # Build footnotes linking superscript symbols to test names
   method_footnotes <- character()
@@ -402,25 +457,24 @@ add_p <- function(
   x$method$p_adjust <- p_adjust
   new_assumptions <- dplyr::bind_rows(assumption_rows)
   new_diagnostics <- dplyr::bind_rows(diagnostic_rows)
-  if (nrow(new_assumptions) > 0) {
-    existing <- x$assumptions %||% .empty_assumptions()
-    if (!"variable" %in% names(existing)) {
-      existing$variable <- character(nrow(existing))
-    }
-    x$assumptions <- dplyr::bind_rows(existing, new_assumptions)
-  }
-  if (nrow(new_diagnostics) > 0) {
-    existing <- x$diagnostics %||% .empty_diagnostics()
-    if (!"variable" %in% names(existing)) {
-      existing$variable <- character(nrow(existing))
-    }
-    x$diagnostics <- dplyr::bind_rows(existing, new_diagnostics)
-  }
+  existing_assumptions <- remove_previous_p_audit(
+    x$assumptions %||% .empty_assumptions()
+  )
+  existing_diagnostics <- remove_previous_p_audit(
+    x$diagnostics %||% .empty_diagnostics()
+  )
+  x$assumptions <- dplyr::bind_rows(existing_assumptions, new_assumptions)
+  x$diagnostics <- dplyr::bind_rows(existing_diagnostics, new_diagnostics)
+  existing_notes <- x$assumption_notes %||% character()
+  existing_notes <- existing_notes[!grepl(
+    "^Automatic tests used distribution guidance:",
+    existing_notes
+  )]
   x$assumption_notes <- unique(c(
-    x$assumption_notes %||% character(),
+    existing_notes,
     paste0(
       "Automatic tests used distribution guidance: ",
-      if (normality_check) "yes" else "no",
+      if (distribution_check) "yes" else "no",
       ". Independence and study design require user confirmation.",
       if (!identical(p_adjust, "none")) {
         paste0(
@@ -433,6 +487,7 @@ add_p <- function(
       }
     )
   ))
+  x$paired_p_notes <- unique(paired_notes)
 
   x
 }
