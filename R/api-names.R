@@ -158,6 +158,7 @@ crosstabs <- function(
   tab <- table(row_x, col_x)
   if (nrow(tab) < 2L || ncol(tab) < 2L) stop("`row` and `col` must each have at least 2 observed levels.", call. = FALSE)
   chi <- suppressWarnings(stats::chisq.test(tab, correct = nrow(tab) == 2L && ncol(tab) == 2L))
+  chi_effect <- suppressWarnings(stats::chisq.test(tab, correct = FALSE))
   expected_screen <- .expected_count_screen(chi$expected)
   sparse <- expected_screen$sparse
   chosen <- if (identical(test, "auto")) if (sparse) "fisher" else "chisq" else test
@@ -228,7 +229,7 @@ crosstabs <- function(
   cramer_note <- paste0(
     "Cramer's V = ",
     formatC(
-      sqrt(unname(chi$statistic) /
+      sqrt(unname(chi_effect$statistic) /
         (total_n * min(nrow(tab) - 1L, ncol(tab) - 1L))),
       format = "f", digits = digits
     ),

@@ -2320,7 +2320,11 @@ compare_groups <- function(
       design_note <- paste0(design_note, incomplete_repeated_note)
       assumption_note <- dplyr::case_when(
         test_used %in% c("Student t-test", "Welch t-test", "Paired t-test") ~
-          "Check for influential outliers and an approximately symmetric sampling distribution.",
+          if (identical(test_used, "Paired t-test")) {
+            "Check the within-pair differences for influential outliers and substantial departures from normality, particularly in small samples."
+          } else {
+            "Check within-group distributions for influential outliers and substantial departures from normality, particularly in small samples."
+          },
         test_used == "ANOVA" ~
           "Classical ANOVA assumes approximately normal residuals and similar group variances.",
         test_used == "Welch ANOVA" ~

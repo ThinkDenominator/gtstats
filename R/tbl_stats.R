@@ -858,6 +858,18 @@ tbl_stats <- function(
           locations = gt::cells_column_labels(columns = "p-value")
         )
       }
+
+      if ("p-value" %in% names(tbl) &&
+          !identical(x$method$p_adjust %||% "none", "none")) {
+        gt_tbl <- gt::tab_footnote(
+          gt_tbl,
+          footnote = paste0(
+            "P-values use the ", x$method$p_adjust,
+            " multiplicity adjustment."
+          ),
+          locations = gt::cells_column_labels(columns = "p-value")
+        )
+      }
     }
 
     return(.add_audit_note(gt_tbl, x))

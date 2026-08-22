@@ -149,3 +149,25 @@ test_that("flextable publication footnotes use the compact house size", {
   ft <- to_flextable(result, font_size = 12)
   expect_true(all(ft$footer$styles$text$font.size$data == 8))
 })
+
+test_that("flextable identifies adjusted p-values and paired exclusions", {
+  adjusted <- summary_table(mtcars, by = am, include = c(mpg, cyl)) |>
+    add_p(p_adjust = "holm") |>
+    to_flextable()
+  adjusted_notes <- paste(adjusted$footer$dataset[[1L]], collapse = " ")
+  expect_match(adjusted_notes, "holm multiplicity adjustment")
+
+  paired_data <- data.frame(
+    id = rep(1:4, each = 2),
+    visit = rep(c("Baseline", "Follow-up"), 4),
+    score = c(10, 11, 20, NA, 30, 32, 40, 43)
+  )
+  paired <- summary_table(
+    paired_data, by = visit, include = score
+  ) |>
+    add_p(paired = TRUE, id = id) |>
+    to_flextable()
+  paired_notes <- paste(paired$footer$dataset[[1L]], collapse = " ")
+  expect_match(paired_notes, "3 complete pairs")
+  expect_match(paired_notes, "1 excluded")
+})

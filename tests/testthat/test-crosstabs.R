@@ -86,6 +86,18 @@ test_that("crosstabs() omits test wording cleanly when tests are disabled", {
   expect_false(grepl("\\.Cramer's", result$notes[[1L]]))
 })
 
+test_that("crosstabs() calculates Cramer's V from uncorrected Pearson chi-square", {
+  result <- crosstabs(mtcars, row = am, col = vs, test = "none")
+  tab <- table(mtcars$am, mtcars$vs)
+  expected <- sqrt(
+    unname(stats::chisq.test(tab, correct = FALSE)$statistic) / sum(tab)
+  )
+  expect_match(
+    result$notes[[1L]],
+    paste0("Cramer's V = ", formatC(expected, format = "f", digits = 2L))
+  )
+})
+
 test_that("crosstabs() retains zero-cell diagnostics and correction details", {
   dat <- data.frame(
     exposure = factor(rep(c("No", "Yes"), each = 10)),

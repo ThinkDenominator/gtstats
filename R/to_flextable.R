@@ -249,13 +249,23 @@ to_flextable <- function(
   if (!show_footnotes) {
     notes <- character()
   } else if (inherits(x, "gt_desc_table")) {
+    adjustment_note <- if (!identical(x$method$p_adjust %||% "none", "none")) {
+      paste0(
+        "P-values use the ", x$method$p_adjust,
+        " multiplicity adjustment."
+      )
+    } else {
+      character()
+    }
     notes <- c(
       .builder_publication_note(x),
       if (length(x$pvalue_method_footnotes) > 0L) {
         paste(x$pvalue_method_footnotes, collapse = "; ")
       } else {
         character()
-      }
+      },
+      x$paired_p_notes %||% character(),
+      adjustment_note
     )
     notes <- notes[nzchar(notes)]
   } else {

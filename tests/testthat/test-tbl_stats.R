@@ -190,3 +190,11 @@ test_that("to_gt is the explicit gt renderer", {
   result <- summary_table(mtcars, include = c(mpg, wt))
   expect_s3_class(to_gt(result), "gt_tbl")
 })
+
+test_that("gt output identifies multiplicity-adjusted p-values", {
+  rendered <- summary_table(mtcars, by = am, include = c(mpg, cyl)) |>
+    add_p(p_adjust = "holm") |>
+    to_gt()
+  footnotes <- paste(rendered[["_footnotes"]]$footnotes, collapse = " ")
+  expect_match(footnotes, "holm multiplicity adjustment")
+})
