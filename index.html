@@ -49,7 +49,7 @@
     <li><a class="dropdown-item" href="articles/teaching-datasets.html">Teaching datasets</a></li>
     <li><a class="dropdown-item" href="articles/missing-data-denominators.html">Missing data and denominators</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="articles/descriptive-tables.html">Building descriptive tables</a></li>
+    <li><a class="dropdown-item" href="articles/descriptive-tables.html">Summary tables and customisation</a></li>
     <li><a class="dropdown-item" href="articles/inferential-tests.html">Inferential tests and assumptions</a></li>
     <li><a class="dropdown-item" href="articles/inferential-tests.html#default-selection-policy">Automatic test algorithm</a></li>
     <li><a class="dropdown-item" href="articles/epi-helpers.html">Epidemiology helpers</a></li>
@@ -138,7 +138,7 @@ Understand your data, build a publication-ready Table 1, and answer focused stat
 <tr>
 <td>Export</td>
 <td>
-<code><a href="reference/tbl_stats.html">tbl_stats()</a></code>, <code><a href="reference/customise_table.html">customise_table()</a></code>, <code><a href="reference/save_output.html">save_output()</a></code>
+<code><a href="reference/customise_table.html">customise_table()</a></code>, <code><a href="reference/to_gt.html">to_gt()</a></code>, <code><a href="reference/save_output.html">save_output()</a></code>
 </td>
 <td>A modifiable, report-ready table</td>
 </tr>
@@ -179,7 +179,7 @@ compare_groups()<br>correlation()
 Report
 </p>
 <p class="gs-strip-fns">
-tbl_stats()<br>save_output()
+customise_table()<br>save_output()
 </p>
 </div>
 </div>
@@ -224,7 +224,7 @@ tbl_stats()<br>save_output()
 <div class="section level2">
 <h2 id="prefer-a-guided-interface">Prefer a guided interface?<a class="anchor" aria-label="anchor" href="#prefer-a-guided-interface"></a>
 </h2>
-<p>The package remains code-first, but a Shiny companion is available when you prefer to learn by clicking through the workflow. It includes the three teaching datasets, CSV/Excel upload, a working data dictionary, distribution and variance checks, Table 1, focused group comparisons, crosstabs, Word/HTML/PDF/RTF table downloads, an in-session history, and copyable or downloadable R code for every analysis. Excel import uses the optional <code>rio</code> package.</p>
+<p>The package remains code-first, but a Shiny companion is available when you prefer to learn by clicking through the workflow. It includes the three teaching datasets, CSV/Excel upload, a working data dictionary, distribution and variance checks, a layer-by-layer Summary table, focused group comparisons, crosstabs, Word/HTML/PDF/RTF table downloads, an in-session history, and copyable or downloadable R code for every analysis. Excel import uses the optional <code>rio</code> package.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"shiny"</span><span class="op">)</span> <span class="co"># once, if needed</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"rio"</span><span class="op">)</span>   <span class="co"># once, only for Excel files</span></span>
@@ -248,19 +248,51 @@ tbl_stats()<br>save_output()
 <span>  <span class="va">birthwt</span>,</span>
 <span>  by <span class="op">=</span> <span class="va">low</span>,</span>
 <span>  include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">lwt</span>, <span class="va">race</span>, <span class="va">smoke</span><span class="op">)</span>,</span>
-<span>  overall <span class="op">=</span> <span class="st">"last"</span></span>
+<span>  overall <span class="op">=</span> <span class="st">"last"</span>,</span>
+<span>  layout <span class="op">=</span> <span class="st">"separate"</span></span>
 <span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/add_ci.html">add_ci</a></span><span class="op">(</span>vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">race</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/add_p.html">add_p</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Optional categorical-only presentation with distinct n and % columns</span></span>
+<span><span class="va">categorical_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/summary_table.html">summary_table</a></span><span class="op">(</span></span>
+<span>  <span class="va">birthwt</span>,</span>
+<span>  by <span class="op">=</span> <span class="va">low</span>,</span>
+<span>  include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">race</span>, <span class="va">smoke</span><span class="op">)</span>,</span>
+<span>  categorical_layout <span class="op">=</span> <span class="st">"separate"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Optional compact binary presentation: one clinically relevant event per row</span></span>
+<span><span class="va">compact_binary_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/summary_table.html">summary_table</a></span><span class="op">(</span></span>
+<span>  <span class="va">birthwt</span>,</span>
+<span>  by <span class="op">=</span> <span class="va">low</span>,</span>
+<span>  include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">smoke</span>, <span class="va">ht</span>, <span class="va">race</span><span class="op">)</span>,</span>
+<span>  show_dichotomous <span class="op">=</span> <span class="st">"single_row"</span>,</span>
+<span>  value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>smoke <span class="op">=</span> <span class="st">"Yes"</span>, ht <span class="op">=</span> <span class="st">"Yes"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">comparison</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/compare_groups.html">compare_groups</a></span><span class="op">(</span><span class="va">birthwt</span>, variable <span class="op">=</span> <span class="va">lwt</span>, group <span class="op">=</span> <span class="va">low</span><span class="op">)</span></span>
 <span><span class="va">comparison</span><span class="op">$</span><span class="va">method</span><span class="op">$</span><span class="va">selection_rule</span></span>
 <span><span class="fu"><a href="reference/diagnostics_stats.html">diagnostics_stats</a></span><span class="op">(</span><span class="va">comparison</span><span class="op">)</span></span></code></pre></div>
-<p>Each object prints as a publication-ready table. <code><a href="reference/tbl_stats.html">tbl_stats()</a></code> is optional: use it when you want to add a title, customise the appearance, or export a <code>gt</code> table.</p>
+<p>Each object prints as a publication-ready <code>flextable</code>, ready for Word and PowerPoint. Use <code><a href="reference/customise_table.html">customise_table()</a></code> to finish its appearance. Use <code><a href="reference/to_gt.html">to_gt()</a></code> only when an HTML-focused <code>gt</code> table is specifically required.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">table_one</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/tbl_stats.html">tbl_stats</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Table 1. Vehicle characteristics"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/customise_table.html">customise_table</a></span><span class="op">(</span>theme <span class="op">=</span> <span class="st">"journal"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/save_output.html">save_output</a></span><span class="op">(</span><span class="st">"table-1.docx"</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="reference/customise_table.html">customise_table</a></span><span class="op">(</span></span>
+<span>    theme <span class="op">=</span> <span class="st">"journal"</span>,</span>
+<span>    title <span class="op">=</span> <span class="st">"Table 1. Maternal characteristics"</span>,</span>
+<span>    spanning_header <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>      <span class="st">"Birth-weight groups"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>        <span class="st">"low = Normal birth weight"</span>,</span>
+<span>        <span class="st">"low = Low birth weight"</span></span>
+<span>      <span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    borders <span class="op">=</span> <span class="st">"horizontal"</span>,</span>
+<span>    pvalue_style <span class="op">=</span> <span class="st">"threshold"</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/save_output.html">save_output</a></span><span class="op">(</span><span class="st">"table-1.docx"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Explicit HTML/gt route</span></span>
+<span><span class="fu"><a href="reference/to_gt.html">to_gt</a></span><span class="op">(</span><span class="va">table_one</span>, title <span class="op">=</span> <span class="st">"Table 1. Maternal characteristics"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="browse-by-task">Browse by task<a class="anchor" aria-label="anchor" href="#browse-by-task"></a>
@@ -347,7 +379,7 @@ tbl_stats()<br>save_output()
 <tr>
 <td>Build Table 1</td>
 <td>
-<code><a href="reference/summary_table.html">summary_table()</a></code>, <code><a href="reference/add_summary.html">add_summary()</a></code>, <code><a href="reference/add_proportion.html">add_proportion()</a></code>, <code><a href="reference/add_rate.html">add_rate()</a></code>, <code><a href="reference/add_total.html">add_total()</a></code>, <code><a href="reference/add_p.html">add_p()</a></code>, <code><a href="reference/add_row.html">add_row()</a></code>
+<code><a href="reference/summary_table.html">summary_table()</a></code>, <code><a href="reference/add_ci.html">add_ci()</a></code>, <code><a href="reference/add_p.html">add_p()</a></code>, <code><a href="reference/add_proportion.html">add_proportion()</a></code>, <code><a href="reference/add_rate.html">add_rate()</a></code>, <code><a href="reference/add_total.html">add_total()</a></code>, <code><a href="reference/add_row.html">add_row()</a></code>
 </td>
 </tr>
 <tr>
@@ -381,7 +413,7 @@ tbl_stats()<br>save_output()
 <tr>
 <td>Polish and export</td>
 <td>
-<code><a href="reference/tbl_stats.html">tbl_stats()</a></code>, <code><a href="reference/customise_table.html">customise_table()</a></code>, <code><a href="reference/to_flextable.html">to_flextable()</a></code>, <code><a href="reference/save_output.html">save_output()</a></code>
+<code><a href="reference/customise_table.html">customise_table()</a></code>, <code><a href="reference/to_flextable.html">to_flextable()</a></code>, <code><a href="reference/to_gt.html">to_gt()</a></code>, <code><a href="reference/save_output.html">save_output()</a></code>
 </td>
 </tr>
 </tbody>
@@ -451,7 +483,7 @@ tbl_stats()<br>save_output()
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://thinkdenominator.com" class="external-link">ThinkDenominator</a>.</p>
+  <p>Developed by <a href="https://thinkdenominator.com" class="external-link">ThinkDenominator</a>. <button type="button" class="td-cookie-settings" data-td-cookie-settings>Cookie settings</button></p>
 </div>
 
 <div class="pkgdown-footer-right">

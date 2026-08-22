@@ -47,7 +47,7 @@
     <li><a class="dropdown-item" href="../articles/teaching-datasets.html">Teaching datasets</a></li>
     <li><a class="dropdown-item" href="../articles/missing-data-denominators.html">Missing data and denominators</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../articles/descriptive-tables.html">Building descriptive tables</a></li>
+    <li><a class="dropdown-item" href="../articles/descriptive-tables.html">Summary tables and customisation</a></li>
     <li><a class="dropdown-item" href="../articles/inferential-tests.html">Inferential tests and assumptions</a></li>
     <li><a class="dropdown-item" href="../articles/inferential-tests.html#default-selection-policy">Automatic test algorithm</a></li>
     <li><a class="dropdown-item" href="../articles/epi-helpers.html">Epidemiology helpers</a></li>
@@ -70,8 +70,8 @@
 
 
 
-
-<div class="row">
+<link href="missing-data-denominators_files/tabwid-1.1.3/tabwid.css" rel="stylesheet">
+<script src="missing-data-denominators_files/tabwid-1.1.3/tabwid.js"></script><div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Missing data and denominators</h1>
@@ -174,7 +174,59 @@ complete.</p>
 <span>  follow_up <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">12</span>, <span class="fl">10</span>, <span class="fl">8</span>, <span class="cn">NA</span>, <span class="fl">11</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/describe_data.html">describe_data</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/to_flextable.html">to_flextable</a></span><span class="op">(</span><span class="fu"><a href="../reference/describe_data.html">describe_data</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="tabwid">
+<style>.cl-2a8b3da6{}.cl-2a82854e{font-family:'DejaVu Sans';font-size:10pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2a828562{font-family:'DejaVu Sans';font-size:10pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2a82856c{font-family:'DejaVu Sans';font-size:8pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2a8613e4{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:3pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-2a8613ee{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:3pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-2a8613f8{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2pt;padding-top:2pt;padding-left:2pt;padding-right:2pt;line-height: 1;background-color:transparent;}.cl-2a864cb0{width:0.866in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864cba{width:0.981in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864cc4{width:1.117in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864cc5{width:0.763in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864cce{width:3.102in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864ccf{width:1.535in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864cd0{width:0.866in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864cd8{width:0.981in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864cd9{width:1.117in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864ce2{width:0.763in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864ce3{width:3.102in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864ce4{width:1.535in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864cec{width:0.866in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864ced{width:0.981in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864cee{width:1.117in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864cf6{width:0.763in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864cf7{width:3.102in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864cf8{width:1.535in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864cf9{width:0.866in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864d00{width:0.981in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864d01{width:1.117in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864d0a{width:0.763in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864d0b{width:3.102in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2a864d14{width:1.535in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
+<table data-quarto-disable-processing="true" class="table cl-2a8b3da6">
+<thead><tr style="overflow-wrap:break-word;">
+<th class="cl-2a864cb0"><p class="cl-2a8613e4"><span class="cl-2a82854e">Variable</span></p></th>
+<th class="cl-2a864cba"><p class="cl-2a8613ee"><span class="cl-2a82854e">Type</span></p></th>
+<th class="cl-2a864cc4"><p class="cl-2a8613ee"><span class="cl-2a82854e">Complete</span></p></th>
+<th class="cl-2a864cc5"><p class="cl-2a8613ee"><span class="cl-2a82854e">Unique</span></p></th>
+<th class="cl-2a864cce"><p class="cl-2a8613ee"><span class="cl-2a82854e">Overview</span></p></th>
+<th class="cl-2a864ccf"><p class="cl-2a8613ee"><span class="cl-2a82854e">Range / levels</span></p></th>
+</tr></thead>
+<tbody>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2a864cd0"><p class="cl-2a8613e4"><span class="cl-2a828562">arm</span></p></td>
+<td class="cl-2a864cd8"><p class="cl-2a8613ee"><span class="cl-2a828562">binary</span></p></td>
+<td class="cl-2a864cd9"><p class="cl-2a8613ee"><span class="cl-2a828562">5/5 (100.0%)</span></p></td>
+<td class="cl-2a864ce2"><p class="cl-2a8613ee"><span class="cl-2a828562">2</span></p></td>
+<td class="cl-2a864ce3"><p class="cl-2a8613ee"><span class="cl-2a828562">Treatment 3 (60.0%); Control 2 (40.0%)</span></p></td>
+<td class="cl-2a864ce4"><p class="cl-2a8613ee"><span class="cl-2a828562">Control, Treatment</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2a864cd0"><p class="cl-2a8613e4"><span class="cl-2a828562">age</span></p></td>
+<td class="cl-2a864cd8"><p class="cl-2a8613ee"><span class="cl-2a828562">categorical</span></p></td>
+<td class="cl-2a864cd9"><p class="cl-2a8613ee"><span class="cl-2a828562">4/5 (80.0%)</span></p></td>
+<td class="cl-2a864ce2"><p class="cl-2a8613ee"><span class="cl-2a828562">4</span></p></td>
+<td class="cl-2a864ce3"><p class="cl-2a8613ee"><span class="cl-2a828562">45 1 (25.0%); 51 1 (25.0%); 57 1 (25.0%)</span></p></td>
+<td class="cl-2a864ce4"><p class="cl-2a8613ee"><span class="cl-2a828562">45, 51, 62, 57</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2a864cd0"><p class="cl-2a8613e4"><span class="cl-2a828562">smoker</span></p></td>
+<td class="cl-2a864cd8"><p class="cl-2a8613ee"><span class="cl-2a828562">binary</span></p></td>
+<td class="cl-2a864cd9"><p class="cl-2a8613ee"><span class="cl-2a828562">4/5 (80.0%)</span></p></td>
+<td class="cl-2a864ce2"><p class="cl-2a8613ee"><span class="cl-2a828562">2</span></p></td>
+<td class="cl-2a864ce3"><p class="cl-2a8613ee"><span class="cl-2a828562">No 2 (50.0%); Yes 2 (50.0%)</span></p></td>
+<td class="cl-2a864ce4"><p class="cl-2a8613ee"><span class="cl-2a828562">No, Yes</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2a864cec"><p class="cl-2a8613e4"><span class="cl-2a828562">follow_up</span></p></td>
+<td class="cl-2a864ced"><p class="cl-2a8613ee"><span class="cl-2a828562">categorical</span></p></td>
+<td class="cl-2a864cee"><p class="cl-2a8613ee"><span class="cl-2a828562">4/5 (80.0%)</span></p></td>
+<td class="cl-2a864cf6"><p class="cl-2a8613ee"><span class="cl-2a828562">4</span></p></td>
+<td class="cl-2a864cf7"><p class="cl-2a8613ee"><span class="cl-2a828562">10 1 (25.0%); 11 1 (25.0%); 12 1 (25.0%)</span></p></td>
+<td class="cl-2a864cf8"><p class="cl-2a8613ee"><span class="cl-2a828562">12, 10, 8, 11</span></p></td>
+</tr>
+</tbody>
+<tfoot>
+<tr style="overflow-wrap:break-word;"><td colspan="6" class="cl-2a864cf9"><p class="cl-2a8613f8"><span class="cl-2a82856c">One row is shown per selected variable.</span></p></td></tr>
+<tr style="overflow-wrap:break-word;"><td colspan="6" class="cl-2a864cf9"><p class="cl-2a8613f8"><span class="cl-2a82856c">Potential data-quality findings and interpretation prompts are stored in `$issues`.</span></p></td></tr>
+<tr style="overflow-wrap:break-word;"><td colspan="6" class="cl-2a864cf9"><p class="cl-2a8613f8"><span class="cl-2a82856c">Ordered factors are identified as ordinal variables.</span></p></td></tr>
+</tfoot>
+</table>
+</div>
 <p>This reports the amount of missing data, not its cause. Clinical
 context, the data dictionary, and the study design are needed to decide
 whether a complete-case analysis is scientifically appropriate.</p>
@@ -182,8 +234,8 @@ whether a complete-case analysis is scientifically appropriate.</p>
 <div class="section level2">
 <h2 id="descriptive-tables-percentage-denominators">Descriptive tables: percentage denominators<a class="anchor" aria-label="anchor" href="#descriptive-tables-percentage-denominators"></a>
 </h2>
-<p>For categorical variables, <code><a href="../reference/summary_table.html">summary_table()</a></code> and
-<code><a href="../reference/add_summary.html">add_summary()</a></code> make the denominator explicit. The default is
+<p>For categorical variables, <code><a href="../reference/summary_table.html">summary_table()</a></code> makes the
+denominator explicit. The default is
 <code>percent = "column"</code>.</p>
 <table class="table">
 <colgroup>
@@ -213,7 +265,7 @@ whether a complete-case analysis is scientifically appropriate.</p>
 <td>Share of the overall sample</td>
 </tr>
 <tr class="even">
-<td><code>"none"</code></td>
+<td><code>categorical = "n"</code></td>
 <td>No percentage</td>
 <td>Counts only</td>
 </tr>
@@ -226,11 +278,146 @@ whether a complete-case analysis is scientifically appropriate.</p>
 <span>  include <span class="op">=</span> <span class="va">smoker</span>,</span>
 <span>  percent <span class="op">=</span> <span class="st">"column"</span>,</span>
 <span>  missing <span class="op">=</span> <span class="st">"ifany"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/summary_table.html">summary_table</a></span><span class="op">(</span><span class="va">dat</span>, by <span class="op">=</span> <span class="va">arm</span>, include <span class="op">=</span> <span class="va">smoker</span>, percent <span class="op">=</span> <span class="st">"row"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/summary_table.html">summary_table</a></span><span class="op">(</span><span class="va">dat</span>, by <span class="op">=</span> <span class="va">arm</span>, include <span class="op">=</span> <span class="va">smoker</span>, percent <span class="op">=</span> <span class="st">"overall"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/summary_table.html">summary_table</a></span><span class="op">(</span><span class="va">dat</span>, by <span class="op">=</span> <span class="va">arm</span>, include <span class="op">=</span> <span class="va">smoker</span>, percent <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/to_flextable.html">to_flextable</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="tabwid">
+<style>.cl-2ac010ee{}.cl-2ab83b58{font-family:'DejaVu Sans';font-size:10pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2ab83b6c{font-family:'DejaVu Sans';font-size:10pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2ab83b6d{font-family:'DejaVu Sans';font-size:8pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2abb9870{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:3pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-2abb987a{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:3pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-2abb9884{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:14pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-2abb9885{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2pt;padding-top:2pt;padding-left:2pt;padding-right:2pt;line-height: 1;background-color:transparent;}.cl-2abbc9bc{width:1.306in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2abbc9c6{width:0.893in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2abbc9c7{width:1.033in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2abbc9d0{width:1.306in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2abbc9d1{width:0.893in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2abbc9da{width:1.033in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2abbc9db{width:1.306in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2abbc9dc{width:0.893in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2abbc9e4{width:1.033in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2abbc9e5{width:1.306in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2abbc9e6{width:0.893in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2abbc9ee{width:1.033in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
+<table data-quarto-disable-processing="true" class="table cl-2ac010ee">
+<thead><tr style="overflow-wrap:break-word;">
+<th class="cl-2abbc9bc"><p class="cl-2abb9870"><span class="cl-2ab83b58">Characteristic</span></p></th>
+<th class="cl-2abbc9c6"><p class="cl-2abb987a"><span class="cl-2ab83b58">Control</span><br><span class="cl-2ab83b58">N = 2</span></p></th>
+<th class="cl-2abbc9c7"><p class="cl-2abb987a"><span class="cl-2ab83b58">Treatment</span><br><span class="cl-2ab83b58">N = 3</span></p></th>
+</tr></thead>
+<tbody>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2abbc9d0"><p class="cl-2abb9870"><span class="cl-2ab83b58">smoker</span></p></td>
+<td class="cl-2abbc9d1"><p class="cl-2abb987a"><span class="cl-2ab83b6c"></span></p></td>
+<td class="cl-2abbc9da"><p class="cl-2abb987a"><span class="cl-2ab83b6c"></span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2abbc9d0"><p class="cl-2abb9884"><span class="cl-2ab83b6c">No</span></p></td>
+<td class="cl-2abbc9d1"><p class="cl-2abb987a"><span class="cl-2ab83b6c">1 (50.0%)</span></p></td>
+<td class="cl-2abbc9da"><p class="cl-2abb987a"><span class="cl-2ab83b6c">1 (50.0%)</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2abbc9d0"><p class="cl-2abb9884"><span class="cl-2ab83b6c">Yes</span></p></td>
+<td class="cl-2abbc9d1"><p class="cl-2abb987a"><span class="cl-2ab83b6c">1 (50.0%)</span></p></td>
+<td class="cl-2abbc9da"><p class="cl-2abb987a"><span class="cl-2ab83b6c">1 (50.0%)</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2abbc9db"><p class="cl-2abb9884"><span class="cl-2ab83b6c">Missing</span></p></td>
+<td class="cl-2abbc9dc"><p class="cl-2abb987a"><span class="cl-2ab83b6c">0 (0.0%)</span></p></td>
+<td class="cl-2abbc9e4"><p class="cl-2abb987a"><span class="cl-2ab83b6c">1 (33.3%)</span></p></td>
+</tr>
+</tbody>
+<tfoot><tr style="overflow-wrap:break-word;"><td colspan="3" class="cl-2abbc9e5"><p class="cl-2abb9885"><span class="cl-2ab83b6d">Categorical data are n (%).</span></p></td></tr></tfoot>
+</table>
+</div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu"><a href="../reference/to_flextable.html">to_flextable</a></span><span class="op">(</span><span class="fu"><a href="../reference/summary_table.html">summary_table</a></span><span class="op">(</span><span class="va">dat</span>, by <span class="op">=</span> <span class="va">arm</span>, include <span class="op">=</span> <span class="va">smoker</span>, percent <span class="op">=</span> <span class="st">"row"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="tabwid">
+<style>.cl-2ae50fd4{}.cl-2addb144{font-family:'DejaVu Sans';font-size:10pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2addb158{font-family:'DejaVu Sans';font-size:10pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2addb159{font-family:'DejaVu Sans';font-size:8pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2ae0e6ac{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:3pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-2ae0e6c0{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:3pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-2ae0e6c1{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:14pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-2ae0e6ca{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2pt;padding-top:2pt;padding-left:2pt;padding-right:2pt;line-height: 1;background-color:transparent;}.cl-2ae10f10{width:1.306in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2ae10f11{width:0.893in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2ae10f1a{width:1.033in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2ae10f24{width:1.306in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2ae10f25{width:0.893in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2ae10f26{width:1.033in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2ae10f2e{width:1.306in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2ae10f2f{width:0.893in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2ae10f38{width:1.033in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2ae10f39{width:1.306in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2ae10f3a{width:0.893in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2ae10f42{width:1.033in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
+<table data-quarto-disable-processing="true" class="table cl-2ae50fd4">
+<thead><tr style="overflow-wrap:break-word;">
+<th class="cl-2ae10f10"><p class="cl-2ae0e6ac"><span class="cl-2addb144">Characteristic</span></p></th>
+<th class="cl-2ae10f11"><p class="cl-2ae0e6c0"><span class="cl-2addb144">Control</span><br><span class="cl-2addb144">N = 2</span></p></th>
+<th class="cl-2ae10f1a"><p class="cl-2ae0e6c0"><span class="cl-2addb144">Treatment</span><br><span class="cl-2addb144">N = 3</span></p></th>
+</tr></thead>
+<tbody>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2ae10f24"><p class="cl-2ae0e6ac"><span class="cl-2addb144">smoker</span></p></td>
+<td class="cl-2ae10f25"><p class="cl-2ae0e6c0"><span class="cl-2addb158"></span></p></td>
+<td class="cl-2ae10f26"><p class="cl-2ae0e6c0"><span class="cl-2addb158"></span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2ae10f24"><p class="cl-2ae0e6c1"><span class="cl-2addb158">No</span></p></td>
+<td class="cl-2ae10f25"><p class="cl-2ae0e6c0"><span class="cl-2addb158">1 (50.0%)</span></p></td>
+<td class="cl-2ae10f26"><p class="cl-2ae0e6c0"><span class="cl-2addb158">1 (50.0%)</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2ae10f24"><p class="cl-2ae0e6c1"><span class="cl-2addb158">Yes</span></p></td>
+<td class="cl-2ae10f25"><p class="cl-2ae0e6c0"><span class="cl-2addb158">1 (50.0%)</span></p></td>
+<td class="cl-2ae10f26"><p class="cl-2ae0e6c0"><span class="cl-2addb158">1 (50.0%)</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2ae10f2e"><p class="cl-2ae0e6c1"><span class="cl-2addb158">Missing</span></p></td>
+<td class="cl-2ae10f2f"><p class="cl-2ae0e6c0"><span class="cl-2addb158">0 (0.0%)</span></p></td>
+<td class="cl-2ae10f38"><p class="cl-2ae0e6c0"><span class="cl-2addb158">1 (33.3%)</span></p></td>
+</tr>
+</tbody>
+<tfoot><tr style="overflow-wrap:break-word;"><td colspan="3" class="cl-2ae10f39"><p class="cl-2ae0e6ca"><span class="cl-2addb159">Categorical data are n (%). Percentages use row denominators.</span></p></td></tr></tfoot>
+</table>
+</div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/to_flextable.html">to_flextable</a></span><span class="op">(</span><span class="fu"><a href="../reference/summary_table.html">summary_table</a></span><span class="op">(</span><span class="va">dat</span>, by <span class="op">=</span> <span class="va">arm</span>, include <span class="op">=</span> <span class="va">smoker</span>, percent <span class="op">=</span> <span class="st">"overall"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="tabwid">
+<style>.cl-2b0d3338{}.cl-2b02b3ea{font-family:'DejaVu Sans';font-size:10pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2b02b3f4{font-family:'DejaVu Sans';font-size:10pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2b02b3fe{font-family:'DejaVu Sans';font-size:8pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2b08bede{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:3pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-2b08bef2{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:3pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-2b08befc{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:14pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-2b08befd{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2pt;padding-top:2pt;padding-left:2pt;padding-right:2pt;line-height: 1;background-color:transparent;}.cl-2b08e6e8{width:1.306in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b08e6f2{width:0.893in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b08e6f3{width:1.033in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b08e6fc{width:1.306in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b08e6fd{width:0.893in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b08e6fe{width:1.033in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b08e706{width:1.306in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b08e710{width:0.893in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b08e711{width:1.033in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b08e712{width:1.306in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b08e71a{width:0.893in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b08e71b{width:1.033in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
+<table data-quarto-disable-processing="true" class="table cl-2b0d3338">
+<thead><tr style="overflow-wrap:break-word;">
+<th class="cl-2b08e6e8"><p class="cl-2b08bede"><span class="cl-2b02b3ea">Characteristic</span></p></th>
+<th class="cl-2b08e6f2"><p class="cl-2b08bef2"><span class="cl-2b02b3ea">Control</span><br><span class="cl-2b02b3ea">N = 2</span></p></th>
+<th class="cl-2b08e6f3"><p class="cl-2b08bef2"><span class="cl-2b02b3ea">Treatment</span><br><span class="cl-2b02b3ea">N = 3</span></p></th>
+</tr></thead>
+<tbody>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2b08e6fc"><p class="cl-2b08bede"><span class="cl-2b02b3ea">smoker</span></p></td>
+<td class="cl-2b08e6fd"><p class="cl-2b08bef2"><span class="cl-2b02b3f4"></span></p></td>
+<td class="cl-2b08e6fe"><p class="cl-2b08bef2"><span class="cl-2b02b3f4"></span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2b08e6fc"><p class="cl-2b08befc"><span class="cl-2b02b3f4">No</span></p></td>
+<td class="cl-2b08e6fd"><p class="cl-2b08bef2"><span class="cl-2b02b3f4">1 (25.0%)</span></p></td>
+<td class="cl-2b08e6fe"><p class="cl-2b08bef2"><span class="cl-2b02b3f4">1 (25.0%)</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2b08e6fc"><p class="cl-2b08befc"><span class="cl-2b02b3f4">Yes</span></p></td>
+<td class="cl-2b08e6fd"><p class="cl-2b08bef2"><span class="cl-2b02b3f4">1 (25.0%)</span></p></td>
+<td class="cl-2b08e6fe"><p class="cl-2b08bef2"><span class="cl-2b02b3f4">1 (25.0%)</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2b08e706"><p class="cl-2b08befc"><span class="cl-2b02b3f4">Missing</span></p></td>
+<td class="cl-2b08e710"><p class="cl-2b08bef2"><span class="cl-2b02b3f4">0 (0.0%)</span></p></td>
+<td class="cl-2b08e711"><p class="cl-2b08bef2"><span class="cl-2b02b3f4">1 (33.3%)</span></p></td>
+</tr>
+</tbody>
+<tfoot><tr style="overflow-wrap:break-word;"><td colspan="3" class="cl-2b08e712"><p class="cl-2b08befd"><span class="cl-2b02b3fe">Categorical data are n (%). Percentages use overall denominators.</span></p></td></tr></tfoot>
+</table>
+</div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/to_flextable.html">to_flextable</a></span><span class="op">(</span><span class="fu"><a href="../reference/summary_table.html">summary_table</a></span><span class="op">(</span><span class="va">dat</span>, by <span class="op">=</span> <span class="va">arm</span>, include <span class="op">=</span> <span class="va">smoker</span>, categorical <span class="op">=</span> <span class="st">"n"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="tabwid">
+<style>.cl-2b32c710{}.cl-2b2b6fba{font-family:'DejaVu Sans';font-size:10pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2b2b6fce{font-family:'DejaVu Sans';font-size:10pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2b2b6fd8{font-family:'DejaVu Sans';font-size:8pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2b2eabb2{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:3pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-2b2eabbc{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:3pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-2b2eabc6{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:14pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-2b2eabc7{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2pt;padding-top:2pt;padding-left:2pt;padding-right:2pt;line-height: 1;background-color:transparent;}.cl-2b2ed29a{width:1.306in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b2ed2a4{width:0.805in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b2ed2ae{width:1.033in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b2ed2b8{width:1.306in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b2ed2b9{width:0.805in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b2ed2c2{width:1.033in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b2ed2c3{width:1.306in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b2ed2c4{width:0.805in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b2ed2cc{width:1.033in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b2ed2cd{width:1.306in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b2ed2d6{width:0.805in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b2ed2d7{width:1.033in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
+<table data-quarto-disable-processing="true" class="table cl-2b32c710">
+<thead><tr style="overflow-wrap:break-word;">
+<th class="cl-2b2ed29a"><p class="cl-2b2eabb2"><span class="cl-2b2b6fba">Characteristic</span></p></th>
+<th class="cl-2b2ed2a4"><p class="cl-2b2eabbc"><span class="cl-2b2b6fba">Control</span><br><span class="cl-2b2b6fba">N = 2</span></p></th>
+<th class="cl-2b2ed2ae"><p class="cl-2b2eabbc"><span class="cl-2b2b6fba">Treatment</span><br><span class="cl-2b2b6fba">N = 3</span></p></th>
+</tr></thead>
+<tbody>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2b2ed2b8"><p class="cl-2b2eabb2"><span class="cl-2b2b6fba">smoker</span></p></td>
+<td class="cl-2b2ed2b9"><p class="cl-2b2eabbc"><span class="cl-2b2b6fce"></span></p></td>
+<td class="cl-2b2ed2c2"><p class="cl-2b2eabbc"><span class="cl-2b2b6fce"></span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2b2ed2b8"><p class="cl-2b2eabc6"><span class="cl-2b2b6fce">No</span></p></td>
+<td class="cl-2b2ed2b9"><p class="cl-2b2eabbc"><span class="cl-2b2b6fce">1</span></p></td>
+<td class="cl-2b2ed2c2"><p class="cl-2b2eabbc"><span class="cl-2b2b6fce">1</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2b2ed2b8"><p class="cl-2b2eabc6"><span class="cl-2b2b6fce">Yes</span></p></td>
+<td class="cl-2b2ed2b9"><p class="cl-2b2eabbc"><span class="cl-2b2b6fce">1</span></p></td>
+<td class="cl-2b2ed2c2"><p class="cl-2b2eabbc"><span class="cl-2b2b6fce">1</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2b2ed2c3"><p class="cl-2b2eabc6"><span class="cl-2b2b6fce">Missing</span></p></td>
+<td class="cl-2b2ed2c4"><p class="cl-2b2eabbc"><span class="cl-2b2b6fce">0 (0.0%)</span></p></td>
+<td class="cl-2b2ed2cc"><p class="cl-2b2eabbc"><span class="cl-2b2b6fce">1 (33.3%)</span></p></td>
+</tr>
+</tbody>
+<tfoot><tr style="overflow-wrap:break-word;"><td colspan="3" class="cl-2b2ed2cd"><p class="cl-2b2eabc7"><span class="cl-2b2b6fd8">Categorical data are counts.</span></p></td></tr></tfoot>
+</table>
+</div>
 <p><code>missing = "ifany"</code> displays a Missing row only when it is
 needed. Use <code>"always"</code> to show zero-missing rows or
 <code>"no"</code> to suppress them. Suppressing a row does not put
@@ -252,16 +439,540 @@ reports a t confidence interval for the observed mean using
 non-missing observations of the selected variable as the denominator.
 The numerator is the chosen level, and the confidence interval describes
 that observed-data proportion.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">smoking</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/proportion_stats.html">proportion_stats</a></span><span class="op">(</span><span class="va">dat</span>, <span class="va">smoker</span>, by <span class="op">=</span> <span class="va">arm</span>, level <span class="op">=</span> <span class="st">"Yes"</span><span class="op">)</span></span>
-<span><span class="va">smoking</span></span>
-<span><span class="fu"><a href="../reference/denominators_stats.html">denominators_stats</a></span><span class="op">(</span><span class="va">smoking</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/to_flextable.html">to_flextable</a></span><span class="op">(</span><span class="va">smoking</span><span class="op">)</span></span></code></pre></div>
+<div class="tabwid">
+<style>.cl-2b69ec4a{}.cl-2b62341e{font-family:'DejaVu Sans';font-size:10pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2b623428{font-family:'DejaVu Sans';font-size:10pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2b623432{font-family:'DejaVu Sans';font-size:8pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2b658e3e{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:3pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-2b658e48{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:3pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-2b658e52{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2pt;padding-top:2pt;padding-left:2pt;padding-right:2pt;line-height: 1;background-color:transparent;}.cl-2b65b65c{width:0.656in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b65b65d{width:0.893in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b65b666{width:0.943in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b65b667{width:0.656in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b65b670{width:0.893in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b65b671{width:0.943in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b65b67a{width:0.656in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b65b67b{width:0.893in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b65b684{width:0.943in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b65b685{width:0.656in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b65b686{width:0.893in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2b65b68e{width:0.943in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
+<table data-quarto-disable-processing="true" class="table cl-2b69ec4a">
+<thead>
+<tr style="overflow-wrap:break-word;">
+<th class="cl-2b65b65c"><p class="cl-2b658e3e"><span class="cl-2b62341e"></span></p></th>
+<th colspan="2" class="cl-2b65b65d"><p class="cl-2b658e48"><span class="cl-2b62341e">Control</span></p></th>
+<th colspan="2" class="cl-2b65b65d"><p class="cl-2b658e48"><span class="cl-2b62341e">Treatment</span></p></th>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<th class="cl-2b65b667"><p class="cl-2b658e3e"><span class="cl-2b62341e">Event</span></p></th>
+<th class="cl-2b65b670"><p class="cl-2b658e48"><span class="cl-2b62341e">n (%)</span></p></th>
+<th class="cl-2b65b671"><p class="cl-2b658e48"><span class="cl-2b62341e">95% CI</span></p></th>
+<th class="cl-2b65b670"><p class="cl-2b658e48"><span class="cl-2b62341e">n (%)</span></p></th>
+<th class="cl-2b65b671"><p class="cl-2b658e48"><span class="cl-2b62341e">95% CI</span></p></th>
+</tr>
+</thead>
+<tbody><tr style="overflow-wrap:break-word;">
+<td class="cl-2b65b67a"><p class="cl-2b658e3e"><span class="cl-2b623428">Yes</span></p></td>
+<td class="cl-2b65b67b"><p class="cl-2b658e48"><span class="cl-2b623428">1 (50.0%)</span></p></td>
+<td class="cl-2b65b684"><p class="cl-2b658e48"><span class="cl-2b623428">9.5–90.5%</span></p></td>
+<td class="cl-2b65b67b"><p class="cl-2b658e48"><span class="cl-2b623428">1 (50.0%)</span></p></td>
+<td class="cl-2b65b684"><p class="cl-2b658e48"><span class="cl-2b623428">9.5–90.5%</span></p></td>
+</tr></tbody>
+<tfoot>
+<tr style="overflow-wrap:break-word;"><td colspan="5" class="cl-2b65b685"><p class="cl-2b658e52"><span class="cl-2b623432">Selected event: smoker = Yes. Estimates use Wilson score 95% confidence intervals.</span></p></td></tr>
+<tr style="overflow-wrap:break-word;"><td colspan="5" class="cl-2b65b685"><p class="cl-2b658e52"><span class="cl-2b623432">This function estimates a proportion; it does not test differences between groups.</span></p></td></tr>
+<tr style="overflow-wrap:break-word;"><td colspan="5" class="cl-2b65b685"><p class="cl-2b658e52"><span class="cl-2b623432">The denominator must define the population at risk, and observations should be independent.</span></p></td></tr>
+</tfoot>
+</table>
+</div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/denominators_stats.html">denominators_stats</a></span><span class="op">(</span><span class="va">smoking</span><span class="op">)</span></span></code></pre></div>
+<div id="mwlefoodfi" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#mwlefoodfi table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#mwlefoodfi thead, #mwlefoodfi tbody, #mwlefoodfi tfoot, #mwlefoodfi tr, #mwlefoodfi td, #mwlefoodfi th {
+  border-style: none;
+}
+
+#mwlefoodfi p {
+  margin: 0;
+  padding: 0;
+}
+
+#mwlefoodfi .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 13px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#mwlefoodfi .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#mwlefoodfi .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#mwlefoodfi .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#mwlefoodfi .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#mwlefoodfi .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#mwlefoodfi .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#mwlefoodfi .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#mwlefoodfi .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#mwlefoodfi .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#mwlefoodfi .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#mwlefoodfi .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#mwlefoodfi .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#mwlefoodfi .gt_row {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#mwlefoodfi .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mwlefoodfi .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#mwlefoodfi .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#mwlefoodfi .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#mwlefoodfi .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mwlefoodfi .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#mwlefoodfi .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mwlefoodfi .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#mwlefoodfi .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mwlefoodfi .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#mwlefoodfi .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mwlefoodfi .gt_left {
+  text-align: left;
+}
+
+#mwlefoodfi .gt_center {
+  text-align: center;
+}
+
+#mwlefoodfi .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#mwlefoodfi .gt_font_normal {
+  font-weight: normal;
+}
+
+#mwlefoodfi .gt_font_bold {
+  font-weight: bold;
+}
+
+#mwlefoodfi .gt_font_italic {
+  font-style: italic;
+}
+
+#mwlefoodfi .gt_super {
+  font-size: 65%;
+}
+
+#mwlefoodfi .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#mwlefoodfi .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#mwlefoodfi .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#mwlefoodfi .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#mwlefoodfi .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#mwlefoodfi .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#mwlefoodfi .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#mwlefoodfi .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#mwlefoodfi div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="table gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_heading">
+<td colspan="9" class="gt_heading gt_title gt_font_normal gt_bottom_border" style>Denominator audit</td>
+    </tr>
+<tr class="gt_col_headings">
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Variable">Variable</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Level">Level</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Group">Group</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Eligible-observations">Eligible observations</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Used-in-analysis">Used in analysis</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Missing-/-excluded">Missing / excluded</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Numerator">Numerator</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Denominator">Denominator</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Rule">Rule</th>
+    </tr>
+</thead>
+<tbody class="gt_table_body">
+<tr>
+<td headers="Variable" class="gt_row gt_left">smoker</td>
+<td headers="Level" class="gt_row gt_left">NA</td>
+<td headers="Group" class="gt_row gt_left">arm = Control</td>
+<td headers="Eligible observations" class="gt_row gt_right">2</td>
+<td headers="Used in analysis" class="gt_row gt_right">2</td>
+<td headers="Missing / excluded" class="gt_row gt_right">0</td>
+<td headers="Numerator" class="gt_row gt_right">NA</td>
+<td headers="Denominator" class="gt_row gt_right">2</td>
+<td headers="Rule" class="gt_row gt_left">Non-missing observations; event level = Yes</td>
+</tr>
+<tr>
+<td headers="Variable" class="gt_row gt_left gt_striped">smoker</td>
+<td headers="Level" class="gt_row gt_left gt_striped">NA</td>
+<td headers="Group" class="gt_row gt_left gt_striped">arm = Treatment</td>
+<td headers="Eligible observations" class="gt_row gt_right gt_striped">3</td>
+<td headers="Used in analysis" class="gt_row gt_right gt_striped">2</td>
+<td headers="Missing / excluded" class="gt_row gt_right gt_striped">1</td>
+<td headers="Numerator" class="gt_row gt_right gt_striped">NA</td>
+<td headers="Denominator" class="gt_row gt_right gt_striped">2</td>
+<td headers="Rule" class="gt_row gt_left gt_striped">Non-missing observations; event level = Yes</td>
+</tr>
+</tbody>
+</table>
+</div>
 <p>If unknown status should be included in the clinical denominator, do
 not assume the observed-data proportion answers that question. Report
 unknown values or define the required analysis approach in advance.</p>
 <p>An all-missing categorical variable remains visible in
-<code><a href="../reference/add_summary.html">add_summary()</a></code> as an em dash, with a Missing row by default.
-It is not silently dropped from the table.</p>
+<code><a href="../reference/summary_table.html">summary_table()</a></code> as an em dash, with a Missing row by
+default. It is not silently dropped from the table.</p>
 </div>
 <div class="section level2">
 <h2 id="rates-use-complete-event-time-records">Rates use complete event-time records<a class="anchor" aria-label="anchor" href="#rates-use-complete-event-time-records"></a>
@@ -271,7 +982,7 @@ non-negative event counts and person-time values. Rows missing either
 value are excluded. The denominator is the sum of valid person-time, not
 the number of patients. A group with zero accumulated time is retained
 but its rate is reported as not estimable.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rate_dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  arm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Control"</span>, <span class="st">"Control"</span>, <span class="st">"Treatment"</span>, <span class="st">"Treatment"</span><span class="op">)</span>,</span>
 <span>  events <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span>,</span>
@@ -280,6 +991,498 @@ but its rate is reported as not estimable.</p>
 <span></span>
 <span><span class="va">rate</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rate_stats.html">rate_stats</a></span><span class="op">(</span><span class="va">rate_dat</span>, event <span class="op">=</span> <span class="va">events</span>, time <span class="op">=</span> <span class="va">person_years</span>, by <span class="op">=</span> <span class="va">arm</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/denominators_stats.html">denominators_stats</a></span><span class="op">(</span><span class="va">rate</span><span class="op">)</span></span></code></pre></div>
+<div id="eexombwkke" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#eexombwkke table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#eexombwkke thead, #eexombwkke tbody, #eexombwkke tfoot, #eexombwkke tr, #eexombwkke td, #eexombwkke th {
+  border-style: none;
+}
+
+#eexombwkke p {
+  margin: 0;
+  padding: 0;
+}
+
+#eexombwkke .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 13px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#eexombwkke .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#eexombwkke .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#eexombwkke .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#eexombwkke .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#eexombwkke .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#eexombwkke .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#eexombwkke .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#eexombwkke .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#eexombwkke .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#eexombwkke .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#eexombwkke .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#eexombwkke .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#eexombwkke .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#eexombwkke .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#eexombwkke .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#eexombwkke .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#eexombwkke .gt_row {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#eexombwkke .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eexombwkke .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#eexombwkke .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#eexombwkke .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#eexombwkke .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eexombwkke .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#eexombwkke .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#eexombwkke .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#eexombwkke .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eexombwkke .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#eexombwkke .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#eexombwkke .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#eexombwkke .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#eexombwkke .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#eexombwkke .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eexombwkke .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#eexombwkke .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eexombwkke .gt_left {
+  text-align: left;
+}
+
+#eexombwkke .gt_center {
+  text-align: center;
+}
+
+#eexombwkke .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#eexombwkke .gt_font_normal {
+  font-weight: normal;
+}
+
+#eexombwkke .gt_font_bold {
+  font-weight: bold;
+}
+
+#eexombwkke .gt_font_italic {
+  font-style: italic;
+}
+
+#eexombwkke .gt_super {
+  font-size: 65%;
+}
+
+#eexombwkke .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#eexombwkke .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#eexombwkke .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#eexombwkke .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#eexombwkke .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#eexombwkke .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#eexombwkke .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#eexombwkke .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#eexombwkke div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="table gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_heading">
+<td colspan="9" class="gt_heading gt_title gt_font_normal gt_bottom_border" style>Denominator audit</td>
+    </tr>
+<tr class="gt_col_headings">
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Variable">Variable</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Level">Level</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Group">Group</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Eligible-observations">Eligible observations</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Used-in-analysis">Used in analysis</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Missing-/-excluded">Missing / excluded</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Numerator">Numerator</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Denominator">Denominator</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Rule">Rule</th>
+    </tr>
+</thead>
+<tbody class="gt_table_body">
+<tr>
+<td headers="Variable" class="gt_row gt_left">events</td>
+<td headers="Level" class="gt_row gt_left">NA</td>
+<td headers="Group" class="gt_row gt_left">Control</td>
+<td headers="Eligible observations" class="gt_row gt_right">2</td>
+<td headers="Used in analysis" class="gt_row gt_right">1</td>
+<td headers="Missing / excluded" class="gt_row gt_right">1</td>
+<td headers="Numerator" class="gt_row gt_right">1</td>
+<td headers="Denominator" class="gt_row gt_right">1.2</td>
+<td headers="Rule" class="gt_row gt_left">Accumulated person-time; rate per 1000</td>
+</tr>
+<tr>
+<td headers="Variable" class="gt_row gt_left gt_striped">events</td>
+<td headers="Level" class="gt_row gt_left gt_striped">NA</td>
+<td headers="Group" class="gt_row gt_left gt_striped">Treatment</td>
+<td headers="Eligible observations" class="gt_row gt_right gt_striped">2</td>
+<td headers="Used in analysis" class="gt_row gt_right gt_striped">2</td>
+<td headers="Missing / excluded" class="gt_row gt_right gt_striped">0</td>
+<td headers="Numerator" class="gt_row gt_right gt_striped">3</td>
+<td headers="Denominator" class="gt_row gt_right gt_striped">1.8</td>
+<td headers="Rule" class="gt_row gt_left gt_striped">Accumulated person-time; rate per 1000</td>
+</tr>
+</tbody>
+</table>
+</div>
 <p>The audit records both valid event-time records and the person-time
 denominator.</p>
 </div>
@@ -290,21 +1493,1032 @@ denominator.</p>
 excluded when either cross-tabulated variable is missing. Its margins,
 percentages, test, and 2×2 measures therefore refer to that same
 complete-pair population.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cross</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/crosstabs.html">crosstabs</a></span><span class="op">(</span><span class="va">dat</span>, row <span class="op">=</span> <span class="va">arm</span>, col <span class="op">=</span> <span class="va">smoker</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/denominators_stats.html">denominators_stats</a></span><span class="op">(</span><span class="va">cross</span><span class="op">)</span></span></code></pre></div>
+<div id="ulbfdpbcyv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#ulbfdpbcyv table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#ulbfdpbcyv thead, #ulbfdpbcyv tbody, #ulbfdpbcyv tfoot, #ulbfdpbcyv tr, #ulbfdpbcyv td, #ulbfdpbcyv th {
+  border-style: none;
+}
+
+#ulbfdpbcyv p {
+  margin: 0;
+  padding: 0;
+}
+
+#ulbfdpbcyv .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 13px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#ulbfdpbcyv .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#ulbfdpbcyv .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#ulbfdpbcyv .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#ulbfdpbcyv .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ulbfdpbcyv .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ulbfdpbcyv .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ulbfdpbcyv .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#ulbfdpbcyv .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#ulbfdpbcyv .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#ulbfdpbcyv .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#ulbfdpbcyv .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#ulbfdpbcyv .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#ulbfdpbcyv .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#ulbfdpbcyv .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#ulbfdpbcyv .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#ulbfdpbcyv .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#ulbfdpbcyv .gt_row {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#ulbfdpbcyv .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ulbfdpbcyv .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#ulbfdpbcyv .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#ulbfdpbcyv .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#ulbfdpbcyv .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ulbfdpbcyv .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#ulbfdpbcyv .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#ulbfdpbcyv .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ulbfdpbcyv .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ulbfdpbcyv .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#ulbfdpbcyv .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ulbfdpbcyv .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#ulbfdpbcyv .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ulbfdpbcyv .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ulbfdpbcyv .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ulbfdpbcyv .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ulbfdpbcyv .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ulbfdpbcyv .gt_left {
+  text-align: left;
+}
+
+#ulbfdpbcyv .gt_center {
+  text-align: center;
+}
+
+#ulbfdpbcyv .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#ulbfdpbcyv .gt_font_normal {
+  font-weight: normal;
+}
+
+#ulbfdpbcyv .gt_font_bold {
+  font-weight: bold;
+}
+
+#ulbfdpbcyv .gt_font_italic {
+  font-style: italic;
+}
+
+#ulbfdpbcyv .gt_super {
+  font-size: 65%;
+}
+
+#ulbfdpbcyv .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#ulbfdpbcyv .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#ulbfdpbcyv .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#ulbfdpbcyv .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#ulbfdpbcyv .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#ulbfdpbcyv .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#ulbfdpbcyv .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#ulbfdpbcyv .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#ulbfdpbcyv div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="table gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_heading">
+<td colspan="9" class="gt_heading gt_title gt_font_normal gt_bottom_border" style>Denominator audit</td>
+    </tr>
+<tr class="gt_col_headings">
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Variable">Variable</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Level">Level</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Group">Group</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Eligible-observations">Eligible observations</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Used-in-analysis">Used in analysis</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Missing-/-excluded">Missing / excluded</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Numerator">Numerator</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Denominator">Denominator</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Rule">Rule</th>
+    </tr>
+</thead>
+<tbody class="gt_table_body">
+<tr>
+<td headers="Variable" class="gt_row gt_left">smoker</td>
+<td headers="Level" class="gt_row gt_left">Yes</td>
+<td headers="Group" class="gt_row gt_left">Treatment</td>
+<td headers="Eligible observations" class="gt_row gt_right">3</td>
+<td headers="Used in analysis" class="gt_row gt_right">2</td>
+<td headers="Missing / excluded" class="gt_row gt_right">1</td>
+<td headers="Numerator" class="gt_row gt_right">1</td>
+<td headers="Denominator" class="gt_row gt_right">2</td>
+<td headers="Rule" class="gt_row gt_left">Complete row/outcome observations; event level = Yes</td>
+</tr>
+<tr>
+<td headers="Variable" class="gt_row gt_left gt_striped">smoker</td>
+<td headers="Level" class="gt_row gt_left gt_striped">Yes</td>
+<td headers="Group" class="gt_row gt_left gt_striped">Control</td>
+<td headers="Eligible observations" class="gt_row gt_right gt_striped">2</td>
+<td headers="Used in analysis" class="gt_row gt_right gt_striped">2</td>
+<td headers="Missing / excluded" class="gt_row gt_right gt_striped">0</td>
+<td headers="Numerator" class="gt_row gt_right gt_striped">1</td>
+<td headers="Denominator" class="gt_row gt_right gt_striped">2</td>
+<td headers="Rule" class="gt_row gt_left gt_striped">Complete row/outcome observations; event level = Yes</td>
+</tr>
+</tbody>
+</table>
+</div>
 <p>For independent <code><a href="../reference/compare_groups.html">compare_groups()</a></code>, an observation
 requires both <code>variable</code> and <code>group</code>. For paired
 analysis, an identifier must be observed once in each group with the
 required outcome; the denominator becomes the number of complete,
 aligned pairs.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">comparison</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compare_groups.html">compare_groups</a></span><span class="op">(</span><span class="va">dat</span>, variable <span class="op">=</span> <span class="va">age</span>, group <span class="op">=</span> <span class="va">arm</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/denominators_stats.html">denominators_stats</a></span><span class="op">(</span><span class="va">comparison</span><span class="op">)</span></span></code></pre></div>
+<div id="kgufivjubq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#kgufivjubq table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#kgufivjubq thead, #kgufivjubq tbody, #kgufivjubq tfoot, #kgufivjubq tr, #kgufivjubq td, #kgufivjubq th {
+  border-style: none;
+}
+
+#kgufivjubq p {
+  margin: 0;
+  padding: 0;
+}
+
+#kgufivjubq .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 13px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#kgufivjubq .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#kgufivjubq .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#kgufivjubq .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#kgufivjubq .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#kgufivjubq .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#kgufivjubq .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#kgufivjubq .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#kgufivjubq .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#kgufivjubq .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#kgufivjubq .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#kgufivjubq .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#kgufivjubq .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#kgufivjubq .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#kgufivjubq .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#kgufivjubq .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#kgufivjubq .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#kgufivjubq .gt_row {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#kgufivjubq .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#kgufivjubq .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#kgufivjubq .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#kgufivjubq .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#kgufivjubq .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#kgufivjubq .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#kgufivjubq .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#kgufivjubq .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#kgufivjubq .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#kgufivjubq .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#kgufivjubq .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#kgufivjubq .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#kgufivjubq .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#kgufivjubq .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#kgufivjubq .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#kgufivjubq .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#kgufivjubq .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#kgufivjubq .gt_left {
+  text-align: left;
+}
+
+#kgufivjubq .gt_center {
+  text-align: center;
+}
+
+#kgufivjubq .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#kgufivjubq .gt_font_normal {
+  font-weight: normal;
+}
+
+#kgufivjubq .gt_font_bold {
+  font-weight: bold;
+}
+
+#kgufivjubq .gt_font_italic {
+  font-style: italic;
+}
+
+#kgufivjubq .gt_super {
+  font-size: 65%;
+}
+
+#kgufivjubq .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#kgufivjubq .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#kgufivjubq .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#kgufivjubq .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#kgufivjubq .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#kgufivjubq .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#kgufivjubq .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#kgufivjubq .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#kgufivjubq div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="table gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_heading">
+<td colspan="9" class="gt_heading gt_title gt_font_normal gt_bottom_border" style>Denominator audit</td>
+    </tr>
+<tr class="gt_col_headings">
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Variable">Variable</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Level">Level</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Group">Group</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Eligible-observations">Eligible observations</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Used-in-analysis">Used in analysis</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Missing-/-excluded">Missing / excluded</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Numerator">Numerator</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Denominator">Denominator</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Rule">Rule</th>
+    </tr>
+</thead>
+<tbody class="gt_table_body">
+<tr>
+<td headers="Variable" class="gt_row gt_left">age</td>
+<td headers="Level" class="gt_row gt_left">NA</td>
+<td headers="Group" class="gt_row gt_left">arm = Control</td>
+<td headers="Eligible observations" class="gt_row gt_right">2</td>
+<td headers="Used in analysis" class="gt_row gt_right">1</td>
+<td headers="Missing / excluded" class="gt_row gt_right">1</td>
+<td headers="Numerator" class="gt_row gt_right">NA</td>
+<td headers="Denominator" class="gt_row gt_right">1</td>
+<td headers="Rule" class="gt_row gt_left">Non-missing outcome observations within group</td>
+</tr>
+<tr>
+<td headers="Variable" class="gt_row gt_left gt_striped">age</td>
+<td headers="Level" class="gt_row gt_left gt_striped">NA</td>
+<td headers="Group" class="gt_row gt_left gt_striped">arm = Treatment</td>
+<td headers="Eligible observations" class="gt_row gt_right gt_striped">3</td>
+<td headers="Used in analysis" class="gt_row gt_right gt_striped">3</td>
+<td headers="Missing / excluded" class="gt_row gt_right gt_striped">0</td>
+<td headers="Numerator" class="gt_row gt_right gt_striped">NA</td>
+<td headers="Denominator" class="gt_row gt_right gt_striped">3</td>
+<td headers="Rule" class="gt_row gt_left gt_striped">Non-missing outcome observations within group</td>
+</tr>
+</tbody>
+</table>
+</div>
 <p><code><a href="../reference/correlation.html">correlation()</a></code> similarly uses complete pairs: both
 variables must be observed in the same row.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/correlation.html">correlation</a></span><span class="op">(</span><span class="va">dat</span>, x <span class="op">=</span> <span class="va">age</span>, y <span class="op">=</span> <span class="va">follow_up</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cor_dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">34</span>, <span class="fl">41</span>, <span class="fl">45</span>, <span class="fl">49</span>, <span class="fl">53</span>, <span class="fl">57</span>, <span class="fl">62</span>, <span class="fl">68</span><span class="op">)</span>,</span>
+<span>  follow_up <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">12</span>, <span class="fl">11</span>, <span class="cn">NA</span>, <span class="fl">9</span>, <span class="fl">8</span>, <span class="fl">7</span>, <span class="fl">6</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/to_flextable.html">to_flextable</a></span><span class="op">(</span><span class="fu"><a href="../reference/correlation.html">correlation</a></span><span class="op">(</span><span class="va">cor_dat</span>, x <span class="op">=</span> <span class="va">age</span>, y <span class="op">=</span> <span class="va">follow_up</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="tabwid">
+<style>.cl-2bec974e{}.cl-2be412c2{font-family:'DejaVu Sans';font-size:10pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2be412d6{font-family:'DejaVu Sans';font-size:10pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2be412d7{font-family:'DejaVu Sans';font-size:8pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2be759c8{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:3pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-2be759d2{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2pt;padding-top:2pt;padding-left:2pt;padding-right:2pt;line-height: 1;background-color:transparent;}.cl-2be780b0{width:1.475in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2be780ba{width:0.31in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2be780c4{width:1.799in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2be780c5{width:0.793in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2be780c6{width:1.475in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2be780ce{width:0.31in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2be780cf{width:1.799in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2be780d8{width:0.793in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2be780d9{width:1.475in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2be780da{width:0.31in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2be780e2{width:1.799in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2be780e3{width:0.793in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
+<table data-quarto-disable-processing="true" class="table cl-2bec974e">
+<thead><tr style="overflow-wrap:break-word;">
+<th class="cl-2be780b0"><p class="cl-2be759c8"><span class="cl-2be412c2">Variables</span></p></th>
+<th class="cl-2be780ba"><p class="cl-2be759c8"><span class="cl-2be412c2">n</span></p></th>
+<th class="cl-2be780c4"><p class="cl-2be759c8"><span class="cl-2be412c2">Correlation (95% CI)</span></p></th>
+<th class="cl-2be780c5"><p class="cl-2be759c8"><span class="cl-2be412c2">p-value</span></p></th>
+</tr></thead>
+<tbody><tr style="overflow-wrap:break-word;">
+<td class="cl-2be780c6"><p class="cl-2be759c8"><span class="cl-2be412d6">age and follow_up</span></p></td>
+<td class="cl-2be780ce"><p class="cl-2be759c8"><span class="cl-2be412d6">7</span></p></td>
+<td class="cl-2be780cf"><p class="cl-2be759c8"><span class="cl-2be412d6">-1.00 (-1.00 to -0.98)</span></p></td>
+<td class="cl-2be780d8"><p class="cl-2be759c8"><span class="cl-2be412d6">&lt;0.01</span></p></td>
+</tr></tbody>
+<tfoot>
+<tr style="overflow-wrap:break-word;"><td colspan="4" class="cl-2be780d9"><p class="cl-2be759d2"><span class="cl-2be412d7">Pearson when both absolute sample skewness values are below 1; otherwise Spearman in auto mode.</span></p></td></tr>
+<tr style="overflow-wrap:break-word;"><td colspan="4" class="cl-2be780d9"><p class="cl-2be759d2"><span class="cl-2be412d7">Inspect a scatterplot: Pearson requires an approximately linear relationship; Spearman requires a monotonic relationship.</span></p></td></tr>
+<tr style="overflow-wrap:break-word;"><td colspan="4" class="cl-2be780d9"><p class="cl-2be759d2"><span class="cl-2be412d7">Correlation inference assumes independent observation pairs and no dominating influential observations.</span></p></td></tr>
+<tr style="overflow-wrap:break-word;"><td colspan="4" class="cl-2be780d9"><p class="cl-2be759d2"><span class="cl-2be412d7">Analysis used 7 complete finite pairs; 1 pairs were excluded.</span></p></td></tr>
+</tfoot>
+</table>
+</div>
 </div>
 <div class="section level2">
 <h2 id="distribution-assessment">Distribution assessment<a class="anchor" aria-label="anchor" href="#distribution-assessment"></a>
@@ -314,13 +2528,93 @@ visible. It reports <code>n</code>, <code>Missing</code>, and
 <code>Non-finite</code>; skewness and Shapiro-Wilk use usable finite
 values only. Missing or non-finite values are flagged in the guidance
 rather than being interpreted as evidence of non-normality.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/assess_distribution.html">assess_distribution</a></span><span class="op">(</span><span class="va">dat</span>, vars <span class="op">=</span> <span class="va">age</span>, by <span class="op">=</span> <span class="va">arm</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dist_dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  arm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Control"</span>, <span class="st">"Treatment"</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">8</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">34</span>, <span class="fl">39</span>, <span class="fl">44</span>, <span class="fl">48</span>, <span class="fl">52</span>, <span class="fl">57</span>, <span class="cn">NA</span>, <span class="fl">63</span>,</span>
+<span>          <span class="fl">36</span>, <span class="fl">41</span>, <span class="fl">46</span>, <span class="fl">51</span>, <span class="fl">56</span>, <span class="fl">61</span>, <span class="fl">66</span>, <span class="cn">Inf</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/to_flextable.html">to_flextable</a></span><span class="op">(</span><span class="fu"><a href="../reference/assess_distribution.html">assess_distribution</a></span><span class="op">(</span><span class="va">dist_dat</span>, vars <span class="op">=</span> <span class="va">age</span>, by <span class="op">=</span> <span class="va">arm</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="tabwid">
+<style>.cl-2c2ce38a{}.cl-2c24f8dc{font-family:'DejaVu Sans';font-size:10pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2c24f8f0{font-family:'DejaVu Sans';font-size:10pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2c24f8fa{font-family:'DejaVu Sans';font-size:8pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2c285e5a{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:3pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-2c285e6e{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:3pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-2c285e78{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2pt;padding-top:2pt;padding-left:2pt;padding-right:2pt;line-height: 1;background-color:transparent;}.cl-2c2886c8{width:0.863in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c2886d2{width:0.941in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c2886d3{width:0.31in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c2886dc{width:0.808in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c2886dd{width:0.994in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c2886e6{width:0.984in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c2886f0{width:1.613in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c2886fa{width:2.1in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c2886fb{width:0.962in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c288704{width:0.863in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c288705{width:0.941in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c28870e{width:0.31in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c28870f{width:0.808in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c288710{width:0.994in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c288718{width:0.984in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c288719{width:1.613in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c28871a{width:2.1in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c288722{width:0.962in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c288723{width:0.863in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c288724{width:0.941in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c28872c{width:0.31in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c28872d{width:0.808in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c28872e{width:0.994in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c288736{width:0.984in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c288737{width:1.613in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c288738{width:2.1in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c288739{width:0.962in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c288740{width:0.863in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c288741{width:0.941in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c28874a{width:0.31in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c28874b{width:0.808in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c288754{width:0.994in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c28875e{width:0.984in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c28875f{width:1.613in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c288760{width:2.1in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c288761{width:0.962in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
+<table data-quarto-disable-processing="true" class="table cl-2c2ce38a">
+<thead><tr style="overflow-wrap:break-word;">
+<th class="cl-2c2886c8"><p class="cl-2c285e5a"><span class="cl-2c24f8dc">Variable</span></p></th>
+<th class="cl-2c2886d2"><p class="cl-2c285e5a"><span class="cl-2c24f8dc">Group</span></p></th>
+<th class="cl-2c2886d3"><p class="cl-2c285e6e"><span class="cl-2c24f8dc">n</span></p></th>
+<th class="cl-2c2886dc"><p class="cl-2c285e6e"><span class="cl-2c24f8dc">Missing</span></p></th>
+<th class="cl-2c2886dd"><p class="cl-2c285e6e"><span class="cl-2c24f8dc">Non-finite</span></p></th>
+<th class="cl-2c2886e6"><p class="cl-2c285e6e"><span class="cl-2c24f8dc">Skewness</span></p></th>
+<th class="cl-2c2886f0"><p class="cl-2c285e6e"><span class="cl-2c24f8dc">Shape</span></p></th>
+<th class="cl-2c2886fa"><p class="cl-2c285e6e"><span class="cl-2c24f8dc">Suggested presentation</span></p></th>
+<th class="cl-2c2886fb"><p class="cl-2c285e6e"><span class="cl-2c24f8dc">Shapiro p</span></p></th>
+</tr></thead>
+<tbody>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2c288704"><p class="cl-2c285e5a"><span class="cl-2c24f8f0">age</span></p></td>
+<td class="cl-2c288705"><p class="cl-2c285e5a"><span class="cl-2c24f8f0">Control</span></p></td>
+<td class="cl-2c28870e"><p class="cl-2c285e6e"><span class="cl-2c24f8f0">7</span></p></td>
+<td class="cl-2c28870f"><p class="cl-2c285e6e"><span class="cl-2c24f8f0">1</span></p></td>
+<td class="cl-2c288710"><p class="cl-2c285e6e"><span class="cl-2c24f8f0">0</span></p></td>
+<td class="cl-2c288718"><p class="cl-2c285e6e"><span class="cl-2c24f8f0">0.05</span></p></td>
+<td class="cl-2c288719"><p class="cl-2c285e6e"><span class="cl-2c24f8f0">Little/no asymmetry</span></p></td>
+<td class="cl-2c28871a"><p class="cl-2c285e6e"><span class="cl-2c24f8f0">Mean (SD) reasonable</span></p></td>
+<td class="cl-2c288722"><p class="cl-2c285e6e"><span class="cl-2c24f8f0">0.990</span></p></td>
+</tr>
+<tr style="overflow-wrap:break-word;">
+<td class="cl-2c288723"><p class="cl-2c285e5a"><span class="cl-2c24f8f0"></span></p></td>
+<td class="cl-2c288724"><p class="cl-2c285e5a"><span class="cl-2c24f8f0">Treatment</span></p></td>
+<td class="cl-2c28872c"><p class="cl-2c285e6e"><span class="cl-2c24f8f0">7</span></p></td>
+<td class="cl-2c28872d"><p class="cl-2c285e6e"><span class="cl-2c24f8f0">0</span></p></td>
+<td class="cl-2c28872e"><p class="cl-2c285e6e"><span class="cl-2c24f8f0">1</span></p></td>
+<td class="cl-2c288736"><p class="cl-2c285e6e"><span class="cl-2c24f8f0">0.00</span></p></td>
+<td class="cl-2c288737"><p class="cl-2c285e6e"><span class="cl-2c24f8f0">Little/no asymmetry</span></p></td>
+<td class="cl-2c288738"><p class="cl-2c285e6e"><span class="cl-2c24f8f0"></span></p></td>
+<td class="cl-2c288739"><p class="cl-2c285e6e"><span class="cl-2c24f8f0">0.949</span></p></td>
+</tr>
+</tbody>
+<tfoot>
+<tr style="overflow-wrap:break-word;"><td colspan="9" class="cl-2c288740"><p class="cl-2c285e78"><span class="cl-2c24f8fa">Shape categories use absolute sample skewness: little/no asymmetry &lt; 0.50; some asymmetry 0.50 to &lt; 1.00; marked skew &gt;= 1.00. They are descriptive guidance, not formal classifications.</span></p></td></tr>
+<tr style="overflow-wrap:break-word;"><td colspan="9" class="cl-2c288740"><p class="cl-2c285e78"><span class="cl-2c24f8fa">Shapiro-Wilk is sensitive to sample size. Interpretation should consider skewness, graphical assessment, sample size and subject-matter knowledge.</span></p></td></tr>
+<tr style="overflow-wrap:break-word;"><td colspan="9" class="cl-2c288740"><p class="cl-2c285e78"><span class="cl-2c24f8fa">Suggested summaries are intended for descriptive reporting only and should not be used alone to determine inferential statistical methods.</span></p></td></tr>
+<tr style="overflow-wrap:break-word;"><td colspan="9" class="cl-2c288740"><p class="cl-2c285e78"><span class="cl-2c24f8fa">For grouped data, the suggested presentation applies to all groups of each variable.</span></p></td></tr>
+</tfoot>
+</table>
+</div>
 <p>For a grouped continuous variable, <code><a href="../reference/assess_variance.html">assess_variance()</a></code>
 also excludes missing and non-finite values from its SD and variance
 calculations, while retaining their counts in the output.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/assess_variance.html">assess_variance</a></span><span class="op">(</span><span class="va">dat</span>, vars <span class="op">=</span> <span class="va">age</span>, by <span class="op">=</span> <span class="va">arm</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/to_flextable.html">to_flextable</a></span><span class="op">(</span><span class="fu"><a href="../reference/assess_variance.html">assess_variance</a></span><span class="op">(</span><span class="va">dist_dat</span>, vars <span class="op">=</span> <span class="va">age</span>, by <span class="op">=</span> <span class="va">arm</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="tabwid">
+<style>.cl-2c67bc58{}.cl-2c5f1814{font-family:'DejaVu Sans';font-size:10pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2c5f1828{font-family:'DejaVu Sans';font-size:10pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2c5f1832{font-family:'DejaVu Sans';font-size:8pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-2c626de8{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:3pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-2c626e06{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:3pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-2c626e07{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:2pt;padding-top:2pt;padding-left:2pt;padding-right:2pt;line-height: 1;background-color:transparent;}.cl-2c6295e8{width:0.863in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c6295fc{width:3.777in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c6295fd{width:1.642in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c6295fe{width:2.096in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c629606{width:0.919in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c629610{width:11.83in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c629611{width:0.863in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c629612{width:3.777in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c62961a{width:1.642in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c62961b{width:2.096in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c62961c{width:0.919in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c62961d{width:11.83in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c629624{width:0.863in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c629625{width:3.777in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c62962e{width:1.642in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c62962f{width:2.096in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c629630{width:0.919in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-2c629638{width:11.83in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(255, 255, 255, 0.00);border-top: 0 solid rgba(255, 255, 255, 0.00);border-left: 0 solid rgba(255, 255, 255, 0.00);border-right: 0 solid rgba(255, 255, 255, 0.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
+<table data-quarto-disable-processing="true" class="table cl-2c67bc58">
+<thead><tr style="overflow-wrap:break-word;">
+<th class="cl-2c6295e8"><p class="cl-2c626de8"><span class="cl-2c5f1814">Variable</span></p></th>
+<th class="cl-2c6295fc"><p class="cl-2c626e06"><span class="cl-2c5f1814">Control</span></p></th>
+<th class="cl-2c6295fc"><p class="cl-2c626e06"><span class="cl-2c5f1814">Treatment</span></p></th>
+<th class="cl-2c6295fd"><p class="cl-2c626e06"><span class="cl-2c5f1814">Observed SD ratio</span></p></th>
+<th class="cl-2c6295fe"><p class="cl-2c626e06"><span class="cl-2c5f1814">Observed variance ratio</span></p></th>
+<th class="cl-2c629606"><p class="cl-2c626e06"><span class="cl-2c5f1814">Levene p</span></p></th>
+<th class="cl-2c629610"><p class="cl-2c626e06"><span class="cl-2c5f1814">Interpretation</span></p></th>
+</tr></thead>
+<tbody><tr style="overflow-wrap:break-word;">
+<td class="cl-2c629611"><p class="cl-2c626de8"><span class="cl-2c5f1828">age</span></p></td>
+<td class="cl-2c629612"><p class="cl-2c626e06"><span class="cl-2c5f1828">n = 7; SD = 10.12; variance = 102.48 (1 excluded)</span></p></td>
+<td class="cl-2c629612"><p class="cl-2c626e06"><span class="cl-2c5f1828">n = 7; SD = 10.80; variance = 116.67 (1 excluded)</span></p></td>
+<td class="cl-2c62961a"><p class="cl-2c626e06"><span class="cl-2c5f1828">1.07</span></p></td>
+<td class="cl-2c62961b"><p class="cl-2c626e06"><span class="cl-2c5f1828">1.14</span></p></td>
+<td class="cl-2c62961c"><p class="cl-2c626e06"><span class="cl-2c5f1828">0.814</span></p></td>
+<td class="cl-2c62961d"><p class="cl-2c626e06"><span class="cl-2c5f1828">Descriptive spread shown; interpret it in the context of the study design. Missing or non-finite values are excluded from SD and variance. Some values were excluded.</span></p></td>
+</tr></tbody>
+<tfoot>
+<tr style="overflow-wrap:break-word;"><td colspan="7" class="cl-2c629624"><p class="cl-2c626e07"><span class="cl-2c5f1832">SD and variance ratios are the largest group value divided by the smallest group value. They describe observed spread; they are not pass/fail tests.</span></p></td></tr>
+<tr style="overflow-wrap:break-word;"><td colspan="7" class="cl-2c629624"><p class="cl-2c626e07"><span class="cl-2c5f1832">For independent groups, Welch t-tests and Welch ANOVA do not require equal variances. `assess_variance()` does not select an inferential test and does not assess pairing or repeated-measures sphericity.</span></p></td></tr>
+<tr style="overflow-wrap:break-word;"><td colspan="7" class="cl-2c629624"><p class="cl-2c626e07"><span class="cl-2c5f1832">The displayed Levene test is median-centred (Brown-Forsythe). It is supporting information only: its p-value neither proves equal variances nor selects an inferential test.</span></p></td></tr>
+<tr style="overflow-wrap:break-word;"><td colspan="7" class="cl-2c629624"><p class="cl-2c626e07"><span class="cl-2c5f1832">Interpret spread alongside sample size, distributional shape, outliers, missingness, and the study design.</span></p></td></tr>
+</tfoot>
+</table>
+</div>
 </div>
 <div class="section level2">
 <h2 id="reporting-checklist">Reporting checklist<a class="anchor" aria-label="anchor" href="#reporting-checklist"></a>
@@ -357,7 +2651,7 @@ then use gtstats to report the result transparently.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://thinkdenominator.com" class="external-link">ThinkDenominator</a>.</p>
+  <p>Developed by <a href="https://thinkdenominator.com" class="external-link">ThinkDenominator</a>. <button type="button" class="td-cookie-settings" data-td-cookie-settings>Cookie settings</button></p>
 </div>
 
 <div class="pkgdown-footer-right">

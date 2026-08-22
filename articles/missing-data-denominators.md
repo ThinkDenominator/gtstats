@@ -61,8 +61,18 @@ dat <- data.frame(
   follow_up = c(12, 10, 8, NA, 11)
 )
 
-describe_data(dat)
+to_flextable(describe_data(dat))
 ```
+
+| Variable | Type | Complete | Unique | Overview | Range / levels |
+|----|----|----|----|----|----|
+| arm | binary | 5/5 (100.0%) | 2 | Treatment 3 (60.0%); Control 2 (40.0%) | Control, Treatment |
+| age | categorical | 4/5 (80.0%) | 4 | 45 1 (25.0%); 51 1 (25.0%); 57 1 (25.0%) | 45, 51, 62, 57 |
+| smoker | binary | 4/5 (80.0%) | 2 | No 2 (50.0%); Yes 2 (50.0%) | No, Yes |
+| follow_up | categorical | 4/5 (80.0%) | 4 | 10 1 (25.0%); 11 1 (25.0%); 12 1 (25.0%) | 12, 10, 8, 11 |
+| One row is shown per selected variable. |  |  |  |  |  |
+| Potential data-quality findings and interpretation prompts are stored in \`\$issues\`. |  |  |  |  |  |
+| Ordered factors are identified as ordinal variables. |  |  |  |  |  |
 
 This reports the amount of missing data, not its cause. Clinical
 context, the data dictionary, and the study design are needed to decide
@@ -72,16 +82,14 @@ whether a complete-case analysis is scientifically appropriate.
 
 For categorical variables,
 [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md)
-and
-[`add_summary()`](https://gtstats.thinkdenominator.com/reference/add_summary.md)
-make the denominator explicit. The default is `percent = "column"`.
+makes the denominator explicit. The default is `percent = "column"`.
 
 | Setting | Percentage denominator | Typical use |
 |----|----|----|
 | `"column"` | Non-missing observations in each displayed group | Standard Table 1 |
 | `"row"` | Non-missing observations for that level across groups | Distribution of a category across groups |
 | `"overall"` | All non-missing observations of the variable | Share of the overall sample |
-| `"none"` | No percentage | Counts only |
+| `categorical = "n"` | No percentage | Counts only |
 
 ``` r
 
@@ -91,12 +99,32 @@ summary_table(
   include = smoker,
   percent = "column",
   missing = "ifany"
-)
-
-summary_table(dat, by = arm, include = smoker, percent = "row")
-summary_table(dat, by = arm, include = smoker, percent = "overall")
-summary_table(dat, by = arm, include = smoker, percent = "none")
+) |> to_flextable()
 ```
+
+[TABLE]
+
+``` r
+
+
+to_flextable(summary_table(dat, by = arm, include = smoker, percent = "row"))
+```
+
+[TABLE]
+
+``` r
+
+to_flextable(summary_table(dat, by = arm, include = smoker, percent = "overall"))
+```
+
+[TABLE]
+
+``` r
+
+to_flextable(summary_table(dat, by = arm, include = smoker, categorical = "n"))
+```
+
+[TABLE]
 
 `missing = "ifany"` displays a Missing row only when it is needed. Use
 `"always"` to show zero-missing rows or `"no"` to suppress them.
@@ -125,16 +153,34 @@ interval describes that observed-data proportion.
 ``` r
 
 smoking <- proportion_stats(dat, smoker, by = arm, level = "Yes")
-smoking
+to_flextable(smoking)
+```
+
+|  | Control |  | Treatment |  |
+|----|----|----|----|----|
+| Event | n (%) | 95% CI | n (%) | 95% CI |
+| Yes | 1 (50.0%) | 9.5–90.5% | 1 (50.0%) | 9.5–90.5% |
+| Selected event: smoker = Yes. Estimates use Wilson score 95% confidence intervals. |  |  |  |  |
+| This function estimates a proportion; it does not test differences between groups. |  |  |  |  |
+| The denominator must define the population at risk, and observations should be independent. |  |  |  |  |
+
+``` r
+
 denominators_stats(smoking)
 ```
+
+| Denominator audit |  |  |  |  |  |  |  |  |
+|----|----|----|----|----|----|----|----|----|
+| Variable | Level | Group | Eligible observations | Used in analysis | Missing / excluded | Numerator | Denominator | Rule |
+| smoker | NA | arm = Control | 2 | 2 | 0 | NA | 2 | Non-missing observations; event level = Yes |
+| smoker | NA | arm = Treatment | 3 | 2 | 1 | NA | 2 | Non-missing observations; event level = Yes |
 
 If unknown status should be included in the clinical denominator, do not
 assume the observed-data proportion answers that question. Report
 unknown values or define the required analysis approach in advance.
 
 An all-missing categorical variable remains visible in
-[`add_summary()`](https://gtstats.thinkdenominator.com/reference/add_summary.md)
+[`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md)
 as an em dash, with a Missing row by default. It is not silently dropped
 from the table.
 
@@ -160,6 +206,12 @@ rate <- rate_stats(rate_dat, event = events, time = person_years, by = arm)
 denominators_stats(rate)
 ```
 
+| Denominator audit |  |  |  |  |  |  |  |  |
+|----|----|----|----|----|----|----|----|----|
+| Variable | Level | Group | Eligible observations | Used in analysis | Missing / excluded | Numerator | Denominator | Rule |
+| events | NA | Control | 2 | 1 | 1 | 1 | 1.2 | Accumulated person-time; rate per 1000 |
+| events | NA | Treatment | 2 | 2 | 0 | 3 | 1.8 | Accumulated person-time; rate per 1000 |
+
 The audit records both valid event-time records and the person-time
 denominator.
 
@@ -176,6 +228,12 @@ cross <- crosstabs(dat, row = arm, col = smoker)
 denominators_stats(cross)
 ```
 
+| Denominator audit |  |  |  |  |  |  |  |  |
+|----|----|----|----|----|----|----|----|----|
+| Variable | Level | Group | Eligible observations | Used in analysis | Missing / excluded | Numerator | Denominator | Rule |
+| smoker | Yes | Treatment | 3 | 2 | 1 | 1 | 2 | Complete row/outcome observations; event level = Yes |
+| smoker | Yes | Control | 2 | 2 | 0 | 1 | 2 | Complete row/outcome observations; event level = Yes |
+
 For independent
 [`compare_groups()`](https://gtstats.thinkdenominator.com/reference/compare_groups.md),
 an observation requires both `variable` and `group`. For paired
@@ -189,14 +247,32 @@ comparison <- compare_groups(dat, variable = age, group = arm)
 denominators_stats(comparison)
 ```
 
+| Denominator audit |  |  |  |  |  |  |  |  |
+|----|----|----|----|----|----|----|----|----|
+| Variable | Level | Group | Eligible observations | Used in analysis | Missing / excluded | Numerator | Denominator | Rule |
+| age | NA | arm = Control | 2 | 1 | 1 | NA | 1 | Non-missing outcome observations within group |
+| age | NA | arm = Treatment | 3 | 3 | 0 | NA | 3 | Non-missing outcome observations within group |
+
 [`correlation()`](https://gtstats.thinkdenominator.com/reference/correlation.md)
 similarly uses complete pairs: both variables must be observed in the
 same row.
 
 ``` r
 
-correlation(dat, x = age, y = follow_up)
+cor_dat <- data.frame(
+  age = c(34, 41, 45, 49, 53, 57, 62, 68),
+  follow_up = c(12, 11, NA, 9, 8, 7, 6, 5)
+)
+to_flextable(correlation(cor_dat, x = age, y = follow_up))
 ```
+
+| Variables | n | Correlation (95% CI) | p-value |
+|----|----|----|----|
+| age and follow_up | 7 | -1.00 (-1.00 to -0.98) | \<0.01 |
+| Pearson when both absolute sample skewness values are below 1; otherwise Spearman in auto mode. |  |  |  |
+| Inspect a scatterplot: Pearson requires an approximately linear relationship; Spearman requires a monotonic relationship. |  |  |  |
+| Correlation inference assumes independent observation pairs and no dominating influential observations. |  |  |  |
+| Analysis used 7 complete finite pairs; 1 pairs were excluded. |  |  |  |
 
 ## Distribution assessment
 
@@ -208,8 +284,22 @@ being interpreted as evidence of non-normality.
 
 ``` r
 
-assess_distribution(dat, vars = age, by = arm)
+dist_dat <- data.frame(
+  arm = factor(rep(c("Control", "Treatment"), each = 8)),
+  age = c(34, 39, 44, 48, 52, 57, NA, 63,
+          36, 41, 46, 51, 56, 61, 66, Inf)
+)
+to_flextable(assess_distribution(dist_dat, vars = age, by = arm))
 ```
+
+| Variable | Group | n | Missing | Non-finite | Skewness | Shape | Suggested presentation | Shapiro p |
+|----|----|----|----|----|----|----|----|----|
+| age | Control | 7 | 1 | 0 | 0.05 | Little/no asymmetry | Mean (SD) reasonable | 0.990 |
+|  | Treatment | 7 | 0 | 1 | 0.00 | Little/no asymmetry |  | 0.949 |
+| Shape categories use absolute sample skewness: little/no asymmetry \< 0.50; some asymmetry 0.50 to \< 1.00; marked skew \>= 1.00. They are descriptive guidance, not formal classifications. |  |  |  |  |  |  |  |  |
+| Shapiro-Wilk is sensitive to sample size. Interpretation should consider skewness, graphical assessment, sample size and subject-matter knowledge. |  |  |  |  |  |  |  |  |
+| Suggested summaries are intended for descriptive reporting only and should not be used alone to determine inferential statistical methods. |  |  |  |  |  |  |  |  |
+| For grouped data, the suggested presentation applies to all groups of each variable. |  |  |  |  |  |  |  |  |
 
 For a grouped continuous variable,
 [`assess_variance()`](https://gtstats.thinkdenominator.com/reference/assess_variance.md)
@@ -218,8 +308,16 @@ calculations, while retaining their counts in the output.
 
 ``` r
 
-assess_variance(dat, vars = age, by = arm)
+to_flextable(assess_variance(dist_dat, vars = age, by = arm))
 ```
+
+| Variable | Control | Treatment | Observed SD ratio | Observed variance ratio | Levene p | Interpretation |
+|----|----|----|----|----|----|----|
+| age | n = 7; SD = 10.12; variance = 102.48 (1 excluded) | n = 7; SD = 10.80; variance = 116.67 (1 excluded) | 1.07 | 1.14 | 0.814 | Descriptive spread shown; interpret it in the context of the study design. Missing or non-finite values are excluded from SD and variance. Some values were excluded. |
+| SD and variance ratios are the largest group value divided by the smallest group value. They describe observed spread; they are not pass/fail tests. |  |  |  |  |  |  |
+| For independent groups, Welch t-tests and Welch ANOVA do not require equal variances. \`assess_variance()\` does not select an inferential test and does not assess pairing or repeated-measures sphericity. |  |  |  |  |  |  |
+| The displayed Levene test is median-centred (Brown-Forsythe). It is supporting information only: its p-value neither proves equal variances nor selects an inferential test. |  |  |  |  |  |  |
+| Interpret spread alongside sample size, distributional shape, outliers, missingness, and the study design. |  |  |  |  |  |  |
 
 ## Reporting checklist
 

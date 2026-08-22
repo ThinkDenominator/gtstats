@@ -18,9 +18,9 @@ clinical and epidemiological analysis:
 
 All three follow the same pattern: pass in your data frame, name the
 relevant variables, and optionally supply a grouping variable with
-`by =`. Pipe to
-[`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md)
-for a formatted `gt` table.
+`by =`. They print as flextables by default; call
+[`to_gt()`](https://gtstats.thinkdenominator.com/reference/to_gt.md) for
+an explicit gt table.
 
 ------------------------------------------------------------------------
 
@@ -40,25 +40,50 @@ columns. The tidy long-form numerical results remain available from
 ``` r
 
 # Overall proportion
-proportion_stats(mtcars, var = vs)
+to_flextable(proportion_stats(mtcars, var = vs))
 ```
+
+| Event | n (%) | 95% CI |
+|----|----|----|
+| 1 | 14 (43.8%) | 28.2–60.7% |
+| Selected event: vs = 1. Estimates use Wilson score 95% confidence intervals. |  |  |
+| This function estimates a proportion; it does not test differences between groups. |  |  |
+| The denominator must define the population at risk, and observations should be independent. |  |  |
 
 ``` r
 
 # Grouped by transmission type
-proportion_stats(mtcars, var = vs, by = am)
+to_flextable(proportion_stats(mtcars, var = vs, by = am))
 ```
+
+|  | 1 |  | 0 |  |
+|----|----|----|----|----|
+| Event | n (%) | 95% CI | n (%) | 95% CI |
+| 1 | 7 (53.8%) | 29.1–76.8% | 7 (36.8%) | 19.1–59.0% |
+| Selected event: vs = 1. Estimates use Wilson score 95% confidence intervals. |  |  |  |  |
+| This function estimates a proportion; it does not test differences between groups. |  |  |  |  |
+| The denominator must define the population at risk, and observations should be independent. |  |  |  |  |
 
 ``` r
 
 # Pin to a specific level
-proportion_stats(mtcars, var = vs, by = am, level = "1")
+to_flextable(proportion_stats(mtcars, var = vs, by = am, level = "1"))
 ```
+
+|  | 1 |  | 0 |  |
+|----|----|----|----|----|
+| Event | n (%) | 95% CI | n (%) | 95% CI |
+| 1 | 7 (53.8%) | 29.1–76.8% | 7 (36.8%) | 19.1–59.0% |
+| Selected event: vs = 1. Estimates use Wilson score 95% confidence intervals. |  |  |  |  |
+| This function estimates a proportion; it does not test differences between groups. |  |  |  |  |
+| The denominator must define the population at risk, and observations should be independent. |  |  |  |  |
 
 ``` r
 
 tbl_stats(proportion_stats(mtcars, var = vs, by = am))
 ```
+
+[TABLE]
 
 ### In a descriptive table
 
@@ -72,6 +97,8 @@ summary_table(mtcars, by = am, overall = TRUE) |>
   add_total() |>
   tbl_stats()
 ```
+
+[TABLE]
 
 ------------------------------------------------------------------------
 
@@ -100,20 +127,37 @@ df <- data.frame(
 ``` r
 
 # Overall rate
-rate_stats(df, event = event, time = ptime)
+to_flextable(rate_stats(df, event = event, time = ptime))
 ```
+
+| Event | Events | Person-time | Rate per 1,000 | 95% CI |
+|----|----|----|----|----|
+| event | 4 | 57 | 70.2 | 19.1–179.7 |
+| Rates are shown per 1000 person-time using complete event-time pairs and 95% exact Poisson confidence intervals. |  |  |  |  |
+| Confirm that the denominator represents positive person-time or exposure time. |  |  |  |  |
+| Exact Poisson intervals assume independent event counts arising from a Poisson process. |  |  |  |  |
 
 ``` r
 
 # Grouped by study arm
-rate_stats(df, event = event, time = ptime, by = arm)
+to_flextable(rate_stats(df, event = event, time = ptime, by = arm))
 ```
+
+|  | A |  |  |  | B |  |  |  |
+|----|----|----|----|----|----|----|----|----|
+| Event | Events | Person-time | Rate per 1,000 | 95% CI | Events | Person-time | Rate per 1,000 | 95% CI |
+| event | 2 | 30 | 66.7 | 8.1–240.8 | 2 | 27 | 74.1 | 9.0–267.6 |
+| Rates are shown per 1000 person-time using complete event-time pairs and 95% exact Poisson confidence intervals. |  |  |  |  |  |  |  |  |
+| Confirm that the denominator represents positive person-time or exposure time. |  |  |  |  |  |  |  |  |
+| Exact Poisson intervals assume independent event counts arising from a Poisson process. |  |  |  |  |  |  |  |  |
 
 ``` r
 
 rate_stats(df, event = event, time = ptime, by = arm) |>
   tbl_stats()
 ```
+
+[TABLE]
 
 ### In a descriptive table
 
@@ -122,7 +166,7 @@ embeds rate rows in the table builder:
 
 ``` r
 
-summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
+summary_table(mtcars, by = am, overall = TRUE) |>
   add_rate(
     event      = carb,
     time       = cyl,
@@ -131,6 +175,8 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
   ) |>
   tbl_stats()
 ```
+
+[TABLE]
 
 ------------------------------------------------------------------------
 
@@ -156,9 +202,17 @@ exploratory or supplementary table.
 
 ``` r
 
-crosstabs(mtcars, row = cyl, col = am)
-crosstabs(mtcars, row = cyl, col = gear, percent = c("row", "column"))
+to_flextable(crosstabs(mtcars, row = cyl, col = am))
 ```
+
+[TABLE]
+
+``` r
+
+to_flextable(crosstabs(mtcars, row = cyl, col = gear, percent = c("row", "column")))
+```
+
+[TABLE]
 
 For tables larger than 2×2, the footer reports the association test and
 Cramér’s V. Risk ratio, odds ratio, and risk difference are
@@ -169,27 +223,33 @@ needs, but is deliberately not part of the routine default.
 
 ``` r
 
-crosstabs(mtcars, row = am, col = vs)
+to_flextable(crosstabs(mtcars, row = am, col = vs))
 ```
+
+[TABLE]
 
 ``` r
 
 tbl_stats(crosstabs(mtcars, row = am, col = vs))
 ```
 
+[TABLE]
+
 Choose the direction explicitly when the coding or factor order does not
 express the scientific question:
 
 ``` r
 
-crosstabs(
+to_flextable(crosstabs(
   mtcars,
   row = am,
   col = vs,
   row_level = 1,
   col_level = 1
-)
+))
 ```
+
+[TABLE]
 
 Whether levels are supplied or selected automatically, inspect
 `result$inputs$row_level` and `result$inputs$col_level` before reporting
@@ -203,27 +263,31 @@ and confidence intervals only:
 
 ``` r
 
-crosstabs(
+to_flextable(crosstabs(
   mtcars,
   row = am,
   col = vs,
   measures = "or",
   test = "none"
-)
+))
 ```
+
+[TABLE]
 
 When a cell is zero, log-scale ratio intervals use the Haldane–Anscombe
 correction by default. The strategy is explicit and configurable:
 
 ``` r
 
-crosstabs(
+to_flextable(crosstabs(
   mtcars,
   row = am,
   col = vs,
   zero_correction = "none"
-)
+))
 ```
+
+[TABLE]
 
 Without correction, an infinite or zero ratio may be reported and its
 log-scale confidence interval may be unavailable.
@@ -240,9 +304,10 @@ log-scale confidence interval may be unavailable.
   [`rate_stats()`](https://gtstats.thinkdenominator.com/reference/rate_stats.md),
   and
   [`crosstabs()`](https://gtstats.thinkdenominator.com/reference/crosstabs.md)
-  all return structured objects that can be rendered with
-  [`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md)
-  or inspected as plain lists.
+  all return structured objects that print as flextables, can be
+  rendered with
+  [`to_gt()`](https://gtstats.thinkdenominator.com/reference/to_gt.md),
+  or can be inspected as plain lists.
 - Inside a descriptive table, use
   [`add_proportion()`](https://gtstats.thinkdenominator.com/reference/add_proportion.md)
   and

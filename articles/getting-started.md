@@ -18,10 +18,12 @@ gtstats is designed around one practical sequence:
 6.  **Render or export** only when you want to customise the finished
     output.
 
-The main functions print publication-ready tables by default.
-[`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md)
-is not an analysis step: it provides the `gt` table for titles, styling,
-and export.
+The main functions print publication-ready flextables by default.
+Rendering is not an analysis step: use
+[`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md)
+for finishing touches and
+[`to_gt()`](https://gtstats.thinkdenominator.com/reference/to_gt.md)
+only when an HTML-focused gt table is required.
 
 ### Install and load
 
@@ -38,8 +40,35 @@ data("birthwt", package = "gtstats")
 ``` r
 
 overview <- describe_data(birthwt)
-overview
+to_flextable(overview)
+```
+
+| Variable | Type | Complete | Unique | Overview | Range / levels |
+|----|----|----|----|----|----|
+| Birth-weight outcome \[low\] | binary | 189/189 (100.0%) | 2 | Normal birth weight 130 (68.8%); Low birth weight 59 (31.2%) | Normal birth weight, Low birth weight |
+| Maternal age (years) \[age\] | continuous | 189/189 (100.0%) | 24 | Mean 23.24 (SD 5.30); median 23.00 | 14.00 to 45.00 |
+| Maternal weight (lb) \[lwt\] | continuous | 189/189 (100.0%) | 75 | Mean 129.81 (SD 30.58); median 121.00 | 80.00 to 250.00 |
+| Maternal race \[race\] | categorical | 189/189 (100.0%) | 3 | White 96 (50.8%); Other 67 (35.4%); Black 26 (13.8%) | White, Black, Other |
+| Smoking during pregnancy \[smoke\] | binary | 189/189 (100.0%) | 2 | No 115 (60.8%); Yes 74 (39.2%) | No, Yes |
+| Previous premature labours \[ptl\] | categorical\* | 189/189 (100.0%) | 4 | 0 159 (84.1%); 1 24 (12.7%); 2 5 ( 2.6%) | 0, 1, 2, 3 |
+| Hypertension \[ht\] | binary | 189/189 (100.0%) | 2 | No 177 (93.7%); Yes 12 ( 6.3%) | No, Yes |
+| Uterine irritability \[ui\] | binary | 189/189 (100.0%) | 2 | No 161 (85.2%); Yes 28 (14.8%) | No, Yes |
+| First-trimester visits \[ftv\] | continuous | 189/189 (100.0%) | 6 | Mean 0.79 (SD 1.06); median 0.00 | 0.00 to 6.00 |
+| Birth weight (g) \[bwt\] | continuous | 189/189 (100.0%) | 131 | Mean 2944.59 (SD 729.21); median 2977.00 | 709.00 to 4990.00 |
+| Previous premature labour \[previous_preterm\] | binary | 189/189 (100.0%) | 2 | No 159 (84.1%); Yes 30 (15.9%) | No, Yes |
+| First-trimester visits \[antenatal_visits\] | ordinal | 189/189 (100.0%) | 3 | None 100 (52.9%); One 47 (24.9%); Two or more 42 (22.2%) | None, One, Two or more |
+| One row is shown per selected variable. |  |  |  |  |  |
+| Potential data-quality findings and interpretation prompts are stored in \`\$issues\`. |  |  |  |  |  |
+| \* Possible ordinal or count-coded variable; confirm the intended meaning and order from the data dictionary or clinical context. |  |  |  |  |  |
+
+``` r
+
 overview$issues
+#> # A tibble: 2 × 5
+#>   variable label                      issue          why_flagged suggested_check
+#>   <chr>    <chr>                      <chr>          <chr>       <chr>          
+#> 1 ptl      Previous premature labours Sparse catego… At least o… Confirm coding…
+#> 2 ftv      First-trimester visits     Low-cardinali… Only 6 dis… Confirm whethe…
 ```
 
 The printed table is a compact first look. `$issues` is deliberately
@@ -96,8 +125,28 @@ and return to the R prompt.
 ``` r
 
 distribution <- assess_distribution(birthwt, vars = c(age, lwt), by = low)
-distribution
+to_flextable(distribution)
+```
+
+| Variable | Group | n | Skewness | Shape | Suggested presentation | Shapiro p |
+|----|----|----|----|----|----|----|
+| Maternal age (years) | Normal birth weight | 130 | 0.74 | Some right asymmetry | Review mean (SD) and median (IQR) | \<0.001 |
+|  | Low birth weight | 59 | 0.29 | Little/no asymmetry |  | 0.521 |
+| Maternal weight (lb) | Normal birth weight | 130 | 1.42 | Marked right skew | Median (IQR) preferred | \<0.001 |
+|  | Low birth weight | 59 | 1.06 | Marked right skew |  | \<0.001 |
+| Shape categories use absolute sample skewness: little/no asymmetry \< 0.50; some asymmetry 0.50 to \< 1.00; marked skew \>= 1.00. They are descriptive guidance, not formal classifications. |  |  |  |  |  |  |
+| Shapiro-Wilk is sensitive to sample size. Interpretation should consider skewness, graphical assessment, sample size and subject-matter knowledge. |  |  |  |  |  |  |
+| Suggested summaries are intended for descriptive reporting only and should not be used alone to determine inferential statistical methods. |  |  |  |  |  |  |
+| For grouped data, the suggested presentation applies to all groups of each variable. |  |  |  |  |  |  |
+
+``` r
+
 distribution$recommendations
+#> # A tibble: 2 × 5
+#>   variable label                overall_recommendation            reason  review
+#>   <chr>    <chr>                <chr>                             <chr>   <chr> 
+#> 1 age      Maternal age (years) Review mean (SD) and median (IQR) Some a… Inspe…
+#> 2 lwt      Maternal weight (lb) Median (IQR) preferred            Marked… Inspe…
 ```
 
 This function is restricted to continuous numeric variables. It uses
@@ -110,8 +159,17 @@ separately:
 ``` r
 
 variance <- assess_variance(birthwt, vars = c(age, lwt), by = low)
-variance
+to_flextable(variance)
 ```
+
+| Variable | Normal birth weight | Low birth weight | Observed SD ratio | Observed variance ratio | Levene p | Interpretation |
+|----|----|----|----|----|----|----|
+| Maternal age (years) | n = 130; SD = 5.58; variance = 31.19 | n = 59; SD = 4.51; variance = 20.35 | 1.24 | 1.53 | 0.102 | Levene found no clear evidence of different spreads; this does not prove equal variances. |
+| Maternal weight (lb) | n = 130; SD = 31.72; variance = 1006.41 | n = 59; SD = 26.56; variance = 705.40 | 1.19 | 1.43 | 0.476 | Levene found no clear evidence of different spreads; this does not prove equal variances. |
+| SD and variance ratios are the largest group value divided by the smallest group value. They describe observed spread; they are not pass/fail tests. |  |  |  |  |  |  |
+| For independent groups, Welch t-tests and Welch ANOVA do not require equal variances. \`assess_variance()\` does not select an inferential test and does not assess pairing or repeated-measures sphericity. |  |  |  |  |  |  |
+| The displayed Levene test is median-centred (Brown-Forsythe). It is supporting information only: its p-value neither proves equal variances nor selects an inferential test. |  |  |  |  |  |  |
+| Interpret spread alongside sample size, distributional shape, outliers, missingness, and the study design. |  |  |  |  |  |  |
 
 [`assess_variance()`](https://gtstats.thinkdenominator.com/reference/assess_variance.md)
 presents one row per variable: each group’s usable `n`, SD, and
@@ -153,8 +211,10 @@ table_one <- summary_table(
 ) |>
   add_p()
 
-table_one
+to_flextable(table_one)
 ```
+
+[TABLE]
 
 Add optional rows only when they answer a specific reporting need:
 
@@ -162,33 +222,69 @@ Add optional rows only when they answer a specific reporting need:
 
 table_one |>
   add_proportion(var = smoke, level = "Yes", label = "Smoking prevalence", ci = TRUE) |>
-  add_total()
+  add_total() |>
+  to_flextable()
 ```
+
+[TABLE]
 
 ### 4. Compare one variable
 
 ``` r
 
 comparison <- compare_groups(birthwt, variable = lwt, group = low)
-comparison
+to_flextable(comparison)
 ```
+
+[TABLE]
 
 For a transparent audit trail:
 
 ``` r
 
 assumptions_stats(comparison)
+```
+
+| Checks before reporting |  |  |  |
+|----|----|----|----|
+| Variable | Check before reporting | Action | Details |
+| Maternal weight (lb) | Independent observations | Confirm from study design | Confirm from the study design that each observation contributes independently. |
+| Maternal weight (lb) | Comparable distribution shapes | Confirm from study design | Required when interpreting the rank-based result specifically as a location or median shift. |
+
+``` r
+
 diagnostics_stats(comparison)
+```
+
+| Diagnostics |  |  |  |  |  |
+|----|----|----|----|----|----|
+| Variable | Check | Result | Observed value | Reference | Interpretation |
+| Maternal weight (lb) | Comparison design | independent | Independent observations | Defined by the study design | Independent comparison; confirm independence from the study design. |
+| Maternal weight (lb) | Variance assumption | welch default | var_equal = FALSE | User-specified analytical assumption | Welch is the conservative default and does not require equal variances. No variance hypothesis test was used. |
+| Maternal weight (lb) | Automatic test selection | Wilcoxon rank-sum test | Skewed; Skewed | No marked group-level skewness flag for parametric default | Two-group continuous outcome: marked skewness flagged in at least one group; selected Wilcoxon rank-sum test. |
+| Maternal weight (lb) | Distribution guidance | rank based recommended | Skewed; Skewed | Marked absolute skewness guidance; Shapiro-Wilk is supporting information only | Assessment applied within each group. |
+| Maternal weight (lb) | Observed group spread | descriptive context | Normal birth weight (n = 130): SD 31.72; variance 1006.41; Low birth weight (n = 59): SD 26.56; variance 705.40; SD ratio = 1.19; variance ratio = 1.43 | Descriptive diagnostic; no pass/fail threshold | Observed spread is descriptive only; no Levene, Bartlett, or F test was performed. \`var_equal = FALSE\` retains Welch methods as the conservative parametric auto default. |
+
+``` r
+
 denominators_stats(comparison)
 ```
+
+| Denominator audit |  |  |  |  |  |  |  |  |
+|----|----|----|----|----|----|----|----|----|
+| Variable | Level | Group | Eligible observations | Used in analysis | Missing / excluded | Numerator | Denominator | Rule |
+| lwt | NA | low = Normal birth weight | 130 | 130 | 0 | NA | 130 | Non-missing outcome observations within group |
+| lwt | NA | low = Low birth weight | 59 | 59 | 0 | NA | 59 | Non-missing outcome observations within group |
 
 ### 5. Customise and export
 
 ``` r
 
 table_one |>
-  tbl_stats(title = "Table 1. Vehicle characteristics") |>
-  customise_table(theme = "journal") |>
+  customise_table(
+    title = "Table 1. Vehicle characteristics",
+    theme = "journal"
+  ) |>
   save_output("table-1.docx")
 ```
 

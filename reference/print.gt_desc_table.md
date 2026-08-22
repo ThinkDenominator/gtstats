@@ -36,6 +36,6 @@ current table builder.
 ``` r
 x <- summary_table(mtcars, by = am, overall = TRUE)
 print(x)
-#> Empty summary table. No rows have been added yet.
-#> Add variables with add_summary(), or add a total, proportion, rate, or custom row.
+#> No variables have been selected.
+#> Add variables using `include = c(age, sex, bmi)`, or use `include = everything()` to summarise all suitable variables.
 ```

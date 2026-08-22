@@ -6,8 +6,7 @@ building a summary table, comparing groups, producing correlation
 tables, and producing a cross-tabulation. Distribution diagnostics,
 group comparisons, and correlations can all be plotted and downloaded.
 It accepts CSV uploads; Excel uploads are also available when the
-suggested [rio](http://gesistsa.github.io/rio/reference/rio.md) package
-is installed.
+suggested rio package is installed.
 
 ## Usage
 

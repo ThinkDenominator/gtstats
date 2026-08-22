@@ -27,7 +27,7 @@
     <li><a class="dropdown-item" href="../articles/teaching-datasets.html">Teaching datasets</a></li>
     <li><a class="dropdown-item" href="../articles/missing-data-denominators.html">Missing data and denominators</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../articles/descriptive-tables.html">Building descriptive tables</a></li>
+    <li><a class="dropdown-item" href="../articles/descriptive-tables.html">Summary tables and customisation</a></li>
     <li><a class="dropdown-item" href="../articles/inferential-tests.html">Inferential tests and assumptions</a></li>
     <li><a class="dropdown-item" href="../articles/inferential-tests.html#default-selection-policy">Automatic test algorithm</a></li>
     <li><a class="dropdown-item" href="../articles/epi-helpers.html">Epidemiology helpers</a></li>
@@ -243,7 +243,7 @@
       </dl></div><div class="section level2">
       <h2 id="build-a-descriptive-table">Build a descriptive table<a class="anchor" aria-label="anchor" href="#build-a-descriptive-table"></a></h2>
 
-      <div class="section-desc"><p>Modular pipe-based workflow for building publication-ready Table 1s. Initialise with summary_table(), add rows with add_*(), render with tbl_stats().</p></div>
+      <div class="section-desc"><p>Build the descriptive foundation, then add confidence intervals, comparisons, or specialist rows only when required.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -259,10 +259,17 @@
 
         <dt>
 
-          <code><a href="add_summary.html">add_summary()</a></code>
+          <code><a href="add_ci.html">add_ci()</a></code>
 
         </dt>
-        <dd>Add summary rows to a descriptive table</dd>
+        <dd>Add confidence intervals to a summary table</dd>
+
+        <dt>
+
+          <code><a href="add_p.html">add_p()</a></code>
+
+        </dt>
+        <dd>Add p-values to a descriptive table</dd>
 
         <dt>
 
@@ -287,21 +294,21 @@
 
         <dt>
 
-          <code><a href="add_p.html">add_p()</a></code>
-
-        </dt>
-        <dd>Add p-values to a descriptive table</dd>
-
-        <dt>
-
           <code><a href="add_row.html">add_row()</a></code>
 
         </dt>
         <dd>Add a custom row to a descriptive table</dd>
+
+        <dt>
+
+          <code><a href="add_summary.html">add_summary()</a></code>
+
+        </dt>
+        <dd>Add summary rows to a descriptive table</dd>
       </dl></div><div class="section level2">
       <h2 id="render-style-and-export">Render, style, and export<a class="anchor" aria-label="anchor" href="#render-style-and-export"></a></h2>
 
-      <div class="section-desc"><p>Render as gt tables, apply journal themes, relabel columns, and export to Word.</p></div>
+      <div class="section-desc"><p>Render as flextable by default, apply publication styling, export to Office, or opt into gt for HTML.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -309,13 +316,6 @@
 
 
       <dl><dt>
-
-          <code><a href="tbl_stats.html">tbl_stats()</a></code>
-
-        </dt>
-        <dd>Create formatted gt tables from gtstats objects</dd>
-
-        <dt>
 
           <code><a href="customise_table.html">customise_table()</a></code>
 
@@ -328,6 +328,20 @@
 
         </dt>
         <dd>Convert a gtstats object to flextable</dd>
+
+        <dt>
+
+          <code><a href="to_gt.html">to_gt()</a></code>
+
+        </dt>
+        <dd>Convert a gtstats result to a gt table</dd>
+
+        <dt>
+
+          <code><a href="tbl_stats.html">tbl_stats()</a></code>
+
+        </dt>
+        <dd>Create formatted gt tables from gtstats objects</dd>
 
         <dt>
 
@@ -420,7 +434,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://thinkdenominator.com" class="external-link">ThinkDenominator</a>.</p>
+  <p>Developed by <a href="https://thinkdenominator.com" class="external-link">ThinkDenominator</a>. <button type="button" class="td-cookie-settings" data-td-cookie-settings>Cookie settings</button></p>
 </div>
 
 <div class="pkgdown-footer-right">

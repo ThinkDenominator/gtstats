@@ -47,7 +47,7 @@
     <li><a class="dropdown-item" href="../articles/teaching-datasets.html">Teaching datasets</a></li>
     <li><a class="dropdown-item" href="../articles/missing-data-denominators.html">Missing data and denominators</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../articles/descriptive-tables.html">Building descriptive tables</a></li>
+    <li><a class="dropdown-item" href="../articles/descriptive-tables.html">Summary tables and customisation</a></li>
     <li><a class="dropdown-item" href="../articles/inferential-tests.html">Inferential tests and assumptions</a></li>
     <li><a class="dropdown-item" href="../articles/inferential-tests.html#default-selection-policy">Automatic test algorithm</a></li>
     <li><a class="dropdown-item" href="../articles/epi-helpers.html">Epidemiology helpers</a></li>
@@ -83,6 +83,19 @@
 
     
     
+<style>
+.app-shot {
+  border: 2px dashed #9a9a96;
+  border-radius: 10px;
+  background: #f7f7f4;
+  color: #4a4a47;
+  margin: 1.25rem 0 2rem 0;
+  padding: 2.2rem 1.25rem;
+  text-align: center;
+}
+.app-shot strong { display: block; color: #1c1c1e; margin-bottom: .35rem; }
+.app-shot code { color: #7a3028; }
+</style>
 <div class="section level2">
 <h2 id="gtstats-app-manual">gtstats App Manual<a class="anchor" aria-label="anchor" href="#gtstats-app-manual"></a>
 </h2>
@@ -227,6 +240,13 @@ removed on smaller screens.</p>
 <div class="section level2">
 <h2 id="data-tab">Data tab<a class="anchor" aria-label="anchor" href="#data-tab"></a>
 </h2>
+<div class="app-shot">
+<p><strong>Screenshot 1 — App overview and Data tab</strong> Replace
+this block with a wide screenshot showing the top menu, numbered
+workflow, teaching-dataset selector, upload control, active-data
+message, and Close app button.<br> Suggested file:
+<code>vignettes/images/app-01-overview-data.png</code></p>
+</div>
 <p>Use the <strong>Data</strong> tab first. You can select one of three
 labelled teaching datasets from one compact dropdown, or upload your own
 data. Uploads support CSV, Excel (<code>.xlsx</code>/<code>.xls</code>),
@@ -237,6 +257,13 @@ R data (<code>.rds</code>), Stata (<code>.dta</code>), and SPSS
 <div class="section level2">
 <h2 id="data-prep-tab">Data Prep tab<a class="anchor" aria-label="anchor" href="#data-prep-tab"></a>
 </h2>
+<div class="app-shot">
+<p><strong>Screenshot 2 — Data Prep command bar and preview</strong>
+Show the explicit preparation menus, structured action form,
+before/after preview, change log, Undo/Redo, and Use prepared data
+button.<br> Suggested file:
+<code>vignettes/images/app-02-data-prep.png</code></p>
+</div>
 <p><strong>Data Prep</strong> is optional. It is for small, auditable
 changes before analysis, not a replacement for a full data-management
 workflow. The imported dataset is kept unchanged; each action changes an
@@ -445,6 +472,12 @@ example, the birth-weight example generates:</p>
 <div class="section level2">
 <h2 id="understand-tab">Understand tab<a class="anchor" aria-label="anchor" href="#understand-tab"></a>
 </h2>
+<div class="app-shot">
+<p><strong>Screenshot 3 — Understand the data</strong> Show Describe
+data, Distribution, and Variance controls, the plot selector, one
+diagnostic table, and its download controls.<br> Suggested file:
+<code>vignettes/images/app-03-understand.png</code></p>
+</div>
 <p>The <strong>Understand</strong> tab has two jobs: give a compact
 overview of the data and inspect selected continuous variables before
 choosing their descriptive display. Its controls are arranged side by
@@ -509,23 +542,32 @@ script if these checks informed a reporting decision.</p>
 <div class="section level2">
 <h2 id="summary-table-tab">Summary table tab<a class="anchor" aria-label="anchor" href="#summary-table-tab"></a>
 </h2>
-<p>The <strong>Summary table</strong> tab creates a descriptive,
-publication-ready table. Think of the left-hand controls as four ordered
-parts:</p>
+<div class="app-shot">
+<p><strong>Screenshot 4 — Summary table recipe</strong> Show the
+variable tickboxes, group/Overall controls, summary and p-value override
+boxes, CI layer, binary-row option, and specialist ingredients.<br>
+Suggested file:
+<code>vignettes/images/app-04-summary-recipe.png</code></p>
+</div>
+<p>The <strong>Summary table</strong> tab is organised as a recipe with
+five stages:</p>
 <ol style="list-style-type: decimal">
 <li>
-<strong>Choose the table contents</strong>: group, variables, and
-overall column.</li>
+<strong>Start the table</strong>: choose Summary or Rate mode,
+grouping, Overall position, and compact or separate-column layout.</li>
 <li>
-<strong>Choose how values are summarised</strong>: optional
-continuous overrides, categorical presentation, missing values,
-precision, and categorical CIs.</li>
+<strong>Add the main summaries</strong>: select ordinary variables
+and their descriptive presentation. Untick this ingredient when building
+a specialist-only table.</li>
+<li>
+<strong>Add optional ingredients</strong>: total N, a selected
+proportion, a rate, or a custom text row.</li>
 <li>
 <strong>Add statistical comparisons</strong>: optional p-values and
 test overrides.</li>
 <li>
-<strong>Customise appearance</strong>: optional title, theme,
-typography, and striping.</li>
+<strong>Finish the appearance</strong>: title, theme, typography,
+and striping.</li>
 </ol>
 <p>The statistical and structural controls remain visible. Advanced
 Auto-test settings and cosmetic controls are collapsed until needed,
@@ -547,9 +589,76 @@ of the rows.</p>
 ordered variables in one selection. The app calls
 <code><a href="../reference/summary_table.html">summary_table()</a></code> once and lets gtstats detect their
 types.</p>
+<p>For binary variables, <strong>Binary variables</strong> can retain
+both levels or show one compact event row. When one row is selected, the
+app uses the second declared level by default and accepts explicit
+<code>variable = event</code> choices such as <code>smoke = Yes</code>.
+The generated script records these choices with
+<code>show_dichotomous</code> and <code>value</code>.</p>
 <p>There is no need to separately select “continuous variables” and
 “categorical variables.” Use one meaningful set of summary-table
 variables.</p>
+</div>
+<div class="section level3">
+<h3 id="optional-ingredients">Optional ingredients<a class="anchor" aria-label="anchor" href="#optional-ingredients"></a>
+</h3>
+<p>The ingredient section exposes the builder helpers without requiring
+users to write a pipeline manually:</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Ingredient</th>
+<th>GUI options</th>
+<th>Generated function</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Total N</td>
+<td>Label and first/last position</td>
+<td><code><a href="../reference/add_total.html">add_total()</a></code></td>
+</tr>
+<tr class="even">
+<td>Selected proportion</td>
+<td>Variable, event level, label, display, CI level/method,
+precision</td>
+<td><code><a href="../reference/add_proportion.html">add_proportion()</a></code></td>
+</tr>
+<tr class="odd">
+<td>Rate</td>
+<td>Event count, person-time, label, multiplier, time label, CI and
+precision</td>
+<td><code><a href="../reference/add_rate.html">add_rate()</a></code></td>
+</tr>
+<tr class="even">
+<td>Custom row</td>
+<td>Label, optional level, Overall and group-specific text</td>
+<td><code><a href="../reference/add_row.html">add_row()</a></code></td>
+</tr>
+</tbody>
+</table>
+<p>Rate rows require <strong>Rate table</strong> mode. Total,
+proportion, ordinary summaries, and p-values use <strong>Summary
+table</strong> mode. This prevents statistically invalid helper
+combinations while keeping all relevant options available.</p>
+<p>For example, choose Summary table, group by <code>smoke</code>, place
+Overall first, use Separate columns, untick ordinary summaries, and add
+the <code>low = Low birth weight</code> proportion to generate:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/summary_table.html">summary_table</a></span><span class="op">(</span></span>
+<span>  <span class="va">data</span>,</span>
+<span>  by <span class="op">=</span> <span class="va">smoke</span>,</span>
+<span>  overall <span class="op">=</span> <span class="st">"first"</span>,</span>
+<span>  layout <span class="op">=</span> <span class="st">"separate"</span></span>
+<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_proportion.html">add_proportion</a></span><span class="op">(</span></span>
+<span>    var <span class="op">=</span> <span class="va">low</span>,</span>
+<span>    level <span class="op">=</span> <span class="st">"Low birth weight"</span>,</span>
+<span>    display <span class="op">=</span> <span class="st">"n_percent"</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="summary-statistic-overrides">Summary-statistic overrides<a class="anchor" aria-label="anchor" href="#summary-statistic-overrides"></a>
@@ -600,14 +709,19 @@ Recommended</td>
 <td>n (%), n/N (%), n only, or percentage only</td>
 </tr>
 <tr class="even">
+<td>Categorical columns</td>
+<td>Keep n (%) together, or separate n and % for categorical-only tables
+without CIs</td>
+</tr>
+<tr class="odd">
 <td>Percentage denominator</td>
 <td>Column, row, or the entire dataset</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Missing values</td>
 <td>Show if present, always, or never</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Decimal places</td>
 <td>Number of displayed decimal places</td>
 </tr>
@@ -618,6 +732,44 @@ column</strong> answers “what percentage of this group has this level?”
 and is the usual Table 1 choice. <strong>Within each row</strong>
 answers a different question: how a level is distributed across the
 displayed groups.</p>
+</div>
+<div class="section level3">
+<h3 id="build-the-table-layer-by-layer">Build the table layer by layer<a class="anchor" aria-label="anchor" href="#build-the-table-layer-by-layer"></a>
+</h3>
+<p>The Summary table tab follows the same onion-like model as the R
+API:</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>Build the foundation</strong> with data, variables, groups
+and an optional Overall column.</li>
+<li>
+<strong>Choose how values are shown</strong>, including summaries,
+percentage denominators and missing values.</li>
+<li>
+<strong>Add confidence intervals</strong> globally or only to
+selected variables.</li>
+<li>
+<strong>Add statistical comparisons</strong> only when the table
+needs p-values.</li>
+<li>Open <strong>Specialist ingredients</strong> for a selected-event
+proportion, rate, total row or custom row.</li>
+<li>Finish the appearance and export the table or its reproducible R
+script.</li>
+</ol>
+<p>Selecting confidence intervals generates a visible
+<code><a href="../reference/add_ci.html">add_ci()</a></code> layer. The app does not hide that choice inside
+<code><a href="../reference/summary_table.html">summary_table()</a></code>. Categorical levels receive proportion
+intervals, continuous means receive mean intervals, and median-only
+summaries remain unchanged.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/summary_table.html">summary_table</a></span><span class="op">(</span></span>
+<span>  <span class="va">birthwt_data</span>,</span>
+<span>  by <span class="op">=</span> <span class="va">low</span>,</span>
+<span>  include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">lwt</span>, <span class="va">race</span>, <span class="va">smoke</span><span class="op">)</span>,</span>
+<span>  overall <span class="op">=</span> <span class="st">"first"</span>,</span>
+<span>  layout <span class="op">=</span> <span class="st">"separate"</span></span>
+<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_ci.html">add_ci</a></span><span class="op">(</span>vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">race</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="add-p-values">Add p-values<a class="anchor" aria-label="anchor" href="#add-p-values"></a>
@@ -658,15 +810,25 @@ and history—has download buttons for DOCX, HTML, PDF, and RTF. PDF needs
 a working browser/webshot setup; DOCX or HTML are the easiest choices
 for most users.</p>
 <p>Open the <strong>Code</strong> panel to copy or download the complete
-<code><a href="../reference/summary_table.html">summary_table()</a></code>, <code><a href="../reference/add_p.html">add_p()</a></code>, and
-<code><a href="../reference/customise_table.html">customise_table()</a></code> pipeline, including each variable’s
-choices. This is the route from a point-and-click table to a
-reproducible manuscript table.</p>
+<code><a href="../reference/summary_table.html">summary_table()</a></code> pipeline and every selected layer,
+including the base summaries, <code><a href="../reference/add_ci.html">add_ci()</a></code>,
+<code><a href="../reference/add_p.html">add_p()</a></code>, <code><a href="../reference/add_total.html">add_total()</a></code>,
+<code><a href="../reference/add_proportion.html">add_proportion()</a></code>, <code><a href="../reference/add_rate.html">add_rate()</a></code>,
+<code><a href="../reference/add_row.html">add_row()</a></code>, and <code><a href="../reference/customise_table.html">customise_table()</a></code>. This is the
+route from a point-and-click table to a reproducible manuscript
+table.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="customise-table-tab">Customise table tab<a class="anchor" aria-label="anchor" href="#customise-table-tab"></a>
 </h2>
+<div class="app-shot">
+<p><strong>Screenshot 5 — Customise the completed table</strong> Show
+the carried-forward Summary table beside theme, labels, spanner,
+borders, density, font, colours, footnotes, p-value style, and export
+controls.<br> Suggested file:
+<code>vignettes/images/app-05-customise.png</code></p>
+</div>
 <p>Use this tab after creating a Summary table when its presentation
 needs to match a manuscript, journal, report, or local wording
 convention. It follows the same post-processing idea as the gtregression
@@ -684,6 +846,77 @@ shading.</li>
 <li>Optionally hide named columns.</li>
 <li>Click <strong>Apply table changes</strong>.</li>
 </ol>
+<p>The controls are grouped by purpose so beginners can work from top to
+bottom:</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Group</th>
+<th>Available controls</th>
+<th>What they affect</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Theme</td>
+<td>Default/journal/classic/minimal/compact</td>
+<td>Overall visual preset; app previews use gt and Office downloads use
+the appropriate export renderer</td>
+</tr>
+<tr class="even">
+<td>Headings</td>
+<td>Title, subtitle, spanning header</td>
+<td>Table caption and grouped column heading</td>
+</tr>
+<tr class="odd">
+<td>Wording</td>
+<td>Column, row, and level mappings</td>
+<td>Displayed labels only; source data remain unchanged</td>
+</tr>
+<tr class="even">
+<td>Notes</td>
+<td>Source note, extra footnotes, show/hide package footnotes</td>
+<td>Explanatory material below the table</td>
+</tr>
+<tr class="odd">
+<td>Typography</td>
+<td>Font, font size, bold labels</td>
+<td>Readability and emphasis</td>
+</tr>
+<tr class="even">
+<td>Layout</td>
+<td>Standard/compact/spacious density and table width</td>
+<td>Row spacing and overall table dimensions</td>
+</tr>
+<tr class="odd">
+<td>Rules and colour</td>
+<td>Horizontal/all/minimal borders, accent colour, row striping and
+stripe colour</td>
+<td>Publication styling</td>
+</tr>
+<tr class="even">
+<td>Column control</td>
+<td>Left/centre/right alignment, hide, bold, or italic columns</td>
+<td>Fine-grained completed-column formatting</td>
+</tr>
+<tr class="odd">
+<td>P-values</td>
+<td>Threshold/fixed/scientific style, digits, threshold, optional
+<code>p =</code>
+</td>
+<td>Display only; the selected tests and numeric p-values do not
+change</td>
+</tr>
+</tbody>
+</table>
+<p>Use <strong>compact</strong> density for a long manuscript table and
+<strong>standard</strong> for most reports. The package already uses
+smaller footnote text, so footnotes remain visually subordinate to the
+data. Use <strong>Show footnotes</strong> unless the same definitions
+are supplied in the manuscript caption or methods.</p>
 <p>The original Summary-table result remains unchanged. Only its display
 is modified. The preview and DOCX, HTML, PDF, and RTF downloads
 therefore contain the same estimates, confidence intervals,
@@ -702,6 +935,12 @@ not remove the test from the result object or change the analysis.</p>
 <div class="section level2">
 <h2 id="compare-groups-tab">Compare groups tab<a class="anchor" aria-label="anchor" href="#compare-groups-tab"></a>
 </h2>
+<div class="app-shot">
+<p><strong>Screenshot 6 — Compare groups</strong> Show outcome/group
+selection, Auto versus explicit test control, paired options, effect
+size, publication table, and Audit panel.<br> Suggested file:
+<code>vignettes/images/app-06-compare.png</code></p>
+</div>
 <p>Use <strong>Compare groups</strong> for one focused inferential
 question—not to replace a descriptive Table 1.</p>
 <ol style="list-style-type: decimal">
@@ -829,6 +1068,12 @@ your analysis script.</p>
 <div class="section level2">
 <h2 id="correlation-tab">Correlation tab<a class="anchor" aria-label="anchor" href="#correlation-tab"></a>
 </h2>
+<div class="app-shot">
+<p><strong>Screenshot 7 — Correlation and matrix visualisation</strong>
+Show the pair/matrix switch, method choice, correlation table, heatmap,
+plot appearance controls, and generated code.<br> Suggested file:
+<code>vignettes/images/app-07-correlation.png</code></p>
+</div>
 <p>Use <strong>Correlation</strong> for relationships between continuous
 variables. Choose <strong>One pair</strong> for a conventional
 coefficient and scatterplot, or <strong>Correlation matrix</strong> for
@@ -897,6 +1142,13 @@ causation.</p>
 <div class="section level2">
 <h2 id="crosstabs-tab">Crosstabs tab<a class="anchor" aria-label="anchor" href="#crosstabs-tab"></a>
 </h2>
+<div class="app-shot">
+<p><strong>Screenshot 8 — Crosstabs and epidemiological
+measures</strong> Show row/column selectors, percentage choices, totals,
+association test, and a 2x2 result containing OR, RR, and risk
+difference.<br> Suggested file:
+<code>vignettes/images/app-08-crosstabs.png</code></p>
+</div>
 <p>Use <strong>Crosstabs</strong> for two categorical variables.</p>
 <ol style="list-style-type: decimal">
 <li>Choose <strong>Rows (exposure)</strong>.</li>
@@ -951,6 +1203,12 @@ variable.</li>
 <div class="section level2">
 <h2 id="saving-outputs">Saving outputs<a class="anchor" aria-label="anchor" href="#saving-outputs"></a>
 </h2>
+<div class="app-shot">
+<p><strong>Screenshot 9 — Download and reproduce</strong> Show the
+DOCX/HTML/PDF/RTF controls together with Copy code and Download .R. This
+should be the final image in the app tour.<br> Suggested file:
+<code>vignettes/images/app-09-export-code.png</code></p>
+</div>
 <p>Every result tab offers table downloads. Use them as follows:</p>
 <table class="table">
 <colgroup>
@@ -1001,19 +1259,19 @@ clipboard access, use <strong>Download .R</strong> instead.</p>
 <div class="section level3">
 <h3 id="the-app-does-not-open">The app does not open<a class="anchor" aria-label="anchor" href="#the-app-does-not-open"></a>
 </h3>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"shiny"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/gtstats_app.html">gtstats_app</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>If it opens in an external browser and you prefer RStudio, run it
 from an interactive RStudio session. You can also choose explicitly:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gtstats_app.html">gtstats_app</a></span><span class="op">(</span>launch.browser <span class="op">=</span> <span class="fu">rstudioapi</span><span class="fu">::</span><span class="va"><a href="https://rstudio.github.io/rstudioapi/reference/viewer.html" class="external-link">viewer</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="excel-upload-gives-an-error">Excel upload gives an error<a class="anchor" aria-label="anchor" href="#excel-upload-gives-an-error"></a>
 </h3>
 <p>Install <code>rio</code>, restart the app, and try again:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"rio"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -1064,7 +1322,7 @@ reproducible outside the app.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://thinkdenominator.com" class="external-link">ThinkDenominator</a>.</p>
+  <p>Developed by <a href="https://thinkdenominator.com" class="external-link">ThinkDenominator</a>. <button type="button" class="td-cookie-settings" data-td-cookie-settings>Cookie settings</button></p>
 </div>
 
 <div class="pkgdown-footer-right">

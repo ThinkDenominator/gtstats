@@ -8,6 +8,7 @@ visual theme to a table produced by `gtstats`.
 ``` r
 customise_table(
   x,
+  engine = c("flextable", "gt"),
   theme = c("default", "journal", "classic", "minimal", "compact"),
   title = NULL,
   subtitle = NULL,
@@ -26,7 +27,16 @@ customise_table(
   accent_color = NULL,
   stripe_color = NULL,
   bold_labels = TRUE,
-  show_footnotes = TRUE
+  show_footnotes = TRUE,
+  spanning_header = NULL,
+  footnotes = NULL,
+  borders = c("horizontal", "all", "minimal"),
+  density = c("standard", "compact", "spacious"),
+  column_widths = NULL,
+  pvalue_style = c("threshold", "fixed", "scientific"),
+  pvalue_digits = 3,
+  pvalue_threshold = 0.001,
+  pvalue_prefix = FALSE
 )
 ```
 
@@ -34,7 +44,13 @@ customise_table(
 
 - x:
 
-  A supported `gtstats` result or rendered `gt_tbl`.
+  A supported `gtstats` result, rendered `flextable`, or rendered
+  `gt_tbl`.
+
+- engine:
+
+  Rendering engine used when `x` is an unrendered result. `"flextable"`
+  is the default; use `"gt"` for HTML-oriented workflows.
 
 - theme:
 
@@ -93,9 +109,50 @@ customise_table(
 
   Logical; retain explanatory footnotes when rendering a raw result.
 
+- spanning_header:
+
+  Optional spanning heading. Supply one character value to span all
+  result columns, or a named list/vector mapping displayed headings to
+  completed column names.
+
+- footnotes:
+
+  Optional additional footer notes.
+
+- borders:
+
+  Border style: `"horizontal"`, `"all"`, or `"minimal"`.
+
+- density:
+
+  Cell density: `"standard"`, `"compact"`, or `"spacious"`.
+
+- column_widths:
+
+  Optional named numeric vector of column widths in inches for flextable
+  output.
+
+- pvalue_style:
+
+  P-value style for summary-table results: `"threshold"`, `"fixed"`, or
+  `"scientific"`.
+
+- pvalue_digits:
+
+  Number of displayed p-value digits.
+
+- pvalue_threshold:
+
+  Threshold displayed using a less-than sign.
+
+- pvalue_prefix:
+
+  Logical; prepend `p =` to ordinary p-values.
+
 ## Value
 
-A styled `gt_tbl`.
+A styled `flextable` by default, or a `gt_tbl` when `engine = "gt"` or
+`x` is already a gt table.
 
 ## Examples
 
@@ -104,7 +161,7 @@ result <- summary_table(mtcars, include = c(mpg, wt))
 customise_table(result, title = "Vehicle characteristics")
 
 
-  
+.cl-faf5f496{}.cl-faee3fa8{font-family:'DejaVu Sans';font-size:10pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-faee3fbc{font-family:'DejaVu Sans';font-size:10pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-faee3fc6{font-family:'DejaVu Sans';font-size:8pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-faf1a8be{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:3pt;padding-top:3pt;padding-left:3pt;padding-right:3pt;line-height: 1;background-color:transparent;}.cl-faf1cf38{width:1.306in;background-color:transparent;vertical-align: middle;border-bottom: 0.75pt solid rgba(166, 166, 166, 1.00);border-top: 0.75pt solid rgba(166, 166, 166, 1.00);border-left: 0.75pt solid rgba(166, 166, 166, 1.00);border-right: 0.75pt solid rgba(166, 166, 166, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-faf1cf42{width:0.894in;background-color:transparent;vertical-align: middle;border-bottom: 0.75pt solid rgba(166, 166, 166, 1.00);border-top: 0.75pt solid rgba(166, 166, 166, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0.75pt solid rgba(166, 166, 166, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-faf1cf4c{width:1.306in;background-color:transparent;vertical-align: middle;border-bottom: 0.75pt solid rgba(166, 166, 166, 1.00);border-top: 0.75pt solid rgba(166, 166, 166, 1.00);border-left: 0.75pt solid rgba(166, 166, 166, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-faf1cf4d{width:1.306in;background-color:transparent;vertical-align: middle;border-bottom: 0.75pt solid rgba(166, 166, 166, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0.75pt solid rgba(166, 166, 166, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-faf1cf56{width:0.894in;background-color:transparent;vertical-align: middle;border-bottom: 0.75pt solid rgba(166, 166, 166, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0.75pt solid rgba(166, 166, 166, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-faf1cf60{width:1.306in;background-color:transparent;vertical-align: middle;border-bottom: 0.75pt solid rgba(166, 166, 166, 1.00);border-top: 0.75pt solid rgba(166, 166, 166, 1.00);border-left: 0.75pt solid rgba(166, 166, 166, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-faf1cf74{width:0.894in;background-color:transparent;vertical-align: middle;border-bottom: 0.75pt solid rgba(166, 166, 166, 1.00);border-top: 0.75pt solid rgba(166, 166, 166, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0.75pt solid rgba(166, 166, 166, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-faf1cf7e{width:1.306in;background-color:transparent;vertical-align: middle;border-bottom: 0.75pt solid rgba(166, 166, 166, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0.75pt solid rgba(166, 166, 166, 1.00);border-right: 0.75pt solid rgba(166, 166, 166, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-faf1cf88{width:0.894in;background-color:transparent;vertical-align: middle;border-bottom: 0.75pt solid rgba(166, 166, 166, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0.75pt solid rgba(166, 166, 166, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}
 
 
 Vehicle characteristics

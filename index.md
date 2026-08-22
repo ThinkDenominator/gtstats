@@ -26,7 +26,7 @@ automatic decisions for review.
 | Describe | [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md) | Publication-ready participant-characteristics table |
 | Compare | [`compare_groups()`](https://gtstats.thinkdenominator.com/reference/compare_groups.md) | One focused group comparison with a clearly identified test and automatic-selection rule |
 | Audit | [`assumptions_stats()`](https://gtstats.thinkdenominator.com/reference/assumptions_stats.md), [`diagnostics_stats()`](https://gtstats.thinkdenominator.com/reference/diagnostics_stats.md), [`denominators_stats()`](https://gtstats.thinkdenominator.com/reference/denominators_stats.md) | Transparent decisions and analysis population |
-| Export | [`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md), [`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md), [`save_output()`](https://gtstats.thinkdenominator.com/reference/save_output.md) | A modifiable, report-ready table |
+| Export | [`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md), [`to_gt()`](https://gtstats.thinkdenominator.com/reference/to_gt.md), [`save_output()`](https://gtstats.thinkdenominator.com/reference/save_output.md) | A modifiable, report-ready table |
 | Guided | [`gtstats_app()`](https://gtstats.thinkdenominator.com/reference/gtstats_app.md) | A point-and-click companion that generates the matching R code |
 
 Understand
@@ -46,7 +46,7 @@ correlation()
 
 Report
 
-tbl_stats()  
+customise_table()  
 save_output()
 
 ## Why it exists
@@ -108,10 +108,10 @@ data("birthwt", "trial_data", "paired_data", package = "gtstats")
 The package remains code-first, but a Shiny companion is available when
 you prefer to learn by clicking through the workflow. It includes the
 three teaching datasets, CSV/Excel upload, a working data dictionary,
-distribution and variance checks, Table 1, focused group comparisons,
-crosstabs, Word/HTML/PDF/RTF table downloads, an in-session history, and
-copyable or downloadable R code for every analysis. Excel import uses
-the optional `rio` package.
+distribution and variance checks, a layer-by-layer Summary table,
+focused group comparisons, crosstabs, Word/HTML/PDF/RTF table downloads,
+an in-session history, and copyable or downloadable R code for every
+analysis. Excel import uses the optional `rio` package.
 
 ``` r
 
@@ -141,26 +141,60 @@ table_one <- summary_table(
   birthwt,
   by = low,
   include = c(age, lwt, race, smoke),
-  overall = "last"
+  overall = "last",
+  layout = "separate"
 ) |>
+  add_ci(vars = c(age, race)) |>
   add_p()
+
+# Optional categorical-only presentation with distinct n and % columns
+categorical_table <- summary_table(
+  birthwt,
+  by = low,
+  include = c(race, smoke),
+  categorical_layout = "separate"
+)
+
+# Optional compact binary presentation: one clinically relevant event per row
+compact_binary_table <- summary_table(
+  birthwt,
+  by = low,
+  include = c(smoke, ht, race),
+  show_dichotomous = "single_row",
+  value = c(smoke = "Yes", ht = "Yes")
+)
 
 comparison <- compare_groups(birthwt, variable = lwt, group = low)
 comparison$method$selection_rule
 diagnostics_stats(comparison)
 ```
 
-Each object prints as a publication-ready table.
-[`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md)
-is optional: use it when you want to add a title, customise the
-appearance, or export a `gt` table.
+Each object prints as a publication-ready `flextable`, ready for Word
+and PowerPoint. Use
+[`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md)
+to finish its appearance. Use
+[`to_gt()`](https://gtstats.thinkdenominator.com/reference/to_gt.md)
+only when an HTML-focused `gt` table is specifically required.
 
 ``` r
 
 table_one |>
-  tbl_stats(title = "Table 1. Vehicle characteristics") |>
-  customise_table(theme = "journal") |>
+  customise_table(
+    theme = "journal",
+    title = "Table 1. Maternal characteristics",
+    spanning_header = list(
+      "Birth-weight groups" = c(
+        "low = Normal birth weight",
+        "low = Low birth weight"
+      )
+    ),
+    borders = "horizontal",
+    pvalue_style = "threshold"
+  ) |>
   save_output("table-1.docx")
+
+# Explicit HTML/gt route
+to_gt(table_one, title = "Table 1. Maternal characteristics")
 ```
 
 ## Browse by task
@@ -206,13 +240,13 @@ other layers still work before the completed tibble is printed.
 | Workflow | Functions |
 |----|----|
 | Understand | [`describe_data()`](https://gtstats.thinkdenominator.com/reference/describe_data.md), [`assess_distribution()`](https://gtstats.thinkdenominator.com/reference/assess_distribution.md), [`assess_variance()`](https://gtstats.thinkdenominator.com/reference/assess_variance.md) |
-| Build Table 1 | [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md), [`add_summary()`](https://gtstats.thinkdenominator.com/reference/add_summary.md), [`add_proportion()`](https://gtstats.thinkdenominator.com/reference/add_proportion.md), [`add_rate()`](https://gtstats.thinkdenominator.com/reference/add_rate.md), [`add_total()`](https://gtstats.thinkdenominator.com/reference/add_total.md), [`add_p()`](https://gtstats.thinkdenominator.com/reference/add_p.md), [`add_row()`](https://gtstats.thinkdenominator.com/reference/add_row.md) |
+| Build Table 1 | [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md), [`add_ci()`](https://gtstats.thinkdenominator.com/reference/add_ci.md), [`add_p()`](https://gtstats.thinkdenominator.com/reference/add_p.md), [`add_proportion()`](https://gtstats.thinkdenominator.com/reference/add_proportion.md), [`add_rate()`](https://gtstats.thinkdenominator.com/reference/add_rate.md), [`add_total()`](https://gtstats.thinkdenominator.com/reference/add_total.md), [`add_row()`](https://gtstats.thinkdenominator.com/reference/add_row.md) |
 | Compare | [`compare_groups()`](https://gtstats.thinkdenominator.com/reference/compare_groups.md), [`effect_size()`](https://gtstats.thinkdenominator.com/reference/effect_size.md), [`correlation()`](https://gtstats.thinkdenominator.com/reference/correlation.md) |
 | Epidemiology | [`proportion_stats()`](https://gtstats.thinkdenominator.com/reference/proportion_stats.md), [`rate_stats()`](https://gtstats.thinkdenominator.com/reference/rate_stats.md), [`crosstabs()`](https://gtstats.thinkdenominator.com/reference/crosstabs.md) |
 | Inspect decisions | [`assumptions_stats()`](https://gtstats.thinkdenominator.com/reference/assumptions_stats.md), [`diagnostics_stats()`](https://gtstats.thinkdenominator.com/reference/diagnostics_stats.md), [`denominators_stats()`](https://gtstats.thinkdenominator.com/reference/denominators_stats.md) |
 | Visualise | [`plot_compare()`](https://gtstats.thinkdenominator.com/reference/plot_compare.md), [`plot_correlation()`](https://gtstats.thinkdenominator.com/reference/plot_correlation.md) |
 | Guided interface | [`gtstats_app()`](https://gtstats.thinkdenominator.com/reference/gtstats_app.md) |
-| Polish and export | [`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md), [`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md), [`to_flextable()`](https://gtstats.thinkdenominator.com/reference/to_flextable.md), [`save_output()`](https://gtstats.thinkdenominator.com/reference/save_output.md) |
+| Polish and export | [`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md), [`to_flextable()`](https://gtstats.thinkdenominator.com/reference/to_flextable.md), [`to_gt()`](https://gtstats.thinkdenominator.com/reference/to_gt.md), [`save_output()`](https://gtstats.thinkdenominator.com/reference/save_output.md) |
 
 [`correlation()`](https://gtstats.thinkdenominator.com/reference/correlation.md)
 handles both a prespecified pair and an exploratory matrix. The matrix

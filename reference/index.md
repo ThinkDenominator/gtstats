@@ -81,36 +81,39 @@ exact Poisson confidence intervals, and 2x2 tables with RR, OR, and RD.
 
 ## Build a descriptive table
 
-Modular pipe-based workflow for building publication-ready Table 1s.
-Initialise with summary_table(), add rows with add\_\*(), render with
-tbl_stats().
+Build the descriptive foundation, then add confidence intervals,
+comparisons, or specialist rows only when required.
 
 - [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md)
   : Create a summary table builder
-- [`add_summary()`](https://gtstats.thinkdenominator.com/reference/add_summary.md)
-  : Add summary rows to a descriptive table
+- [`add_ci()`](https://gtstats.thinkdenominator.com/reference/add_ci.md)
+  : Add confidence intervals to a summary table
+- [`add_p()`](https://gtstats.thinkdenominator.com/reference/add_p.md) :
+  Add p-values to a descriptive table
 - [`add_proportion()`](https://gtstats.thinkdenominator.com/reference/add_proportion.md)
   : Add a proportion row to a descriptive table
 - [`add_rate()`](https://gtstats.thinkdenominator.com/reference/add_rate.md)
   : Add an event-rate row
 - [`add_total()`](https://gtstats.thinkdenominator.com/reference/add_total.md)
   : Add total counts to a descriptive table
-- [`add_p()`](https://gtstats.thinkdenominator.com/reference/add_p.md) :
-  Add p-values to a descriptive table
 - [`add_row()`](https://gtstats.thinkdenominator.com/reference/add_row.md)
   : Add a custom row to a descriptive table
+- [`add_summary()`](https://gtstats.thinkdenominator.com/reference/add_summary.md)
+  : Add summary rows to a descriptive table
 
 ## Render, style, and export
 
-Render as gt tables, apply journal themes, relabel columns, and export
-to Word.
+Render as flextable by default, apply publication styling, export to
+Office, or opt into gt for HTML.
 
-- [`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md)
-  : Create formatted gt tables from gtstats objects
 - [`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md)
   : Customize a gtstats table
 - [`to_flextable()`](https://gtstats.thinkdenominator.com/reference/to_flextable.md)
   : Convert a gtstats object to flextable
+- [`to_gt()`](https://gtstats.thinkdenominator.com/reference/to_gt.md) :
+  Convert a gtstats result to a gt table
+- [`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md)
+  : Create formatted gt tables from gtstats objects
 - [`save_output()`](https://gtstats.thinkdenominator.com/reference/save_output.md)
   : Save a gtstats table or plot
 

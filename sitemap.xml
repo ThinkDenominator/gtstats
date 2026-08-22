@@ -17,6 +17,7 @@
 <url><loc>https://gtstats.thinkdenominator.com/authors.html</loc></url>
 <url><loc>https://gtstats.thinkdenominator.com/index.html</loc></url>
 <url><loc>https://gtstats.thinkdenominator.com/news/index.html</loc></url>
+<url><loc>https://gtstats.thinkdenominator.com/reference/add_ci.html</loc></url>
 <url><loc>https://gtstats.thinkdenominator.com/reference/add_p.html</loc></url>
 <url><loc>https://gtstats.thinkdenominator.com/reference/add_proportion.html</loc></url>
 <url><loc>https://gtstats.thinkdenominator.com/reference/add_rate.html</loc></url>
@@ -56,6 +57,7 @@
 <url><loc>https://gtstats.thinkdenominator.com/reference/summary_table.html</loc></url>
 <url><loc>https://gtstats.thinkdenominator.com/reference/tbl_stats.html</loc></url>
 <url><loc>https://gtstats.thinkdenominator.com/reference/to_flextable.html</loc></url>
+<url><loc>https://gtstats.thinkdenominator.com/reference/to_gt.html</loc></url>
 <url><loc>https://gtstats.thinkdenominator.com/reference/trial_data.html</loc></url>
 </urlset>
 

@@ -127,6 +127,12 @@ smaller screens.
 
 ## Data tab
 
+**Screenshot 1 — App overview and Data tab** Replace this block with a
+wide screenshot showing the top menu, numbered workflow,
+teaching-dataset selector, upload control, active-data message, and
+Close app button.  
+Suggested file: `vignettes/images/app-01-overview-data.png`
+
 Use the **Data** tab first. You can select one of three labelled
 teaching datasets from one compact dropdown, or upload your own data.
 Uploads support CSV, Excel (`.xlsx`/`.xls`), R data (`.rds`), Stata
@@ -134,6 +140,11 @@ Uploads support CSV, Excel (`.xlsx`/`.xls`), R data (`.rds`), Stata
 optional `rio` package.
 
 ## Data Prep tab
+
+**Screenshot 2 — Data Prep command bar and preview** Show the explicit
+preparation menus, structured action form, before/after preview, change
+log, Undo/Redo, and Use prepared data button.  
+Suggested file: `vignettes/images/app-02-data-prep.png`
 
 **Data Prep** is optional. It is for small, auditable changes before
 analysis, not a replacement for a full data-management workflow. The
@@ -264,6 +275,11 @@ Copy this code first when creating a permanent R script.
 
 ## Understand tab
 
+**Screenshot 3 — Understand the data** Show Describe data, Distribution,
+and Variance controls, the plot selector, one diagnostic table, and its
+download controls.  
+Suggested file: `vignettes/images/app-03-understand.png`
+
 The **Understand** tab has two jobs: give a compact overview of the data
 and inspect selected continuous variables before choosing their
 descriptive display. Its controls are arranged side by side: dataset
@@ -328,17 +344,23 @@ decision.
 
 ## Summary table tab
 
-The **Summary table** tab creates a descriptive, publication-ready
-table. Think of the left-hand controls as four ordered parts:
+**Screenshot 4 — Summary table recipe** Show the variable tickboxes,
+group/Overall controls, summary and p-value override boxes, CI layer,
+binary-row option, and specialist ingredients.  
+Suggested file: `vignettes/images/app-04-summary-recipe.png`
 
-1.  **Choose the table contents**: group, variables, and overall column.
-2.  **Choose how values are summarised**: optional continuous overrides,
-    categorical presentation, missing values, precision, and categorical
-    CIs.
-3.  **Add statistical comparisons**: optional p-values and test
+The **Summary table** tab is organised as a recipe with five stages:
+
+1.  **Start the table**: choose Summary or Rate mode, grouping, Overall
+    position, and compact or separate-column layout.
+2.  **Add the main summaries**: select ordinary variables and their
+    descriptive presentation. Untick this ingredient when building a
+    specialist-only table.
+3.  **Add optional ingredients**: total N, a selected proportion, a
+    rate, or a custom text row.
+4.  **Add statistical comparisons**: optional p-values and test
     overrides.
-4.  **Customise appearance**: optional title, theme, typography, and
-    striping.
+5.  **Finish the appearance**: title, theme, typography, and striping.
 
 The statistical and structural controls remain visible. Advanced
 Auto-test settings and cosmetic controls are collapsed until needed,
@@ -359,9 +381,51 @@ selection. The app calls
 [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md)
 once and lets gtstats detect their types.
 
+For binary variables, **Binary variables** can retain both levels or
+show one compact event row. When one row is selected, the app uses the
+second declared level by default and accepts explicit `variable = event`
+choices such as `smoke = Yes`. The generated script records these
+choices with `show_dichotomous` and `value`.
+
 There is no need to separately select “continuous variables” and
 “categorical variables.” Use one meaningful set of summary-table
 variables.
+
+### Optional ingredients
+
+The ingredient section exposes the builder helpers without requiring
+users to write a pipeline manually:
+
+| Ingredient | GUI options | Generated function |
+|----|----|----|
+| Total N | Label and first/last position | [`add_total()`](https://gtstats.thinkdenominator.com/reference/add_total.md) |
+| Selected proportion | Variable, event level, label, display, CI level/method, precision | [`add_proportion()`](https://gtstats.thinkdenominator.com/reference/add_proportion.md) |
+| Rate | Event count, person-time, label, multiplier, time label, CI and precision | [`add_rate()`](https://gtstats.thinkdenominator.com/reference/add_rate.md) |
+| Custom row | Label, optional level, Overall and group-specific text | [`add_row()`](https://gtstats.thinkdenominator.com/reference/add_row.md) |
+
+Rate rows require **Rate table** mode. Total, proportion, ordinary
+summaries, and p-values use **Summary table** mode. This prevents
+statistically invalid helper combinations while keeping all relevant
+options available.
+
+For example, choose Summary table, group by `smoke`, place Overall
+first, use Separate columns, untick ordinary summaries, and add the
+`low = Low birth weight` proportion to generate:
+
+``` r
+
+summary_table(
+  data,
+  by = smoke,
+  overall = "first",
+  layout = "separate"
+) |>
+  add_proportion(
+    var = low,
+    level = "Low birth weight",
+    display = "n_percent"
+  )
+```
 
 ### Summary-statistic overrides
 
@@ -394,6 +458,7 @@ confidence level), so “95% CI” is not repeated inside every table cell.
 | Overall column | No overall column, or an Overall column first/last |
 | Summary-statistic overrides | Optional exceptions; unlisted continuous variables use Recommended |
 | Categorical display | n (%), n/N (%), n only, or percentage only |
+| Categorical columns | Keep n (%) together, or separate n and % for categorical-only tables without CIs |
 | Percentage denominator | Column, row, or the entire dataset |
 | Missing values | Show if present, always, or never |
 | Decimal places | Number of displayed decimal places |
@@ -402,6 +467,40 @@ Choose the percentage denominator intentionally. **Within each column**
 answers “what percentage of this group has this level?” and is the usual
 Table 1 choice. **Within each row** answers a different question: how a
 level is distributed across the displayed groups.
+
+### Build the table layer by layer
+
+The Summary table tab follows the same onion-like model as the R API:
+
+1.  **Build the foundation** with data, variables, groups and an
+    optional Overall column.
+2.  **Choose how values are shown**, including summaries, percentage
+    denominators and missing values.
+3.  **Add confidence intervals** globally or only to selected variables.
+4.  **Add statistical comparisons** only when the table needs p-values.
+5.  Open **Specialist ingredients** for a selected-event proportion,
+    rate, total row or custom row.
+6.  Finish the appearance and export the table or its reproducible R
+    script.
+
+Selecting confidence intervals generates a visible
+[`add_ci()`](https://gtstats.thinkdenominator.com/reference/add_ci.md)
+layer. The app does not hide that choice inside
+[`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md).
+Categorical levels receive proportion intervals, continuous means
+receive mean intervals, and median-only summaries remain unchanged.
+
+``` r
+
+summary_table(
+  birthwt_data,
+  by = low,
+  include = c(age, lwt, race, smoke),
+  overall = "first",
+  layout = "separate"
+) |>
+  add_ci(vars = c(age, race))
+```
 
 ### Add p-values
 
@@ -444,14 +543,25 @@ a working browser/webshot setup; DOCX or HTML are the easiest choices
 for most users.
 
 Open the **Code** panel to copy or download the complete
-[`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md),
+[`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md)
+pipeline and every selected layer, including the base summaries,
+[`add_ci()`](https://gtstats.thinkdenominator.com/reference/add_ci.md),
 [`add_p()`](https://gtstats.thinkdenominator.com/reference/add_p.md),
+[`add_total()`](https://gtstats.thinkdenominator.com/reference/add_total.md),
+[`add_proportion()`](https://gtstats.thinkdenominator.com/reference/add_proportion.md),
+[`add_rate()`](https://gtstats.thinkdenominator.com/reference/add_rate.md),
+[`add_row()`](https://gtstats.thinkdenominator.com/reference/add_row.md),
 and
-[`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md)
-pipeline, including each variable’s choices. This is the route from a
-point-and-click table to a reproducible manuscript table.
+[`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md).
+This is the route from a point-and-click table to a reproducible
+manuscript table.
 
 ## Customise table tab
+
+**Screenshot 5 — Customise the completed table** Show the
+carried-forward Summary table beside theme, labels, spanner, borders,
+density, font, colours, footnotes, p-value style, and export controls.  
+Suggested file: `vignettes/images/app-05-customise.png`
 
 Use this tab after creating a Summary table when its presentation needs
 to match a manuscript, journal, report, or local wording convention. It
@@ -469,6 +579,27 @@ directs the user back to the preceding tab.
     shading.
 5.  Optionally hide named columns.
 6.  Click **Apply table changes**.
+
+The controls are grouped by purpose so beginners can work from top to
+bottom:
+
+| Group | Available controls | What they affect |
+|----|----|----|
+| Theme | Default/journal/classic/minimal/compact | Overall visual preset; app previews use gt and Office downloads use the appropriate export renderer |
+| Headings | Title, subtitle, spanning header | Table caption and grouped column heading |
+| Wording | Column, row, and level mappings | Displayed labels only; source data remain unchanged |
+| Notes | Source note, extra footnotes, show/hide package footnotes | Explanatory material below the table |
+| Typography | Font, font size, bold labels | Readability and emphasis |
+| Layout | Standard/compact/spacious density and table width | Row spacing and overall table dimensions |
+| Rules and colour | Horizontal/all/minimal borders, accent colour, row striping and stripe colour | Publication styling |
+| Column control | Left/centre/right alignment, hide, bold, or italic columns | Fine-grained completed-column formatting |
+| P-values | Threshold/fixed/scientific style, digits, threshold, optional `p =` | Display only; the selected tests and numeric p-values do not change |
+
+Use **compact** density for a long manuscript table and **standard** for
+most reports. The package already uses smaller footnote text, so
+footnotes remain visually subordinate to the data. Use **Show
+footnotes** unless the same definitions are supplied in the manuscript
+caption or methods.
 
 The original Summary-table result remains unchanged. Only its display is
 modified. The preview and DOCX, HTML, PDF, and RTF downloads therefore
@@ -493,6 +624,11 @@ Column hiding is presentational only. Hiding a p-value column does not
 remove the test from the result object or change the analysis.
 
 ## Compare groups tab
+
+**Screenshot 6 — Compare groups** Show outcome/group selection, Auto
+versus explicit test control, paired options, effect size, publication
+table, and Audit panel.  
+Suggested file: `vignettes/images/app-06-compare.png`
 
 Use **Compare groups** for one focused inferential question—not to
 replace a descriptive Table 1.
@@ -555,6 +691,11 @@ Use the **Code** panel to retain the exact comparison in your analysis
 script.
 
 ## Correlation tab
+
+**Screenshot 7 — Correlation and matrix visualisation** Show the
+pair/matrix switch, method choice, correlation table, heatmap, plot
+appearance controls, and generated code.  
+Suggested file: `vignettes/images/app-07-correlation.png`
 
 Use **Correlation** for relationships between continuous variables.
 Choose **One pair** for a conventional coefficient and scatterplot, or
@@ -626,6 +767,11 @@ causation.
 
 ## Crosstabs tab
 
+**Screenshot 8 — Crosstabs and epidemiological measures** Show
+row/column selectors, percentage choices, totals, association test, and
+a 2x2 result containing OR, RR, and risk difference.  
+Suggested file: `vignettes/images/app-08-crosstabs.png`
+
 Use **Crosstabs** for two categorical variables.
 
 1.  Choose **Rows (exposure)**.
@@ -673,6 +819,11 @@ The **Help** tab repeats the safe beginner order:
 5.  Review the output and generated code before reporting.
 
 ## Saving outputs
+
+**Screenshot 9 — Download and reproduce** Show the DOCX/HTML/PDF/RTF
+controls together with Copy code and Download .R. This should be the
+final image in the app tour.  
+Suggested file: `vignettes/images/app-09-export-code.png`
 
 Every result tab offers table downloads. Use them as follows:
 

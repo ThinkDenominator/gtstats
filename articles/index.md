@@ -43,8 +43,8 @@
 
 ### Workflows and details
 
-- [Building Descriptive Tables with
-  gtstats](https://gtstats.thinkdenominator.com/articles/descriptive-tables.md):
+- [Summary Tables and
+  Customisation](https://gtstats.thinkdenominator.com/articles/descriptive-tables.md):
 
 - [Inferential Tests and
   Assumptions](https://gtstats.thinkdenominator.com/articles/inferential-tests.md):
@@ -60,4 +60,5 @@
 - [Styling and Exporting
   Tables](https://gtstats.thinkdenominator.com/articles/styling-export.md):
 
-  Apply themes, relabel columns and rows, and export to Word.
+  Finish publication tables, choose an output engine, and export to
+  Office or HTML.

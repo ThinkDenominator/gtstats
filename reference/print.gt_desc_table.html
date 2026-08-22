@@ -31,7 +31,7 @@ rows."><link rel="stylesheet" href="https://thinkdenominator.com/analytics-conse
     <li><a class="dropdown-item" href="../articles/teaching-datasets.html">Teaching datasets</a></li>
     <li><a class="dropdown-item" href="../articles/missing-data-denominators.html">Missing data and denominators</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../articles/descriptive-tables.html">Building descriptive tables</a></li>
+    <li><a class="dropdown-item" href="../articles/descriptive-tables.html">Summary tables and customisation</a></li>
     <li><a class="dropdown-item" href="../articles/inferential-tests.html">Inferential tests and assumptions</a></li>
     <li><a class="dropdown-item" href="../articles/inferential-tests.html#default-selection-policy">Automatic test algorithm</a></li>
     <li><a class="dropdown-item" href="../articles/epi-helpers.html">Epidemiology helpers</a></li>
@@ -93,8 +93,8 @@ current table builder.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="summary_table.html">summary_table</a></span><span class="op">(</span><span class="va">mtcars</span>, by <span class="op">=</span> <span class="va">am</span>, overall <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Empty summary table. No rows have been added yet.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Add variables with add_summary(), or add a total, proportion, rate, or custom row.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> No variables have been selected.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Add variables using `include = c(age, sex, bmi)`, or use `include = everything()` to summarise all suitable variables.</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -103,7 +103,7 @@ current table builder.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://thinkdenominator.com" class="external-link">ThinkDenominator</a>.</p>
+  <p>Developed by <a href="https://thinkdenominator.com" class="external-link">ThinkDenominator</a>. <button type="button" class="td-cookie-settings" data-td-cookie-settings>Cookie settings</button></p>
 </div>
 
 <div class="pkgdown-footer-right">
