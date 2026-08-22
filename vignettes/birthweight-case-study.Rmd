@@ -9,7 +9,7 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = TRUE)
 ```
 
 # From raw clinical codes to a report-ready table
@@ -36,7 +36,7 @@ ordered.
 
 ```{r describe}
 overview <- describe_data(birthwt_data)
-overview
+to_flextable(overview)
 overview$issues
 ```
 
@@ -52,7 +52,7 @@ distribution <- assess_distribution(
   vars = c(age, lwt),
   by = low
 )
-distribution
+to_flextable(distribution)
 distribution$recommendations
 ```
 
@@ -68,7 +68,7 @@ methods.
 
 ```{r variance}
 variance <- assess_variance(birthwt_data, vars = c(age, lwt), by = low)
-variance
+to_flextable(variance)
 ```
 
 ## 4. Build Table 1
@@ -83,16 +83,18 @@ table_one <- summary_table(
 ) |>
   add_p()
 
-table_one
+to_flextable(table_one)
 ```
 
-This is already a publication-ready default. You do not need `tbl_stats()` to
-see the table. Use it only when you want a `gt` object to modify or export.
+This is already a publication-ready flextable. Use `customise_table()` to
+finish it for Word; use `to_gt()` only when a gt object is specifically needed.
 
-```{r render-export}
+```{r render-export, eval=FALSE}
 table_one |>
-  tbl_stats(title = "Participant characteristics by birth-weight outcome") |>
-  customise_table(theme = "journal") |>
+  customise_table(
+    title = "Participant characteristics by birth-weight outcome",
+    theme = "journal"
+  ) |>
   save_output("table-1.docx")
 ```
 
@@ -104,7 +106,7 @@ weight_comparison <- compare_groups(
   variable = lwt,
   group = low
 )
-weight_comparison
+to_flextable(weight_comparison)
 
 # The exact automatic rule and observed inputs are retained for review.
 weight_comparison$method$selection_rule

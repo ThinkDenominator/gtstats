@@ -1,7 +1,7 @@
 ---
 title: "Styling and Exporting Tables"
 description: >
-  Apply themes, relabel columns and rows, and export to Word.
+  Finish publication tables, choose an output engine, and export to Office or HTML.
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Styling and Exporting Tables}
@@ -10,301 +10,213 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = TRUE)
 ```
 
 ```{r load}
 library(gtstats)
 ```
 
-## Overview
+## The output model
 
-Once you have built a table with the `summary_table()` workflow and rendered it with `tbl_stats()`, two functions handle the final presentation step:
+gtstats separates analysis from presentation:
 
-- **`customise_table()`** — applies a theme, adds titles, and relabels columns, rows, and factor levels.
-- **`to_flextable()`** — converts the table to a `flextable` object for Word output.
+1. Build the statistical result with `summary_table()` and optional layers.
+2. Finish its appearance with `customise_table()`.
+3. Export the same object with `save_output()`.
 
----
+Publication results print as `flextable` objects by default because they travel
+cleanly to Word and PowerPoint. `to_gt()` is the explicit HTML-focused route.
+`to_flextable()` remains available when an explicit conversion is useful.
 
-## customise_table()
-
-`customise_table()` accepts either the original `gtstats` result or a
-rendered `gt` table. For routine use, pass the result directly and let the
-function render and style it in one step.
-
-```{r base-table}
-res <- summary_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(vars = c(mpg, wt, cyl)) |>
-  add_proportion(var = vs) |>
-  add_total() |>
+```{r result}
+res <- summary_table(
+  mtcars,
+  by = am,
+  include = c(mpg, wt, cyl),
+  overall = TRUE,
+  statistic = c(continuous = "mean_sd", wt = "median_iqr")
+) |>
+  add_ci(vars = c(mpg, cyl)) |>
   add_p()
 
-tbl <- tbl_stats(res)
+res                   # default flextable
+to_gt(res)            # explicit gt table
+to_flextable(res)     # explicit flextable
 ```
 
-### Themes
+The reserved name `continuous` supplies a default for all selected continuous
+variables. A named variable then overrides it. Variables not covered by a
+global or specific rule retain the package recommendation.
 
-```{r journal}
-customise_table(tbl, theme = "journal")
+## Themes and journal styling
+
+```{r themes}
+customise_table(res, theme = "journal")
+customise_table(res, theme = "minimal")
+customise_table(res, theme = "compact")
 ```
 
-```{r minimal}
-customise_table(tbl, theme = "minimal")
-```
-
-```{r compact}
-customise_table(tbl, theme = "compact")
-```
-
-| Theme | Best for |
+| Theme | Typical use |
 |---|---|
-| `"default"` | Exploratory work, no strong preference |
-| `"journal"` | Academic manuscripts, journal submission |
-| `"classic"` | Reports with traditional table borders |
-| `"minimal"` | Slide decks, dashboards, modern reports |
-| `"compact"` | Dense tables where space is limited |
+| `"default"` | General reports |
+| `"journal"` | Manuscripts and appendices |
+| `"classic"` | Traditional ruled tables |
+| `"minimal"` | Slides and modern reports |
+| `"compact"` | Dense tables |
 
-The font and table width can also be controlled directly:
+`borders` independently controls the rule pattern, while `density` changes
+cell padding:
 
-```{r font-width}
+```{r borders-density}
 customise_table(
   res,
   theme = "journal",
+  borders = "horizontal",
+  density = "compact",
   font = "Arial",
-  font_size = 11,
-  width = 90
+  font_size = 10
 )
 ```
 
----
+## Titles, spanning headers and footnotes
 
-### Titles and notes
-
-```{r titles}
+```{r headers-notes}
 customise_table(
-  tbl,
-  theme       = "journal",
-  title       = "Table 1. Baseline characteristics",
-  subtitle    = "Stratified by transmission type",
-  source_note = "Data: mtcars (Motor Trend, 1974)."
-)
-```
-
----
-
-### Relabelling columns
-
-Supply a named character vector — `"internal_name" = "Display label"`. Column names in `gtstats` tables follow the pattern `"am = 1"`, `"am = 0"`, `"Overall"`, `"Level"`.
-
-```{r col-labels}
-customise_table(
-  tbl,
-  theme      = "journal",
-  col_labels = c(
-    "Level"   = "",
-    "am = 1"  = "Manual (n = 13)",
-    "am = 0"  = "Automatic (n = 19)",
-    "Overall" = "All vehicles (n = 32)"
-  )
-)
-```
-
----
-
-### Relabelling rows
-
-Supply a named vector where names are the current row label values and values are the replacement labels.
-
-```{r row-labels}
-customise_table(
-  tbl,
-  theme      = "journal",
-  row_labels = c(
-    "mpg"    = "Miles per gallon",
-    "wt"     = "Weight (1 000 lbs)",
-    "cyl"    = "Cylinders",
-    "vs (1)" = "V-shaped engine, n (%)",
-    "Total (N)" = "Total"
-  )
-)
-```
-
----
-
-### Relabelling factor levels
-
-Use `level_labels` to rename values that appear in the `Level` column of the rendered table.
-
-```{r level-labels}
-customise_table(
-  tbl,
-  level_labels = c(
-    "4" = "4-cylinder",
-    "6" = "6-cylinder",
-    "8" = "8-cylinder"
-  )
-)
-```
-
----
-
-### Accent colour
-
-Apply a brand or journal colour to the table borders:
-
-```{r accent}
-customise_table(tbl, theme = "journal", accent_color = "#123B7A")
-```
-
----
-
-### Row striping
-
-```{r stripe}
-customise_table(tbl, row_striping = TRUE, stripe_color = "#F0F4F8")
-```
-
----
-
-### A fully styled table
-
-```{r full-style}
-summary_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(vars = c(mpg, wt, cyl)) |>
-  add_proportion(var = vs) |>
-  add_total() |>
-  add_p() |>
-  tbl_stats() |>
-  customise_table(
-    theme        = "journal",
-    title        = "Table 1. Baseline characteristics by transmission type",
-    source_note  = "SD = standard deviation; IQR = interquartile range; CI = confidence interval.",
-    col_labels   = c(
-      "Level"   = "",
-      "am = 1"  = "Manual",
-      "am = 0"  = "Automatic",
-      "Overall" = "All"
-    ),
-    row_labels   = c(
-      "mpg"       = "Miles per gallon",
-      "wt"        = "Weight (1 000 lbs)",
-      "cyl"       = "Cylinders",
-      "vs (1)"    = "V-shaped engine",
-      "Total (N)" = "Total"
-    ),
-    level_labels = c(
-      "4" = "4-cylinder",
-      "6" = "6-cylinder",
-      "8" = "8-cylinder"
-    ),
-    accent_color = "#123B7A"
-  )
-```
-
----
-
-## to_flextable()
-
-`to_flextable()` converts a `gt_desc_table` object — the object **before** `tbl_stats()` — into a `flextable`. This is the recommended path for Word output via R Markdown or Quarto.
-
-```{r flextable}
-res <- summary_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(vars = c(mpg, wt, cyl)) |>
-  add_proportion(var = vs) |>
-  add_total() |>
-  add_p()
-
-ft <- to_flextable(
   res,
-  font = "Arial",
-  font_size = 10,
+  title = "Table 1. Vehicle characteristics",
+  subtitle = "Grouped by transmission",
+  spanning_header = list(
+    "Transmission groups" = c("am = 0", "am = 1")
+  ),
+  footnotes = c(
+    "CI = confidence interval.",
+    "P-values are two-sided."
+  ),
   show_footnotes = TRUE
 )
-ft
 ```
 
-In an R Markdown document with `output: word_document`, simply print `ft` in a code chunk and it will render as a formatted table in the Word file.
+`show_footnotes = FALSE` removes the automatically generated analytical
+footnotes. `footnotes` adds only the user-supplied notes. This changes the
+presentation, not the underlying analysis.
 
-## Saving tables and plots
+## Relabelling and column control
 
-gtstats provides simple helpers to export tables and plots for reports, presentations, and manuscripts.
+Named vectors use the completed output value as the name and the desired
+display text as the value.
 
-### Save a table
-
-You can save either a `gtstats` object or a rendered `gt_tbl`.
-
-If a `gtstats` object is supplied, `save_output()` internally renders it
-using `tbl_stats()`.
-
-```{r}
-res <- summary_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(vars = c(mpg, wt, cyl)) |>
-  add_proportion(var = vs) |>
-  add_total() |>
-  add_p()
+```{r relabel}
+customise_table(
+  res,
+  col_labels = c(
+    "am = 0" = "Automatic",
+    "am = 1" = "Manual",
+    "Overall" = "All vehicles"
+  ),
+  row_labels = c(
+    "mpg" = "Fuel economy",
+    "wt" = "Weight",
+    "cyl" = "Cylinders"
+  ),
+  level_labels = c(
+    "4" = "Four",
+    "6" = "Six",
+    "8" = "Eight"
+  ),
+  hide_cols = "Level",
+  column_widths = c(Variable = 2.2)
+)
 ```
 
-Save directly from the gtstats object:
+Use `align`, `bold_cols`, and `italic_cols` for targeted emphasis. These
+arguments accept completed column names.
 
-```{r}
-save_output(res, "table1.html")
+## P-value display
+
+P-value styling changes only how already calculated p-values are printed.
+
+```{r pvalue}
+customise_table(
+  res,
+  pvalue_style = "threshold",
+  pvalue_digits = 3,
+  pvalue_threshold = 0.001,
+  pvalue_prefix = TRUE
+)
 ```
 
+Available styles are `"threshold"`, `"fixed"`, and `"scientific"`.
 
-Save from a pre-rendered gt object:
+## Choosing the renderer
 
-```{r}
-gt_obj <- tbl_stats(res)
+`customise_table()` defaults to `engine = "flextable"`:
 
-save_output(gt_obj, "table1.png")
+```{r engines}
+office_table <- customise_table(res, theme = "journal")
+html_table <- customise_table(res, theme = "journal", engine = "gt")
 ```
 
-Supported table formats are HTML, PNG, PDF, RTF, LaTeX (`.tex`), and DOCX.
-A simple filename saves in the current working directory. A relative or full
-filename can be supplied when the destination is elsewhere:
+Publication footnotes use smaller type than the body in both engines (8 pt in
+flextable and 10 px in gt), matching the gtregression house style. They remain
+readable in Word while taking less vertical space in long tables.
 
-```{r}
-save_output(res, "results/table1.docx")
-```
+Use flextable for Word, PowerPoint, RTF, and Office-centred workflows. Use gt
+for HTML pages or when downstream code specifically expects a `gt_tbl`.
 
-### Save a plot
+## Export
 
-Plots created with `plot_compare()` can be saved using `save_output()`.
+`save_output()` accepts the original gtstats result, a customised flextable, a
+gt table, or a ggplot.
 
-```{r}
-p <- plot_compare(
-  mtcars,
-  variable = mpg,
-  group = am,
-  show_p = TRUE
+```{r save, eval=FALSE}
+finished <- customise_table(
+  res,
+  theme = "journal",
+  title = "Table 1. Vehicle characteristics"
 )
 
-p
+save_output(finished, "table-1.docx")
+save_output(finished, "table-1.pptx")
+save_output(finished, "table-1.rtf")
+
+html_table <- customise_table(res, engine = "gt")
+save_output(html_table, "table-1.html")
 ```
 
+Table extensions include `.docx`, `.pptx`, `.rtf`, `.html`, `.png`, `.pdf`,
+and `.tex`. A filename without a directory writes to the current working
+directory; a relative or full path writes elsewhere.
 
-Save the plot:
-```{r}
-save_output(p, "mpg_by_am.png")
+Plots use the same helper:
+
+```{r plot-save, eval=FALSE}
+p <- plot_compare(mtcars, variable = mpg, group = am, show_p = TRUE)
+save_output(p, "mpg-by-transmission.png", width = 7, height = 5, dpi = 300)
 ```
 
-You can control output size and resolution:
-```{r}
+Several tables and plots can be written to one Word report without calling
+`officer` directly. Supply a named list; its names become section headings:
+
+```{r combined-word-report, eval=FALSE}
+overview <- describe_data(mtcars)
+p <- plot_compare(mtcars, variable = mpg, group = am)
+
 save_output(
-  p,
-  "mpg_by_am_highres.png",
-  width = 7,
-  height = 5,
-  dpi = 300
+  list(
+    "Dataset overview" = overview,
+    "Table 1" = res,
+    "Fuel economy by transmission" = p
+  ),
+  "complete-report.docx",
+  title = "Vehicle analysis",
+  page_break = TRUE
 )
 ```
 
+## Practical rule
 
----
-
-## Tips
-
-- `customise_table()` accepts either the original result or the `gt`
-  object returned by `tbl_stats()`.
-- `to_flextable()` works on the original `gtstats` object, **not** on the gt output. Call it before `tbl_stats()`.
-- For the most control over Word output, combine `to_flextable()` with `flextable`'s own formatting functions.
+- Build statistics first.
+- Customise once, near the end of the pipeline.
+- Keep flextable for Office output.
+- Use `to_gt()` or `engine = "gt"` only when the destination calls for gt.

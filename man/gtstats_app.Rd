@@ -22,7 +22,7 @@ inspecting a dataset, assessing continuous-variable distributions, building
 a summary table, comparing groups, producing correlation tables, and
 producing a cross-tabulation. Distribution diagnostics, group comparisons,
 and correlations can all be plotted and downloaded. It accepts CSV uploads;
-Excel uploads are also available when the suggested \link[rio:rio]{rio} package is
+Excel uploads are also available when the suggested \pkg{rio} package is
 installed.
 }
 \details{

@@ -12,6 +12,20 @@ vignette: >
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
 ```
 
+<style>
+.app-shot {
+  border: 2px dashed #9a9a96;
+  border-radius: 10px;
+  background: #f7f7f4;
+  color: #4a4a47;
+  margin: 1.25rem 0 2rem 0;
+  padding: 2.2rem 1.25rem;
+  text-align: center;
+}
+.app-shot strong { display: block; color: #1c1c1e; margin-bottom: .35rem; }
+.app-shot code { color: #7a3028; }
+</style>
+
 # gtstats App Manual
 
 The `gtstats` app is a menu-driven companion to the package. It is designed
@@ -123,12 +137,27 @@ swiped sideways; no analysis tab is hidden or removed on smaller screens.
 
 # Data tab
 
+<div class="app-shot">
+<strong>Screenshot 1 — App overview and Data tab</strong>
+Replace this block with a wide screenshot showing the top menu, numbered
+workflow, teaching-dataset selector, upload control, active-data message, and
+Close app button.<br>
+Suggested file: <code>vignettes/images/app-01-overview-data.png</code>
+</div>
+
 Use the **Data** tab first. You can select one of three labelled teaching
 datasets from one compact dropdown, or upload your own data. Uploads support
 CSV, Excel (`.xlsx`/`.xls`), R data (`.rds`), Stata (`.dta`), and SPSS
 (`.sav`). Excel, Stata, and SPSS files use the optional `rio` package.
 
 # Data Prep tab
+
+<div class="app-shot">
+<strong>Screenshot 2 — Data Prep command bar and preview</strong>
+Show the explicit preparation menus, structured action form, before/after
+preview, change log, Undo/Redo, and Use prepared data button.<br>
+Suggested file: <code>vignettes/images/app-02-data-prep.png</code>
+</div>
 
 **Data Prep** is optional. It is for small, auditable changes before analysis,
 not a replacement for a full data-management workflow. The imported dataset is
@@ -249,6 +278,13 @@ Copy this code first when creating a permanent R script.
 
 # Understand tab
 
+<div class="app-shot">
+<strong>Screenshot 3 — Understand the data</strong>
+Show Describe data, Distribution, and Variance controls, the plot selector,
+one diagnostic table, and its download controls.<br>
+Suggested file: <code>vignettes/images/app-03-understand.png</code>
+</div>
+
 The **Understand** tab has two jobs: give a compact overview of the data and
 inspect selected continuous variables before choosing their descriptive display.
 Its controls are arranged side by side: dataset overview on the left and
@@ -304,14 +340,23 @@ this into a script if these checks informed a reporting decision.
 
 # Summary table tab
 
-The **Summary table** tab creates a descriptive, publication-ready table. Think of
-the left-hand controls as four ordered parts:
+<div class="app-shot">
+<strong>Screenshot 4 — Summary table recipe</strong>
+Show the variable tickboxes, group/Overall controls, summary and p-value
+override boxes, CI layer, binary-row option, and specialist ingredients.<br>
+Suggested file: <code>vignettes/images/app-04-summary-recipe.png</code>
+</div>
 
-1. **Choose the table contents**: group, variables, and overall column.
-2. **Choose how values are summarised**: optional continuous overrides,
-   categorical presentation, missing values, precision, and categorical CIs.
-3. **Add statistical comparisons**: optional p-values and test overrides.
-4. **Customise appearance**: optional title, theme, typography, and striping.
+The **Summary table** tab is organised as a recipe with five stages:
+
+1. **Start the table**: choose Summary or Rate mode, grouping, Overall position,
+   and compact or separate-column layout.
+2. **Add the main summaries**: select ordinary variables and their descriptive
+   presentation. Untick this ingredient when building a specialist-only table.
+3. **Add optional ingredients**: total N, a selected proportion, a rate, or a
+   custom text row.
+4. **Add statistical comparisons**: optional p-values and test overrides.
+5. **Finish the appearance**: title, theme, typography, and striping.
 
 The statistical and structural controls remain visible. Advanced Auto-test
 settings and cosmetic controls are collapsed until needed, keeping the normal
@@ -330,8 +375,48 @@ Tick variables individually, or use **Select all** / **Clear**. You can mix
 continuous, binary, categorical, and ordered variables in one selection. The
 app calls `summary_table()` once and lets gtstats detect their types.
 
+For binary variables, **Binary variables** can retain both levels or show one
+compact event row. When one row is selected, the app uses the second declared
+level by default and accepts explicit `variable = event` choices such as
+`smoke = Yes`. The generated script records these choices with
+`show_dichotomous` and `value`.
+
 There is no need to separately select “continuous variables” and “categorical
 variables.” Use one meaningful set of summary-table variables.
+
+## Optional ingredients
+
+The ingredient section exposes the builder helpers without requiring users to
+write a pipeline manually:
+
+| Ingredient | GUI options | Generated function |
+|---|---|---|
+| Total N | Label and first/last position | `add_total()` |
+| Selected proportion | Variable, event level, label, display, CI level/method, precision | `add_proportion()` |
+| Rate | Event count, person-time, label, multiplier, time label, CI and precision | `add_rate()` |
+| Custom row | Label, optional level, Overall and group-specific text | `add_row()` |
+
+Rate rows require **Rate table** mode. Total, proportion, ordinary summaries,
+and p-values use **Summary table** mode. This prevents statistically invalid
+helper combinations while keeping all relevant options available.
+
+For example, choose Summary table, group by `smoke`, place Overall first, use
+Separate columns, untick ordinary summaries, and add the `low = Low birth
+weight` proportion to generate:
+
+```r
+summary_table(
+  data,
+  by = smoke,
+  overall = "first",
+  layout = "separate"
+) |>
+  add_proportion(
+    var = low,
+    level = "Low birth weight",
+    display = "n_percent"
+  )
+```
 
 ## Summary-statistic overrides
 
@@ -362,6 +447,7 @@ so “95% CI” is not repeated inside every table cell.
 | Overall column | No overall column, or an Overall column first/last |
 | Summary-statistic overrides | Optional exceptions; unlisted continuous variables use Recommended |
 | Categorical display | n (%), n/N (%), n only, or percentage only |
+| Categorical columns | Keep n (%) together, or separate n and % for categorical-only tables without CIs |
 | Percentage denominator | Column, row, or the entire dataset |
 | Missing values | Show if present, always, or never |
 | Decimal places | Number of displayed decimal places |
@@ -370,6 +456,33 @@ Choose the percentage denominator intentionally. **Within each column** answers
 “what percentage of this group has this level?” and is the usual Table 1
 choice. **Within each row** answers a different question: how a level is
 distributed across the displayed groups.
+
+## Build the table layer by layer
+
+The Summary table tab follows the same onion-like model as the R API:
+
+1. **Build the foundation** with data, variables, groups and an optional Overall column.
+2. **Choose how values are shown**, including summaries, percentage denominators and missing values.
+3. **Add confidence intervals** globally or only to selected variables.
+4. **Add statistical comparisons** only when the table needs p-values.
+5. Open **Specialist ingredients** for a selected-event proportion, rate, total row or custom row.
+6. Finish the appearance and export the table or its reproducible R script.
+
+Selecting confidence intervals generates a visible `add_ci()` layer. The app
+does not hide that choice inside `summary_table()`. Categorical levels receive
+proportion intervals, continuous means receive mean intervals, and median-only
+summaries remain unchanged.
+
+```r
+summary_table(
+  birthwt_data,
+  by = low,
+  include = c(age, lwt, race, smoke),
+  overall = "first",
+  layout = "separate"
+) |>
+  add_ci(vars = c(age, race))
+```
 
 ## Add p-values
 
@@ -406,12 +519,21 @@ description, diagnostics, summary table, comparison audits, crosstabs, and
 history—has download buttons for DOCX, HTML, PDF, and RTF. PDF needs a working
 browser/webshot setup; DOCX or HTML are the easiest choices for most users.
 
-Open the **Code** panel to copy or download the complete `summary_table()`,
-`add_p()`, and `customise_table()` pipeline, including each variable's choices.
+Open the **Code** panel to copy or download the complete `summary_table()`
+pipeline and every selected layer, including the base summaries, `add_ci()`,
+`add_p()`, `add_total()`, `add_proportion()`, `add_rate()`, `add_row()`, and
+`customise_table()`.
 This is the route from a point-and-click table to a reproducible manuscript
 table.
 
 # Customise table tab
+
+<div class="app-shot">
+<strong>Screenshot 5 — Customise the completed table</strong>
+Show the carried-forward Summary table beside theme, labels, spanner, borders,
+density, font, colours, footnotes, p-value style, and export controls.<br>
+Suggested file: <code>vignettes/images/app-05-customise.png</code>
+</div>
 
 Use this tab after creating a Summary table when its presentation needs
 to match a manuscript, journal, report, or local wording convention. It follows
@@ -428,6 +550,25 @@ back to the preceding tab.
 4. Choose a theme, font size, label emphasis, footnotes, or row shading.
 5. Optionally hide named columns.
 6. Click **Apply table changes**.
+
+The controls are grouped by purpose so beginners can work from top to bottom:
+
+| Group | Available controls | What they affect |
+|---|---|---|
+| Theme | Default/journal/classic/minimal/compact | Overall visual preset; app previews use gt and Office downloads use the appropriate export renderer |
+| Headings | Title, subtitle, spanning header | Table caption and grouped column heading |
+| Wording | Column, row, and level mappings | Displayed labels only; source data remain unchanged |
+| Notes | Source note, extra footnotes, show/hide package footnotes | Explanatory material below the table |
+| Typography | Font, font size, bold labels | Readability and emphasis |
+| Layout | Standard/compact/spacious density and table width | Row spacing and overall table dimensions |
+| Rules and colour | Horizontal/all/minimal borders, accent colour, row striping and stripe colour | Publication styling |
+| Column control | Left/centre/right alignment, hide, bold, or italic columns | Fine-grained completed-column formatting |
+| P-values | Threshold/fixed/scientific style, digits, threshold, optional `p =` | Display only; the selected tests and numeric p-values do not change |
+
+Use **compact** density for a long manuscript table and **standard** for most
+reports. The package already uses smaller footnote text, so footnotes remain
+visually subordinate to the data. Use **Show footnotes** unless the same
+definitions are supplied in the manuscript caption or methods.
 
 The original Summary-table result remains unchanged. Only its display is modified. The preview
 and DOCX, HTML, PDF, and RTF downloads therefore contain the same estimates,
@@ -450,6 +591,13 @@ Column hiding is presentational only. Hiding a p-value column does not remove
 the test from the result object or change the analysis.
 
 # Compare groups tab
+
+<div class="app-shot">
+<strong>Screenshot 6 — Compare groups</strong>
+Show outcome/group selection, Auto versus explicit test control, paired
+options, effect size, publication table, and Audit panel.<br>
+Suggested file: <code>vignettes/images/app-06-compare.png</code>
+</div>
 
 Use **Compare groups** for one focused inferential question—not to replace a
 descriptive Table 1.
@@ -509,6 +657,13 @@ what auto selected. The **Audit** panels are important:
 Use the **Code** panel to retain the exact comparison in your analysis script.
 
 # Correlation tab
+
+<div class="app-shot">
+<strong>Screenshot 7 — Correlation and matrix visualisation</strong>
+Show the pair/matrix switch, method choice, correlation table, heatmap, plot
+appearance controls, and generated code.<br>
+Suggested file: <code>vignettes/images/app-07-correlation.png</code>
+</div>
 
 Use **Correlation** for relationships between continuous variables. Choose
 **One pair** for a conventional coefficient and scatterplot, or **Correlation
@@ -570,6 +725,13 @@ that correlation does not imply causation.
 
 # Crosstabs tab
 
+<div class="app-shot">
+<strong>Screenshot 8 — Crosstabs and epidemiological measures</strong>
+Show row/column selectors, percentage choices, totals, association test, and a
+2x2 result containing OR, RR, and risk difference.<br>
+Suggested file: <code>vignettes/images/app-08-crosstabs.png</code>
+</div>
+
 Use **Crosstabs** for two categorical variables.
 
 1. Choose **Rows (exposure)**.
@@ -614,6 +776,13 @@ The **Help** tab repeats the safe beginner order:
 5. Review the output and generated code before reporting.
 
 # Saving outputs
+
+<div class="app-shot">
+<strong>Screenshot 9 — Download and reproduce</strong>
+Show the DOCX/HTML/PDF/RTF controls together with Copy code and Download .R.
+This should be the final image in the app tour.<br>
+Suggested file: <code>vignettes/images/app-09-export-code.png</code>
+</div>
 
 Every result tab offers table downloads. Use them as follows:
 

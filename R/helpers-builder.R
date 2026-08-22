@@ -65,6 +65,72 @@
   labels
 }
 
+# Create the reader-facing first column without altering the analytical table.
+.builder_characteristic_display <- function(tbl) {
+  if (!all(c("Variable", "Level") %in% names(tbl)) || nrow(tbl) == 0L) {
+    return(list(data = tbl, parent_rows = integer(), level_rows = integer()))
+  }
+
+  block_id <- cumsum(c(TRUE, tbl$Variable[-1L] != tbl$Variable[-nrow(tbl)]))
+  blocks <- split(tbl, block_id)
+  output <- vector("list", length(blocks))
+  parent_rows <- integer()
+  level_rows <- integer()
+  cursor <- 0L
+
+  for (i in seq_along(blocks)) {
+    block <- blocks[[i]]
+    variable <- block$Variable[[1L]]
+    has_levels <- any(!is.na(block$Level) & nzchar(block$Level))
+
+    if (!has_levels) {
+      block$Characteristic <- variable
+      block$Variable <- NULL
+      block$Level <- NULL
+      output[[i]] <- block[, c("Characteristic", setdiff(names(block), "Characteristic")), drop = FALSE]
+      parent_rows <- c(parent_rows, cursor + 1L)
+      cursor <- cursor + nrow(block)
+      next
+    }
+
+    parent <- block[1L, , drop = FALSE]
+    value_columns <- setdiff(names(parent), c("Variable", "Level", "p-value"))
+    for (column in value_columns) parent[[column]] <- ""
+    parent$Characteristic <- variable
+    parent$Variable <- NULL
+    parent$Level <- NULL
+
+    levels <- block
+    levels$Characteristic <- ifelse(
+      is.na(levels$Level) | !nzchar(levels$Level),
+      "Missing",
+      as.character(levels$Level)
+    )
+    if ("p-value" %in% names(levels)) levels[["p-value"]] <- ""
+    levels$Variable <- NULL
+    levels$Level <- NULL
+
+    combined <- dplyr::bind_rows(parent, levels)
+    combined <- combined[, c("Characteristic", setdiff(names(combined), "Characteristic")), drop = FALSE]
+    output[[i]] <- combined
+    parent_rows <- c(parent_rows, cursor + 1L)
+    level_rows <- c(level_rows, cursor + seq.int(2L, nrow(combined)))
+    cursor <- cursor + nrow(combined)
+  }
+
+  list(
+    data = tibble::as_tibble(dplyr::bind_rows(output)),
+    parent_rows = parent_rows,
+    level_rows = level_rows
+  )
+}
+
+.publication_auto_padding <- function(n_rows) {
+  if (n_rows <= 10L) return(3)
+  if (n_rows <= 25L) return(2)
+  1
+}
+
 .builder_base_display_columns <- function(x) {
   columns <- character()
   if (isTRUE(x$overall)) columns <- c(columns, "Overall")
@@ -91,6 +157,18 @@
       ci = paste0(parts[[4L]], "%")
     ))
   }
+  # Current compact categorical display: n (%); lower–upper%.
+  match <- regexec("^(.* \\([^;]+%\\)); ([^;]+%)$", value)
+  parts <- regmatches(value, match)[[1L]]
+  if (length(parts) == 3L) {
+    return(c(estimate = parts[[2L]], ci = parts[[3L]]))
+  }
+  # Current percentage-only display: estimate%; lower–upper%.
+  match <- regexec("^(.*%); ([^;]+%)$", value)
+  parts <- regmatches(value, match)[[1L]]
+  if (length(parts) == 3L) {
+    return(c(estimate = parts[[2L]], ci = parts[[3L]]))
+  }
   # Percentage-only categorical display.
   match <- regexec("^(.*%) \\([0-9.]+% CI ([^)]+)\\)$", value)
   parts <- regmatches(value, match)[[1L]]
@@ -106,8 +184,40 @@
   c(estimate = value, ci = "")
 }
 
+.builder_summary_estimate_label <- function(x) {
+  statistics <- x$summary_statistics %||% character()
+  if (length(statistics) == 0L) return("Summary")
+  types <- vapply(names(statistics), function(variable) {
+    .detect_type(x$data[[variable]])
+  }, character(1))
+  if (all(types != "continuous")) {
+    return(switch(
+      x$categorical %||% "n_percent",
+      n_percent = "n (%)",
+      n_over_N_percent = "n/N (%)",
+      n = "n",
+      percent = "%",
+      "Summary"
+    ))
+  }
+  if (all(types == "continuous")) {
+    formats <- unique(unname(statistics))
+    if (length(formats) == 1L) {
+      return(switch(
+        formats,
+        mean_sd = "Mean (SD)",
+        mean_ci = "Mean (CI)",
+        median_iqr = "Median (IQR)",
+        both = "Mean (SD); median (IQR)",
+        "Summary"
+      ))
+    }
+  }
+  "Summary"
+}
+
 .builder_use_separate_layout <- function(x, conf.level = 0.95,
-                                         estimate_label = "Summary") {
+                                         estimate_label = NULL) {
   if (identical(x$layout %||% "compact", "separate") &&
       !is.null(x$display_columns)) {
     return(x)
@@ -124,6 +234,7 @@
     return(x)
   }
   fixed <- intersect(c("Variable", "Level"), names(x$table))
+  estimate_label <- estimate_label %||% .builder_summary_estimate_label(x)
   remaining <- setdiff(names(x$table), c(fixed, base_columns))
   rebuilt <- x$table[, fixed, drop = FALSE]
   display <- vector("list", length(base_columns))
@@ -142,6 +253,50 @@
       ci = ci_col,
       estimate_label = estimate_label,
       ci_label = .conf_level_label(conf.level)
+    )
+  }
+  for (column in remaining) rebuilt[[column]] <- x$table[[column]]
+  x$table <- tibble::as_tibble(rebuilt)
+  x$display_columns <- dplyr::bind_rows(display)
+  x$layout <- "separate"
+  x
+}
+
+.split_categorical_display <- function(value) {
+  if (is.na(value) || !nzchar(value) || identical(value, "\u2014")) {
+    return(c(count = value, percent = ""))
+  }
+  match <- regexec("^(.*) \\(([^)]+%)\\)$", value)
+  parts <- regmatches(value, match)[[1L]]
+  if (length(parts) == 3L) {
+    return(c(count = parts[[2L]], percent = parts[[3L]]))
+  }
+  c(count = value, percent = "")
+}
+
+.builder_use_separate_categorical_layout <- function(x) {
+  if (!is.null(x$display_columns)) return(x)
+  base_columns <- intersect(.builder_base_display_columns(x), names(x$table))
+  fixed <- intersect(c("Variable", "Level"), names(x$table))
+  remaining <- setdiff(names(x$table), c(fixed, base_columns))
+  rebuilt <- x$table[, fixed, drop = FALSE]
+  display <- vector("list", length(base_columns))
+  headers <- .builder_display_headers(x)
+  count_label <- if (identical(x$categorical, "n_over_N_percent")) "n/N" else "n"
+  for (i in seq_along(base_columns)) {
+    base <- base_columns[[i]]
+    count_col <- paste0("summary_", i, "_count")
+    percent_col <- paste0("summary_", i, "_percent")
+    parts <- lapply(x$table[[base]], .split_categorical_display)
+    rebuilt[[count_col]] <- vapply(parts, `[[`, character(1), "count")
+    rebuilt[[percent_col]] <- vapply(parts, `[[`, character(1), "percent")
+    display[[i]] <- tibble::tibble(
+      group = headers[[base]] %||% base,
+      source = base,
+      estimate = count_col,
+      ci = percent_col,
+      estimate_label = count_label,
+      ci_label = "%"
     )
   }
   for (column in remaining) rebuilt[[column]] <- x$table[[column]]

@@ -22,6 +22,7 @@
 #' @param autofit Logical; whether column widths should be adjusted
 #'   automatically using [flextable::autofit()].
 #' @param show_footnotes Logical; include concise explanatory footnotes.
+#' @param title,subtitle Optional title and subtitle placed above the table.
 #'
 #' @return A `flextable` object.
 #'
@@ -39,7 +40,9 @@ to_flextable <- function(
     font_size = 10,
     font = NULL,
     autofit = TRUE,
-    show_footnotes = TRUE
+    show_footnotes = TRUE,
+    title = NULL,
+    subtitle = NULL
 ) {
   if (!is.numeric(font_size) || length(font_size) != 1L ||
       is.na(font_size) || font_size <= 0) {
@@ -72,6 +75,19 @@ to_flextable <- function(
   }
 
   df <- x$table
+  characteristic_display <- NULL
+  if (inherits(x, "gt_desc_table")) {
+    characteristic_display <- .builder_characteristic_display(df)
+    df <- characteristic_display$data
+  }
+
+  # Analytical tables use <br> as an engine-neutral marker for stacked cell
+  # content. Flextable treats strings as text, so translate the marker to a
+  # real line break before rendering rather than exposing literal HTML.
+  character_columns <- names(df)[vapply(df, is.character, logical(1))]
+  for (column in character_columns) {
+    df[[column]] <- gsub("<br>", "\n", df[[column]], fixed = TRUE)
+  }
 
   # Build the base flextable
   ft <- flextable::flextable(df)
@@ -121,7 +137,7 @@ to_flextable <- function(
   if (inherits(x, "gt_desc_table")) {
     if (identical(x$layout %||% "compact", "separate") &&
         is.data.frame(x$display_columns)) {
-      child_labels <- c(Variable = "Variable", Level = "")
+      child_labels <- c(Characteristic = "Characteristic")
       for (i in seq_len(nrow(x$display_columns))) {
         child_labels[[x$display_columns$estimate[[i]]]] <-
           x$display_columns$estimate_label[[i]]
@@ -129,7 +145,7 @@ to_flextable <- function(
           x$display_columns$ci_label[[i]]
       }
       trailing <- setdiff(names(df), c(
-        "Variable", "Level",
+        "Characteristic",
         x$display_columns$estimate,
         x$display_columns$ci
       ))
@@ -141,19 +157,23 @@ to_flextable <- function(
       ft <- flextable::add_header_row(
         ft,
         values = c(
-          rep("", length(intersect(c("Variable", "Level"), names(df)))),
+          "",
           x$display_columns$group,
           rep("", length(trailing))
         ),
         colwidths = c(
-          rep(1L, length(intersect(c("Variable", "Level"), names(df)))),
+          1L,
           rep(2L, nrow(x$display_columns)),
           rep(1L, length(trailing))
         ),
         top = TRUE
       )
     } else {
-      header_labels <- .builder_display_headers(x)
+      header_labels <- c(
+        Characteristic = "Characteristic",
+        .builder_display_headers(x)
+      )
+      header_labels <- header_labels[names(header_labels) %in% names(df)]
       if (length(header_labels) > 0L) {
         ft <- do.call(
           flextable::set_header_labels,
@@ -163,15 +183,40 @@ to_flextable <- function(
     }
   }
   ft <- flextable::theme_booktabs(ft)
+  body_padding <- .publication_auto_padding(nrow(df))
+  ft <- flextable::padding(ft, padding = body_padding, part = "body")
+  ft <- flextable::padding(ft, padding = 3, part = "header")
   ft <- flextable::fontsize(ft, size = font_size, part = "all")
   if (!is.null(font)) {
     ft <- flextable::font(ft, fontname = font, part = "all")
   }
   ft <- flextable::bold(ft, part = "header")
 
+  if (inherits(x, "gt_desc_table") && "Characteristic" %in% names(df)) {
+    label_rows <- characteristic_display$parent_rows
+    if (length(label_rows) > 0L) {
+      ft <- flextable::bold(
+        ft,
+        i = label_rows,
+        j = "Characteristic",
+        bold = TRUE,
+        part = "body"
+      )
+    }
+    if (length(characteristic_display$level_rows) > 0L) {
+      ft <- flextable::padding(
+        ft,
+        i = characteristic_display$level_rows,
+        j = "Characteristic",
+        padding.left = 14,
+        part = "body"
+      )
+    }
+  }
+
   # Align label columns left and value columns right
   text_cols <- intersect(
-    c("Variable", "Level", "Measure", "Group", "Event"),
+    c("Characteristic", "Variable", "Level", "Measure", "Group", "Event"),
     names(df)
   )
   value_cols <- setdiff(names(df), text_cols)
@@ -227,6 +272,14 @@ to_flextable <- function(
     for (note in notes) {
       ft <- flextable::add_footer_lines(ft, values = note)
     }
+    ft <- flextable::padding(ft, padding = 2, part = "footer")
+    ft <- flextable::fontsize(ft, size = min(8, font_size), part = "footer")
+  }
+
+  header_lines <- c(subtitle, title)
+  header_lines <- header_lines[!is.na(header_lines) & nzchar(header_lines)]
+  for (line in header_lines) {
+    ft <- flextable::add_header_lines(ft, values = line, top = TRUE)
   }
 
   ft

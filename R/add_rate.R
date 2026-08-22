@@ -27,13 +27,17 @@
 #' @return The updated `gt_desc_table`.
 #'
 #' @examples
-#' summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
+#' summary_table(mtcars, by = am, overall = TRUE) |>
 #'   add_rate(
 #'     event = carb,
 #'     time = cyl,
 #'     label = "Carburettor rate",
 #'     multiplier = 1000
 #'   )
+#'
+#' # Rates may be added alongside ordinary summaries
+#' summary_table(mtcars, by = am, include = mpg) |>
+#'   add_rate(event = carb, time = cyl, multiplier = 1000)
 #'
 #' @export
 add_rate <- function(
@@ -48,7 +52,13 @@ add_rate <- function(
     digits = 1,
     layout = NULL
 ) {
-  .validate_summary_builder(x, "add_rate", mode = "rate")
+  .validate_summary_builder(x, "add_rate")
+  if (identical(x$categorical_layout %||% "combined", "separate")) {
+    stop(
+      "`add_rate()` is not available after separating n and % columns. Use `categorical_layout = \"combined\"` for specialist rate rows.",
+      call. = FALSE
+    )
+  }
   .validate_flag(ci, "ci")
   .validate_conf_level(conf.level)
   .validate_digits(digits)
@@ -167,7 +177,8 @@ add_rate <- function(
   row_tbl <- .builder_order_display_columns(x, tibble::as_tibble(row_tbl))
   x <- .append_builder_rows(x, row_tbl)
   x$layout <- layout
-  if (identical(layout, "separate")) {
+  if (identical(layout, "separate") &&
+      (isTRUE(ci) || !is.null(x$display_columns))) {
     x <- .builder_use_separate_layout(
       x,
       conf.level = conf.level,

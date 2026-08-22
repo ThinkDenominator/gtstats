@@ -27,17 +27,25 @@ test_that("the Shiny app is bundled with gtstats", {
   expect_match(app_text, "Cochran's Q test", fixed = TRUE)
   expect_match(app_text, "Summary table", fixed = TRUE)
   expect_match(app_text, "Summary-statistic overrides", fixed = TRUE)
+  expect_match(app_text, "Default for continuous variables", fixed = TRUE)
   expect_match(app_text, "P-value test overrides", fixed = TRUE)
   expect_match(app_text, "Unlisted continuous variables use Recommended", fixed = TRUE)
-  expect_match(app_text, "Choose the table contents", fixed = TRUE)
-  expect_match(app_text, "Choose how values are summarised", fixed = TRUE)
+  expect_match(app_text, "Build the foundation", fixed = TRUE)
+  expect_match(app_text, "Choose how values are shown", fixed = TRUE)
+  expect_match(app_text, "Add confidence intervals", fixed = TRUE)
+  expect_match(app_text, "All eligible variables", fixed = TRUE)
+  expect_match(app_text, "Add specialist ingredients", fixed = TRUE)
   expect_match(app_text, "Add statistical comparisons", fixed = TRUE)
   expect_match(app_text, "Advanced Auto-test settings", fixed = TRUE)
-  expect_match(app_text, "Customise appearance", fixed = TRUE)
+  expect_match(app_text, "Finish the appearance", fixed = TRUE)
   expect_match(app_text, "Customise table", fixed = TRUE)
   expect_match(app_text, "Refine your summary table", fixed = TRUE)
   expect_match(app_text, "most recently created Summary table", fixed = TRUE)
   expect_match(app_text, "Variable or row labels", fixed = TRUE)
+  expect_match(app_text, "Spanning header", fixed = TRUE)
+  expect_match(app_text, "Additional footnotes", fixed = TRUE)
+  expect_match(app_text, "P-value display", fixed = TRUE)
+  expect_match(app_text, 'pptx = "pptx"', fixed = TRUE)
   expect_match(app_text, "download_strip(\"customised\")", fixed = TRUE)
   expect_match(app_text, "Complete R script", fixed = TRUE)
   expect_match(app_text, "Correlation matrix", fixed = TRUE)
@@ -239,4 +247,165 @@ test_that("summary-table override editors validate concise user input", {
     selected, types, summary_allowed, "summary statistic"
   )
   expect_match(duplicated$errors, "listed more than once", fixed = TRUE)
+})
+
+test_that("the GUI recipe builds specialist proportion and rate tables", {
+  skip_if_not_installed("shiny")
+
+  app_environment <- new.env(parent = globalenv())
+  source(system.file("shiny", "app.R", package = "gtstats"), local = app_environment)
+
+  shiny::testServer(app_environment$server, {
+    session$setInputs(data_source = "teaching", teaching_data = "birthwt")
+    session$flushReact()
+    session$setInputs(
+      table_mode = "summary", table_group = "smoke", table_overall = "first",
+      table_layout = "separate", table_include_summary = FALSE,
+      table_add_total = FALSE, table_add_proportion = TRUE,
+      table_prop_var = "low", table_prop_level = "Low birth weight",
+      table_prop_settings = "inherit",
+      table_prop_display = "n_percent", table_prop_ci = TRUE,
+      table_prop_conf = 0.95, table_prop_ci_method = "wilson",
+      table_prop_digits = 1, table_add_row = FALSE, table_p = FALSE,
+      table_theme = "default", table_bold_labels = TRUE,
+      table_footnotes = TRUE, table_striping = FALSE, table_font_size = 14,
+      run_table = 1
+    )
+    session$flushReact()
+    expect_s3_class(table_result(), "gt_desc_table")
+    expect_identical(table_result()$layout, "separate")
+    expect_identical(table_result()$components, "proportion")
+    expect_match(summary_code(), 'by = smoke', fixed = TRUE)
+    expect_match(summary_code(), 'layout = "separate"', fixed = TRUE)
+    expect_match(summary_code(), 'add_proportion(', fixed = TRUE)
+    expect_match(summary_code(), 'level = "Low birth weight"', fixed = TRUE)
+    expect_false(grepl("display =", summary_code(), fixed = TRUE))
+    expect_false(grepl("conf.level =", summary_code(), fixed = TRUE))
+    expect_false(grepl("ci_method =", summary_code(), fixed = TRUE))
+    expect_silent(parse(text = summary_code()))
+    code_env <- list2env(list(data = selected_data()), parent = asNamespace("gtstats"))
+    expect_s3_class(eval(parse(text = summary_code()), envir = code_env), "flextable")
+
+    session$setInputs(data_source = "teaching", teaching_data = "trial_data")
+    session$flushReact()
+    session$setInputs(
+      table_mode = "rate", table_group = "arm", table_overall = "first",
+      table_layout = "separate", table_rate_event = "infection_events",
+      table_rate_time = "followup_years", table_rate_label = "Infection rate",
+      table_rate_multiplier = 1000, table_rate_time_label = "person-years",
+      table_rate_ci = TRUE, table_rate_conf = 0.95, table_rate_digits = 1,
+      table_add_rate = TRUE, table_add_proportion = FALSE,
+      table_add_row = FALSE, run_table = 2
+    )
+    session$flushReact()
+    expect_s3_class(table_result(), "gt_desc_table")
+    expect_identical(table_result()$mode, "summary")
+    expect_true("rate" %in% table_result()$components)
+    expect_false(grepl('mode = "rate"', summary_code(), fixed = TRUE))
+    expect_match(summary_code(), 'add_rate(', fixed = TRUE)
+    expect_silent(parse(text = summary_code()))
+    code_env <- list2env(list(data = selected_data()), parent = asNamespace("gtstats"))
+    expect_s3_class(eval(parse(text = summary_code()), envir = code_env), "flextable")
+  })
+})
+
+test_that("the GUI adds confidence intervals as a separate layer", {
+  skip_if_not_installed("shiny")
+
+  app_environment <- new.env(parent = globalenv())
+  source(system.file("shiny", "app.R", package = "gtstats"), local = app_environment)
+
+  shiny::testServer(app_environment$server, {
+    session$setInputs(data_source = "teaching", teaching_data = "birthwt")
+    session$flushReact()
+    session$setInputs(
+      table_mode = "summary", table_group = "low", table_overall = "first",
+      table_layout = "separate", table_include_summary = TRUE,
+      table_vars = c("age", "race"), table_stat_overrides = "",
+      table_categorical = "n_percent", table_percent = "column",
+      table_missing = "ifany", table_digits = 1,
+      table_ci = TRUE, table_ci_scope = "selected", table_ci_vars = "race",
+      table_ci_method = "wilson", table_conf_level = 0.95,
+      table_add_total = FALSE, table_add_proportion = FALSE,
+      table_add_row = FALSE, table_p = FALSE,
+      table_theme = "default", table_bold_labels = TRUE,
+      table_footnotes = TRUE, table_striping = FALSE, table_font_size = 14,
+      run_table = 1
+    )
+    session$flushReact()
+
+    expect_s3_class(table_result(), "gt_desc_table")
+    expect_identical(table_result()$ci_variables, "race")
+    expect_match(summary_code(), "|>\n  add_ci(", fixed = TRUE)
+    expect_match(summary_code(), 'vars = c("race")', fixed = TRUE)
+    expect_false(grepl("ci = TRUE", sub("\\|>.*", "", summary_code())))
+    expect_silent(parse(text = summary_code()))
+  })
+})
+
+test_that("the GUI generates separate categorical columns", {
+  skip_if_not_installed("shiny")
+
+  app_environment <- new.env(parent = globalenv())
+  source(system.file("shiny", "app.R", package = "gtstats"), local = app_environment)
+
+  shiny::testServer(app_environment$server, {
+    session$setInputs(data_source = "teaching", teaching_data = "birthwt")
+    session$flushReact()
+    session$setInputs(
+      table_group = "low", table_overall = "first",
+      table_layout = "compact", table_include_summary = TRUE,
+      table_vars = c("race", "smoke"), table_stat_overrides = "",
+      table_categorical = "n_percent", table_categorical_layout = "separate",
+      table_percent = "column", table_missing = "ifany", table_digits = 1,
+      table_ci = FALSE, table_add_total = FALSE,
+      table_add_proportion = FALSE, table_add_rate = FALSE,
+      table_add_row = FALSE, table_p = FALSE,
+      table_theme = "default", table_bold_labels = TRUE,
+      table_footnotes = TRUE, table_striping = FALSE, table_font_size = 14,
+      run_table = 1
+    )
+    session$flushReact()
+
+    expect_identical(table_result()$categorical_layout, "separate")
+    expect_true(all(table_result()$display_columns$estimate_label == "n"))
+    expect_true(all(table_result()$display_columns$ci_label == "%"))
+    expect_match(summary_code(), 'categorical_layout = "separate"', fixed = TRUE)
+    expect_silent(parse(text = summary_code()))
+  })
+})
+
+test_that("the GUI builds compact dichotomous summaries and reproducible code", {
+  skip_if_not_installed("shiny")
+
+  app_environment <- new.env(parent = globalenv())
+  source(system.file("shiny", "app.R", package = "gtstats"), local = app_environment)
+
+  shiny::testServer(app_environment$server, {
+    session$setInputs(data_source = "teaching", teaching_data = "birthwt")
+    session$flushReact()
+    session$setInputs(
+      table_group = "low", table_overall = "first",
+      table_layout = "compact", table_include_summary = TRUE,
+      table_vars = c("smoke", "ht", "race"), table_stat_overrides = "",
+      table_categorical = "n_percent", table_categorical_layout = "combined",
+      table_dichotomous = "single_row",
+      table_dichotomous_values = "smoke = Yes\nht = Yes",
+      table_percent = "column", table_missing = "ifany", table_digits = 1,
+      table_ci = FALSE, table_add_total = FALSE,
+      table_add_proportion = FALSE, table_add_rate = FALSE,
+      table_add_row = FALSE, table_p = FALSE,
+      table_theme = "default", table_bold_labels = TRUE,
+      table_footnotes = TRUE, table_striping = FALSE, table_font_size = 14,
+      run_table = 1
+    )
+    session$flushReact()
+
+    expect_identical(table_result()$show_dichotomous, "single_row")
+    expect_identical(table_result()$dichotomous_values, c(smoke = "Yes", ht = "Yes"))
+    expect_equal(sum(table_result()$table$Variable == "Smoking during pregnancy"), 1L)
+    expect_match(summary_code(), 'show_dichotomous = "single_row"', fixed = TRUE)
+    expect_match(summary_code(), 'value = c("smoke" = "Yes", "ht" = "Yes")', fixed = TRUE)
+    expect_silent(parse(text = summary_code()))
+  })
 })

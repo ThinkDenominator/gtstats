@@ -10,7 +10,7 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = TRUE)
 ```
 
 ```{r load}
@@ -27,7 +27,9 @@ gtstats includes three standalone helper functions aimed specifically at clinica
 | `rate_stats()` | Event rates with exact Poisson confidence intervals |
 | `crosstabs()` | Publication-ready categorical cross-tabs; 2×2 tables also give RR, OR and RD |
 
-All three follow the same pattern: pass in your data frame, name the relevant variables, and optionally supply a grouping variable with `by =`. Pipe to `tbl_stats()` for a formatted `gt` table.
+All three follow the same pattern: pass in your data frame, name the relevant
+variables, and optionally supply a grouping variable with `by =`. They print as
+flextables by default; call `to_gt()` for an explicit gt table.
 
 ---
 
@@ -42,17 +44,17 @@ long-form numerical results remain available from `$summary`.
 
 ```{r prop-basic}
 # Overall proportion
-proportion_stats(mtcars, var = vs)
+to_flextable(proportion_stats(mtcars, var = vs))
 ```
 
 ```{r prop-grouped}
 # Grouped by transmission type
-proportion_stats(mtcars, var = vs, by = am)
+to_flextable(proportion_stats(mtcars, var = vs, by = am))
 ```
 
 ```{r prop-level}
 # Pin to a specific level
-proportion_stats(mtcars, var = vs, by = am, level = "1")
+to_flextable(proportion_stats(mtcars, var = vs, by = am, level = "1"))
 ```
 
 ```{r prop-gt}
@@ -91,12 +93,12 @@ df <- data.frame(
 
 ```{r rate-basic}
 # Overall rate
-rate_stats(df, event = event, time = ptime)
+to_flextable(rate_stats(df, event = event, time = ptime))
 ```
 
 ```{r rate-grouped}
 # Grouped by study arm
-rate_stats(df, event = event, time = ptime, by = arm)
+to_flextable(rate_stats(df, event = event, time = ptime, by = arm))
 ```
 
 ```{r rate-gt}
@@ -109,7 +111,7 @@ rate_stats(df, event = event, time = ptime, by = arm) |>
 `add_rate()` embeds rate rows in the table builder:
 
 ```{r rate-table}
-summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
+summary_table(mtcars, by = am, overall = TRUE) |>
   add_rate(
     event      = carb,
     time       = cyl,
@@ -139,8 +141,8 @@ within-row outcome frequencies, or `percent = c("row", "column")` when both
 denominators are useful in an exploratory or supplementary table.
 
 ```{r crosstabs-multilevel}
-crosstabs(mtcars, row = cyl, col = am)
-crosstabs(mtcars, row = cyl, col = gear, percent = c("row", "column"))
+to_flextable(crosstabs(mtcars, row = cyl, col = am))
+to_flextable(crosstabs(mtcars, row = cyl, col = gear, percent = c("row", "column")))
 ```
 
 For tables larger than 2×2, the footer reports the association test and
@@ -151,7 +153,7 @@ The odds ratio is available when it is the effect measure the study needs,
 but is deliberately not part of the routine default.
 
 ```{r twobytwo}
-crosstabs(mtcars, row = am, col = vs)
+to_flextable(crosstabs(mtcars, row = am, col = vs))
 ```
 
 ```{r twobytwo-gt}
@@ -162,13 +164,13 @@ Choose the direction explicitly when the coding or factor order does not
 express the scientific question:
 
 ```{r twobytwo-direction}
-crosstabs(
+to_flextable(crosstabs(
   mtcars,
   row = am,
   col = vs,
   row_level = 1,
   col_level = 1
-)
+))
 ```
 
 Whether levels are supplied or selected automatically, inspect
@@ -182,25 +184,25 @@ also be omitted when the table is intended to report effects and confidence
 intervals only:
 
 ```{r twobytwo-or}
-crosstabs(
+to_flextable(crosstabs(
   mtcars,
   row = am,
   col = vs,
   measures = "or",
   test = "none"
-)
+))
 ```
 
 When a cell is zero, log-scale ratio intervals use the Haldane–Anscombe
 correction by default. The strategy is explicit and configurable:
 
 ```{r zero-cell}
-crosstabs(
+to_flextable(crosstabs(
   mtcars,
   row = am,
   col = vs,
   zero_correction = "none"
-)
+))
 ```
 
 Without correction, an infinite or zero ratio may be reported and its
@@ -214,5 +216,7 @@ log-scale confidence interval may be unavailable.
   reporting convention; Wilson is the routine default.
 - `test = "auto"` checks expected counts and chooses Fisher's exact test for a
   sparse table.
-- `proportion_stats()`, `rate_stats()`, and `crosstabs()` all return structured objects that can be rendered with `tbl_stats()` or inspected as plain lists.
+- `proportion_stats()`, `rate_stats()`, and `crosstabs()` all return structured
+  objects that print as flextables, can be rendered with `to_gt()`, or can be
+  inspected as plain lists.
 - Inside a descriptive table, use `add_proportion()` and `add_rate()` rather than standalone helpers to keep everything in one table.

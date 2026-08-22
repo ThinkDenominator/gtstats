@@ -41,14 +41,14 @@ review.
 | Describe | `summary_table()` | Publication-ready participant-characteristics table |
 | Compare | `compare_groups()` | One focused group comparison with a clearly identified test and automatic-selection rule |
 | Audit | `assumptions_stats()`, `diagnostics_stats()`, `denominators_stats()` | Transparent decisions and analysis population |
-| Export | `tbl_stats()`, `customise_table()`, `save_output()` | A modifiable, report-ready table |
+| Export | `customise_table()`, `to_gt()`, `save_output()` | A modifiable, report-ready table |
 | Guided | `gtstats_app()` | A point-and-click companion that generates the matching R code |
 
 <div class="gs-strip">
 <div class="gs-strip-item"><p class="gs-strip-label">Understand</p><p class="gs-strip-fns">describe_data()<br>assess_distribution()</p></div>
 <div class="gs-strip-item"><p class="gs-strip-label">Describe</p><p class="gs-strip-fns">summary_table()<br>add_*()</p></div>
 <div class="gs-strip-item"><p class="gs-strip-label">Compare</p><p class="gs-strip-fns">compare_groups()<br>correlation()</p></div>
-<div class="gs-strip-item"><p class="gs-strip-label">Report</p><p class="gs-strip-fns">tbl_stats()<br>save_output()</p></div>
+<div class="gs-strip-item"><p class="gs-strip-label">Report</p><p class="gs-strip-fns">customise_table()<br>save_output()</p></div>
 </div>
 
 ## Why it exists
@@ -104,7 +104,7 @@ data("birthwt", "trial_data", "paired_data", package = "gtstats")
 The package remains code-first, but a Shiny companion is available when you
 prefer to learn by clicking through the workflow. It includes the three
 teaching datasets, CSV/Excel upload, a working data dictionary, distribution
-and variance checks, Table 1, focused group comparisons, crosstabs,
+and variance checks, a layer-by-layer Summary table, focused group comparisons, crosstabs,
 Word/HTML/PDF/RTF table downloads, an in-session history, and copyable or
 downloadable R code for every analysis. Excel import uses the optional `rio`
 package.
@@ -135,24 +135,56 @@ table_one <- summary_table(
   birthwt,
   by = low,
   include = c(age, lwt, race, smoke),
-  overall = "last"
+  overall = "last",
+  layout = "separate"
 ) |>
+  add_ci(vars = c(age, race)) |>
   add_p()
+
+# Optional categorical-only presentation with distinct n and % columns
+categorical_table <- summary_table(
+  birthwt,
+  by = low,
+  include = c(race, smoke),
+  categorical_layout = "separate"
+)
+
+# Optional compact binary presentation: one clinically relevant event per row
+compact_binary_table <- summary_table(
+  birthwt,
+  by = low,
+  include = c(smoke, ht, race),
+  show_dichotomous = "single_row",
+  value = c(smoke = "Yes", ht = "Yes")
+)
 
 comparison <- compare_groups(birthwt, variable = lwt, group = low)
 comparison$method$selection_rule
 diagnostics_stats(comparison)
 ```
 
-Each object prints as a publication-ready table. `tbl_stats()` is optional: use
-it when you want to add a title, customise the appearance, or export a `gt`
-table.
+Each object prints as a publication-ready `flextable`, ready for Word and
+PowerPoint. Use `customise_table()` to finish its appearance. Use `to_gt()`
+only when an HTML-focused `gt` table is specifically required.
 
 ```{r export}
 table_one |>
-  tbl_stats(title = "Table 1. Vehicle characteristics") |>
-  customise_table(theme = "journal") |>
+  customise_table(
+    theme = "journal",
+    title = "Table 1. Maternal characteristics",
+    spanning_header = list(
+      "Birth-weight groups" = c(
+        "low = Normal birth weight",
+        "low = Low birth weight"
+      )
+    ),
+    borders = "horizontal",
+    pvalue_style = "threshold"
+  ) |>
   save_output("table-1.docx")
+
+# Explicit HTML/gt route
+to_gt(table_one, title = "Table 1. Maternal characteristics")
 ```
 
 ## Browse by task
@@ -195,13 +227,13 @@ work before the completed tibble is printed.
 | Workflow | Functions |
 |---|---|
 | Understand | `describe_data()`, `assess_distribution()`, `assess_variance()` |
-| Build Table 1 | `summary_table()`, `add_summary()`, `add_proportion()`, `add_rate()`, `add_total()`, `add_p()`, `add_row()` |
+| Build Table 1 | `summary_table()`, `add_ci()`, `add_p()`, `add_proportion()`, `add_rate()`, `add_total()`, `add_row()` |
 | Compare | `compare_groups()`, `effect_size()`, `correlation()` |
 | Epidemiology | `proportion_stats()`, `rate_stats()`, `crosstabs()` |
 | Inspect decisions | `assumptions_stats()`, `diagnostics_stats()`, `denominators_stats()` |
 | Visualise | `plot_compare()`, `plot_correlation()` |
 | Guided interface | `gtstats_app()` |
-| Polish and export | `tbl_stats()`, `customise_table()`, `to_flextable()`, `save_output()` |
+| Polish and export | `customise_table()`, `to_flextable()`, `to_gt()`, `save_output()` |
 
 `correlation()` handles both a prespecified pair and an exploratory matrix.
 The matrix retains pair-specific denominators and p-values in `$summary`, while

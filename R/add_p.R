@@ -80,12 +80,10 @@
 #'   concise p-value footnote.
 #'
 #' @examples
-#' summary_table(mtcars, by = am) |>
-#'   add_summary(vars = c(mpg, wt, cyl)) |>
+#' summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>
 #'   add_p()
 #'
-#' summary_table(mtcars, by = am) |>
-#'   add_summary(vars = c(mpg, wt, cyl)) |>
+#' summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>
 #'   add_p(method = c(mpg = "welch_t", wt = "wilcox", cyl = "chisq"))
 #'
 #' summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>
@@ -256,8 +254,8 @@ add_p <- function(
   summary_vars <- unique(names(x$summary_statistics %||% character()))
   if (length(summary_vars) == 0L) {
     stop(
-      "`add_p()` requires variables added by `add_summary()` or the ",
-      "`include` argument of `summary_table()`.",
+      "`add_p()` requires variables selected with the `include` argument of ",
+      "`summary_table()`.",
       call. = FALSE
     )
   }

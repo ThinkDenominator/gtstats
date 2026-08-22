@@ -11,7 +11,8 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = TRUE)
+library(gtstats)
 ```
 
 `gtstats` uses conservative, beginner-friendly defaults. Automatic selection
@@ -25,7 +26,7 @@ Use `effect_size()` when the question is how large a difference or association
 is. Its default output is deliberately smaller than `compare_groups()`:
 
 ```{r effect-size}
-effect_size(mtcars, variable = mpg, group = am)
+to_flextable(effect_size(mtcars, variable = mpg, group = am))
 ```
 
 The automatic measure follows the comparison structure:
@@ -47,12 +48,12 @@ intervals.
 An explicit method remains available when the scientific question requires it:
 
 ```{r effect-size-rank}
-effect_size(
+to_flextable(effect_size(
   mtcars,
   variable = mpg,
   group = am,
   method = "rank_biserial"
-)
+))
 ```
 
 Generic magnitude labels are excluded by default. Set
@@ -120,15 +121,15 @@ Other automatic defaults are:
 interval. It does not test whether groups differ.
 
 ```{r proportion}
-proportion_stats(mtcars, var = vs, by = am)
+to_flextable(proportion_stats(mtcars, var = vs, by = am))
 ```
 
 To compare categorical distributions, use `compare_groups()`, `add_p()`, or
 `crosstabs()`.
 
 ```{r categorical}
-compare_groups(mtcars, variable = vs, group = am)
-crosstabs(mtcars, row = am, col = vs)
+to_flextable(compare_groups(mtcars, variable = vs, group = am))
+to_flextable(crosstabs(mtcars, row = am, col = vs))
 ```
 
 In automatic mode, expected cell counts are calculated. Fisher's exact test is
@@ -147,13 +148,13 @@ The analyst must still confirm:
 For paired binary observations, supply an identifier and use McNemar's test:
 
 ```{r mcnemar}
-compare_groups(
+to_flextable(compare_groups(
   paired_data,
-  variable = status,
-  group = period,
+  variable = symptom_present,
+  group = visit,
   paired = TRUE,
-  id = participant_id
-)
+  id = id
+))
 ```
 
 ## Continuous outcomes
@@ -172,9 +173,9 @@ is available as optional supporting information. These tests are never
 gatekeepers and do not change the automatic choice.
 
 ```{r variance-diagnostics}
-assess_variance(mtcars, vars = mpg, by = am)
-assess_variance(mtcars, vars = mpg, by = am, test = "none")
-assess_variance(mtcars, vars = mpg, by = am, test = "bartlett")
+to_flextable(assess_variance(mtcars, vars = mpg, by = am))
+to_flextable(assess_variance(mtcars, vars = mpg, by = am, test = "none"))
+to_flextable(assess_variance(mtcars, vars = mpg, by = am, test = "bartlett"))
 ```
 
 The same observed-spread diagnostic is retained in an independent continuous
@@ -183,15 +184,15 @@ rule: Welch t-tests and Welch ANOVA do not require equal variances. The value
 of `var_equal` is a transparent user choice, not a data-driven variance test.
 
 ```{r continuous}
-compare_groups(
+to_flextable(compare_groups(
   mtcars,
   variable = mpg,
   group = am,
   test = "auto"
-)
+))
 
-compare_groups(mtcars, variable = mpg, group = cyl)
-compare_groups(mtcars, variable = mpg, group = cyl, test = "anova")
+to_flextable(compare_groups(mtcars, variable = mpg, group = cyl))
+to_flextable(compare_groups(mtcars, variable = mpg, group = cyl, test = "anova"))
 ```
 
 Distribution guidance primarily uses skewness. Shapiro-Wilk results are
@@ -219,16 +220,15 @@ within-pair differences rather than each measurement occasion separately.
 Distribution guidance is enabled by default.
 
 ```{r add-p}
-summary_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(vars = c(mpg, wt, vs)) |>
-  add_p()
+summary_table(mtcars, by = am, include = c(mpg, wt, vs), overall = TRUE) |>
+  add_p() |>
+  to_flextable()
 ```
 
 Tests can be prespecified per variable:
 
 ```{r add-p-explicit}
-summary_table(mtcars, by = am) |>
-  add_summary(vars = c(mpg, wt, vs)) |>
+summary_table(mtcars, by = am, include = c(mpg, wt, vs)) |>
   add_p(
     method = c(
       mpg = "welch_t",
@@ -236,13 +236,14 @@ summary_table(mtcars, by = am) |>
       vs = "fisher"
     ),
     distribution_check = FALSE
-)
+  ) |>
+  to_flextable()
 ```
 
 To use the equal-variance parametric route deliberately:
 
 ```{r equal-variance-auto}
-compare_groups(trial_data, change_score, group = arm, var_equal = TRUE)
+to_flextable(compare_groups(trial_data, change_score, group = arm, var_equal = TRUE))
 ```
 
 The table footnote records tests used and reminds readers that independence
@@ -279,7 +280,7 @@ matrix_result <- correlation(
   adjust = "holm"
 )
 
-matrix_result
+to_flextable(matrix_result)
 plot_correlation(matrix_result)
 ```
 

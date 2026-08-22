@@ -58,7 +58,7 @@ navbar:
         - text: "Missing data and denominators"
           href: articles/missing-data-denominators.html
         - text: "---"
-        - text: "Building descriptive tables"
+        - text: "Summary tables and customisation"
           href: articles/descriptive-tables.html
         - text: "Inferential tests and assumptions"
           href: articles/inferential-tests.html
@@ -144,23 +144,25 @@ reference:
 
   - title: "Build a descriptive table"
     desc: >
-      Modular pipe-based workflow for building publication-ready Table 1s.
-      Initialise with summary_table(), add rows with add_*(), render with tbl_stats().
+      Build the descriptive foundation, then add confidence intervals,
+      comparisons, or specialist rows only when required.
     contents:
       - summary_table
-      - add_summary
+      - add_ci
+      - add_p
       - add_proportion
       - add_rate
       - add_total
-      - add_p
       - add_row
+      - add_summary
 
   - title: "Render, style, and export"
-    desc: "Render as gt tables, apply journal themes, relabel columns, and export to Word."
+    desc: "Render as flextable by default, apply publication styling, export to Office, or opt into gt for HTML."
     contents:
-      - tbl_stats
       - customise_table
       - to_flextable
+      - to_gt
+      - tbl_stats
       - save_output
   - title: "Print methods"
     desc: "S3 print methods called automatically when printing gtstats objects to the console."
@@ -174,3 +176,4 @@ footer:
   components:
     developed_by: >
       Developed by <a href="https://thinkdenominator.com">ThinkDenominator</a>.
+      <button type="button" class="td-cookie-settings" data-td-cookie-settings>Cookie settings</button>

@@ -71,6 +71,21 @@ test_that("crosstabs() displays requested 2x2 measures in the rendered output", 
   expect_s3_class(tbl_stats(result), "gt_tbl")
 })
 
+test_that("crosstabs() omits test wording cleanly when tests are disabled", {
+  result <- crosstabs(
+    mtcars,
+    row = am,
+    col = vs,
+    measures = "or",
+    test = "none"
+  )
+
+  expect_match(result$notes[[1L]], "Cells are n ", fixed = TRUE)
+  expect_match(result$notes[[1L]], "Cramer's V", fixed = TRUE)
+  expect_false(grepl("None", result$notes[[1L]], fixed = TRUE))
+  expect_false(grepl("\\.Cramer's", result$notes[[1L]]))
+})
+
 test_that("crosstabs() retains zero-cell diagnostics and correction details", {
   dat <- data.frame(
     exposure = factor(rep(c("No", "Yes"), each = 10)),

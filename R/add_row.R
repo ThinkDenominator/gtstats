@@ -24,8 +24,7 @@
 #' @return An updated `gt_desc_table` object with the custom row appended.
 #'
 #' @examples
-#' res <- summary_table(mtcars, by = am, overall = TRUE) |>
-#'   add_summary(vars = c(mpg, wt)) |>
+#' res <- summary_table(mtcars, by = am, include = c(mpg, wt), overall = TRUE) |>
 #'   add_row(
 #'     label = "Study period",
 #'     overall = "2020-2024",
@@ -184,7 +183,8 @@ add_row <- function(
   }
 
   row_tbl <- tibble::as_tibble(row_tbl)
-  if (identical(x$layout %||% "compact", "separate")) {
+  if (identical(x$layout %||% "compact", "separate") &&
+      !is.null(x$display_columns)) {
     x <- .builder_use_separate_layout(x, conf.level = x$conf.level %||% 0.95)
     compact_row <- row_tbl
     row_tbl <- compact_row[, intersect(c("Variable", "Level"), names(compact_row)), drop = FALSE]

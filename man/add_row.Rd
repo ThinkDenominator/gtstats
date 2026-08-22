@@ -40,8 +40,7 @@ The row is matched to the current table structure automatically:
 }
 }
 \examples{
-res <- summary_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(vars = c(mpg, wt)) |>
+res <- summary_table(mtcars, by = am, include = c(mpg, wt), overall = TRUE) |>
   add_row(
     label = "Study period",
     overall = "2020-2024",

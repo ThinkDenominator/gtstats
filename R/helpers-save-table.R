@@ -1,15 +1,15 @@
 #' Save a formatted table to file
 #'
-#' Save a `gtstats` object or a rendered `gt_tbl` to disk.
+#' Save a `gtstats` object, rendered `flextable`, or rendered `gt_tbl` to disk.
 #'
-#' If a `gtstats` object is supplied, it is first rendered with
-#' [tbl_stats()]. If `path = NULL`, the file is saved in the current working
-#' directory and the full path is reported in a message.
+#' If a `gtstats` object is supplied, it is rendered using the output engine
+#' appropriate to the requested extension. If `path = NULL`, the file is saved
+#' in the current working directory and the full path is reported in a message.
 #'
-#' Supported formats depend on [gt::gtsave()] and currently include:
-#' HTML, PNG, PDF, RTF, LaTeX, and DOCX.
+#' Word, PowerPoint, HTML, RTF, and flextable image exports use `flextable`;
+#' PDF and LaTeX exports use `gt`.
 #'
-#' @param x A `gtstats` object or a `gt_tbl`.
+#' @param x A `gtstats` object, `flextable`, or `gt_tbl`.
 #' @param filename Output file name, including extension.
 #' @param path Optional directory to save into. Defaults to
 #'   the current working directory.
@@ -101,7 +101,7 @@
   ext <- tolower(tools::file_ext(out_file))
 
   # Restrict to supported output file types
-  allowed_ext <- c("html", "htm", "png", "pdf", "rtf", "tex", "docx")
+  allowed_ext <- c("html", "htm", "png", "pdf", "rtf", "tex", "docx", "pptx")
 
   if (!ext %in% allowed_ext) {
     stop(
@@ -116,7 +116,7 @@
     )
   }
 
-  # Supported gtstats object classes that can be rendered by tbl_stats()
+  # Supported gtstats object classes that can be rendered for export.
   valid_gtstats_classes <- c(
     "gt_distribution",
     "gt_variance",
@@ -130,18 +130,36 @@
     "gt_describe"
   )
 
-  if (!inherits(x, "gt_tbl") &&
+  if (!inherits(x, c("gt_tbl", "flextable")) &&
       !any(inherits(x, valid_gtstats_classes))) {
     stop(
       paste0(
-        "`x` must be a gtstats object compatible with ",
-        "`tbl_stats()` or a `gt_tbl`."
+        "`x` must be a supported gtstats object, flextable, or gt table."
       ),
       call. = FALSE
     )
   }
 
-  # Render the input if a gtstats object was supplied
+  flex_ext <- ext %in% c("docx", "pptx", "rtf", "html", "htm", "png")
+  if (inherits(x, "flextable") ||
+      (flex_ext && any(inherits(x, valid_gtstats_classes)))) {
+    ft <- if (inherits(x, "flextable")) x else to_flextable(
+      x,
+      show_footnotes = show_footnotes,
+      title = title,
+      subtitle = subtitle
+    )
+    if (identical(ext, "docx")) flextable::save_as_docx(ft, path = out_file)
+    else if (identical(ext, "pptx")) flextable::save_as_pptx(ft, path = out_file)
+    else if (identical(ext, "rtf")) flextable::save_as_rtf(ft, path = out_file)
+    else if (ext %in% c("html", "htm")) flextable::save_as_html(ft, path = out_file)
+    else if (identical(ext, "png")) flextable::save_as_image(ft, path = out_file, expand = expand)
+    else stop("This flextable export format is not supported.", call. = FALSE)
+    if (!quiet) message("Table saved to: ", normalizePath(out_file, winslash = "/", mustWork = FALSE))
+    return(invisible(out_file))
+  }
+
+  # Render remaining formats with gt.
   gt_obj <- if (inherits(x, "gt_tbl")) {
     x
   } else {
@@ -191,5 +209,94 @@
     )
   }
 
+  invisible(out_file)
+}
+
+.save_word_report <- function(
+    x,
+    filename,
+    path = NULL,
+    title = NULL,
+    subtitle = NULL,
+    show_footnotes = TRUE,
+    width = 8,
+    height = 6,
+    page_break = TRUE,
+    quiet = FALSE
+) {
+  if (!length(x)) {
+    stop("`x` must contain at least one table or plot.", call. = FALSE)
+  }
+  if (!is.character(filename) || length(filename) != 1L ||
+      is.na(filename) || !nzchar(filename)) {
+    stop("`filename` must be a single non-empty character string.", call. = FALSE)
+  }
+  if (!identical(tolower(tools::file_ext(filename)), "docx")) {
+    stop(
+      "A list of outputs can currently be combined only in a `.docx` file.",
+      call. = FALSE
+    )
+  }
+
+  save_dir <- path %||% getwd()
+  if (!dir.exists(save_dir)) {
+    dir.create(save_dir, recursive = TRUE, showWarnings = FALSE)
+  }
+  out_file <- file.path(save_dir, filename)
+
+  supported <- vapply(
+    x,
+    function(item) inherits(item, c("gtstats", "flextable", "ggplot")),
+    logical(1)
+  )
+  if (any(!supported)) {
+    stop(
+      paste0(
+        "Every item in `x` must be a gtstats result, flextable, or ggplot. ",
+        "Unsupported item(s): ", paste(which(!supported), collapse = ", "), "."
+      ),
+      call. = FALSE
+    )
+  }
+
+  item_names <- names(x)
+  if (is.null(item_names)) item_names <- rep("", length(x))
+  missing_names <- is.na(item_names) | !nzchar(trimws(item_names))
+  item_names[missing_names] <- paste("Output", which(missing_names))
+
+  doc <- officer::read_docx()
+  if (!is.null(title) && nzchar(title)) {
+    doc <- officer::body_add_par(doc, value = title, style = "heading 1")
+  }
+  if (!is.null(subtitle) && nzchar(subtitle)) {
+    doc <- officer::body_add_par(doc, value = subtitle, style = "centered")
+  }
+
+  for (i in seq_along(x)) {
+    if (i > 1L && isTRUE(page_break)) {
+      doc <- officer::body_add_break(doc)
+    }
+    section_style <- if (is.null(title)) "heading 1" else "heading 2"
+    doc <- officer::body_add_par(doc, value = item_names[[i]], style = section_style)
+    item <- x[[i]]
+    if (inherits(item, "ggplot")) {
+      doc <- officer::body_add_gg(doc, value = item, width = width, height = height)
+    } else {
+      ft <- if (inherits(item, "flextable")) {
+        item
+      } else {
+        to_flextable(item, show_footnotes = show_footnotes)
+      }
+      doc <- flextable::body_add_flextable(doc, value = ft)
+    }
+  }
+
+  print(doc, target = out_file)
+  if (!quiet) {
+    message(
+      "Report saved to: ",
+      normalizePath(out_file, winslash = "/", mustWork = FALSE)
+    )
+  }
   invisible(out_file)
 }

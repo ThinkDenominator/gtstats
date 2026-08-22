@@ -114,12 +114,10 @@ variances.
 }
 }
 \examples{
-summary_table(mtcars, by = am) |>
-  add_summary(vars = c(mpg, wt, cyl)) |>
+summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>
   add_p()
 
-summary_table(mtcars, by = am) |>
-  add_summary(vars = c(mpg, wt, cyl)) |>
+summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>
   add_p(method = c(mpg = "welch_t", wt = "wilcox", cyl = "chisq"))
 
 summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>

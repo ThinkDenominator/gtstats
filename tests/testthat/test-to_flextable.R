@@ -47,6 +47,9 @@ test_that("to_flextable() works for crosstabs() output", {
   ft <- to_flextable(obj)
 
   expect_s3_class(ft, "flextable")
+  body_values <- unlist(ft$body$dataset, use.names = FALSE)
+  expect_false(any(grepl("<br>", body_values, fixed = TRUE)))
+  expect_true(any(grepl("\n", body_values, fixed = TRUE)))
 })
 
 test_that("to_flextable() works for a direct summary_table output", {
@@ -55,6 +58,38 @@ test_that("to_flextable() works for a direct summary_table output", {
   ft <- to_flextable(obj)
 
   expect_s3_class(ft, "flextable")
+})
+
+test_that("summary flextables display one label per categorical block", {
+  data <- mtcars
+  data$am <- factor(data$am, labels = c("Automatic", "Manual"))
+  data$cyl <- factor(data$cyl)
+
+  obj <- summary_table(
+    data,
+    by = am,
+    include = c(mpg, cyl),
+    overall = "last"
+  )
+  ft <- to_flextable(obj)
+
+  rendered <- ft$body$dataset
+  expect_equal(
+    rendered$Characteristic,
+    c("mpg", "cyl", "4", "6", "8")
+  )
+  cyl_rows <- which(obj$table$Variable == "cyl")
+  expect_equal(obj$table$Variable[cyl_rows], rep("cyl", 3L))
+  header_html <- as.character(flextable::htmltools_value(ft))
+  expect_false(grepl(">Level<", header_html, fixed = TRUE))
+  expect_true(grepl("Characteristic", header_html, fixed = TRUE))
+})
+
+test_that("publication padding becomes compact as tables grow", {
+  expect_equal(gtstats:::.publication_auto_padding(10), 3)
+  expect_equal(gtstats:::.publication_auto_padding(11), 2)
+  expect_equal(gtstats:::.publication_auto_padding(25), 2)
+  expect_equal(gtstats:::.publication_auto_padding(26), 1)
 })
 
 test_that("to_flextable() includes notes when present", {
@@ -108,4 +143,9 @@ test_that("to_flextable() errors for invalid input without table", {
     to_flextable(mtcars),
     regexp = "must be a gtstats object"
   )
+})
+test_that("flextable publication footnotes use the compact house size", {
+  result <- summary_table(mtcars, include = c(mpg, cyl))
+  ft <- to_flextable(result, font_size = 12)
+  expect_true(all(ft$footer$styles$text$font.size$data == 8))
 })

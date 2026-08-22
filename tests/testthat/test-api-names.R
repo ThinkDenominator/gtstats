@@ -39,7 +39,7 @@ test_that("customise_table() accepts an unrendered result", {
     row_striping = TRUE
   )
 
-  expect_s3_class(styled, "gt_tbl")
+  expect_s3_class(styled, "flextable")
 })
 
 test_that("customise_table() validates its public inputs", {
@@ -55,7 +55,7 @@ test_that("customise_table() validates its public inputs", {
   )
   expect_error(
     customise_table(mtcars),
-    "gtstats result or a rendered gt table"
+    "gtstats result, flextable, or rendered gt table"
   )
 })
 
@@ -82,14 +82,14 @@ test_that("gtstats exports do not conflict with gtregression exports", {
 test_that("only finalized conflict-free public names are exported", {
   exports <- sort(getNamespaceExports("gtstats"))
   finalized_api <- sort(c(
-    "add_row", "add_p", "add_proportion", "add_rate",
+    "add_row", "add_ci", "add_p", "add_proportion", "add_rate",
     "add_summary", "add_total", "assess_distribution", "assess_variance",
     "assumptions_stats", "compare_groups", "correlation",
     "customise_table", "denominators_stats", "describe_data",
     "diagnostics_stats", "effect_size", "gtstats_app", "plot_compare",
     "plot_correlation", "proportion_stats", "rate_stats",
     "save_output",
-    "summary_table", "tbl_stats", "to_flextable", "crosstabs"
+    "summary_table", "tbl_stats", "to_flextable", "to_gt", "crosstabs"
   ))
 
   expect_identical(exports, finalized_api)

@@ -50,7 +50,7 @@ test_that("add_proportion() supports custom label", {
   expect_s3_class(res, "gt_desc_table")
   expect_true(any(res$table$Variable == "Engine shape"))
   expect_false(any(res$table$Variable == "Engine shape (1)"))
-  expect_match(res$footnotes, "selected-event descriptive row")
+  expect_match(res$footnotes, "Confidence intervals: 95% intervals use the Wilson score method", fixed = TRUE)
 })
 
 test_that("add_proportion() validates a custom label", {
@@ -71,7 +71,8 @@ test_that("add_proportion() supports ci = FALSE", {
     add_proportion(var = vs, ci = FALSE)
 
   expect_s3_class(res, "gt_desc_table")
-  expect_true(any(grepl("Selected event", res$footnotes)))
+  expect_false(any(grepl("Selected event", res$footnotes)))
+  expect_false(any(grepl("add_p", res$footnotes, fixed = TRUE)))
 })
 
 test_that("add_proportion() works for categorical variable", {
@@ -183,7 +184,7 @@ test_that("add_proportion() shares interval and display choices", {
   expect_match(wilson$table$Value, "^14 \\(43.8%\\)")
   expect_match(exact$table$Value, "^14/32 \\(43.8%\\)")
   expect_match(exact$footnotes, "exact binomial")
-  expect_match(exact$footnotes, "range after the semicolon")
+  expect_false(any(grepl("Selected event", exact$footnotes)))
   expect_identical(percent$table$Value, "43.8%")
 })
 

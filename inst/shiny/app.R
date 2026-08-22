@@ -37,7 +37,7 @@ render_result <- function(expression) {
 }
 
 download_result <- function(output, id, result) {
-  formats <- c(docx = "docx", html = "html", pdf = "pdf", rtf = "rtf")
+  formats <- c(docx = "docx", pptx = "pptx", html = "html", pdf = "pdf", rtf = "rtf")
   for (format in formats) {
     local({
       extension <- format
@@ -55,6 +55,7 @@ download_strip <- function(id) {
   tags$div(
     class = "download-strip",
     downloadButton(paste0(id, "_docx"), "DOCX"),
+    downloadButton(paste0(id, "_pptx"), "PPTX"),
     downloadButton(paste0(id, "_html"), "HTML"),
     downloadButton(paste0(id, "_pdf"), "PDF"),
     downloadButton(paste0(id, "_rtf"), "RTF")
@@ -401,46 +402,81 @@ ui <- navbarPage(
       tabPanel("Summary table", value = "table1",
         br(), fluidRow(
           column(5, div(class = "cardish gtx-side",
-            tags$h3("The recipe"),
-            tags$p(class = "help-copy", "Work from top to bottom. Defaults are suitable for most first tables; change only what your report needs."),
+            tags$h3("Build your table, layer by layer"),
+            tags$p(class = "help-copy", "Start with the descriptive foundation, then add only the layers your report needs. Like peeling an onion, every layer remains visible in the generated R code."),
             tags$div(class = "gtx-control-section",
-              tags$div(class = "gtx-control-title", tags$span(class = "gtx-control-number", "1"), "Choose the table contents"),
-              tags$p(class = "help-copy", "A group creates comparison columns. Leave it blank for one overall descriptive table."),
+              tags$div(class = "gtx-control-title", tags$span(class = "gtx-control-number", "1"), "Build the foundation"),
+              tags$p(class = "help-copy", "Choose the variables and column structure. Rates and other specialist rows can be added later as optional layers."),
               selectInput("table_group", "Group columns by (optional)", choices = NULL),
-              uiOutput("table_vars_ui"),
-              tags$div(class = "button-row",
-                actionButton("table_select_all", "Select all"),
-                actionButton("table_clear_all", "Clear")
-              ),
-              selectInput("table_overall", "Overall column", choices = c("No overall column" = "false", "First" = "first", "Last" = "last"))
+              selectInput("table_overall", "Overall column", choices = c("No overall column" = "false", "First" = "first", "Last" = "last")),
+              selectInput("table_layout", "Table layout", choices = c("Compact cells" = "compact", "Separate estimate and 95% CI columns" = "separate"), selected = "compact")
             ),
-            tags$div(class = "gtx-control-section",
-              tags$div(class = "gtx-control-title", tags$span(class = "gtx-control-number", "2"), "Choose how values are summarised"),
-              tags$p(class = "help-copy", "Unlisted continuous variables use Recommended. Enter only exceptions, one per line."),
-              textAreaInput(
-                "table_stat_overrides", "Summary-statistic overrides (optional)", rows = 4,
-                placeholder = "age = mean_sd\nlwt = median_iqr\nbwt = mean_ci"
-              ),
-              tags$div(class = "button-row",
-                actionButton("table_stat_example", "Insert example"),
-                actionButton("table_stat_clear", "Clear overrides")
-              ),
-              uiOutput("table_stat_override_status"),
-              selectInput("table_categorical", "Categorical display", choices = c("n (%)" = "n_percent", "n/N (%)" = "n_over_N_percent", "n only" = "n", "% only" = "percent")),
-              tags$div(class = "card-heading", tags$h4("Percentage denominator"), actionLink("percent_help", "Why?")),
-              selectInput("table_percent", NULL, choices = c("Within each column" = "column", "Within each row" = "row", "Whole dataset" = "overall")),
-              selectInput("table_missing", "Missing values", choices = c("Show when present" = "ifany", "Always show" = "always", "Do not show" = "no")),
-              numericInput("table_digits", "Decimal places", 1, min = 0, max = 5, step = 1),
-              checkboxInput("table_ci", "Add confidence intervals for categorical percentages", FALSE),
-              conditionalPanel(
-                "input.table_ci",
-                selectInput("table_ci_method", "Confidence-interval method", choices = c("Wilson (recommended)" = "wilson", "Exact binomial" = "exact")),
-                selectInput("table_layout", "Confidence-interval layout", choices = c("Separate columns (less crowded)" = "separate", "Compact in each cell" = "compact")),
-                tags$p(class = "help-copy", "Separate columns place Summary and 95% CI beneath each cohort heading. Compact keeps the familiar Table 1 width.")
+            conditionalPanel("true",
+              tags$div(class = "gtx-control-section",
+                tags$div(class = "gtx-control-title", tags$span(class = "gtx-control-number", "2"), "Choose how values are shown"),
+                checkboxInput("table_include_summary", "Include ordinary variable summaries", TRUE),
+                conditionalPanel("input.table_include_summary",
+                  uiOutput("table_vars_ui"),
+                  tags$div(class = "button-row",
+                    actionButton("table_select_all", "Select all"),
+                    actionButton("table_clear_all", "Clear")
+                  ),
+                  selectInput("table_stat_default", "Default for continuous variables", choices = c("Recommended" = "recommended", "Mean (SD)" = "mean_sd", "Mean (95% CI)" = "mean_ci", "Median (IQR)" = "median_iqr", "Mean (SD) and median (IQR)" = "both")),
+                  tags$p(class = "help-copy", "Choose the rule for all continuous variables, then enter only exceptions below. Unlisted continuous variables use Recommended when the global choice is Recommended."),
+                  textAreaInput("table_stat_overrides", "Summary-statistic overrides (optional)", rows = 4, placeholder = "age = mean_sd\nlwt = median_iqr\nbwt = mean_ci"),
+                  tags$div(class = "button-row", actionButton("table_stat_example", "Insert example"), actionButton("table_stat_clear", "Clear overrides")),
+                  uiOutput("table_stat_override_status"),
+                  selectInput("table_categorical", "Categorical display", choices = c("n (%)" = "n_percent", "n/N (%)" = "n_over_N_percent", "n only" = "n", "% only" = "percent")),
+                  selectInput(
+                    "table_dichotomous", "Binary variables",
+                    choices = c(
+                      "Show both levels" = "all_levels",
+                      "Show one event level" = "single_row"
+                    ),
+                    selected = "all_levels"
+                  ),
+                  conditionalPanel(
+                    "input.table_dichotomous === 'single_row'",
+                    tags$p(class = "help-copy", "Each binary variable becomes one compact row. By default the second declared level is shown. Enter only event-level overrides below."),
+                    textAreaInput(
+                      "table_dichotomous_values", "Event levels (optional)", rows = 3,
+                      placeholder = "smoke = Yes\nht = Yes"
+                    ),
+                    tags$p(class = "help-copy", "Use one `variable = event level` per line. The selected event is retained in the result metadata and generated code.")
+                  ),
+                  selectInput(
+                    "table_categorical_layout",
+                    "Categorical columns",
+                    choices = c(
+                      "Keep n and % together (recommended)" = "combined",
+                      "Place n and % in separate columns" = "separate"
+                    ),
+                    selected = "combined"
+                  ),
+                  tags$p(class = "help-copy", "Separate n and % columns are available for categorical-only tables without confidence intervals."),
+                  tags$div(class = "card-heading", tags$h4("Percentage denominator"), actionLink("percent_help", "Why?")),
+                  selectInput("table_percent", NULL, choices = c("Within each column" = "column", "Within each row" = "row", "Whole dataset" = "overall")),
+                  selectInput("table_missing", "Missing values", choices = c("Show when present" = "ifany", "Always show" = "always", "Do not show" = "no")),
+                  numericInput("table_digits", "Decimal places", 1, min = 0, max = 5, step = 1)
+                )
               )
             ),
-            tags$div(class = "gtx-control-section",
-              tags$div(class = "gtx-control-title", tags$span(class = "gtx-control-number", "3"), "Add statistical comparisons"),
+            conditionalPanel("true",
+              tags$div(class = "gtx-control-section",
+                tags$div(class = "gtx-control-title", tags$span(class = "gtx-control-number", "3"), "Add confidence intervals"),
+                checkboxInput("table_ci", "Add confidence intervals", FALSE),
+                conditionalPanel("input.table_ci",
+                  tags$p(class = "help-copy", "Apply globally, or choose particular variables. Categorical levels receive proportion CIs; continuous means receive mean CIs. Median (IQR) summaries stay unchanged."),
+                  selectInput("table_ci_scope", "Apply to", choices = c("All eligible variables" = "all", "Selected variables" = "selected")),
+                  conditionalPanel("input.table_ci_scope === 'selected'", uiOutput("table_ci_vars_ui")),
+                  selectInput("table_ci_method", "Categorical CI method", choices = c("Wilson (recommended)" = "wilson", "Exact binomial" = "exact")),
+                  numericInput("table_conf_level", "Confidence level", 0.95, min = 0.5, max = 0.999, step = 0.01)
+                )
+              )
+            ),
+            conditionalPanel("true",
+              tags$div(class = "gtx-control-section",
+              tags$div(class = "gtx-control-title", tags$span(class = "gtx-control-number", "4"), "Add statistical comparisons"),
               checkboxInput("table_p", "Add p-values (requires a group)", FALSE),
               conditionalPanel(
                 "input.table_p",
@@ -456,14 +492,68 @@ ui <- navbarPage(
                 uiOutput("table_test_override_status"),
                 tags$details(class = "gtx-details",
                   tags$summary("Advanced Auto-test settings"),
+                  checkboxInput("table_p_paired", "Repeated measurements from the same participant", FALSE),
+                  conditionalPanel("input.table_p_paired", selectInput("table_p_id", "Participant ID", choices = NULL)),
                   checkboxInput("table_distribution_check", "Use distribution guidance in Auto", TRUE),
                   checkboxInput("table_var_equal", "For Auto: equal variances are justified", FALSE),
+                  checkboxInput("table_p_correction", "Continuity correction where applicable", TRUE),
+                  selectInput("table_p_adjust", "Multiple-testing adjustment", choices = c("None" = "none", "Holm" = "holm", "Bonferroni" = "bonferroni", "Benjamini-Hochberg" = "BH", "False-discovery rate" = "fdr")),
+                  numericInput("table_p_digits", "P-value decimal places", 3, min = 1, max = 6, step = 1),
+                  numericInput("table_fisher_seed", "Fisher simulation seed", 1049, min = 1, step = 1),
                   tags$p(class = "help-copy", "Distribution guidance uses marked skewness, not Shapiro-Wilk alone. Equal variances changes only suitable independent parametric tests; it does not run a variance test.")
                 )
+              ))
+            ),
+            tags$details(class = "gtx-details gtx-control-section", open = FALSE,
+              tags$summary(tags$span(class = "gtx-control-title", tags$span(class = "gtx-control-number", "5"), "Add specialist ingredients")),
+              conditionalPanel("true",
+                checkboxInput("table_add_total", "Add total N row", FALSE),
+                conditionalPanel("input.table_add_total",
+                  textInput("table_total_label", "Total-row label", value = "Total (N)"),
+                  selectInput("table_total_position", "Position", choices = c("First" = "first", "Last" = "last"))
+                ),
+                checkboxInput("table_add_proportion", "Add selected proportion row", FALSE),
+                conditionalPanel("input.table_add_proportion",
+                  selectInput("table_prop_var", "Variable", choices = NULL),
+                  uiOutput("table_prop_level_ui"),
+                  textInput("table_prop_label", "Row label (optional)", placeholder = "Example: Low birth weight"),
+                  tags$p(class = "help-copy", "This adds one clinically important event as a new row. It is not needed to add CIs to ordinary categorical rows."),
+                  checkboxInput("table_prop_ci", "Add confidence interval", TRUE),
+                  tags$details(class = "gtx-details",
+                    tags$summary("Advanced proportion options"),
+                    selectInput("table_prop_settings", "Settings", choices = c("Inherit from the table" = "inherit", "Override for this row" = "custom")),
+                    conditionalPanel("input.table_prop_settings === 'custom'",
+                      selectInput("table_prop_display", "Display", choices = c("n (%)" = "n_percent", "% only" = "percent", "n/N (%)" = "n_over_N_percent")),
+                      conditionalPanel("input.table_prop_ci",
+                        numericInput("table_prop_conf", "Confidence level", 0.95, min = 0.5, max = 0.999, step = 0.01),
+                        selectInput("table_prop_ci_method", "Interval method", choices = c("Wilson (recommended)" = "wilson", "Exact binomial" = "exact"))
+                      ),
+                      numericInput("table_prop_digits", "Decimal places", 1, min = 0, max = 5, step = 1)
+                    )
+                  )
+                )
+              ),
+              checkboxInput("table_add_rate", "Add an event rate", FALSE),
+              conditionalPanel("input.table_add_rate",
+                tags$p(class = "help-copy", "A rate needs an event-count variable and a person-time variable."),
+                selectInput("table_rate_event", "Event count", choices = NULL),
+                selectInput("table_rate_time", "Person-time", choices = NULL),
+                textInput("table_rate_label", "Rate label (optional)"),
+                numericInput("table_rate_multiplier", "Multiplier", 1000, min = 0.0001),
+                textInput("table_rate_time_label", "Time-unit label (optional)", placeholder = "Example: person-years"),
+                checkboxInput("table_rate_ci", "Add confidence interval", TRUE),
+                conditionalPanel("input.table_rate_ci", numericInput("table_rate_conf", "Confidence level", 0.95, min = 0.5, max = 0.999, step = 0.01)),
+                numericInput("table_rate_digits", "Decimal places", 1, min = 0, max = 5, step = 1)
+              ),
+              checkboxInput("table_add_row", "Add a custom text row", FALSE),
+              conditionalPanel("input.table_add_row",
+                textInput("table_row_label", "Row label"),
+                textInput("table_row_level", "Level text (optional)"),
+                uiOutput("table_row_values_ui")
               )
             ),
             tags$details(class = "gtx-details gtx-control-section",
-              tags$summary(tags$span(class = "gtx-control-title", tags$span(class = "gtx-control-number", "4"), "Customise appearance")),
+              tags$summary(tags$span(class = "gtx-control-title", tags$span(class = "gtx-control-number", "6"), "Finish the appearance")),
               selectInput("table_theme", "Table theme", choices = c("GTstats default" = "default", "Journal" = "journal", "Classic" = "classic", "Minimal" = "minimal", "Compact" = "compact")),
               textInput("table_title", "Title (optional)", placeholder = "Example: Participant characteristics"),
               textInput("table_subtitle", "Subtitle (optional)"),
@@ -495,17 +585,39 @@ ui <- navbarPage(
             tags$h4("Text and labels"),
             textInput("custom_title", "Title (optional)", placeholder = "Example: Participant characteristics"),
             textInput("custom_subtitle", "Subtitle (optional)"),
+            textInput("custom_spanning_header", "Spanning header (optional)", placeholder = "Example: Birth-weight outcome"),
             textAreaInput("custom_col_labels", "Column labels", rows = 3, placeholder = "p-value = P value\nOverall = All participants"),
             tags$p(class = "help-copy", "One `current column = new label` per line. Use the column names shown in the completed table."),
             textAreaInput("custom_row_labels", "Variable or row labels", rows = 3, placeholder = "age = Maternal age (years)\nsmoke = Smoking status"),
             textAreaInput("custom_level_labels", "Category level labels", rows = 3, placeholder = "Yes = Present\nNo = Absent"),
             textAreaInput("custom_source_note", "Additional note (optional)", rows = 2, placeholder = "Values are based on available observations."),
+            textAreaInput("custom_footnote_text", "Additional footnotes (optional)", rows = 2, placeholder = "Enter one note per line"),
             tags$h4("Appearance"),
             selectInput("custom_theme", "Table theme", choices = c("GTstats default" = "default", "Journal" = "journal", "Classic" = "classic", "Minimal" = "minimal", "Compact" = "compact")),
+            selectInput("custom_borders", "Borders", choices = c("Horizontal rules" = "horizontal", "All cells" = "all", "Minimal" = "minimal")),
+            selectInput("custom_density", "Table spacing", choices = c("Standard" = "standard", "Compact" = "compact", "Spacious" = "spacious")),
             checkboxInput("custom_bold_labels", "Bold variable labels", TRUE),
             checkboxInput("custom_footnotes", "Keep relevant footnotes", TRUE),
             checkboxInput("custom_striping", "Alternate row shading", FALSE),
             numericInput("custom_font_size", "Font size", 14, min = 9, max = 24, step = 1),
+            tags$details(class = "gtx-details",
+              tags$summary("Advanced appearance and columns"),
+              textInput("custom_font", "Font family (optional)", placeholder = "Example: Arial"),
+              numericInput("custom_width", "Table width (%)", 100, min = 20, max = 100, step = 5),
+              textInput("custom_accent_color", "Rule/accent colour (optional)", placeholder = "#333333"),
+              textInput("custom_stripe_color", "Stripe colour (optional)", placeholder = "#F2F2F2"),
+              textInput("custom_align_left", "Left-align columns", placeholder = "Characteristic"),
+              textInput("custom_align_center", "Centre columns", placeholder = "p-value"),
+              textInput("custom_align_right", "Right-align columns", placeholder = "Overall"),
+              textInput("custom_bold_cols", "Bold columns", placeholder = "Characteristic"),
+              textInput("custom_italic_cols", "Italic columns", placeholder = "Example: Group"),
+              tags$p(class = "help-copy", "For column controls, enter exact completed column names separated by commas. Legacy Variable is accepted as an alias for Characteristic.")
+            ),
+            tags$h4("P-values"),
+            selectInput("custom_pvalue_style", "P-value display", choices = c("Threshold below cut-off" = "threshold", "Fixed decimals" = "fixed", "Scientific" = "scientific")),
+            numericInput("custom_pvalue_digits", "P-value digits", 3, min = 1, max = 6, step = 1),
+            numericInput("custom_pvalue_threshold", "Less-than threshold", 0.001, min = 0.000001, max = 0.1, step = 0.001),
+            checkboxInput("custom_pvalue_prefix", "Show p = before ordinary values", FALSE),
             textInput("custom_hide_cols", "Hide columns (optional)", placeholder = "Example: p-value, Overall"),
             tags$p(class = "help-copy", "Enter exact column names separated by commas."),
             actionButton("run_customise", "Apply table changes", class = "btn-primary")
@@ -944,10 +1056,61 @@ server <- function(input, output, session) {
       choices = choices, selected = selected
     )
   })
+  output$table_ci_vars_ui <- renderUI({
+    choices <- input$table_vars %||% character()
+    checkboxGroupInput(
+      "table_ci_vars", "Variables receiving confidence intervals",
+      choices = choices, selected = intersect(input$table_ci_vars %||% choices, choices)
+    )
+  })
 
   table_type_map <- reactive({
     overview <- gtstats::describe_data(selected_data(), output = "tibble")
     stats::setNames(overview$type, overview$variable)
+  })
+  observe({
+    types <- table_type_map()
+    proportion_vars <- names(types)[types %in% c("binary", "categorical", "ordinal")]
+    current_prop <- input$table_prop_var %||% ""
+    updateSelectInput(
+      session, "table_prop_var", choices = proportion_vars,
+      selected = if (current_prop %in% proportion_vars) current_prop else if (length(proportion_vars)) proportion_vars[[1L]] else character()
+    )
+    numeric_vars <- names(selected_data())[vapply(selected_data(), is.numeric, logical(1))]
+    id_choices <- c("Choose ID" = "", stats::setNames(names(selected_data()), names(selected_data())))
+    updateSelectInput(session, "table_p_id", choices = id_choices,
+      selected = if ((input$table_p_id %||% "") %in% names(selected_data())) input$table_p_id else "")
+    updateSelectInput(session, "table_rate_event", choices = numeric_vars,
+      selected = if ((input$table_rate_event %||% "") %in% numeric_vars) input$table_rate_event else if (length(numeric_vars)) numeric_vars[[1L]] else character())
+    time_default <- setdiff(numeric_vars, input$table_rate_event %||% "")
+    updateSelectInput(session, "table_rate_time", choices = numeric_vars,
+      selected = if ((input$table_rate_time %||% "") %in% numeric_vars) input$table_rate_time else if (length(time_default)) time_default[[1L]] else character())
+  })
+  output$table_prop_level_ui <- renderUI({
+    variable <- input$table_prop_var %||% ""
+    req(nzchar(variable), variable %in% names(selected_data()))
+    values <- selected_data()[[variable]]
+    levels_available <- if (is.factor(values)) levels(droplevels(values)) else unique(as.character(values[!is.na(values)]))
+    selectInput("table_prop_level", "Event level", choices = levels_available,
+      selected = if (length(levels_available)) levels_available[[length(levels_available)]] else character())
+  })
+  output$table_row_values_ui <- renderUI({
+    group <- input$table_group %||% ""
+    overall <- input$table_overall %||% "false"
+    controls <- list()
+    if (!identical(overall, "false")) {
+      controls <- c(controls, list(textInput("table_row_overall", "Overall value")))
+    }
+    if (nzchar(group) && group %in% names(selected_data())) {
+      values <- selected_data()[[group]]
+      group_levels <- if (is.factor(values)) levels(droplevels(values)) else unique(as.character(values[!is.na(values)]))
+      controls <- c(controls, lapply(seq_along(group_levels), function(i) {
+        textInput(paste0("table_row_group_", i), paste0("Value for ", group_levels[[i]]))
+      }))
+    } else if (identical(overall, "false")) {
+      controls <- c(controls, list(textInput("table_row_single", "Displayed value")))
+    }
+    tagList(controls)
   })
   table_override_settings <- reactive({
     vars <- input$table_vars %||% character()
@@ -1153,45 +1316,180 @@ server <- function(input, output, session) {
   observeEvent(input$run_table, {
     req(!is.null(initial_clicks$table),
       (input$run_table %||% 0) > initial_clicks$table)
-    vars <- input$table_vars
-    validate(need(length(vars) > 0L, "Choose at least one variable for the summary table."))
+    mode <- "summary"
+    include_summary <- !identical(input$table_include_summary, FALSE)
+    vars <- if (include_summary) input$table_vars %||% character() else character()
+    if (include_summary) {
+      validate(need(length(vars) > 0L, "Choose at least one variable for the main summaries."))
+    }
     table_digits <- input$table_digits %||% 1L
     settings <- table_override_settings()
-    validate(need(!length(settings$statistic$errors), paste(settings$statistic$errors, collapse = "\n")))
-    validate(need(!length(settings$method$errors), paste(settings$method$errors, collapse = "\n")))
-    statistic_arg <- if (length(settings$statistic$values)) {
-      settings$statistic$values
-    } else {
-      "recommended"
+    if (include_summary) {
+      validate(need(!length(settings$statistic$errors), paste(settings$statistic$errors, collapse = "\n")))
+      dichotomous_values <- tryCatch(
+        parse_label_mapping(input$table_dichotomous_values, "Binary event levels"),
+        error = function(error) error
+      )
+      if (inherits(dichotomous_values, "error")) {
+        validate(need(FALSE, conditionMessage(dichotomous_values)))
+      }
+      if (identical(input$table_categorical_layout %||% "combined", "separate")) {
+        selected_types <- vapply(vars, function(variable) {
+          gtstats:::.detect_type(selected_data()[[variable]])
+        }, character(1))
+        validate(need(
+          all(selected_types != "continuous"),
+          "Separate n and % columns require a categorical-only variable selection."
+        ))
+        validate(need(
+          !isTRUE(input$table_ci),
+          "For confidence intervals, keep n and % together and choose the separate estimate/CI table layout."
+        ))
+        validate(need(
+          !isTRUE(input$table_add_proportion) && !isTRUE(input$table_add_rate),
+          "Separate n and % columns are for ordinary categorical summaries. Use the combined layout for specialist proportion or rate rows."
+        ))
+      }
     }
-    args <- list(data = selected_data(), include = vars,
-      statistic = statistic_arg,
-      categorical = input$table_categorical %||% "n_percent",
-      percent = input$table_percent %||% "column",
-      missing = input$table_missing %||% "ifany", digits = table_digits,
-      ci = isTRUE(input$table_ci),
-      ci_method = input$table_ci_method %||% "wilson",
-      layout = if (isTRUE(input$table_ci)) input$table_layout %||% "separate" else "compact")
+    if (isTRUE(input$table_p)) {
+      validate(need(!length(settings$method$errors), paste(settings$method$errors, collapse = "\n")))
+    }
+    statistic_default <- input$table_stat_default %||% "recommended"
+    statistic_arg <- if (length(settings$statistic$values)) {
+      c(continuous = statistic_default, settings$statistic$values)
+    } else {
+      statistic_default
+    }
+    args <- list(
+      data = selected_data(), mode = mode,
+      layout = input$table_layout %||% "compact"
+    )
+    if (include_summary) {
+      args$include <- vars
+      args$statistic <- statistic_arg
+      args$categorical <- input$table_categorical %||% "n_percent"
+      args$show_dichotomous <- input$table_dichotomous %||% "all_levels"
+      if (identical(args$show_dichotomous, "single_row") &&
+          length(dichotomous_values)) {
+        args$value <- dichotomous_values
+      }
+      if (identical(input$table_categorical_layout %||% "combined", "separate")) {
+        args$categorical_layout <- "separate"
+      }
+      args$percent <- input$table_percent %||% "column"
+      args$missing <- input$table_missing %||% "ifany"
+      args$digits <- table_digits
+    }
     if (nzchar(input$table_group)) args$by <- input$table_group
     if (identical(input$table_overall, "first")) args$overall <- "first"
     if (identical(input$table_overall, "last")) args$overall <- "last"
     result <- do.call(gtstats::summary_table, args)
+    if (include_summary && isTRUE(input$table_ci)) {
+      ci_vars <- if (identical(input$table_ci_scope %||% "all", "selected")) {
+        input$table_ci_vars %||% character()
+      } else {
+        NULL
+      }
+      if (identical(input$table_ci_scope %||% "all", "selected")) {
+        validate(need(length(ci_vars) > 0L, "Choose at least one variable for confidence intervals."))
+      }
+      ci_args <- list(
+        x = result,
+        conf.level = input$table_conf_level %||% 0.95,
+        method = input$table_ci_method %||% "wilson"
+      )
+      if (!is.null(ci_vars)) ci_args$vars <- ci_vars
+      result <- do.call(gtstats::add_ci, ci_args)
+    }
     if (isTRUE(input$table_p)) {
       validate(need(nzchar(input$table_group), "P-values require a grouping variable."))
+      validate(need(length(vars) > 0L, "P-values require at least one ordinary variable summary."))
+      if (isTRUE(input$table_p_paired)) {
+        validate(need(nzchar(input$table_p_id %||% ""), "Choose the participant ID for paired p-values."))
+      }
       method_overrides <- settings$method$values
       excluded_vars <- names(method_overrides)[method_overrides == "none"]
       tested_vars <- setdiff(vars, excluded_vars)
       explicit_methods <- method_overrides[method_overrides != "none"]
       if (length(tested_vars) > 0L) {
-        result <- gtstats::add_p(
-          result,
+        p_args <- list(
+          x = result,
           method = if (length(explicit_methods)) explicit_methods else "auto",
-          include = tidyselect::all_of(tested_vars),
+          include = tested_vars,
+          paired = isTRUE(input$table_p_paired),
           distribution_check = isTRUE(input$table_distribution_check),
-          var_equal = isTRUE(input$table_var_equal)
+          var_equal = isTRUE(input$table_var_equal),
+          correction = !identical(input$table_p_correction, FALSE),
+          fisher_seed = as.integer(input$table_fisher_seed %||% 1049L),
+          p_adjust = input$table_p_adjust %||% "none",
+          digits = input$table_p_digits %||% 3L
         )
+        if (isTRUE(input$table_p_paired)) p_args$id <- input$table_p_id
+        result <- do.call(gtstats::add_p, p_args)
       }
     }
+    if (isTRUE(input$table_add_total)) {
+      result <- gtstats::add_total(
+        result,
+        label = input$table_total_label %||% "Total (N)",
+        position = input$table_total_position %||% "first"
+      )
+    }
+    if (isTRUE(input$table_add_proportion)) {
+      validate(need(nzchar(input$table_prop_var %||% ""), "Choose a variable for the selected proportion row."))
+      validate(need((input$table_prop_var %||% "") %in% names(selected_data()), "Choose a selected-proportion variable from the current dataset."))
+      validate(need(nzchar(input$table_prop_level %||% ""), "Choose an event level for the selected proportion row."))
+      prop_args <- list(
+        x = result, var = input$table_prop_var, level = input$table_prop_level,
+        ci = isTRUE(input$table_prop_ci)
+      )
+      if (identical(input$table_prop_settings %||% "inherit", "custom")) {
+        prop_args$conf.level <- input$table_prop_conf %||% 0.95
+        prop_args$ci_method <- input$table_prop_ci_method %||% "wilson"
+        prop_args$display <- input$table_prop_display %||% "n_percent"
+        prop_args$digits <- input$table_prop_digits %||% 1L
+      }
+      if (nzchar(input$table_prop_label %||% "")) prop_args$label <- input$table_prop_label
+      result <- do.call(gtstats::add_proportion, prop_args)
+    }
+    if (isTRUE(input$table_add_rate)) {
+      validate(need(nzchar(input$table_rate_event %||% ""), "Choose an event-count variable."))
+      validate(need(nzchar(input$table_rate_time %||% ""), "Choose a person-time variable."))
+      validate(need(!identical(input$table_rate_event, input$table_rate_time), "Event count and person-time must be different variables."))
+      rate_args <- list(
+        x = result, event = input$table_rate_event, time = input$table_rate_time,
+        multiplier = input$table_rate_multiplier %||% 1000,
+        ci = isTRUE(input$table_rate_ci),
+        conf.level = input$table_rate_conf %||% 0.95,
+        digits = input$table_rate_digits %||% 1L,
+        layout = input$table_layout %||% "compact"
+      )
+      if (nzchar(input$table_rate_label %||% "")) rate_args$label <- input$table_rate_label
+      if (nzchar(input$table_rate_time_label %||% "")) rate_args$time_label <- input$table_rate_time_label
+      result <- do.call(gtstats::add_rate, rate_args)
+    }
+    if (isTRUE(input$table_add_row)) {
+      validate(need(nzchar(input$table_row_label %||% ""), "Enter a label for the custom row."))
+      row_args <- list(
+        x = result,
+        label = input$table_row_label,
+        level = input$table_row_level %||% ""
+      )
+      if (!identical(input$table_overall %||% "false", "false")) {
+        row_args$overall <- input$table_row_overall %||% ""
+      }
+      if (nzchar(input$table_group %||% "")) {
+        group_columns <- unname(gtstats:::.builder_group_columns(result))
+        group_values <- vapply(seq_along(group_columns), function(i) input[[paste0("table_row_group_", i)]] %||% "", character(1))
+        keep <- nzchar(group_values)
+        row_args$values <- stats::setNames(group_values[keep], group_columns[keep])
+      } else if (identical(input$table_overall %||% "false", "false")) {
+        row_args$values <- input$table_row_single %||% ""
+      }
+      result <- do.call(gtstats::add_row, row_args)
+    }
+    validate(need(!is.null(result$table) && nrow(result$table) > 0L,
+      "Add at least one ingredient: ordinary summaries, a total, a proportion, a rate, or a custom row."))
     table_result(result)
   }, ignoreInit = TRUE)
   summary_display_result <- reactive({
@@ -1199,6 +1497,7 @@ server <- function(input, output, session) {
     req(result)
     gtstats::customise_table(
       result,
+      engine = "gt",
       theme = input$table_theme %||% "default",
       title = if (nzchar(input$table_title %||% "")) input$table_title else NULL,
       subtitle = if (nzchar(input$table_subtitle %||% "")) input$table_subtitle else NULL,
@@ -1211,31 +1510,71 @@ server <- function(input, output, session) {
   output$summary_table <- render_result(summary_display_result)
   download_result(output, "summary", summary_display_result)
   summary_code <- reactive({
-    group <- input$table_group
-    lines <- c("summary_table(", "  data,")
-    if (nzchar(group)) lines <- c(lines, paste0("  by = ", group, ","))
+    mode <- "summary"
+    group <- input$table_group %||% ""
     settings <- table_override_settings()
-    statistic_code <- if (length(settings$statistic$values)) {
-      code_named_vector(settings$statistic$values)
-    } else {
-      '"recommended"'
-    }
-    lines <- c(
-      lines,
-      paste0("  include = ", code_vector(input$table_vars), ","),
-      paste0("  statistic = ", statistic_code, ","),
-      paste0("  categorical = ", sprintf('"%s"', input$table_categorical %||% "n_percent"), ","),
-      paste0("  percent = ", sprintf('"%s"', input$table_percent %||% "column"), ","),
-      paste0("  missing = ", sprintf('"%s"', input$table_missing %||% "ifany"), ","),
-      paste0("  ci = ", if (isTRUE(input$table_ci)) "TRUE" else "FALSE", ","),
-      paste0("  ci_method = ", sprintf('"%s"', input$table_ci_method %||% "wilson"), ","),
-      paste0("  layout = ", sprintf('"%s"', if (isTRUE(input$table_ci)) input$table_layout %||% "separate" else "compact"), ",")
-    )
+    base_args <- "data"
+    if (nzchar(group)) base_args <- c(base_args, paste0("by = ", group))
     if (!identical(input$table_overall, "false")) {
-      lines <- c(lines, paste0("  overall = ", sprintf('"%s"', input$table_overall), ","))
+      base_args <- c(base_args, paste0("overall = ", sprintf('"%s"', input$table_overall)))
     }
-    lines <- c(lines, paste0("  digits = ", input$table_digits %||% 1L), ")")
+    base_args <- c(base_args, paste0("layout = ", sprintf('"%s"', input$table_layout %||% "compact")))
+    if (!identical(input$table_include_summary, FALSE)) {
+      statistic_default <- input$table_stat_default %||% "recommended"
+      statistic_code <- if (length(settings$statistic$values)) {
+        code_named_vector(c(continuous = statistic_default, settings$statistic$values))
+      } else {
+        sprintf('"%s"', statistic_default)
+      }
+      base_args <- c(
+        base_args,
+        paste0("include = ", code_vector(input$table_vars %||% character())),
+        paste0("statistic = ", statistic_code),
+        paste0("categorical = ", sprintf('"%s"', input$table_categorical %||% "n_percent")),
+        paste0("show_dichotomous = ", sprintf('"%s"', input$table_dichotomous %||% "all_levels")),
+        paste0("percent = ", sprintf('"%s"', input$table_percent %||% "column")),
+        paste0("missing = ", sprintf('"%s"', input$table_missing %||% "ifany")),
+        paste0("digits = ", input$table_digits %||% 1L)
+      )
+      dichotomous_values <- tryCatch(
+        parse_label_mapping(input$table_dichotomous_values, "Binary event levels"),
+        error = function(error) character()
+      )
+      if (identical(input$table_dichotomous %||% "all_levels", "single_row") &&
+          length(dichotomous_values)) {
+        insert_after <- match(
+          paste0("show_dichotomous = ", sprintf('"%s"', input$table_dichotomous %||% "all_levels")),
+          base_args
+        )
+        base_args <- append(
+          base_args,
+          paste0("value = ", code_named_vector(dichotomous_values)),
+          after = insert_after
+        )
+      }
+      if (identical(input$table_categorical_layout %||% "combined", "separate")) {
+        base_args <- append(
+          base_args,
+          'categorical_layout = "separate"',
+          after = match(
+            paste0("categorical = ", sprintf('"%s"', input$table_categorical %||% "n_percent")),
+            base_args
+          )
+        )
+      }
+    }
+    lines <- c("summary_table(", paste0("  ", base_args, collapse = ",\n"), ")")
     additions <- character()
+    if (isTRUE(input$table_ci)) {
+      selected_code <- if (identical(input$table_ci_scope %||% "all", "selected")) {
+        paste0("vars = ", code_vector(input$table_ci_vars %||% character()), ", ")
+      } else ""
+      additions <- c(additions, paste0(
+        "|>\n  add_ci(", selected_code,
+        "conf.level = ", input$table_conf_level %||% 0.95,
+        ", method = ", sprintf('"%s"', input$table_ci_method %||% "wilson"), ")"
+      ))
+    }
     if (isTRUE(input$table_p)) {
       method_overrides <- settings$method$values
       excluded_vars <- names(method_overrides)[method_overrides == "none"]
@@ -1249,12 +1588,65 @@ server <- function(input, output, session) {
         additions <- c(additions, paste0(
           "|>\n  add_p(method = ", method_code,
           include_code,
+          ", paired = ", if (isTRUE(input$table_p_paired)) "TRUE" else "FALSE",
+          if (isTRUE(input$table_p_paired)) paste0(", id = ", input$table_p_id) else "",
           ", distribution_check = ",
           if (isTRUE(input$table_distribution_check)) "TRUE" else "FALSE",
           ", var_equal = ",
-          if (isTRUE(input$table_var_equal)) "TRUE" else "FALSE", ")"
+          if (isTRUE(input$table_var_equal)) "TRUE" else "FALSE",
+          ", correction = ", if (!identical(input$table_p_correction, FALSE)) "TRUE" else "FALSE",
+          ", fisher_seed = ", as.integer(input$table_fisher_seed %||% 1049L),
+          ", p_adjust = ", sprintf('"%s"', input$table_p_adjust %||% "none"),
+          ", digits = ", input$table_p_digits %||% 3L, ")"
         ))
       }
+    }
+    if (isTRUE(input$table_add_total)) {
+      additions <- c(additions, paste0(
+        "|>\n  add_total(label = ", sprintf('"%s"', input$table_total_label %||% "Total (N)"),
+        ", position = ", sprintf('"%s"', input$table_total_position %||% "first"), ")"
+      ))
+    }
+    if (isTRUE(input$table_add_proportion)) {
+      additions <- c(additions, paste0(
+        "|>\n  add_proportion(\n    var = ", input$table_prop_var,
+        ",\n    level = ", sprintf('"%s"', input$table_prop_level %||% ""),
+        if (nzchar(input$table_prop_label %||% "")) paste0(",\n    label = ", sprintf('"%s"', input$table_prop_label)) else "",
+        if (identical(input$table_prop_settings %||% "inherit", "custom")) paste0(",\n    display = ", sprintf('"%s"', input$table_prop_display %||% "n_percent")) else "",
+        if (!isTRUE(input$table_prop_ci)) ",\n    ci = FALSE" else "",
+        if (identical(input$table_prop_settings %||% "inherit", "custom")) paste0(",\n    conf.level = ", input$table_prop_conf %||% 0.95) else "",
+        if (identical(input$table_prop_settings %||% "inherit", "custom")) paste0(",\n    ci_method = ", sprintf('"%s"', input$table_prop_ci_method %||% "wilson")) else "",
+        if (identical(input$table_prop_settings %||% "inherit", "custom")) paste0(",\n    digits = ", input$table_prop_digits %||% 1L) else "",
+        "\n  )"
+      ))
+    }
+    if (isTRUE(input$table_add_rate)) {
+      additions <- c(additions, paste0(
+        "|>\n  add_rate(\n    event = ", input$table_rate_event,
+        ",\n    time = ", input$table_rate_time,
+        if (nzchar(input$table_rate_label %||% "")) paste0(",\n    label = ", sprintf('"%s"', input$table_rate_label)) else "",
+        ",\n    multiplier = ", input$table_rate_multiplier %||% 1000,
+        if (nzchar(input$table_rate_time_label %||% "")) paste0(",\n    time_label = ", sprintf('"%s"', input$table_rate_time_label)) else "",
+        ",\n    ci = ", if (isTRUE(input$table_rate_ci)) "TRUE" else "FALSE",
+        ",\n    conf.level = ", input$table_rate_conf %||% 0.95,
+        ",\n    digits = ", input$table_rate_digits %||% 1L,
+        ",\n    layout = ", sprintf('"%s"', input$table_layout %||% "compact"), "\n  )"
+      ))
+    }
+    if (isTRUE(input$table_add_row)) {
+      row_parts <- c(paste0("label = ", sprintf('"%s"', input$table_row_label %||% "")))
+      if (nzchar(input$table_row_level %||% "")) row_parts <- c(row_parts, paste0("level = ", sprintf('"%s"', input$table_row_level)))
+      if (!identical(input$table_overall %||% "false", "false")) row_parts <- c(row_parts, paste0("overall = ", sprintf('"%s"', input$table_row_overall %||% "")))
+      if (nzchar(group)) {
+        group_data <- selected_data()[[group]]
+        group_levels <- if (is.factor(group_data)) levels(droplevels(group_data)) else unique(as.character(group_data[!is.na(group_data)]))
+        group_values <- vapply(seq_along(group_levels), function(i) input[[paste0("table_row_group_", i)]] %||% "", character(1))
+        keep <- nzchar(group_values)
+        if (any(keep)) row_parts <- c(row_parts, paste0("values = ", code_named_vector(stats::setNames(group_values[keep], paste0(group, " = ", group_levels[keep])))))
+      } else if (identical(input$table_overall %||% "false", "false")) {
+        row_parts <- c(row_parts, paste0("values = ", sprintf('"%s"', input$table_row_single %||% "")))
+      }
+      additions <- c(additions, paste0("|>\n  add_row(\n    ", paste(row_parts, collapse = ",\n    "), "\n  )"))
     }
     additions <- c(additions, paste0(
       "|>\n  customise_table(theme = ", sprintf('"%s"', input$table_theme %||% "default"),
@@ -1265,7 +1657,8 @@ server <- function(input, output, session) {
       ", row_striping = ", if (isTRUE(input$table_striping)) "TRUE" else "FALSE",
       ", font_size = ", input$table_font_size %||% 14, ")"
     ))
-    paste(c(lines, additions), collapse = "\n")
+    base_code <- paste(lines, collapse = "\n")
+    if (length(additions)) paste0(base_code, " ", paste(additions, collapse = " ")) else base_code
   })
   output$summary_code <- renderText(summary_code())
   download_code(output, "summary_code", summary_code)
@@ -1603,7 +1996,14 @@ server <- function(input, output, session) {
       col_labels = parse_label_mapping(input$custom_col_labels, "Column labels"),
       row_labels = parse_label_mapping(input$custom_row_labels, "Row labels"),
       level_labels = parse_label_mapping(input$custom_level_labels, "Category level labels"),
-      hide_cols = parse_name_list(input$custom_hide_cols)
+      hide_cols = parse_name_list(input$custom_hide_cols),
+      align = Filter(length, list(
+        left = parse_name_list(input$custom_align_left),
+        center = parse_name_list(input$custom_align_center),
+        right = parse_name_list(input$custom_align_right)
+      )),
+      bold_cols = parse_name_list(input$custom_bold_cols),
+      italic_cols = parse_name_list(input$custom_italic_cols)
     )
   })
   customised_result <- reactiveVal(NULL)
@@ -1620,6 +2020,7 @@ server <- function(input, output, session) {
     source <- selected_completed_table()
     customised_result(gtstats::customise_table(
       source,
+      engine = "gt",
       theme = input$custom_theme %||% "default",
       title = if (nzchar(input$custom_title %||% "")) input$custom_title else NULL,
       subtitle = if (nzchar(input$custom_subtitle %||% "")) input$custom_subtitle else NULL,
@@ -1628,10 +2029,28 @@ server <- function(input, output, session) {
       row_labels = if (length(settings$row_labels)) settings$row_labels else NULL,
       level_labels = if (length(settings$level_labels)) settings$level_labels else NULL,
       hide_cols = if (length(settings$hide_cols)) settings$hide_cols else NULL,
+      align = if (length(settings$align)) settings$align else NULL,
+      bold_cols = if (length(settings$bold_cols)) settings$bold_cols else NULL,
+      italic_cols = if (length(settings$italic_cols)) settings$italic_cols else NULL,
       font_size = input$custom_font_size %||% 14,
+      font = if (nzchar(input$custom_font %||% "")) input$custom_font else NULL,
+      width = input$custom_width %||% 100,
       row_striping = isTRUE(input$custom_striping),
+      accent_color = if (nzchar(input$custom_accent_color %||% "")) input$custom_accent_color else NULL,
+      stripe_color = if (nzchar(input$custom_stripe_color %||% "")) input$custom_stripe_color else NULL,
       bold_labels = isTRUE(input$custom_bold_labels),
-      show_footnotes = isTRUE(input$custom_footnotes)
+      show_footnotes = isTRUE(input$custom_footnotes),
+      spanning_header = if (nzchar(input$custom_spanning_header %||% "")) input$custom_spanning_header else NULL,
+      footnotes = {
+        notes <- trimws(unlist(strsplit(input$custom_footnote_text %||% "", "\n", fixed = TRUE)))
+        notes[nzchar(notes)]
+      },
+      borders = input$custom_borders %||% "horizontal",
+      density = input$custom_density %||% "standard",
+      pvalue_style = input$custom_pvalue_style %||% "threshold",
+      pvalue_digits = input$custom_pvalue_digits %||% 3L,
+      pvalue_threshold = input$custom_pvalue_threshold %||% 0.001,
+      pvalue_prefix = isTRUE(input$custom_pvalue_prefix)
     ))
   }, ignoreInit = TRUE)
   customised_display_result <- reactive({
@@ -1649,17 +2068,43 @@ server <- function(input, output, session) {
   download_result(output, "customised", customised_display_result)
   customised_code <- reactive({
     settings <- tryCatch(custom_settings(), error = function(error) NULL)
-    settings <- settings %||% list(col_labels = character(), row_labels = character(), level_labels = character(), hide_cols = character())
+    settings <- settings %||% list(
+      col_labels = character(), row_labels = character(),
+      level_labels = character(), hide_cols = character(), align = list(),
+      bold_cols = character(), italic_cols = character()
+    )
     arguments <- c(
       paste0('  theme = "', input$custom_theme %||% "default", '"'),
       if (nzchar(input$custom_title %||% "")) paste0("  title = ", sprintf('"%s"', input$custom_title)) else character(),
       if (nzchar(input$custom_subtitle %||% "")) paste0("  subtitle = ", sprintf('"%s"', input$custom_subtitle)) else character(),
+      if (nzchar(input$custom_spanning_header %||% "")) paste0("  spanning_header = ", sprintf('"%s"', input$custom_spanning_header)) else character(),
       if (nzchar(input$custom_source_note %||% "")) paste0("  source_note = ", sprintf('"%s"', input$custom_source_note)) else character(),
+      {
+        notes <- trimws(unlist(strsplit(input$custom_footnote_text %||% "", "\n", fixed = TRUE)))
+        notes <- notes[nzchar(notes)]
+        if (length(notes)) paste0("  footnotes = ", code_vector(notes)) else character()
+      },
       if (length(settings$col_labels)) paste0("  col_labels = ", code_named_vector(settings$col_labels)) else character(),
       if (length(settings$row_labels)) paste0("  row_labels = ", code_named_vector(settings$row_labels)) else character(),
       if (length(settings$level_labels)) paste0("  level_labels = ", code_named_vector(settings$level_labels)) else character(),
       if (length(settings$hide_cols)) paste0("  hide_cols = ", code_vector(settings$hide_cols)) else character(),
+      if (length(settings$align)) paste0("  align = list(", paste(
+        paste0(names(settings$align), " = ", vapply(settings$align, code_vector, character(1))),
+        collapse = ", "
+      ), ")") else character(),
+      if (length(settings$bold_cols)) paste0("  bold_cols = ", code_vector(settings$bold_cols)) else character(),
+      if (length(settings$italic_cols)) paste0("  italic_cols = ", code_vector(settings$italic_cols)) else character(),
       paste0("  font_size = ", input$custom_font_size %||% 14),
+      if (nzchar(input$custom_font %||% "")) paste0("  font = ", sprintf('"%s"', input$custom_font)) else character(),
+      paste0("  width = ", input$custom_width %||% 100),
+      if (nzchar(input$custom_accent_color %||% "")) paste0("  accent_color = ", sprintf('"%s"', input$custom_accent_color)) else character(),
+      if (nzchar(input$custom_stripe_color %||% "")) paste0("  stripe_color = ", sprintf('"%s"', input$custom_stripe_color)) else character(),
+      paste0('  borders = "', input$custom_borders %||% "horizontal", '"'),
+      paste0('  density = "', input$custom_density %||% "standard", '"'),
+      paste0('  pvalue_style = "', input$custom_pvalue_style %||% "threshold", '"'),
+      paste0("  pvalue_digits = ", input$custom_pvalue_digits %||% 3L),
+      paste0("  pvalue_threshold = ", input$custom_pvalue_threshold %||% 0.001),
+      paste0("  pvalue_prefix = ", if (isTRUE(input$custom_pvalue_prefix)) "TRUE" else "FALSE"),
       paste0("  row_striping = ", if (isTRUE(input$custom_striping)) "TRUE" else "FALSE"),
       paste0("  bold_labels = ", if (isTRUE(input$custom_bold_labels)) "TRUE" else "FALSE"),
       paste0("  show_footnotes = ", if (isTRUE(input$custom_footnotes)) "TRUE" else "FALSE")

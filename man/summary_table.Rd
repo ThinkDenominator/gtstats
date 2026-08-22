@@ -12,15 +12,16 @@ summary_table(
   overall = FALSE,
   statistic = "recommended",
   categorical = c("n_percent", "n_over_N_percent", "n", "percent"),
+  categorical_layout = c("combined", "separate"),
+  show_dichotomous = c("all_levels", "single_row"),
+  value = NULL,
   percent = c("column", "row", "overall"),
   digits = 1,
   missing = c("ifany", "always", "no"),
-  ci = FALSE,
-  conf.level = 0.95,
-  ci_method = c("wilson", "exact"),
   layout = c("compact", "separate"),
   label = NULL,
-  format = c("table", "tibble")
+  format = c("table", "tibble"),
+  ...
 )
 }
 \arguments{
@@ -35,7 +36,8 @@ names, such as \code{c(age, sex, bmi)}, or a character vector. Mixed variable
 types can be selected together. When omitted, an empty advanced builder is
 returned.}
 
-\item{mode}{Table mode. One of \code{"summary"} or \code{"rate"}.}
+\item{mode}{Table mode. \code{"summary"} is the normal route. \code{"rate"} is retained
+for compatibility with earlier rate-only builders.}
 
 \item{overall}{Overall-column setting. Use \code{FALSE} to omit it, \code{"first"} to
 place it before the grouped columns, or \code{"last"} to place it after them.
@@ -43,10 +45,25 @@ place it before the grouped columns, or \code{"last"} to place it after them.
 
 \item{statistic}{Continuous summary format: \code{"recommended"}, \code{"mean_sd"},
 \code{"mean_ci"}, \code{"median_iqr"}, or \code{"both"}. A single value applies to all
-continuous variables; a named vector can override individual variables.}
+continuous variables. In a named vector, \code{continuous} supplies a fallback
+for every continuous variable and variable names supply exceptions, for
+example \code{c(continuous = "mean_sd", lwt = "median_iqr")}. Without a
+\code{continuous} fallback, unnamed variables use the recommended summary.}
 
 \item{categorical}{Categorical display: \code{"n_percent"},
 \code{"n_over_N_percent"}, \code{"n"}, or \code{"percent"}.}
+
+\item{categorical_layout}{Categorical column layout. \code{"combined"} (default)
+displays n (\%). \code{"separate"} places n and \% in distinct child columns for
+categorical-only tables without confidence intervals.}
+
+\item{show_dichotomous}{Binary-variable display. \code{"all_levels"} (default)
+shows both levels; \code{"single_row"} shows one selected event level as a
+compact row.}
+
+\item{value}{Optional named character vector or list selecting the event
+level for compact binary rows, for example \code{c(smoke = "Yes")}. Unspecified
+binary variables use their second declared or sorted level.}
 
 \item{percent}{Percentage denominator: \code{"column"}, \code{"row"}, or \code{"overall"}.}
 
@@ -55,31 +72,30 @@ continuous variables; a named vector can override individual variables.}
 
 \item{missing}{Missing-row display: \code{"ifany"}, \code{"always"}, or \code{"no"}.}
 
-\item{ci}{Logical; include confidence intervals for categorical proportions.}
-
-\item{conf.level}{Confidence level for categorical proportion intervals.}
-
-\item{ci_method}{Binomial confidence-interval method: \code{"wilson"} (default)
-or \code{"exact"}.}
-
 \item{layout}{Table layout. \code{"compact"} keeps each summary in one cell.
-\code{"separate"} places summaries and confidence intervals in separate
-columns beneath each cohort header.}
+\code{"separate"} requests summary and CI child columns beneath each cohort
+header. Those child columns appear only after confidence intervals are
+added; choosing the layout alone does not create empty CI columns.}
 
 \item{label}{Optional named character vector overriding variable labels.}
 
 \item{format}{Display format: \code{"table"} (default) or \code{"tibble"}. The
 builder remains composable; this option changes how the completed object
 prints without discarding its audit components.}
+
+\item{...}{Compatibility arguments \code{ci}, \code{conf.level}, and \code{ci_method} from
+earlier development versions. New code should use \code{\link[=add_ci]{add_ci()}}. Unknown
+arguments are rejected.}
 }
 \value{
 A \code{gt_desc_table} object containing the source data,
 structural settings, and placeholders for table components.
 }
 \description{
-Create a publication-ready summary table, or initialise one that can be built
-step by step using helper functions such as \code{\link[=add_summary]{add_summary()}},
-\code{\link[=add_proportion]{add_proportion()}}, \code{\link[=add_rate]{add_rate()}}, \code{\link[=add_total]{add_total()}}, and \code{\link[=add_p]{add_p()}}.
+Create the descriptive foundation of a publication-ready table. Add further
+layers only when needed: \code{\link[=add_ci]{add_ci()}} for confidence intervals, \code{\link[=add_p]{add_p()}} for
+statistical comparisons, and specialist helpers such as \code{\link[=add_proportion]{add_proportion()}},
+\code{\link[=add_rate]{add_rate()}}, \code{\link[=add_total]{add_total()}}, and \code{\link[=add_row]{add_row()}}.
 }
 \details{
 For the usual Table 1 workflow, select all variables together with
@@ -87,16 +103,12 @@ For the usual Table 1 workflow, select all variables together with
 detected automatically and added using beginner-friendly defaults. There is
 no need to add continuous and categorical variables separately.
 
-When \code{include = NULL}, an empty builder is returned for advanced incremental
-workflows using \code{\link[=add_summary]{add_summary()}} and the other \verb{add_*()} helpers. Printing a
-completed object automatically displays a publication-ready \code{gt} table;
+When \code{include = NULL}, an empty builder is returned for specialist row-only
+workflows. Printing a completed object automatically displays a publication-ready \code{gt} table;
 call \code{\link[=tbl_stats]{tbl_stats()}} only when explicit rendering control is required.
 
-Two modes are supported:
-\itemize{
-\item \code{"summary"} for baseline tables and descriptive summaries
-\item \code{"rate"} for rate-based tables using \code{\link[=add_rate]{add_rate()}}
-}
+\code{mode = "rate"} remains available for compatibility, but is not needed in
+new code: create the foundation normally and add \code{\link[=add_rate]{add_rate()}} as a layer.
 
 A grouping variable may be supplied to create one column per group.
 An optional \code{overall} column can also be requested for later use.
@@ -126,19 +138,21 @@ summary_table(
   digits = c(continuous = 1, percent = 0)
 )
 
-# Ungrouped descriptive proportions with confidence intervals
+# Add confidence intervals as a visible layer
 summary_table(
   mtcars,
   include = c(cyl, vs),
   categorical = "percent",
-  ci = TRUE
-)
+  layout = "separate"
+) |>
+  add_ci()
 
-# Advanced incremental construction
-summary_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(
-    vars = c(mpg, wt),
-    statistic = c(mpg = "mean_sd", wt = "median_iqr")
-  )
+# Compact binary rows, with an explicit event where required
+summary_table(
+  mtcars,
+  include = c(mpg, vs, am),
+  show_dichotomous = "single_row",
+  value = c(vs = "1", am = "1")
+)
 
 }

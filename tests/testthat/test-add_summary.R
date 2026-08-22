@@ -26,6 +26,28 @@ test_that("add_summary() adds overall column when requested", {
   expect_true(all(c("am = 1", "am = 0") %in% names(res$table)))
 })
 
+test_that("missing rows remain inside their variable blocks without duplicates", {
+  data <- mtcars
+  data$mpg[c(1, 4)] <- NA_real_
+  data$cyl[c(2, 5)] <- NA_real_
+  data$am <- factor(data$am)
+  data$cyl <- factor(data$cyl)
+
+  result <- summary_table(
+    data,
+    by = am,
+    include = c(mpg, cyl, vs),
+    missing = "ifany"
+  )
+
+  mpg_rows <- which(result$table$Variable == "mpg")
+  cyl_rows <- which(result$table$Variable == "cyl")
+  expect_identical(result$table$Level[mpg_rows], c("", "Missing"))
+  expect_identical(tail(result$table$Level[cyl_rows], 1L), "Missing")
+  expect_equal(sum(result$table$Level == "Missing"), 2L)
+  expect_false(any(result$table$Variable == "vs" & result$table$Level == "Missing"))
+})
+
 test_that("add_summary() works with single bare variable", {
   res <- summary_table(mtcars, by = am) |>
     add_summary(vars = mpg)
@@ -252,4 +274,52 @@ test_that("add_summary() supports n_over_N_percent categorical display", {
   expect_match(result$table$Overall[[1L]], "^11/32 \\(34.4%\\)$")
   expect_match(result$table[["am = 1"]][[1L]], "^8/13 \\(61.5%\\)$")
   expect_true(any(grepl("n/N", result$footnotes, fixed = TRUE)))
+})
+test_that("binary summaries can use one compact event row", {
+  data("birthwt", package = "gtstats")
+  result <- summary_table(
+    birthwt,
+    by = low,
+    include = c(smoke, ht, race),
+    show_dichotomous = "single_row",
+    value = c(smoke = "Yes")
+  )
+
+  expect_equal(sum(result$table$Variable == "Smoking during pregnancy"), 1L)
+  expect_equal(sum(result$table$Variable == "Hypertension"), 1L)
+  expect_equal(sum(result$table$Variable == "Maternal race"), 3L)
+  expect_identical(result$table$Level[result$table$Variable == "Smoking during pregnancy"], "")
+  expect_identical(result$dichotomous_values[c("smoke", "ht")], c(smoke = "Yes", ht = "Yes"))
+})
+
+test_that("compact binary display validates event selections", {
+  data("birthwt", package = "gtstats")
+  expect_error(
+    summary_table(
+      birthwt,
+      include = smoke,
+      show_dichotomous = "single_row",
+      value = c(smoke = "Sometimes")
+    ),
+    "Available levels"
+  )
+  expect_error(
+    summary_table(birthwt, include = age, value = c(age = "20")),
+    "used only"
+  )
+})
+
+test_that("compact binary display does not change full-variable p-values", {
+  data("birthwt", package = "gtstats")
+  full <- summary_table(birthwt, by = low, include = smoke) |> add_p()
+  compact <- summary_table(
+    birthwt,
+    by = low,
+    include = smoke,
+    show_dichotomous = "single_row",
+    value = c(smoke = "Yes")
+  ) |> add_p()
+
+  expect_equal(compact$p_values$p_value, full$p_values$p_value)
+  expect_equal(nrow(compact$table), 1L)
 })

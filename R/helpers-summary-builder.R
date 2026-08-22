@@ -1,3 +1,81 @@
+.default_dichotomous_level <- function(x) {
+  observed <- x[!is.na(x)]
+  if (length(unique(observed)) != 2L) return(NA_character_)
+  if (is.factor(x)) {
+    present <- levels(droplevels(x))
+    return(as.character(present[[2L]]))
+  }
+  if (is.logical(x)) return("TRUE")
+  if (is.numeric(x)) return(as.character(sort(unique(observed))[[2L]]))
+  sort(unique(as.character(observed)))[[2L]]
+}
+
+.resolve_dichotomous_values <- function(
+    value,
+    data,
+    vars,
+    show_dichotomous = c("all_levels", "single_row")
+) {
+  show_dichotomous <- match.arg(show_dichotomous)
+  binary_vars <- vars[vapply(
+    vars,
+    function(variable) identical(.detect_type(data[[variable]]), "binary"),
+    logical(1)
+  )]
+  if (identical(show_dichotomous, "all_levels")) {
+    if (!is.null(value)) {
+      stop(
+        "`value` is used only when `show_dichotomous = \"single_row\"`.",
+        call. = FALSE
+      )
+    }
+    return(character())
+  }
+  if (length(binary_vars) == 0L) return(character())
+
+  supplied <- character()
+  if (!is.null(value)) {
+    if (is.list(value)) value <- unlist(value, use.names = TRUE)
+    if (!is.atomic(value) || is.null(names(value)) ||
+        any(!nzchar(names(value))) || anyNA(value)) {
+      stop(
+        "`value` must be a named vector or named list, for example `c(smoke = \"Yes\")`.",
+        call. = FALSE
+      )
+    }
+    supplied <- as.character(value)
+    names(supplied) <- names(value)
+    unknown <- setdiff(names(supplied), vars)
+    if (length(unknown)) {
+      stop("`value` variables not selected in `vars`: ",
+           paste(unknown, collapse = ", "), ".", call. = FALSE)
+    }
+    non_binary <- setdiff(names(supplied), binary_vars)
+    if (length(non_binary)) {
+      stop("`value` can select levels only for binary variables: ",
+           paste(non_binary, collapse = ", "), ".", call. = FALSE)
+    }
+  }
+
+  resolved <- stats::setNames(vapply(binary_vars, function(variable) {
+    selected <- if (variable %in% names(supplied)) {
+      supplied[[variable]]
+    } else {
+      .default_dichotomous_level(data[[variable]])
+    }
+    available <- unique(as.character(data[[variable]][!is.na(data[[variable]])]))
+    if (!selected %in% available) {
+      stop(
+        "Selected `value` for `", variable, "` was not found. Available levels: ",
+        paste(available, collapse = ", "), ".",
+        call. = FALSE
+      )
+    }
+    selected
+  }, character(1)), binary_vars)
+  resolved
+}
+
 #' Internal summary-statistics engine
 #'
 #' Compute descriptive statistics for continuous and categorical
@@ -227,10 +305,7 @@
     if (identical(categorical, "n")) return(as.character(count))
     if (identical(categorical, "percent")) {
       if (nzchar(interval_text)) {
-        return(paste0(
-          pct_text, " (", round(100 * conf.level), "% CI ",
-          interval_text, ")"
-        ))
+        return(paste0(pct_text, "; ", interval_text, "%"))
       }
       return(pct_text)
     }
@@ -240,10 +315,7 @@
       as.character(count)
     }
     if (nzchar(interval_text)) {
-      return(paste0(
-        count_text, " (", pct_text, "; ", round(100 * conf.level),
-        "% CI ", interval_text, ")"
-      ))
+      return(paste0(count_text, " (", pct_text, "); ", interval_text, "%"))
     }
     paste0(count_text, " (", pct_text, ")")
   }

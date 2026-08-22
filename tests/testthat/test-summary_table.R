@@ -7,6 +7,17 @@ test_that("summary_table() creates base object", {
   expect_equal(res$by, "am")
 })
 
+test_that("a continuous statistic fallback accepts variable exceptions", {
+  result <- summary_table(
+    mtcars,
+    include = c(mpg, wt, qsec, cyl),
+    statistic = c(continuous = "mean_sd", wt = "median_iqr")
+  )
+  expect_identical(result$summary_statistics[["mpg"]], "mean_sd")
+  expect_identical(result$summary_statistics[["qsec"]], "mean_sd")
+  expect_identical(result$summary_statistics[["wt"]], "median_iqr")
+})
+
 test_that("summary_table() works without grouping", {
   res <- summary_table(mtcars)
 
@@ -47,6 +58,47 @@ test_that("summary_table() builds a mixed-type table in one call", {
   expect_true(any(res$table$Variable == "wt"))
   expect_true(any(res$table$Variable == "cyl"))
   expect_s3_class(tbl_stats(res), "gt_tbl")
+})
+
+test_that("categorical summaries can separate n and percent columns", {
+  data <- mtcars
+  data$am <- factor(data$am)
+  data$cyl <- factor(data$cyl)
+  data$vs <- factor(data$vs)
+
+  result <- summary_table(
+    data,
+    by = am,
+    include = c(cyl, vs),
+    overall = TRUE,
+    categorical_layout = "separate"
+  )
+
+  expect_identical(result$categorical_layout, "separate")
+  expect_true(all(result$display_columns$estimate_label == "n"))
+  expect_true(all(result$display_columns$ci_label == "%"))
+  expect_true(all(grepl("_count$", result$display_columns$estimate)))
+  expect_true(all(grepl("_percent$", result$display_columns$ci)))
+  expect_match(.builder_publication_note(result), "Categorical data are n and %", fixed = TRUE)
+  expect_false(grepl("separate columns", .builder_publication_note(result), fixed = TRUE))
+})
+
+test_that("separate n and percent columns reject misleading combinations", {
+  data <- mtcars
+  data$cyl <- factor(data$cyl)
+
+  expect_error(
+    summary_table(data, include = c(mpg, cyl), categorical_layout = "separate"),
+    "categorical-only"
+  )
+  expect_error(
+    summary_table(data, include = cyl, categorical_layout = "separate") |> add_ci(),
+    "cannot be added"
+  )
+  expect_error(
+    summary_table(data, include = cyl, categorical = "n", categorical_layout = "separate"),
+    "require"
+  )
 })
 
 test_that("summary_table() include supports character vectors and add_p", {

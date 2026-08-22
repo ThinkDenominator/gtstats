@@ -50,7 +50,9 @@ test_that("publication tables exclude analyst audit instructions", {
     "Continuous data are (mean \\(SD\\)|median \\(IQR\\))"
   )
   expect_match(footnote_text, "Welch|Wilcoxon|Chi-square|Fisher")
-  expect_match(footnote_text, "range after the semicolon")
+  expect_match(footnote_text, "95% intervals use the Wilson score method", fixed = TRUE)
+  expect_false(grepl("Selected event", footnote_text, fixed = TRUE))
+  expect_false(grepl("add_p()", footnote_text, fixed = TRUE))
   expect_false(grepl("denominators_stats", footnote_text, fixed = TRUE))
   expect_false(grepl("assumptions_stats", footnote_text, fixed = TRUE))
   expect_false(grepl("diagnostics_stats", footnote_text, fixed = TRUE))
@@ -144,7 +146,10 @@ test_that("descriptive headers show cohort denominators", {
 
   footnotes <- rendered[["_footnotes"]]
   summary_columns <- c("Overall", "am = Automatic", "am = Manual")
-  expect_setequal(footnotes$colname, summary_columns)
+  expect_setequal(
+    setdiff(footnotes$colname, "Characteristic"),
+    summary_columns
+  )
   expect_false(any(footnotes$colname == "p-value" &
                      grepl("Continuous summaries", footnotes$footnotes)))
 })
@@ -179,4 +184,9 @@ test_that("inspection tables have no automatic title or subtitle", {
   expect_null(distribution[["_heading"]]$subtitle)
   expect_null(variance[["_heading"]]$title)
   expect_null(variance[["_heading"]]$subtitle)
+})
+
+test_that("to_gt is the explicit gt renderer", {
+  result <- summary_table(mtcars, include = c(mpg, wt))
+  expect_s3_class(to_gt(result), "gt_tbl")
 })

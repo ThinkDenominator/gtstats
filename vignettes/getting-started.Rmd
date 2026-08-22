@@ -9,7 +9,8 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = TRUE)
+library(gtstats)
 ```
 
 # The workflow
@@ -24,13 +25,13 @@ gtstats is designed around one practical sequence:
 5. **Inspect** assumptions, diagnostics, and denominators when needed.
 6. **Render or export** only when you want to customise the finished output.
 
-The main functions print publication-ready tables by default. `tbl_stats()` is
-not an analysis step: it provides the `gt` table for titles, styling, and
-export.
+The main functions print publication-ready flextables by default. Rendering is
+not an analysis step: use `customise_table()` for finishing touches and
+`to_gt()` only when an HTML-focused gt table is required.
 
 ## Install and load
 
-```{r install}
+```{r install, eval=FALSE}
 # Development version until the package is on CRAN
 remotes::install_github("ThinkDenominator/gtstats")
 library(gtstats)
@@ -41,7 +42,7 @@ data("birthwt", package = "gtstats")
 
 ```{r first-look}
 overview <- describe_data(birthwt)
-overview
+to_flextable(overview)
 overview$issues
 ```
 
@@ -92,7 +93,7 @@ cleanly and return to the R prompt.
 
 ```{r assess}
 distribution <- assess_distribution(birthwt, vars = c(age, lwt), by = low)
-distribution
+to_flextable(distribution)
 distribution$recommendations
 ```
 
@@ -104,7 +105,7 @@ When groups are being compared, inspect their observed spread separately:
 
 ```{r assess-variance}
 variance <- assess_variance(birthwt, vars = c(age, lwt), by = low)
-variance
+to_flextable(variance)
 ```
 
 `assess_variance()` presents one row per variable: each group's usable `n`, SD,
@@ -142,7 +143,7 @@ table_one <- summary_table(
 ) |>
   add_p()
 
-table_one
+to_flextable(table_one)
 ```
 
 Add optional rows only when they answer a specific reporting need:
@@ -150,14 +151,15 @@ Add optional rows only when they answer a specific reporting need:
 ```{r optional-rows}
 table_one |>
   add_proportion(var = smoke, level = "Yes", label = "Smoking prevalence", ci = TRUE) |>
-  add_total()
+  add_total() |>
+  to_flextable()
 ```
 
 ## 4. Compare one variable
 
 ```{r compare}
 comparison <- compare_groups(birthwt, variable = lwt, group = low)
-comparison
+to_flextable(comparison)
 ```
 
 For a transparent audit trail:
@@ -170,10 +172,12 @@ denominators_stats(comparison)
 
 ## 5. Customise and export
 
-```{r export}
+```{r export, eval=FALSE}
 table_one |>
-  tbl_stats(title = "Table 1. Vehicle characteristics") |>
-  customise_table(theme = "journal") |>
+  customise_table(
+    title = "Table 1. Vehicle characteristics",
+    theme = "journal"
+  ) |>
   save_output("table-1.docx")
 ```
 

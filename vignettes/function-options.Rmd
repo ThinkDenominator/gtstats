@@ -40,7 +40,8 @@ birthwt_data <- birthwt
 suggested `shiny` package. It supports the same core workflow as this guide,
 adds a data dictionary, Summary-table presentation controls, a dedicated
 **Customise table** workspace that automatically carries forward the latest
-Summary table, an in-session history,
+Summary table, a recipe-style Summary workspace exposing total, proportion,
+rate, custom-row and p-value ingredients, an in-session history,
 and copyable or downloadable R code. Result tables download as Word, HTML,
 PDF, or RTF. Distribution diagnostics offer histogram, density, Q-Q and
 boxplots; comparisons use `plot_compare()`; pair correlations and matrices use
@@ -128,45 +129,77 @@ assess_variance(birthwt_data, vars = c(age, lwt), by = low, test = "levene")
 | `overall` | `FALSE`; `TRUE`/`"first"`/`"last"` | Add an Overall column and choose its position |
 | `statistic` | `"recommended"`; `"mean_sd"`, `"mean_ci"`, `"median_iqr"`, `"both"` | Continuous-variable presentation; may be named by variable |
 | `categorical` | `"n_percent"`; `"n_over_N_percent"`, `"n"`, `"percent"` | Categorical cell display |
+| `categorical_layout` | `"combined"`; also `"separate"` | Keep n (%) together, or use distinct n and % child columns in categorical-only tables without CIs |
+| `show_dichotomous` | `"all_levels"`; also `"single_row"` | Show both binary levels or one compact event row |
+| `value` | `NULL`; named vector/list | Select event levels for compact binary rows, e.g. `c(smoke = "Yes")` |
 | `percent` | `"column"`; `"row"`, `"overall"` | Denominator used for categorical percentages |
 | `digits` | `1`, or named `continuous`, `percent`, `ci` values | Global display precision |
 | `missing` | `"ifany"`; `"always"`, `"no"` | Show missing rows only when needed, always, or never |
-| `ci`, `conf.level`, `ci_method` | `FALSE`, `0.95`, `"wilson"`; method also `"exact"` | Add binomial CIs to every categorical level and choose the interval method |
-| `layout` | `"compact"`; also `"separate"` | Keep summaries inline or place summary and CI in child columns beneath each cohort |
+| `layout` | `"compact"`; also `"separate"` | Request summary and CI child columns; they appear only when a CI layer is added, so empty CI columns are never shown |
 | `label` | `NULL` | Named replacement labels for source variables |
 | `format` | `"table"`; also `"tibble"` | Publication table by default; console mode prints the completed builder's plain tibble and remains compatible with `add_*()` layers |
 
 ```r
 summary_table(
   birthwt_data, by = low, include = c(age, smoke), overall = "last",
-  statistic = "mean_ci", categorical = "n_over_N_percent"
+  categorical = "n_over_N_percent", layout = "separate"
+)
+
+summary_table(
+  birthwt_data,
+  by = low,
+  include = c(smoke, ht, race),
+  show_dichotomous = "single_row",
+  value = c(smoke = "Yes", ht = "Yes")
 )
 ```
 
 ### Table-building helpers
 
-#### `add_summary()`
+#### `add_ci()`
 
 | Option | Default / available choices | What it changes |
 |---|---|---|
-| `vars` | required | Variables added to an empty or existing summary builder |
-| `continuous_format` / `statistic` | `"recommended"`; `"mean_sd"`, `"mean_ci"`, `"median_iqr"`, `"both"` | Continuous-variable display; `statistic` can be named by variable |
-| `categorical` | `"n_percent"`; `"n_over_N_percent"`, `"n"`, `"percent"` | Categorical cell display |
-| `percent` | `"column"`; `"row"`, `"overall"`, `"none"` | Percentage denominator, or counts only |
-| `ci`, `conf.level`, `ci_method` | `FALSE`, `0.95`, `"wilson"`; method also `"exact"` | Add binomial CIs to all categorical levels and choose the interval method |
-| `missing` | `"ifany"`; `"always"`, `"no"` | Missing-row display |
-| `digits` | `1`, or named precision | Continuous, percentage, and CI precision |
+| `vars` | `NULL` (all eligible); bare names or a character vector | Apply CIs globally or only to selected table variables |
+| `conf.level` | `0.95` | Confidence level for the new intervals |
+| `method` | `"wilson"`; also `"exact"` | Binomial interval method for categorical proportions |
+| `digits` | inherits the table | Optional confidence-limit precision |
+
+`add_ci()` adds binomial CIs to displayed categorical proportions and t-based
+CIs to continuous means. It does not silently replace median (IQR) summaries:
+median-only variables are left unchanged and reported in the table note.
+Compact cells contain the estimate followed by the interval. Separate layouts
+use a dynamic estimate header—such as **n (%)** or **Mean (SD)**—and an
+explicit **95% CI** header. The confidence level and method are
+reported once in the publication footnote rather than repeated in every cell.
+
+```r
+summary_table(
+  birthwt_data,
+  by = low,
+  include = c(age, lwt, race, smoke),
+  layout = "separate"
+) |>
+  add_ci(vars = c(age, race)) |>
+  add_p()
+```
+
+#### `add_summary()` (advanced compatibility helper)
+
+The beginner route is `summary_table(..., include = ...)`. `add_summary()`
+remains available for older incremental-builder code, but it is not needed to
+separate continuous and categorical variables or to build an ordinary Table 1.
 
 #### Specialist and structural helpers
 
 | Function | Option | Default / available choices | What it changes |
 |---|---|---|---|
 | `add_proportion()` | `var`, `level` | `var` required; automatic target level if omitted | Adds one selected event prevalence row |
-|  | `ci`, `conf.level`, `ci_method` | `TRUE`, `0.95`, `"wilson"`; also `"exact"` | Event CI method and confidence level |
+|  | `ci`, `conf.level`, `ci_method` | `TRUE`, inherited, inherited | Event CI method and confidence level |
 |  | `layout` | inherits the table; `"compact"` or `"separate"` | Inline or separate estimate/CI columns |
-|  | `display` | `"n_percent"`; `"percent"`, `"n_over_N_percent"` | Specialist row cell display |
-|  | `label`, `digits` | variable label, `1` | Row label and precision |
-| `add_rate()` | `event`, `time` | required | Event-count and person-time variables in `mode = "rate"` |
+|  | `display` | inherits table; `"n_percent"`, `"percent"`, `"n_over_N_percent"` | Specialist row cell display |
+|  | `label`, `digits` | variable label, inherited | Row label and precision |
+| `add_rate()` | `event`, `time` | required | Add an event-count/person-time rate to an empty or populated summary table |
 |  | `multiplier`, `time_label` | `1000`, `"person-time"` | Rate scale and readable time unit |
 |  | `ci`, `conf.level`, `digits`, `label` | `TRUE`, `0.95`, `1`, automatic | Exact Poisson CI, precision, and label |
 |  | `layout` | inherits the table; `"compact"` or `"separate"` | Inline or separate rate/CI columns |
@@ -185,13 +218,13 @@ another variable share the same publication label, source-variable identity—no
 the displayed label—determines the test and superscript.
 
 `add_proportion()` deliberately highlights one selected event, such as `"Yes"`.
-Use `summary_table(ci = TRUE)` when every categorical level needs an interval.
+Use `add_ci()` when existing table variables need intervals.
 The p-value produced by `add_p()` belongs to the full variable association; it
 is not duplicated on the selected-event row.
 
 ```r
-summary_table(birthwt_data, by = low, overall = TRUE) |>
-  add_summary(vars = c(age, smoke)) |>
+summary_table(birthwt_data, by = low, include = c(age, smoke), overall = TRUE) |>
+  add_ci() |>
   add_proportion(var = smoke, level = "Yes", ci = TRUE) |>
   add_p()
 ```
@@ -399,37 +432,79 @@ population, so the group Ns and annotation describe the same data.
 | `bold_labels`, `show_footnotes` | `TRUE`, `TRUE` | Variable-label emphasis and explanatory footnotes |
 | `digits`, `pvalue_style` | `NULL`; `"default"`/`"scientific"` | Reserved compatibility controls; set precision in the analysis function |
 
+`tbl_stats()` remains the compatibility name for explicit `gt` rendering.
+New code may use the clearer alias `to_gt()` with the same arguments.
+
 ### `customise_table()`
 
 | Option | Default / available choices | What it changes |
 |---|---|---|
-| `x` | required | A `gtstats` result or rendered `gt_tbl` |
+| `x` | required | A `gtstats` result, `flextable`, or rendered `gt_tbl` |
+| `engine` | `"flextable"`; also `"gt"` | Default Office-first renderer or explicit HTML renderer |
 | `theme` | `"default"`; `"journal"`, `"classic"`, `"minimal"`, `"compact"` | Overall visual theme |
-| `title`, `subtitle`, `source_note` | `NULL` | Presentation heading and source note |
+| `title`, `subtitle`, `source_note`, `footnotes` | `NULL` | Presentation heading and additional notes |
+| `spanning_header` | `NULL` | Named vector mapping a displayed spanner label to one or more completed columns |
 | `col_labels`, `row_labels`, `level_labels` | `NULL` | Named vectors that relabel completed output without changing analysis |
 | `align`, `hide_cols`, `bold_cols`, `italic_cols` | `NULL` | Per-column layout/emphasis controls |
 | `font_size`, `font`, `width` | `NULL` | Typography and table width |
 | `row_striping`, `stripe_color`, `accent_color` | `NULL` | Alternating rows and colour accents |
+| `borders` | `"horizontal"`; `"all"`, `"minimal"` | Publication border treatment |
+| `density` | `"standard"`; `"compact"`, `"spacious"` | Cell padding and visual density |
+| `column_widths` | `NULL` | Named numeric widths for selected columns |
+| `pvalue_style` | `"threshold"`; `"fixed"`, `"scientific"` | Completed p-value display without changing the tests |
+| `pvalue_digits`, `pvalue_threshold`, `pvalue_prefix` | `3`, `0.001`, `FALSE` | P-value precision, lower display threshold, and optional `p =` prefix |
 | `bold_labels`, `show_footnotes` | `TRUE`, `TRUE` | Controls used if a raw result must first be rendered |
+
+### `to_gt()`
+
+| Option | Default / available choices | What it changes |
+|---|---|---|
+| `x` | required; original `gtstats` object | Explicitly renders an HTML-focused `gt` table |
+| `title`, `subtitle` | `NULL` | Optional heading |
+| `bold_labels`, `show_footnotes` | `TRUE`, `TRUE` | Label emphasis and explanatory notes |
 
 ### `to_flextable()`
 
 | Option | Default / available choices | What it changes |
 |---|---|---|
-| `x` | required; original `gtstats` object | Converts for Word/PowerPoint; do not pass `tbl_stats()` output |
+| `x` | required; original `gtstats` object | Explicitly renders a Word/PowerPoint-ready `flextable` |
 | `font_size`, `font` | `10`, `NULL` | Office-table typography; font uses the Office default when omitted |
 | `autofit`, `show_footnotes` | `TRUE`, `TRUE` | Automatic widths and concise table notes |
+| `title`, `subtitle` | `NULL` | Optional heading |
 
 ### `save_output()`
 
 | Option | Default / available choices | What it changes |
 |---|---|---|
-| `x`, `filename` | required | A `gtstats` table/`gt_tbl` or `ggplot`, plus filename with extension |
+| `x`, `filename` | required | One result, or a named list of tables and plots for one Word report, plus filename with extension |
 | `path` | `NULL`: current working directory | Destination directory; relative/full filenames also work |
 | `title`, `subtitle`, `bold_labels`, `show_footnotes` | `NULL`, `NULL`, `TRUE`, `TRUE` | Rendering controls for raw table results |
 | `zoom`, `expand`, `vwidth`, `vheight` | `2`, `5`, `992`, `744` | PNG table-export browser sizing |
 | `width`, `height`, `units`, `dpi`, `bg` | `8`, `6`, `"in"`, `300`, `"white"` | Plot export size/resolution/background |
+| `page_break` | `TRUE` | With a list saved to Word, start each output on a new page |
 | `quiet` | `FALSE` | Suppress the saved-path message |
+
+Table extensions include `.docx`, `.pptx`, `.rtf`, `.html`, `.png`, `.pdf`,
+and `.tex`. Office formats use the flextable-first route. A mixed list of
+tables and plots is supported for `.docx` reports.
+
+```r
+save_output(
+  list(
+    "Dataset overview" = describe_data(birthwt),
+    "Table 1" = summary_table(
+      birthwt, by = low, include = c(age, lwt, race, smoke), overall = TRUE
+    ) |>
+      add_p(),
+    "Maternal age by outcome" = plot_compare(
+      birthwt, variable = age, group = low
+    )
+  ),
+  "gtstats-report.docx",
+  title = "Birth-weight study",
+  page_break = TRUE
+)
+```
 
 ```r
 summary_table(birthwt_data, by = low, include = c(age, smoke)) |>

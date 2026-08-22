@@ -22,12 +22,10 @@
 #' @return An updated `gt_desc_table` object with a total row appended.
 #'
 #' @examples
-#' summary_table(mtcars, by = am) |>
-#'   add_summary(vars = c(mpg, wt, cyl)) |>
+#' summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>
 #'   add_total()
 #'
-#' summary_table(mtcars, by = am, overall = TRUE) |>
-#'   add_summary(vars = c(mpg, wt)) |>
+#' summary_table(mtcars, by = am, include = c(mpg, wt), overall = TRUE) |>
 #'   add_total()
 #'
 #' summary_table(mtcars) |>
@@ -56,7 +54,8 @@ add_total <- function(
     Variable = label,
     Level = ""
   )
-  separate <- identical(x$layout %||% "compact", "separate")
+  separate <- identical(x$layout %||% "compact", "separate") &&
+    !is.null(x$display_columns)
   if (separate) {
     x <- .builder_use_separate_layout(x, conf.level = x$conf.level %||% 0.95)
   }

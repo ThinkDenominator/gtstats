@@ -1,22 +1,21 @@
 #' Create a summary table builder
 #'
-#' Create a publication-ready summary table, or initialise one that can be built
-#' step by step using helper functions such as [add_summary()],
-#' [add_proportion()], [add_rate()], [add_total()], and [add_p()].
+#' Create the descriptive foundation of a publication-ready table. Add further
+#' layers only when needed: [add_ci()] for confidence intervals, [add_p()] for
+#' statistical comparisons, and specialist helpers such as [add_proportion()],
+#' [add_rate()], [add_total()], and [add_row()].
 #'
 #' For the usual Table 1 workflow, select all variables together with
 #' `include`. Continuous, binary, categorical, and ordinal variables are
 #' detected automatically and added using beginner-friendly defaults. There is
 #' no need to add continuous and categorical variables separately.
 #'
-#' When `include = NULL`, an empty builder is returned for advanced incremental
-#' workflows using [add_summary()] and the other `add_*()` helpers. Printing a
-#' completed object automatically displays a publication-ready `gt` table;
+#' When `include = NULL`, an empty builder is returned for specialist row-only
+#' workflows. Printing a completed object automatically displays a publication-ready `gt` table;
 #' call [tbl_stats()] only when explicit rendering control is required.
 #'
-#' Two modes are supported:
-#' - `"summary"` for baseline tables and descriptive summaries
-#' - `"rate"` for rate-based tables using [add_rate()]
+#' `mode = "rate"` remains available for compatibility, but is not needed in
+#' new code: create the foundation normally and add [add_rate()] as a layer.
 #'
 #' A grouping variable may be supplied to create one column per group.
 #' An optional `overall` column can also be requested for later use.
@@ -29,30 +28,43 @@
 #'   names, such as `c(age, sex, bmi)`, or a character vector. Mixed variable
 #'   types can be selected together. When omitted, an empty advanced builder is
 #'   returned.
-#' @param mode Table mode. One of `"summary"` or `"rate"`.
+#' @param mode Table mode. `"summary"` is the normal route. `"rate"` is retained
+#'   for compatibility with earlier rate-only builders.
 #' @param overall Overall-column setting. Use `FALSE` to omit it, `"first"` to
 #'   place it before the grouped columns, or `"last"` to place it after them.
 #'   `TRUE` is accepted as a shorthand for `"first"`.
 #' @param statistic Continuous summary format: `"recommended"`, `"mean_sd"`,
 #'   `"mean_ci"`, `"median_iqr"`, or `"both"`. A single value applies to all
-#'   continuous variables; a named vector can override individual variables.
+#'   continuous variables. In a named vector, `continuous` supplies a fallback
+#'   for every continuous variable and variable names supply exceptions, for
+#'   example `c(continuous = "mean_sd", lwt = "median_iqr")`. Without a
+#'   `continuous` fallback, unnamed variables use the recommended summary.
 #' @param categorical Categorical display: `"n_percent"`,
 #'   `"n_over_N_percent"`, `"n"`, or `"percent"`.
+#' @param categorical_layout Categorical column layout. `"combined"` (default)
+#'   displays n (%). `"separate"` places n and % in distinct child columns for
+#'   categorical-only tables without confidence intervals.
+#' @param show_dichotomous Binary-variable display. `"all_levels"` (default)
+#'   shows both levels; `"single_row"` shows one selected event level as a
+#'   compact row.
+#' @param value Optional named character vector or list selecting the event
+#'   level for compact binary rows, for example `c(smoke = "Yes")`. Unspecified
+#'   binary variables use their second declared or sorted level.
 #' @param percent Percentage denominator: `"column"`, `"row"`, or `"overall"`.
 #' @param digits One number applied throughout, or a named numeric vector using
 #'   `continuous`, `percent`, and `ci`.
 #' @param missing Missing-row display: `"ifany"`, `"always"`, or `"no"`.
-#' @param ci Logical; include confidence intervals for categorical proportions.
-#' @param conf.level Confidence level for categorical proportion intervals.
-#' @param ci_method Binomial confidence-interval method: `"wilson"` (default)
-#'   or `"exact"`.
 #' @param layout Table layout. `"compact"` keeps each summary in one cell.
-#'   `"separate"` places summaries and confidence intervals in separate
-#'   columns beneath each cohort header.
+#'   `"separate"` requests summary and CI child columns beneath each cohort
+#'   header. Those child columns appear only after confidence intervals are
+#'   added; choosing the layout alone does not create empty CI columns.
 #' @param label Optional named character vector overriding variable labels.
 #' @param format Display format: `"table"` (default) or `"tibble"`. The
 #'   builder remains composable; this option changes how the completed object
 #'   prints without discarding its audit components.
+#' @param ... Compatibility arguments `ci`, `conf.level`, and `ci_method` from
+#'   earlier development versions. New code should use [add_ci()]. Unknown
+#'   arguments are rejected.
 #'
 #' @return A `gt_desc_table` object containing the source data,
 #'   structural settings, and placeholders for table components.
@@ -82,20 +94,22 @@
 #'   digits = c(continuous = 1, percent = 0)
 #' )
 #'
-#' # Ungrouped descriptive proportions with confidence intervals
+#' # Add confidence intervals as a visible layer
 #' summary_table(
 #'   mtcars,
 #'   include = c(cyl, vs),
 #'   categorical = "percent",
-#'   ci = TRUE
-#' )
+#'   layout = "separate"
+#' ) |>
+#'   add_ci()
 #'
-#' # Advanced incremental construction
-#' summary_table(mtcars, by = am, overall = TRUE) |>
-#'   add_summary(
-#'     vars = c(mpg, wt),
-#'     statistic = c(mpg = "mean_sd", wt = "median_iqr")
-#'   )
+#' # Compact binary rows, with an explicit event where required
+#' summary_table(
+#'   mtcars,
+#'   include = c(mpg, vs, am),
+#'   show_dichotomous = "single_row",
+#'   value = c(vs = "1", am = "1")
+#' )
 #'
 #' @export
 summary_table <- function(
@@ -106,22 +120,37 @@ summary_table <- function(
     overall = FALSE,
     statistic = "recommended",
     categorical = c("n_percent", "n_over_N_percent", "n", "percent"),
+    categorical_layout = c("combined", "separate"),
+    show_dichotomous = c("all_levels", "single_row"),
+    value = NULL,
     percent = c("column", "row", "overall"),
     digits = 1,
     missing = c("ifany", "always", "no"),
-    ci = FALSE,
-    conf.level = 0.95,
-    ci_method = c("wilson", "exact"),
     layout = c("compact", "separate"),
     label = NULL,
-    format = c("table", "tibble")
+    format = c("table", "tibble"),
+    ...
 ) {
+  dots <- list(...)
+  unknown_dots <- setdiff(names(dots), c("ci", "conf.level", "ci_method"))
+  if (length(unknown_dots) > 0L) {
+    stop(
+      "Unused argument", if (length(unknown_dots) > 1L) "s" else "", ": ",
+      paste0("`", unknown_dots, "`", collapse = ", "), ".",
+      call. = FALSE
+    )
+  }
+  ci <- dots$ci %||% FALSE
+  conf.level <- dots$conf.level %||% 0.95
+  ci_method <- dots$ci_method %||% "wilson"
   format <- match.arg(format)
   mode <- match.arg(mode)
   categorical <- match.arg(categorical)
+  categorical_layout <- match.arg(categorical_layout)
+  show_dichotomous <- match.arg(show_dichotomous)
   percent <- match.arg(percent)
   missing <- match.arg(missing)
-  ci_method <- match.arg(ci_method)
+  ci_method <- match.arg(ci_method, c("wilson", "exact"))
   layout <- match.arg(layout)
   if (is.logical(overall) && length(overall) == 1L && !is.na(overall)) {
     overall_position <- "first"
@@ -159,6 +188,9 @@ summary_table <- function(
   include_expr <- substitute(include)
   include_names <- if (identical(include_expr, NULL)) {
     NULL
+  } else if (is.call(include_expr) &&
+             identical(as.character(include_expr[[1L]]), "everything")) {
+    names(data)
   } else {
     .resolve_vars_arg(include_expr, env = parent.frame())
   }
@@ -206,6 +238,7 @@ summary_table <- function(
     overall = overall_requested,
     overall_position = overall_position,
     layout = layout,
+    categorical_layout = categorical_layout,
     format = format,
     display_columns = NULL,
     table = NULL,
@@ -252,6 +285,9 @@ summary_table <- function(
       vars = include_names,
       statistic = statistic,
       categorical = categorical,
+      show_dichotomous = show_dichotomous,
+      value = value,
+      categorical_layout = categorical_layout,
       percent = percent,
       digits = digits,
       missing = missing,

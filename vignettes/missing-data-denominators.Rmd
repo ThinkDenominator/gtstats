@@ -9,7 +9,7 @@ vignette: >
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = TRUE)
 ```
 
 ```{r load}
@@ -62,7 +62,7 @@ dat <- data.frame(
   follow_up = c(12, 10, 8, NA, 11)
 )
 
-describe_data(dat)
+to_flextable(describe_data(dat))
 ```
 
 This reports the amount of missing data, not its cause. Clinical context, the
@@ -71,7 +71,7 @@ complete-case analysis is scientifically appropriate.
 
 ## Descriptive tables: percentage denominators
 
-For categorical variables, `summary_table()` and `add_summary()` make the
+For categorical variables, `summary_table()` makes the
 denominator explicit. The default is `percent = "column"`.
 
 | Setting | Percentage denominator | Typical use |
@@ -79,7 +79,7 @@ denominator explicit. The default is `percent = "column"`.
 | `"column"` | Non-missing observations in each displayed group | Standard Table 1 |
 | `"row"` | Non-missing observations for that level across groups | Distribution of a category across groups |
 | `"overall"` | All non-missing observations of the variable | Share of the overall sample |
-| `"none"` | No percentage | Counts only |
+| `categorical = "n"` | No percentage | Counts only |
 
 ```{r descriptive}
 summary_table(
@@ -88,11 +88,11 @@ summary_table(
   include = smoker,
   percent = "column",
   missing = "ifany"
-)
+) |> to_flextable()
 
-summary_table(dat, by = arm, include = smoker, percent = "row")
-summary_table(dat, by = arm, include = smoker, percent = "overall")
-summary_table(dat, by = arm, include = smoker, percent = "none")
+to_flextable(summary_table(dat, by = arm, include = smoker, percent = "row"))
+to_flextable(summary_table(dat, by = arm, include = smoker, percent = "overall"))
+to_flextable(summary_table(dat, by = arm, include = smoker, categorical = "n"))
 ```
 
 `missing = "ifany"` displays a Missing row only when it is needed. Use
@@ -116,7 +116,7 @@ the confidence interval describes that observed-data proportion.
 
 ```{r proportion}
 smoking <- proportion_stats(dat, smoker, by = arm, level = "Yes")
-smoking
+to_flextable(smoking)
 denominators_stats(smoking)
 ```
 
@@ -124,7 +124,7 @@ If unknown status should be included in the clinical denominator, do not assume
 the observed-data proportion answers that question. Report unknown values or
 define the required analysis approach in advance.
 
-An all-missing categorical variable remains visible in `add_summary()` as an
+An all-missing categorical variable remains visible in `summary_table()` as an
 em dash, with a Missing row by default. It is not silently dropped from the
 table.
 
@@ -173,7 +173,11 @@ denominators_stats(comparison)
 in the same row.
 
 ```{r correlation}
-correlation(dat, x = age, y = follow_up)
+cor_dat <- data.frame(
+  age = c(34, 41, 45, 49, 53, 57, 62, 68),
+  follow_up = c(12, 11, NA, 9, 8, 7, 6, 5)
+)
+to_flextable(correlation(cor_dat, x = age, y = follow_up))
 ```
 
 ## Distribution assessment
@@ -184,7 +188,12 @@ values only. Missing or non-finite values are flagged in the guidance rather
 than being interpreted as evidence of non-normality.
 
 ```{r distribution}
-assess_distribution(dat, vars = age, by = arm)
+dist_dat <- data.frame(
+  arm = factor(rep(c("Control", "Treatment"), each = 8)),
+  age = c(34, 39, 44, 48, 52, 57, NA, 63,
+          36, 41, 46, 51, 56, 61, 66, Inf)
+)
+to_flextable(assess_distribution(dist_dat, vars = age, by = arm))
 ```
 
 For a grouped continuous variable, `assess_variance()` also excludes missing
@@ -192,7 +201,7 @@ and non-finite values from its SD and variance calculations, while retaining
 their counts in the output.
 
 ```{r variance}
-assess_variance(dat, vars = age, by = arm)
+to_flextable(assess_variance(dist_dat, vars = age, by = arm))
 ```
 
 ## Reporting checklist

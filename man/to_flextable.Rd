@@ -9,7 +9,9 @@ to_flextable(
   font_size = 10,
   font = NULL,
   autofit = TRUE,
-  show_footnotes = TRUE
+  show_footnotes = TRUE,
+  title = NULL,
+  subtitle = NULL
 )
 }
 \arguments{
@@ -27,6 +29,8 @@ functions.}
 automatically using \code{\link[flextable:autofit]{flextable::autofit()}}.}
 
 \item{show_footnotes}{Logical; include concise explanatory footnotes.}
+
+\item{title, subtitle}{Optional title and subtitle placed above the table.}
 }
 \value{
 A \code{flextable} object.

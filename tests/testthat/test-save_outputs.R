@@ -103,6 +103,41 @@ test_that("save_output() saves png with explicit sizing arguments", {
   expect_identical(tolower(tools::file_ext(out)), "png")
 })
 
+test_that("save_output() combines tables and plots in one Word report", {
+  table <- summary_table(mtcars, include = c(mpg, cyl))
+  plot <- ggplot2::ggplot(mtcars, ggplot2::aes(mpg, wt)) +
+    ggplot2::geom_point()
+  output <- tempfile(fileext = ".docx")
+
+  saved <- save_output(
+    list("Participant characteristics" = table, "Relationship" = plot),
+    output,
+    title = "Statistical report",
+    page_break = FALSE,
+    quiet = TRUE
+  )
+
+  expect_true(file.exists(saved))
+  expect_gt(file.info(saved)$size, 0)
+  content <- officer::docx_summary(officer::read_docx(saved))
+  expect_true(any(content$text == "Statistical report", na.rm = TRUE))
+  expect_true(any(content$text == "Participant characteristics", na.rm = TRUE))
+  expect_true(any(content$text == "Relationship", na.rm = TRUE))
+})
+
+test_that("multi-output save requires Word and supported items", {
+  table <- summary_table(mtcars, include = mpg)
+
+  expect_error(
+    save_output(list(table), tempfile(fileext = ".html"), quiet = TRUE),
+    "only in a `.docx`"
+  )
+  expect_error(
+    save_output(list(table, mtcars), tempfile(fileext = ".docx"), quiet = TRUE),
+    "Unsupported item"
+  )
+})
+
 test_that("save_output() creates nested directory if needed", {
   skip_if_not_installed("gt")
 
@@ -174,7 +209,7 @@ test_that("save_output() errors for unsupported extension", {
 test_that("save_output() errors for unsupported input", {
   expect_error(
     save_output(mtcars, filename = "x.html", quiet = TRUE),
-    regexp = "must be a gtstats object compatible with `tbl_stats()` or a `gt_tbl`",
+    regexp = "must be a supported gtstats object, flextable, or gt table",
     fixed = TRUE
   )
 })
@@ -278,7 +313,7 @@ test_that("save_output() creates nested directory if needed", {
 test_that("save_output() errors for non-ggplot input", {
   expect_error(
     save_output(x = mtcars, filename = "x.png", quiet = TRUE),
-    regexp = "must be a gtstats object compatible with `tbl_stats()` or a `gt_tbl`",
+    regexp = "must be a supported gtstats object, flextable, or gt table",
     fixed = TRUE
   )
 })

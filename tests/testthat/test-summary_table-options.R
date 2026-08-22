@@ -15,6 +15,19 @@ test_that("summary_table() keeps beginner defaults", {
   expect_false(any(grepl("CI", unlist(res$table), fixed = TRUE)))
 })
 
+test_that("summary_table() accepts include = everything()", {
+  data <- mtcars
+  data$am <- factor(data$am)
+
+  res <- summary_table(data, by = am, include = everything())
+
+  expect_setequal(
+    names(res$summary_statistics),
+    setdiff(names(data), "am")
+  )
+  expect_false("am" %in% names(res$summary_statistics))
+})
+
 test_that("summary_table() supports named precision controls", {
   data <- mtcars
   data$am <- factor(data$am)
@@ -30,8 +43,8 @@ test_that("summary_table() supports named precision controls", {
   )
 
   expect_match(res$table$Overall[[1L]], "\\d+\\.\\d{2} \\(")
-  expect_true(any(grepl("\\(\\d+%; 95% CI", res$table$Overall)))
-  expect_true(any(grepl("CI \\d+\\.\\d{2}", res$table$Overall)))
+  expect_true(any(grepl("\\(\\d+%\\); \\d+\\.\\d{2}", res$table$Overall)))
+  expect_false(any(grepl("95% CI", res$table$Overall, fixed = TRUE)))
 })
 
 test_that("summary_table() supports all categorical displays", {
@@ -230,7 +243,9 @@ test_that("summary_table() provides categorical CIs without p-values", {
   )
 
   expect_false("p-value" %in% names(res$table))
-  expect_true(all(grepl("90% CI", res$table$Value)))
+  expect_false(any(grepl("90% CI", res$table$Value, fixed = TRUE)))
+  expect_true(all(grepl(";", res$table$Value, fixed = TRUE)))
+  expect_match(.builder_publication_note(res), "90% Wilson score CIs", fixed = TRUE)
   expect_true(all(grepl("%", res$table$Value, fixed = TRUE)))
 })
 
@@ -303,7 +318,7 @@ test_that("categorical CIs handle zero cells and missing values", {
     missing = "ifany"
   )
 
-  expect_true(any(grepl("0 \\(0.0%; 95% CI", unlist(res$table))))
+  expect_true(any(grepl("0 \\(0.0%\\); 0.0–", unlist(res$table))))
   expect_true(any(res$table$Level == "Missing"))
   expect_false(any(grepl("NaN|Inf", unlist(res$table))))
 })

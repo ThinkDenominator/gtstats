@@ -57,12 +57,16 @@ is retained as \verb{\\u2014} and recorded as not estimable in the audit.
 builder because rate denominators have a different meaning.
 }
 \examples{
-summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
+summary_table(mtcars, by = am, overall = TRUE) |>
   add_rate(
     event = carb,
     time = cyl,
     label = "Carburettor rate",
     multiplier = 1000
   )
+
+# Rates may be added alongside ordinary summaries
+summary_table(mtcars, by = am, include = mpg) |>
+  add_rate(event = carb, time = cyl, multiplier = 1000)
 
 }

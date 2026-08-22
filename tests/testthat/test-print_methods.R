@@ -45,7 +45,7 @@ test_that("print.gt_desc_table() works when table is empty", {
 
   expect_output(
     out <- print(obj),
-    regexp = "No rows have been added yet"
+    regexp = "No variables have been selected"
   )
   expect_identical(out, obj)
 })
@@ -63,7 +63,7 @@ test_that("print.gt_prop() returns invisibly and prints a gt table", {
 
   expect_output(
     out <- print(obj),
-    regexp = "gt_table"
+    regexp = "flextable object"
   )
   expect_identical(out, obj)
 })
@@ -79,7 +79,7 @@ test_that("print.gt_rate() returns invisibly and prints a gt table", {
 
   expect_output(
     out <- print(obj),
-    regexp = "gt_table"
+    regexp = "flextable object"
   )
   expect_identical(out, obj)
 })
@@ -89,7 +89,7 @@ test_that("print.gt_twobytwo() returns invisibly and prints a gt table", {
 
   expect_output(
     out <- print(obj),
-    regexp = "gt_table"
+    regexp = "flextable object"
   )
   expect_identical(out, obj)
 })

@@ -243,5 +243,74 @@ test_that("customise_table() renders an unrendered gtstats result", {
   obj <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt))
 
-  expect_s3_class(customise_table(obj), "gt_tbl")
+  expect_s3_class(customise_table(obj), "flextable")
+})
+
+test_that("customise_table() defaults to flextable publication controls", {
+  obj <- summary_table(
+    mtcars, by = am, include = c(mpg, cyl), overall = TRUE
+  ) |> add_p()
+  styled <- customise_table(
+    obj,
+    theme = "journal",
+    spanning_header = "Transmission",
+    footnotes = "Additional reporting note.",
+    borders = "horizontal",
+    density = "compact",
+    column_widths = c(Variable = 2),
+    hide_cols = "Overall",
+    pvalue_style = "fixed",
+    pvalue_digits = 2,
+    pvalue_prefix = TRUE
+  )
+  expect_s3_class(styled, "flextable")
+  expect_false("Overall" %in% styled$col_keys)
+  expect_true("Characteristic" %in% styled$col_keys)
+})
+
+test_that("customise_table() supports named spanning-header mappings", {
+  obj <- summary_table(mtcars, by = am, include = c(mpg, cyl), overall = TRUE)
+  expect_s3_class(
+    customise_table(
+      obj,
+      spanning_header = list(
+        "Transmission" = c("am = 0", "am = 1")
+      )
+    ),
+    "flextable"
+  )
+  expect_s3_class(
+    customise_table(
+      obj,
+      engine = "gt",
+      spanning_header = list(
+        "Transmission" = c("am = 0", "am = 1")
+      )
+    ),
+    "gt_tbl"
+  )
+})
+
+test_that("customise_table() validates new presentation controls", {
+  obj <- summary_table(mtcars, by = am, include = mpg)
+  expect_error(customise_table(obj, pvalue_prefix = "yes"), "TRUE or FALSE")
+  expect_error(
+    customise_table(obj, spanning_header = list("Groups" = "unknown")),
+    "Unknown"
+  )
+  expect_error(
+    customise_table(
+      obj,
+      spanning_header = list("A" = "am = 0", "B" = "am = 0")
+    ),
+    "more than one"
+  )
+})
+
+test_that("customise_table() retains an explicit gt engine", {
+  obj <- summary_table(mtcars, by = am, include = c(mpg, cyl))
+  expect_s3_class(
+    customise_table(obj, engine = "gt", spanning_header = "Transmission"),
+    "gt_tbl"
+  )
 })

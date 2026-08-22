@@ -6,6 +6,7 @@
 \usage{
 customise_table(
   x,
+  engine = c("flextable", "gt"),
   theme = c("default", "journal", "classic", "minimal", "compact"),
   title = NULL,
   subtitle = NULL,
@@ -24,11 +25,24 @@ customise_table(
   accent_color = NULL,
   stripe_color = NULL,
   bold_labels = TRUE,
-  show_footnotes = TRUE
+  show_footnotes = TRUE,
+  spanning_header = NULL,
+  footnotes = NULL,
+  borders = c("horizontal", "all", "minimal"),
+  density = c("standard", "compact", "spacious"),
+  column_widths = NULL,
+  pvalue_style = c("threshold", "fixed", "scientific"),
+  pvalue_digits = 3,
+  pvalue_threshold = 0.001,
+  pvalue_prefix = FALSE
 )
 }
 \arguments{
-\item{x}{A supported \code{gtstats} result or rendered \code{gt_tbl}.}
+\item{x}{A supported \code{gtstats} result, rendered \code{flextable}, or rendered
+\code{gt_tbl}.}
+
+\item{engine}{Rendering engine used when \code{x} is an unrendered result.
+\code{"flextable"} is the default; use \code{"gt"} for HTML-oriented workflows.}
 
 \item{theme}{Visual theme: \code{"default"}, \code{"journal"}, \code{"classic"},
 \code{"minimal"}, or \code{"compact"}.}
@@ -60,9 +74,32 @@ relabelling.}
 
 \item{show_footnotes}{Logical; retain explanatory footnotes when rendering a
 raw result.}
+
+\item{spanning_header}{Optional spanning heading. Supply one character value
+to span all result columns, or a named list/vector mapping displayed
+headings to completed column names.}
+
+\item{footnotes}{Optional additional footer notes.}
+
+\item{borders}{Border style: \code{"horizontal"}, \code{"all"}, or \code{"minimal"}.}
+
+\item{density}{Cell density: \code{"standard"}, \code{"compact"}, or \code{"spacious"}.}
+
+\item{column_widths}{Optional named numeric vector of column widths in inches
+for flextable output.}
+
+\item{pvalue_style}{P-value style for summary-table results: \code{"threshold"},
+\code{"fixed"}, or \code{"scientific"}.}
+
+\item{pvalue_digits}{Number of displayed p-value digits.}
+
+\item{pvalue_threshold}{Threshold displayed using a less-than sign.}
+
+\item{pvalue_prefix}{Logical; prepend \verb{p =} to ordinary p-values.}
 }
 \value{
-A styled \code{gt_tbl}.
+A styled \code{flextable} by default, or a \code{gt_tbl} when \code{engine = "gt"}
+or \code{x} is already a gt table.
 }
 \description{
 Apply titles, labels, alignment, emphasis, colours, and a predefined visual

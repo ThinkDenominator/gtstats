@@ -22,12 +22,15 @@ save_output(
   units = "in",
   dpi = 300,
   bg = "white",
+  page_break = TRUE,
   quiet = FALSE,
   ...
 )
 }
 \arguments{
-\item{x}{A \code{gtstats} result, rendered \code{gt_tbl}, or \code{ggplot2} plot.}
+\item{x}{A \code{gtstats} result, rendered \code{flextable}, rendered \code{gt_tbl},
+\code{ggplot2} plot, or a named list of tables and plots for a combined Word
+report.}
 
 \item{filename}{Output filename including a supported extension.}
 
@@ -54,6 +57,9 @@ supplied, so a simple filename saves in the current working directory.}
 
 \item{bg}{Plot background colour.}
 
+\item{page_break}{Logical; when saving a list to Word, start each output
+after the first on a new page.}
+
 \item{quiet}{Logical; suppress the saved-path message.}
 
 \item{...}{Additional arguments passed to the relevant underlying save method.}
@@ -62,9 +68,10 @@ supplied, so a simple filename saves in the current working directory.}
 The normalized saved path, invisibly.
 }
 \description{
-Save a \code{gtstats} result, rendered \code{gt_tbl}, or \code{ggplot2} plot. The object
-determines the export route automatically. The file type is inferred from
-\code{filename}.
+Save a \code{gtstats} result, rendered \code{flextable}, rendered \code{gt_tbl}, or
+\code{ggplot2} plot. A named list of gtstats results, flextables, and plots can be
+combined into one Word document. The object determines the export route
+automatically. The file type is inferred from \code{filename}.
 }
 \examples{
 \dontrun{
@@ -73,5 +80,10 @@ save_output(table, "summary.html")
 
 plot <- plot_compare(mtcars, variable = mpg, group = am)
 save_output(plot, "comparison.png")
+
+save_output(
+  list("Table 1" = table, "Comparison plot" = plot),
+  "statistical-report.docx"
+)
 }
 }

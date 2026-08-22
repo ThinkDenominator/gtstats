@@ -1,5 +1,62 @@
 # gtstats 1.0.0
 
+* Added `show_dichotomous = "single_row"` with optional named `value` choices
+  to `summary_table()` and `add_summary()`. This matches gtregression and gives
+  conventional one-event-per-row binary summaries without changing full-variable
+  inference.
+* Reduced publication footnote type in flextable and gt output, and exposed the
+  binary display and advanced styling choices in the gtstats app.
+
+* Made publication output Office-first: supported results now print as
+  `flextable` objects by default. `to_gt()` provides an explicit HTML-focused
+  route, while `tbl_stats()` remains as a compatibility alias. `save_output()`
+  now accepts raw gtstats results, flextables and gt tables and supports PPTX.
+
+* Extended `customise_table()` with spanning headers, additional or suppressed
+  footnotes, journal-ready border and density controls, named column widths,
+  and configurable p-value styling. Its default engine is now `"flextable"`;
+  use `engine = "gt"` when that output is required.
+
+* Continuous summary overrides now support a global fallback plus exceptions,
+  for example `statistic = c(continuous = "mean_sd", lwt = "median_iqr")`.
+  The deliberate variable-selection model is retained: an empty builder now
+  directs beginners to `include = c(age, sex, bmi)` or
+  `include = everything()`.
+
+* Redesigned the Summary table workflow as a progressive, layer-by-layer API.
+  `summary_table()` builds the descriptive foundation; the new `add_ci()` layer
+  adds confidence intervals globally or to selected variables; `add_p()` adds
+  comparisons; and specialist rows remain explicit optional ingredients. The
+  Shiny app now mirrors the same sequence and generates the corresponding
+  reproducible pipeline.
+
+* Simplified `add_proportion()` defaults so its display, layout, confidence
+  settings and precision inherit from the parent table. It is now documented
+  as a selected-event highlight rather than the route for adding CIs to
+  ordinary categorical summaries.
+
+* Tightened summary-table presentation: missing-value rows now remain inside
+  the correct variable block and are emitted once per variable. A requested
+  `layout = "separate"` no longer creates empty CI columns before a CI layer is
+  added. Compact cells and separate-column headers avoid repeating the
+  confidence level; the level and interval method are stated once in the
+  publication footnote.
+
+* Separate CI layouts now use context-aware estimate headers (`n (%)`,
+  `Mean (SD)`, `Median (IQR)`, or `Summary`) and an explicit confidence-level
+  header such as `95% CI`. Categorical-only tables without intervals can use
+  `categorical_layout = "separate"` to display n and % in distinct columns.
+
+* Redesigned the GUI Summary workspace as a recipe. Users can now build an
+  ordinary summary or rate table and add total, selected-proportion, rate,
+  custom-row and p-value ingredients with their relevant options. Compact and
+  separate-column layouts are available at table creation, and generated code
+  reproduces the complete builder pipeline.
+
+* Simplified `add_proportion()` footnotes in summary tables. Publication output
+  no longer repeats the selected event or explains internal `add_p()` behavior;
+  when confidence intervals are shown, only their level and method are noted.
+
 * Completed the GUI plotting workflow. Distribution assessments now expose
   histogram, density, Q-Q and boxplot diagnostics; group comparisons expose
   `plot_compare()` controls; and correlation plots expose labels, confidence

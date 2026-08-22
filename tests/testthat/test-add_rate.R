@@ -112,7 +112,7 @@ test_that("add_rate() marks a zero-time rate as not estimable", {
   expect_true(any(grepl("not estimable", res$footnotes, fixed = TRUE)))
 })
 
-test_that("add_rate() cannot be combined with summary component", {
+test_that("add_rate() can be layered onto ordinary summaries", {
   df <- data.frame(
     event = c(1, 0, 1),
     denom = c(10, 12, 8),
@@ -122,13 +122,12 @@ test_that("add_rate() cannot be combined with summary component", {
   res <- summary_table(df, by = grp) |>
     add_summary(vars = c(event))
 
-  expect_error(
-    add_rate(res, event = event, time = denom, label = "Event rate"),
-    regexp = "mode = \"rate\""
-  )
+  combined <- add_rate(res, event = event, time = denom, label = "Event rate")
+  expect_true(all(c("summary", "rate") %in% combined$components))
+  expect_true("Event rate" %in% combined$table$Variable)
 })
 
-test_that("add_rate() cannot be combined with proportion component", {
+test_that("add_rate() can be layered with a selected proportion", {
   df <- data.frame(
     event = c(1, 0, 1),
     denom = c(10, 12, 8),
@@ -138,10 +137,9 @@ test_that("add_rate() cannot be combined with proportion component", {
   res <- summary_table(df, by = grp) |>
     add_proportion(var = event)
 
-  expect_error(
-    add_rate(res, event = event, time = denom, label = "Event rate"),
-    regexp = "mode = \"rate\""
-  )
+  combined <- add_rate(res, event = event, time = denom, label = "Event rate")
+  expect_true(all(c("proportion", "rate") %in% combined$components))
+  expect_true("Event rate" %in% combined$table$Variable)
 })
 
 test_that("add_rate() errors if x is not gt_desc_table", {

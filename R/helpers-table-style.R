@@ -95,8 +95,22 @@
   # Update displayed values in the underlying table data
   df <- gt_tbl[["_data"]]
 
+  # Summary tables now expose one publication-facing Characteristic column.
+  # Preserve customisation calls written against the analytical Variable/Level
+  # columns by mapping them to the rendered column and discarding the hidden
+  # Level selector.
+  map_rendered_cols <- function(cols) {
+    if (is.null(cols)) return(NULL)
+    cols <- as.character(cols)
+    if ("Characteristic" %in% names(df)) {
+      cols[cols == "Variable"] <- "Characteristic"
+      cols <- cols[cols != "Level"]
+    }
+    unique(intersect(cols, names(df)))
+  }
+
   if (!is.null(row_labels)) {
-    target_col <- intersect(c("Variable", "Measure"), names(df))
+    target_col <- intersect(c("Characteristic", "Variable", "Measure"), names(df))
 
     if (length(target_col) > 0) {
       col <- target_col[1]
@@ -111,6 +125,11 @@
     df$Level <- dplyr::recode(
       as.character(df$Level),
       !!!level_labels
+    )
+  }
+  if (!is.null(level_labels) && "Characteristic" %in% names(df)) {
+    df$Characteristic <- dplyr::recode(
+      as.character(df$Characteristic), !!!level_labels
     )
   }
 
@@ -132,57 +151,79 @@
 
   # Rename columns when requested
   if (!is.null(col_labels)) {
-    gt_tbl <- gt::cols_label(gt_tbl, .list = col_labels)
+    if ("Characteristic" %in% names(df)) {
+      if ("Variable" %in% names(col_labels) &&
+          !"Characteristic" %in% names(col_labels)) {
+        col_labels[["Characteristic"]] <- col_labels[["Variable"]]
+      }
+      col_labels <- col_labels[setdiff(names(col_labels), c("Variable", "Level"))]
+    }
+    col_labels <- col_labels[intersect(names(col_labels), names(df))]
+    if (length(col_labels) > 0L) {
+      gt_tbl <- gt::cols_label(gt_tbl, .list = col_labels)
+    }
   }
 
   # Hide selected columns
   if (!is.null(hide_cols)) {
-    gt_tbl <- gt::cols_hide(gt_tbl, columns = hide_cols)
+    hide_cols <- map_rendered_cols(hide_cols)
+    if (length(hide_cols) > 0L) {
+      gt_tbl <- gt::cols_hide(gt_tbl, columns = hide_cols)
+    }
   }
 
   # Apply alignment settings
   if (!is.null(align)) {
     if (!is.null(align$left)) {
-      gt_tbl <- gt::cols_align(
-        gt_tbl,
-        align = "left",
-        columns = align$left
-      )
+      align$left <- map_rendered_cols(align$left)
+      if (length(align$left) > 0L) {
+        gt_tbl <- gt::cols_align(
+          gt_tbl, align = "left", columns = align$left
+        )
+      }
     }
 
     if (!is.null(align$right)) {
-      gt_tbl <- gt::cols_align(
-        gt_tbl,
-        align = "right",
-        columns = align$right
-      )
+      align$right <- map_rendered_cols(align$right)
+      if (length(align$right) > 0L) {
+        gt_tbl <- gt::cols_align(
+          gt_tbl, align = "right", columns = align$right
+        )
+      }
     }
 
     if (!is.null(align$center)) {
-      gt_tbl <- gt::cols_align(
-        gt_tbl,
-        align = "center",
-        columns = align$center
-      )
+      align$center <- map_rendered_cols(align$center)
+      if (length(align$center) > 0L) {
+        gt_tbl <- gt::cols_align(
+          gt_tbl, align = "center", columns = align$center
+        )
+      }
     }
   }
 
   # Bold selected columns
   if (!is.null(bold_cols)) {
-    gt_tbl <- gt::tab_style(
-      gt_tbl,
-      style = gt::cell_text(weight = "bold"),
-      locations = gt::cells_body(columns = bold_cols)
-    )
+    bold_cols <- map_rendered_cols(bold_cols)
+    if (length(bold_cols) > 0L) {
+      gt_tbl <- gt::tab_style(
+        gt_tbl,
+        style = gt::cell_text(weight = "bold"),
+        locations = gt::cells_body(columns = bold_cols)
+      )
+    }
   }
 
   # Italicise selected columns
   if (!is.null(italic_cols)) {
-    gt_tbl <- gt::tab_style(
-      gt_tbl,
-      style = gt::cell_text(style = "italic"),
-      locations = gt::cells_body(columns = italic_cols)
-    )
+    italic_cols <- map_rendered_cols(italic_cols)
+    if (length(italic_cols) > 0L) {
+      gt_tbl <- gt::tab_style(
+        gt_tbl,
+        style = gt::cell_text(style = "italic"),
+        locations = gt::cells_body(columns = italic_cols)
+      )
+    }
   }
 
   # Apply theme-specific defaults
@@ -298,4 +339,162 @@
   }
 
   gt_tbl
+}
+
+.style_flextable <- function(
+    x,
+    theme = "default",
+    title = NULL,
+    subtitle = NULL,
+    source_note = NULL,
+    col_labels = NULL,
+    row_labels = NULL,
+    level_labels = NULL,
+    align = NULL,
+    hide_cols = NULL,
+    bold_cols = NULL,
+    italic_cols = NULL,
+    font_size = NULL,
+    font = NULL,
+    row_striping = NULL,
+    accent_color = NULL,
+    stripe_color = NULL,
+    spanning_header = NULL,
+    footnotes = NULL,
+    borders = "horizontal",
+    density = "standard",
+    column_widths = NULL
+) {
+  ft <- x
+  keys <- ft$col_keys
+  map_flex_cols <- function(cols) {
+    if (is.null(cols)) return(NULL)
+    cols <- as.character(cols)
+    if ("Characteristic" %in% keys) {
+      cols[cols == "Variable"] <- "Characteristic"
+      cols <- cols[cols != "Level"]
+    }
+    unique(intersect(cols, keys))
+  }
+
+  if (!is.null(col_labels)) {
+    labels <- as.list(col_labels[intersect(names(col_labels), keys)])
+    if (length(labels) > 0L) {
+      ft <- do.call(flextable::set_header_labels, c(list(x = ft), labels))
+    }
+  }
+  if (!is.null(row_labels)) {
+    target <- intersect(c("Characteristic", "Variable", "Measure"), keys)
+    if (length(target) > 0L) {
+      ft$body$dataset[[target[[1L]]]] <- dplyr::recode(
+        as.character(ft$body$dataset[[target[[1L]]]]), !!!row_labels
+      )
+    }
+  }
+  if (!is.null(level_labels) && "Level" %in% keys) {
+    ft$body$dataset$Level <- dplyr::recode(
+      as.character(ft$body$dataset$Level), !!!level_labels
+    )
+  }
+  if (!is.null(level_labels) && "Characteristic" %in% keys) {
+    ft$body$dataset$Characteristic <- dplyr::recode(
+      as.character(ft$body$dataset$Characteristic), !!!level_labels
+    )
+  }
+  if (!is.null(hide_cols)) {
+    hide_cols <- map_flex_cols(hide_cols)
+    if (length(hide_cols) > 0L) {
+      ft <- flextable::delete_columns(ft, j = hide_cols)
+      keys <- ft$col_keys
+    }
+  }
+  if (!is.null(align)) {
+    for (where in intersect(names(align), c("left", "right", "center"))) {
+      cols <- map_flex_cols(align[[where]])
+      if (length(cols) > 0L) ft <- flextable::align(ft, j = cols, align = where, part = "all")
+    }
+  }
+  if (!is.null(bold_cols)) {
+    cols <- map_flex_cols(bold_cols)
+    if (length(cols) > 0L) ft <- flextable::bold(ft, j = cols, part = "body")
+  }
+  if (!is.null(italic_cols)) {
+    cols <- map_flex_cols(italic_cols)
+    if (length(cols) > 0L) ft <- flextable::italic(ft, j = cols, part = "body")
+  }
+
+  ft <- switch(
+    theme,
+    journal = flextable::theme_booktabs(ft),
+    classic = flextable::theme_vanilla(ft),
+    minimal = flextable::theme_borderless(ft),
+    compact = flextable::theme_booktabs(ft),
+    flextable::theme_booktabs(ft)
+  )
+  border <- flextable::fp_border_default(
+    color = accent_color %||% "#A6A6A6",
+    width = if (identical(borders, "minimal")) 0 else 0.75
+  )
+  if (identical(borders, "minimal")) {
+    ft <- flextable::border_remove(ft)
+  } else if (identical(borders, "all")) {
+    ft <- flextable::border_outer(ft, border = border, part = "all")
+    ft <- flextable::border_inner(ft, border = border, part = "all")
+  } else {
+    ft <- flextable::border_remove(ft)
+    ft <- flextable::border_outer(ft, border = border, part = "all")
+    ft <- flextable::border_inner_h(ft, border = border, part = "body")
+  }
+
+  pad <- switch(density, compact = 1, spacious = 6, 3)
+  ft <- flextable::padding(ft, padding = pad, part = "all")
+  if (identical(theme, "compact") && is.null(font_size)) font_size <- 9
+  if (!is.null(font_size)) ft <- flextable::fontsize(ft, size = font_size, part = "all")
+  if (!is.null(font)) ft <- flextable::font(ft, fontname = font, part = "all")
+
+  if (isTRUE(row_striping)) {
+    colour <- stripe_color %||% "#F4F4F4"
+    rows <- seq.int(2L, nrow(ft$body$dataset), by = 2L)
+    if (length(rows) > 0L) ft <- flextable::bg(ft, i = rows, bg = colour, part = "body")
+  }
+  if (!is.null(column_widths)) {
+    if (is.null(names(column_widths)) || !is.numeric(column_widths)) {
+      stop("`column_widths` must be a named numeric vector.", call. = FALSE)
+    }
+    width_names <- names(column_widths)
+    if ("Characteristic" %in% keys) {
+      width_names[width_names == "Variable"] <- "Characteristic"
+    }
+    names(column_widths) <- width_names
+    for (column in intersect(names(column_widths), keys)) {
+      ft <- flextable::width(ft, j = column, width = column_widths[[column]])
+    }
+  }
+  if (!is.null(spanning_header)) {
+    label_cols <- intersect(c("Variable", "Level", "Measure", "Group", "Event"), keys)
+    value_cols <- setdiff(keys, label_cols)
+    spans <- .normalise_spanning_header(spanning_header, value_cols)
+    if (length(spans) > 0L) {
+      column_labels <- stats::setNames(rep("", length(keys)), keys)
+      for (label in names(spans)) column_labels[spans[[label]]] <- label
+      runs <- rle(unname(column_labels))
+      values <- runs$values
+      widths <- runs$lengths
+      ft <- flextable::add_header_row(ft, values = values, colwidths = widths, top = TRUE)
+    }
+  }
+  header_lines <- c(subtitle, title)
+  header_lines <- header_lines[!is.na(header_lines) & nzchar(header_lines)]
+  for (line in header_lines) ft <- flextable::add_header_lines(ft, values = line, top = TRUE)
+  notes <- c(source_note, footnotes)
+  notes <- notes[!is.na(notes) & nzchar(notes)]
+  for (note in notes) ft <- flextable::add_footer_lines(ft, values = note)
+  if (length(notes) > 0L) {
+    ft <- flextable::fontsize(
+      ft,
+      size = min(8, font_size %||% 10),
+      part = "footer"
+    )
+  }
+  ft
 }

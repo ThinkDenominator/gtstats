@@ -67,8 +67,12 @@ tbl_stats(summary_table(mtcars, by = am, include = c(mpg, wt)))
 tbl_stats(compare_groups(mtcars, variable = mpg, group = am))
 
 tbl_stats(
-  summary_table(mtcars, by = am, overall = TRUE) |>
-    add_summary(vars = c(mpg, wt, cyl)) |>
+  summary_table(
+    mtcars,
+    by = am,
+    include = c(mpg, wt, cyl),
+    overall = TRUE
+  ) |>
     add_total() |>
     add_p()
 )

@@ -215,12 +215,26 @@ crosstabs <- function(
   } else if (!is.null(row_level) || !is.null(col_level)) {
     stop("`row_level` and `col_level` are available only for a binary 2x2 table.", call. = FALSE)
   }
-  notes <- paste0(
-    if (identical(percent, "none")) "Cells are counts. " else paste0("Cells are n (", paste(percent, collapse = " and "), " %). "),
-    test_label,
-    if (is.null(fit)) "." else paste0(", p = ", format.pval(fit$p.value, digits = 3), "; "),
-    "Cramer's V = ", formatC(sqrt(unname(chi$statistic) / (total_n * min(nrow(tab) - 1L, ncol(tab) - 1L))), format = "f", digits = digits), "."
+  cell_note <- if (identical(percent, "none")) {
+    "Cells are counts."
+  } else {
+    paste0("Cells are n (", paste(percent, collapse = " and "), " %).")
+  }
+  association_note <- if (is.null(fit)) {
+    NULL
+  } else {
+    paste0(test_label, ", p = ", format.pval(fit$p.value, digits = 3), ".")
+  }
+  cramer_note <- paste0(
+    "Cramer's V = ",
+    formatC(
+      sqrt(unname(chi$statistic) /
+        (total_n * min(nrow(tab) - 1L, ncol(tab) - 1L))),
+      format = "f", digits = digits
+    ),
+    "."
   )
+  notes <- paste(c(cell_note, association_note, cramer_note), collapse = " ")
   if (is_2x2 && !is.null(epi$table)) {
     effect_column <- grep("^Effect", names(epi$table), value = TRUE)
     exposed_column <- grep("^Exposed", names(epi$table), value = TRUE)
@@ -347,11 +361,14 @@ crosstabs <- function(
 
 #' Save a gtstats table or plot
 #'
-#' Save a `gtstats` result, rendered `gt_tbl`, or `ggplot2` plot. The object
-#' determines the export route automatically. The file type is inferred from
-#' `filename`.
+#' Save a `gtstats` result, rendered `flextable`, rendered `gt_tbl`, or
+#' `ggplot2` plot. A named list of gtstats results, flextables, and plots can be
+#' combined into one Word document. The object determines the export route
+#' automatically. The file type is inferred from `filename`.
 #'
-#' @param x A `gtstats` result, rendered `gt_tbl`, or `ggplot2` plot.
+#' @param x A `gtstats` result, rendered `flextable`, rendered `gt_tbl`,
+#'   `ggplot2` plot, or a named list of tables and plots for a combined Word
+#'   report.
 #' @param filename Output filename including a supported extension.
 #' @param path Optional output directory. When omitted, `filename` is used as
 #'   supplied, so a simple filename saves in the current working directory.
@@ -366,6 +383,8 @@ crosstabs <- function(
 #' @param dpi Output resolution for plots.
 #' @param bg Plot background colour.
 #' @param quiet Logical; suppress the saved-path message.
+#' @param page_break Logical; when saving a list to Word, start each output
+#'   after the first on a new page.
 #' @param ... Additional arguments passed to the relevant underlying save method.
 #' @return The normalized saved path, invisibly.
 #' @examples
@@ -375,6 +394,11 @@ crosstabs <- function(
 #'
 #' plot <- plot_compare(mtcars, variable = mpg, group = am)
 #' save_output(plot, "comparison.png")
+#'
+#' save_output(
+#'   list("Table 1" = table, "Comparison plot" = plot),
+#'   "statistical-report.docx"
+#' )
 #' }
 #' @export
 save_output <- function(
@@ -395,6 +419,7 @@ save_output <- function(
     units = "in",
     dpi = 300,
     bg = "white",
+    page_break = TRUE,
     quiet = FALSE,
     ...
 ) {
@@ -403,7 +428,24 @@ save_output <- function(
     path <- dirname(filename)
     filename <- basename(filename)
   }
-  saved <- if (inherits(x, "ggplot")) {
+  if (!is.logical(page_break) || length(page_break) != 1L || is.na(page_break)) {
+    stop("`page_break` must be TRUE or FALSE.", call. = FALSE)
+  }
+  saved <- if (is.list(x) && !is.data.frame(x) && !inherits(x, "gtstats") &&
+      !inherits(x, c("flextable", "gt_tbl", "ggplot"))) {
+    .save_word_report(
+      x = x,
+      filename = filename,
+      path = path,
+      title = title,
+      subtitle = subtitle,
+      show_footnotes = show_footnotes,
+      width = width,
+      height = height,
+      page_break = page_break,
+      quiet = quiet
+    )
+  } else if (inherits(x, "ggplot")) {
     .save_plot(
       plot = x, filename = filename, path = path, width = width,
       height = height, units = units, dpi = dpi, bg = bg, quiet = quiet, ...
@@ -425,7 +467,10 @@ save_output <- function(
 #' Apply titles, labels, alignment, emphasis, colours, and a predefined visual
 #' theme to a table produced by `gtstats`.
 #'
-#' @param x A supported `gtstats` result or rendered `gt_tbl`.
+#' @param x A supported `gtstats` result, rendered `flextable`, or rendered
+#'   `gt_tbl`.
+#' @param engine Rendering engine used when `x` is an unrendered result.
+#'   `"flextable"` is the default; use `"gt"` for HTML-oriented workflows.
 #' @param theme Visual theme: `"default"`, `"journal"`, `"classic"`,
 #'   `"minimal"`, or `"compact"`.
 #' @param title,subtitle Optional title and subtitle.
@@ -443,13 +488,28 @@ save_output <- function(
 #' @param bold_labels Logical; bold variable labels when rendering a raw result.
 #' @param show_footnotes Logical; retain explanatory footnotes when rendering a
 #'   raw result.
-#' @return A styled `gt_tbl`.
+#' @param spanning_header Optional spanning heading. Supply one character value
+#'   to span all result columns, or a named list/vector mapping displayed
+#'   headings to completed column names.
+#' @param footnotes Optional additional footer notes.
+#' @param borders Border style: `"horizontal"`, `"all"`, or `"minimal"`.
+#' @param density Cell density: `"standard"`, `"compact"`, or `"spacious"`.
+#' @param column_widths Optional named numeric vector of column widths in inches
+#'   for flextable output.
+#' @param pvalue_style P-value style for summary-table results: `"threshold"`,
+#'   `"fixed"`, or `"scientific"`.
+#' @param pvalue_digits Number of displayed p-value digits.
+#' @param pvalue_threshold Threshold displayed using a less-than sign.
+#' @param pvalue_prefix Logical; prepend `p =` to ordinary p-values.
+#' @return A styled `flextable` by default, or a `gt_tbl` when `engine = "gt"`
+#'   or `x` is already a gt table.
 #' @examples
 #' result <- summary_table(mtcars, include = c(mpg, wt))
 #' customise_table(result, title = "Vehicle characteristics")
 #' @export
 customise_table <- function(
     x,
+    engine = c("flextable", "gt"),
     theme = c("default", "journal", "classic", "minimal", "compact"),
     title = NULL,
     subtitle = NULL,
@@ -468,45 +528,185 @@ customise_table <- function(
     accent_color = NULL,
     stripe_color = NULL,
     bold_labels = TRUE,
-    show_footnotes = TRUE
+    show_footnotes = TRUE,
+    spanning_header = NULL,
+    footnotes = NULL,
+    borders = c("horizontal", "all", "minimal"),
+    density = c("standard", "compact", "spacious"),
+    column_widths = NULL,
+    pvalue_style = c("threshold", "fixed", "scientific"),
+    pvalue_digits = 3,
+    pvalue_threshold = 0.001,
+    pvalue_prefix = FALSE
 ) {
+  engine <- match.arg(engine)
   theme <- match.arg(theme)
+  borders <- match.arg(borders)
+  density <- match.arg(density)
+  pvalue_style <- match.arg(pvalue_style)
   .validate_flag(bold_labels, "bold_labels")
   .validate_flag(show_footnotes, "show_footnotes")
+  .validate_flag(pvalue_prefix, "pvalue_prefix")
+  if (!is.null(font) && (!is.character(font) || length(font) != 1L ||
+      is.na(font) || !nzchar(font))) {
+    stop("`font` must be NULL or a single non-empty font name.", call. = FALSE)
+  }
+  if (!is.null(width) && (!is.numeric(width) || length(width) != 1L ||
+      is.na(width) || width <= 0 || width > 100)) {
+    stop("`width` must be a percentage between 0 and 100.", call. = FALSE)
+  }
   if (!is.null(row_striping)) {
     .validate_flag(row_striping, "row_striping")
   }
-  if (!inherits(x, "gt_tbl")) {
+  if (!inherits(x, c("gt_tbl", "flextable"))) {
     if (!inherits(x, "gtstats")) {
       stop(
-        "`x` must be a gtstats result or a rendered gt table.",
+        "`x` must be a gtstats result, flextable, or rendered gt table.",
         call. = FALSE
       )
     }
-    x <- tbl_stats(
+    x <- .style_pvalues_in_result(
       x,
-      bold_labels = bold_labels,
-      show_footnotes = show_footnotes
+      style = pvalue_style,
+      digits = pvalue_digits,
+      threshold = pvalue_threshold,
+      prefix = pvalue_prefix
     )
+    x <- if (identical(engine, "flextable")) {
+      to_flextable(x, show_footnotes = show_footnotes)
+    } else {
+      to_gt(x, bold_labels = bold_labels, show_footnotes = show_footnotes)
+    }
   }
-  .style_table(
-    x = x,
-    theme = theme,
-    title = title,
-    subtitle = subtitle,
-    source_note = source_note,
-    col_labels = col_labels,
-    row_labels = row_labels,
-    level_labels = level_labels,
-    align = align,
-    hide_cols = hide_cols,
-    bold_cols = bold_cols,
-    italic_cols = italic_cols,
-    font_size = font_size,
-    font = font,
-    width = width,
-    row_striping = row_striping,
-    accent_color = accent_color,
+  if (inherits(x, "flextable")) {
+    return(.style_flextable(
+      x = x, theme = theme, title = title, subtitle = subtitle,
+      source_note = source_note, col_labels = col_labels,
+      row_labels = row_labels, level_labels = level_labels, align = align,
+      hide_cols = hide_cols, bold_cols = bold_cols, italic_cols = italic_cols,
+      font_size = font_size, font = font, row_striping = row_striping,
+      accent_color = accent_color, stripe_color = stripe_color,
+      spanning_header = spanning_header, footnotes = footnotes,
+      borders = borders, density = density, column_widths = column_widths
+    ))
+  }
+  gt_result <- .style_table(
+    x = x, theme = theme, title = title, subtitle = subtitle,
+    source_note = source_note, col_labels = col_labels,
+    row_labels = row_labels, level_labels = level_labels, align = align,
+    hide_cols = hide_cols, bold_cols = bold_cols, italic_cols = italic_cols,
+    font_size = font_size, font = font, width = width,
+    row_striping = row_striping, accent_color = accent_color,
     stripe_color = stripe_color
   )
+  if (!is.null(spanning_header)) {
+    keys <- names(gt_result[["_data"]])
+    label_cols <- intersect(c("Variable", "Level", "Measure", "Group", "Event"), keys)
+    spans <- .normalise_spanning_header(spanning_header, setdiff(keys, label_cols))
+    for (label in names(spans)) {
+      gt_result <- gt::tab_spanner(
+        gt_result,
+        label = label,
+        columns = spans[[label]]
+      )
+    }
+  }
+  if (!is.null(footnotes)) {
+    for (note in footnotes) gt_result <- gt::tab_source_note(gt_result, source_note = note)
+  }
+  density_padding <- switch(density, compact = 1, spacious = 6, 3)
+  gt_result <- gt::tab_options(
+    gt_result,
+    data_row.padding = gt::px(density_padding)
+  )
+  if (identical(borders, "minimal")) {
+    gt_result <- gt::tab_options(
+      gt_result,
+      table_body.hlines.style = "none",
+      column_labels.border.bottom.style = "none"
+    )
+  } else if (identical(borders, "all")) {
+    gt_result <- gt::tab_style(
+      gt_result,
+      style = gt::cell_borders(
+        sides = "all",
+        color = accent_color %||% "#A6A6A6",
+        weight = gt::px(1)
+      ),
+      locations = list(gt::cells_body(), gt::cells_column_labels())
+    )
+  }
+  gt_result
+}
+
+.normalise_spanning_header <- function(x, value_cols) {
+  if (is.null(x) || length(value_cols) == 0L) return(list())
+  if (is.character(x) && length(x) == 1L && is.null(names(x))) {
+    return(stats::setNames(list(value_cols), x))
+  }
+  if (is.character(x) && !is.null(names(x)) && all(nzchar(names(x)))) {
+    x <- split(unname(x), names(x))
+  }
+  if (!is.list(x) || is.null(names(x)) || any(!nzchar(names(x)))) {
+    stop(
+      paste0(
+        "`spanning_header` must be one heading or a named list/vector ",
+        "mapping headings to completed columns."
+      ),
+      call. = FALSE
+    )
+  }
+  out <- lapply(x, function(columns) {
+    columns <- as.character(columns)
+    unknown <- setdiff(columns, value_cols)
+    if (length(unknown) > 0L) {
+      stop(
+        paste0(
+          "Unknown `spanning_header` column(s): ",
+          paste(unknown, collapse = ", "), "."
+        ),
+        call. = FALSE
+      )
+    }
+    unique(columns)
+  })
+  used <- unlist(out, use.names = FALSE)
+  if (anyDuplicated(used)) {
+    stop("A column cannot belong to more than one spanning header.", call. = FALSE)
+  }
+  out
+}
+
+.style_pvalues_in_result <- function(
+    x, style = "threshold", digits = 3, threshold = 0.001, prefix = FALSE
+) {
+  if (!is.numeric(digits) || length(digits) != 1L || is.na(digits) || digits < 1) {
+    stop("`pvalue_digits` must be a single positive number.", call. = FALSE)
+  }
+  if (!is.numeric(threshold) || length(threshold) != 1L || is.na(threshold) ||
+      threshold <= 0 || threshold >= 1) {
+    stop("`pvalue_threshold` must be between 0 and 1.", call. = FALSE)
+  }
+  .one <- function(p) {
+    if (!is.finite(p)) return("NA")
+    value <- if (identical(style, "scientific")) {
+      format(p, scientific = TRUE, digits = digits)
+    } else if (identical(style, "fixed")) {
+      sprintf(paste0("%.", digits, "f"), p)
+    } else if (p < threshold) {
+      paste0("<", format(threshold, scientific = FALSE, trim = TRUE))
+    } else {
+      sprintf(paste0("%.", digits, "f"), p)
+    }
+    if (isTRUE(prefix) && !startsWith(value, "<")) paste0("p = ", value) else value
+  }
+  if (inherits(x, "gt_desc_table") && is.data.frame(x$p_values) &&
+      "p-value" %in% names(x$table)) {
+    for (i in seq_len(nrow(x$p_values))) {
+      row <- x$p_values$row_index[[i]]
+      symbol <- x$p_values$symbol[[i]] %||% ""
+      x$table[["p-value"]][[row]] <- paste0(.one(x$p_values$p_value[[i]]), symbol)
+    }
+  }
+  x
 }

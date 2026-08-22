@@ -38,6 +38,7 @@ Imports:
     tibble,
     gt,
     flextable,
+    officer,
     stats,
     ggplot2,
     tidyselect

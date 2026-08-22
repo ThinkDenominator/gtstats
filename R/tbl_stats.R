@@ -86,7 +86,9 @@
     categorical_display <- object$categorical %||% {
       if (identical(percent, "none")) "n" else "n_percent"
     }
-    categorical_text <- if (identical(categorical_display, "n")) {
+    categorical_text <- if (identical(object$categorical_layout, "separate")) {
+      "Categorical data are n and %."
+    } else if (identical(categorical_display, "n")) {
       "Categorical data are counts."
     } else if (identical(categorical_display, "percent")) {
       "Categorical data are percentages."
@@ -107,11 +109,20 @@
       )
     }
 
-    if (length(categorical_vars) > 0L && isTRUE(object$ci)) {
+    ci_vars <- object$ci_variables %||% {
+      if (isTRUE(object$ci)) categorical_vars else character()
+    }
+    categorical_ci_vars <- intersect(categorical_vars, ci_vars)
+    continuous_ci_vars <- intersect(continuous_vars, ci_vars)
+    if (length(categorical_ci_vars) > 0L) {
       notes <- c(
         notes,
         paste0(
-          "Categorical proportions include ",
+          if (length(categorical_ci_vars) == length(categorical_vars)) {
+            "Categorical proportions include "
+          } else {
+            "Selected categorical proportions include "
+          },
           round(100 * (object$conf.level %||% 0.95)),
           "% ",
           if (identical(object$ci_method %||% "wilson", "wilson")) {
@@ -123,13 +134,37 @@
         )
       )
     }
+    if (length(continuous_ci_vars) > 0L) {
+      notes <- c(
+        notes,
+        paste0(
+          if (length(continuous_ci_vars) == length(continuous_vars)) {
+            "Continuous means include "
+          } else {
+            "Selected continuous means include "
+          },
+          round(100 * (object$conf.level %||% 0.95)),
+          "% t-based CIs."
+        )
+      )
+    }
   }
 
   if ("proportion" %in% object$components) {
-    proportion_note <- helper_notes[grepl("^Selected event:", helper_notes)]
+    proportion_note <- helper_notes[grepl("^Confidence intervals:", helper_notes)]
     if (length(proportion_note) > 0L) {
       notes <- c(notes, proportion_note)
     }
+  }
+
+  if ("ci" %in% (object$components %||% character())) {
+    skipped_note <- helper_notes[grepl("^Confidence intervals were not added", helper_notes)]
+    if (length(skipped_note) > 0L) notes <- c(notes, skipped_note)
+  }
+
+  if ("rate" %in% (object$components %||% character())) {
+    rate_notes <- helper_notes[grepl("^Rates per ", helper_notes)]
+    if (length(rate_notes) > 0L) notes <- c(notes, rate_notes)
   }
 
   paste(unique(notes[nzchar(notes)]), collapse = " ")
@@ -178,8 +213,12 @@
 #' tbl_stats(compare_groups(mtcars, variable = mpg, group = am))
 #'
 #' tbl_stats(
-#'   summary_table(mtcars, by = am, overall = TRUE) |>
-#'     add_summary(vars = c(mpg, wt, cyl)) |>
+#'   summary_table(
+#'     mtcars,
+#'     by = am,
+#'     include = c(mpg, wt, cyl),
+#'     overall = TRUE
+#'   ) |>
 #'     add_total() |>
 #'     add_p()
 #' )
@@ -211,11 +250,14 @@ tbl_stats <- function(
 
   # Apply a shared minimal house style
   .style_common <- function(gt_tbl) {
+    body_padding <- .publication_auto_padding(nrow(gt_tbl[["_data"]]))
     gt_tbl |>
       gt::tab_options(
         table.font.names = "system-ui",
         table.font.size = gt::px(13),
-        data_row.padding = gt::px(4),
+        footnotes.font.size = gt::px(10),
+        source_notes.font.size = gt::px(10),
+        data_row.padding = gt::px(body_padding),
         heading.background.color = "white",
         table.background.color = "white",
         heading.align = "left"
@@ -676,21 +718,8 @@ tbl_stats <- function(
       )
     }
 
-    tbl <- x$table
-
-    if ("Level" %in% names(tbl)) {
-      tbl$Level <- ifelse(
-        tbl$Level %in% c("", "u2014"),
-        "",
-        paste0("  ", tbl$Level)
-      )
-    }
-
-    if ("Variable" %in% names(tbl) &&
-        "Level" %in% names(tbl)) {
-      keep_var <- !duplicated(tbl$Variable)
-      tbl$Variable <- ifelse(keep_var, tbl$Variable, "")
-    }
+    characteristic_display <- .builder_characteristic_display(x$table)
+    tbl <- characteristic_display$data
 
     gt_tbl <- gt::gt(tbl)
 
@@ -725,23 +754,32 @@ tbl_stats <- function(
       subtitle = subtitle
     )
 
-    if (bold_labels && "Variable" %in% names(tbl)) {
-      non_empty_rows <- which(tbl$Variable != "")
+    if (bold_labels && "Characteristic" %in% names(tbl)) {
+      non_empty_rows <- characteristic_display$parent_rows
 
       if (length(non_empty_rows) > 0) {
         gt_tbl <- gt::tab_style(
           gt_tbl,
           style = gt::cell_text(weight = "bold"),
           locations = gt::cells_body(
-            columns = "Variable",
+            columns = "Characteristic",
             rows = non_empty_rows
           )
         )
       }
     }
 
-    if ("Level" %in% names(tbl)) {
-      gt_tbl <- gt::cols_label(gt_tbl, Level = "")
+    if ("Characteristic" %in% names(tbl)) {
+      if (length(characteristic_display$level_rows) > 0L) {
+        gt_tbl <- gt::tab_style(
+          gt_tbl,
+          style = gt::cell_text(indent = gt::px(14)),
+          locations = gt::cells_body(
+            columns = "Characteristic",
+            rows = characteristic_display$level_rows
+          )
+        )
+      }
     }
 
     header_labels <- if (identical(x$layout %||% "compact", "separate")) {
@@ -762,7 +800,7 @@ tbl_stats <- function(
 
     gt_tbl <- .style_common(gt_tbl)
 
-    text_cols <- intersect(c("Variable", "Level"), names(tbl))
+    text_cols <- intersect("Characteristic", names(tbl))
     value_cols <- setdiff(names(tbl), text_cols)
 
     if (length(text_cols) > 0) {
@@ -981,5 +1019,36 @@ tbl_stats <- function(
   stop(
     "`tbl_stats()` does not yet support this object class.",
     call. = FALSE
+  )
+}
+
+#' Convert a gtstats result to a gt table
+#'
+#' Explicitly render a supported `gtstats` result as a publication-ready
+#' [gt::gt()] table. Package print methods use [to_flextable()] by default;
+#' `to_gt()` is the opt-in route for HTML-oriented `gt` workflows.
+#'
+#' @inheritParams tbl_stats
+#' @return A `gt_tbl` object.
+#' @examples
+#' to_gt(summary_table(mtcars, include = c(mpg, wt)))
+#' @export
+to_gt <- function(
+    x,
+    title = NULL,
+    subtitle = NULL,
+    digits = NULL,
+    pvalue_style = c("default", "scientific"),
+    bold_labels = TRUE,
+    show_footnotes = TRUE
+) {
+  tbl_stats(
+    x,
+    title = title,
+    subtitle = subtitle,
+    digits = digits,
+    pvalue_style = pvalue_style,
+    bold_labels = bold_labels,
+    show_footnotes = show_footnotes
   )
 }

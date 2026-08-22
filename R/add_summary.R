@@ -34,13 +34,24 @@
 #'   `"none"` displays counts only.
 #' @param categorical Display for categorical values: `"n_percent"`,
 #'   `"n_over_N_percent"`, `"n"`, or `"percent"`.
+#' @param categorical_layout Categorical display layout. `"combined"` keeps n
+#'   and % together. `"separate"` creates distinct n and % child columns and is
+#'   available for categorical-only tables without confidence intervals.
+#' @param show_dichotomous How binary variables are displayed. `"all_levels"`
+#'   (default) shows both levels. `"single_row"` shows one event level as a
+#'   compact row using the variable label.
+#' @param value Optional named character vector or named list selecting the
+#'   event level used when `show_dichotomous = "single_row"`, for example
+#'   `c(smoke = "Yes", hypertension = "Yes")`. When omitted, the second
+#'   declared factor level (or the second sorted observed value) is used.
 #' @param ci Logical; append confidence intervals to categorical proportions.
 #' @param conf.level Confidence level for categorical proportion intervals.
 #' @param ci_method Binomial confidence-interval method: `"wilson"` (default)
 #'   or `"exact"`.
 #' @param layout Table layout. `"compact"` keeps each summary in one cell;
 #'   `"separate"` places summaries and confidence intervals in separate
-#'   columns. When omitted, the layout chosen in [summary_table()] is used.
+#'   columns once intervals are added. It does not create empty CI columns.
+#'   When omitted, the layout chosen in [summary_table()] is used.
 #' @param missing Whether explicit missing-value rows are shown: `"ifany"`,
 #'   `"always"`, or `"no"`.
 #' @param digits One number applied throughout, or a named numeric vector using
@@ -66,6 +77,9 @@ add_summary <- function(
     statistic = NULL,
     percent = c("column", "row", "overall", "none"),
     categorical = c("n_percent", "n_over_N_percent", "n", "percent"),
+    categorical_layout = c("combined", "separate"),
+    show_dichotomous = c("all_levels", "single_row"),
+    value = NULL,
     ci = FALSE,
     conf.level = 0.95,
     ci_method = c("wilson", "exact"),
@@ -77,6 +91,8 @@ add_summary <- function(
   continuous_format <- match.arg(continuous_format)
   percent <- match.arg(percent)
   categorical <- match.arg(categorical)
+  categorical_layout <- match.arg(categorical_layout)
+  show_dichotomous <- match.arg(show_dichotomous)
   ci_method <- match.arg(ci_method)
   if (is.null(layout)) layout <- x$layout %||% "compact"
   layout <- match.arg(layout, c("compact", "separate"))
@@ -94,6 +110,35 @@ add_summary <- function(
   # Resolve variables from either bare names or character input
   vars_names <- .resolve_vars_arg(substitute(vars), env = parent.frame())
   .validate_data_vars(x$data, vars_names)
+  value_map <- .resolve_dichotomous_values(
+    value,
+    data = x$data,
+    vars = vars_names,
+    show_dichotomous = show_dichotomous
+  )
+  selected_types <- vapply(
+    vars_names, function(variable) .detect_type(x$data[[variable]]), character(1)
+  )
+  if (identical(categorical_layout, "separate")) {
+    if (any(selected_types == "continuous")) {
+      stop(
+        "`categorical_layout = \"separate\"` is available for categorical-only tables. Use the combined layout for mixed tables.",
+        call. = FALSE
+      )
+    }
+    if (isTRUE(ci)) {
+      stop(
+        "Separate n and % columns are intended for tables without confidence intervals. Use `categorical_layout = \"combined\"` with `add_ci()`.",
+        call. = FALSE
+      )
+    }
+    if (!categorical %in% c("n_percent", "n_over_N_percent")) {
+      stop(
+        "Separate n and % columns require `categorical = \"n_percent\"` or `\"n_over_N_percent\"`.",
+        call. = FALSE
+      )
+    }
+  }
 
   statistic_map <- stats::setNames(
     rep(continuous_format, length(vars_names)),
@@ -127,6 +172,11 @@ add_summary <- function(
           call. = FALSE
         )
       }
+      fallback_name <- intersect(names(statistic), "continuous")
+      if (length(fallback_name) > 0L) {
+        statistic_map[] <- unname(statistic[[fallback_name[[1L]]]])
+        statistic <- statistic[names(statistic) != "continuous"]
+      }
       unknown <- setdiff(names(statistic), vars_names)
       if (length(unknown) > 0L) {
         stop(
@@ -136,7 +186,9 @@ add_summary <- function(
           call. = FALSE
         )
       }
-      statistic_map[names(statistic)] <- statistic
+      if (length(statistic) > 0L) {
+        statistic_map[names(statistic)] <- statistic
+      }
     }
   }
 
@@ -201,7 +253,20 @@ add_summary <- function(
       if (!is.null(by)) {
         args$by <- by
       }
-      do.call(.build_summary_stats, args)$table
+      piece <- do.call(.build_summary_stats, args)$table
+      # Retain the source name while assembling the table. Publication labels
+      # are not guaranteed to be unique, so they are not safe ordering keys.
+      piece$.gtstats_variable <- variable
+      if (identical(show_dichotomous, "single_row") &&
+          identical(variable_type, "binary")) {
+        selected_level <- value_map[[variable]]
+        piece <- piece[as.character(piece$Level) == selected_level, , drop = FALSE]
+        # A compact dichotomous result is one publication row, not a parent row
+        # followed by one indented child. The selected event remains available
+        # in `x$dichotomous_values` for auditing and reproducible code.
+        piece$Level <- ""
+      }
+      piece
     })
     dplyr::bind_rows(pieces)
   }
@@ -221,13 +286,15 @@ add_summary <- function(
     overall_tbl <- build_summary_table()
 
     if ("Summary" %in% names(overall_tbl)) {
-      overall_tbl <- overall_tbl[, c("Variable", "Level", "Summary")]
-      names(overall_tbl)[3] <- "Overall"
+      overall_tbl <- overall_tbl[, c(
+        ".gtstats_variable", "Variable", "Level", "Summary"
+      )]
+      names(overall_tbl)[4] <- "Overall"
 
       tbl <- merge(
         overall_tbl,
         tbl,
-        by = c("Variable", "Level"),
+        by = c(".gtstats_variable", "Variable", "Level"),
         all = TRUE,
         sort = FALSE
       )
@@ -235,12 +302,12 @@ add_summary <- function(
       # Keep a consistent display order using the requested overall position.
       group_columns <- setdiff(
         names(tbl),
-        c("Variable", "Level", "Overall")
+        c(".gtstats_variable", "Variable", "Level", "Overall")
       )
       preferred_order <- if (identical(x$overall_position, "last")) {
-        c("Variable", "Level", group_columns, "Overall")
+        c(".gtstats_variable", "Variable", "Level", group_columns, "Overall")
       } else {
-        c("Variable", "Level", "Overall", group_columns)
+        c(".gtstats_variable", "Variable", "Level", "Overall", group_columns)
       }
 
       tbl <- tbl[, preferred_order[preferred_order %in% names(tbl)],
@@ -270,6 +337,7 @@ add_summary <- function(
       }
 
       row <- tibble::tibble(
+        .gtstats_variable = variable,
         Variable = .get_var_label(x$data, variable),
         Level = "Missing"
       )
@@ -296,6 +364,13 @@ add_summary <- function(
       tbl <- dplyr::bind_rows(tbl, missing_rows)
     }
   }
+
+  # Keep every missing row immediately after the summaries for its variable.
+  # This also prevents visually duplicated, unlabelled Missing rows at the end
+  # of publication tables.
+  source_order <- match(tbl$.gtstats_variable, vars_names)
+  tbl <- tbl[order(source_order, seq_len(nrow(tbl))), , drop = FALSE]
+  tbl$.gtstats_variable <- NULL
 
   # Add summary rows to an empty builder or merge into an existing table
   if (is.null(x$table)) {
@@ -324,10 +399,6 @@ add_summary <- function(
   }
 
   x$layout <- layout
-  if (identical(layout, "separate")) {
-    x <- .builder_use_separate_layout(x, conf.level = conf.level)
-  }
-
   # Record component type
   x$components <- unique(c(x$components, "summary"))
   x$summary_statistics <- c(
@@ -340,6 +411,12 @@ add_summary <- function(
   )
   x$percent <- percent
   x$categorical <- categorical
+  x$categorical_layout <- categorical_layout
+  x$show_dichotomous <- show_dichotomous
+  x$dichotomous_values <- c(
+    x$dichotomous_values %||% character(),
+    value_map
+  )
   x$ci <- ci
   x$conf.level <- conf.level
   x$ci_method <- ci_method
@@ -454,6 +531,12 @@ add_summary <- function(
       character()
     }
   ))
+
+  if (identical(categorical_layout, "separate")) {
+    x <- .builder_use_separate_categorical_layout(x)
+  } else if (identical(layout, "separate") && isTRUE(ci)) {
+    x <- .builder_use_separate_layout(x, conf.level = conf.level)
+  }
 
   x
 }

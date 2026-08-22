@@ -11,6 +11,9 @@ add_summary(
   statistic = NULL,
   percent = c("column", "row", "overall", "none"),
   categorical = c("n_percent", "n_over_N_percent", "n", "percent"),
+  categorical_layout = c("combined", "separate"),
+  show_dichotomous = c("all_levels", "single_row"),
+  value = NULL,
   ci = FALSE,
   conf.level = 0.95,
   ci_method = c("wilson", "exact"),
@@ -42,6 +45,19 @@ across groups, \code{"overall"} uses the overall non-missing denominator, and
 \item{categorical}{Display for categorical values: \code{"n_percent"},
 \code{"n_over_N_percent"}, \code{"n"}, or \code{"percent"}.}
 
+\item{categorical_layout}{Categorical display layout. \code{"combined"} keeps n
+and \% together. \code{"separate"} creates distinct n and \% child columns and is
+available for categorical-only tables without confidence intervals.}
+
+\item{show_dichotomous}{How binary variables are displayed. \code{"all_levels"}
+(default) shows both levels. \code{"single_row"} shows one event level as a
+compact row using the variable label.}
+
+\item{value}{Optional named character vector or named list selecting the
+event level used when \code{show_dichotomous = "single_row"}, for example
+\code{c(smoke = "Yes", hypertension = "Yes")}. When omitted, the second
+declared factor level (or the second sorted observed value) is used.}
+
 \item{ci}{Logical; append confidence intervals to categorical proportions.}
 
 \item{conf.level}{Confidence level for categorical proportion intervals.}
@@ -51,7 +67,8 @@ or \code{"exact"}.}
 
 \item{layout}{Table layout. \code{"compact"} keeps each summary in one cell;
 \code{"separate"} places summaries and confidence intervals in separate
-columns. When omitted, the layout chosen in \code{\link[=summary_table]{summary_table()}} is used.}
+columns once intervals are added. It does not create empty CI columns.
+When omitted, the layout chosen in \code{\link[=summary_table]{summary_table()}} is used.}
 
 \item{missing}{Whether explicit missing-value rows are shown: \code{"ifany"},
 \code{"always"}, or \code{"no"}.}

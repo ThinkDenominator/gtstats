@@ -16,7 +16,7 @@
 #'
 #' @export
 print.gt_describe <- function(x, ...) {
-  print(tbl_stats(x, ...))
+  print(to_flextable(x, ...))
   invisible(x)
 }
 
@@ -40,7 +40,7 @@ print.gt_describe <- function(x, ...) {
 #'
 #' @export
 print.gt_distribution <- function(x, ...) {
-  print(tbl_stats(x, ...))
+  print(to_flextable(x, ...))
   invisible(x)
 }
 
@@ -62,7 +62,7 @@ print.gt_distribution <- function(x, ...) {
 #'
 #' @export
 print.gt_variance <- function(x, ...) {
-  print(tbl_stats(x, ...))
+  print(to_flextable(x, ...))
   invisible(x)
 }
 
@@ -84,7 +84,7 @@ print.gt_variance <- function(x, ...) {
 #'
 #' @export
 print.gt_compare <- function(x, ...) {
-  print(tbl_stats(x, ...))
+  print(to_flextable(x, ...))
   invisible(x)
 }
 
@@ -106,7 +106,7 @@ print.gt_compare <- function(x, ...) {
 #'
 #' @export
 print.gt_correlation <- function(x, ...) {
-  print(tbl_stats(x, ...))
+  print(to_flextable(x, ...))
   invisible(x)
 }
 
@@ -125,7 +125,7 @@ print.gt_correlation <- function(x, ...) {
 #'
 #' @export
 print.gt_effect <- function(x, ...) {
-  print(tbl_stats(x, ...))
+  print(to_flextable(x, ...))
   invisible(x)
 }
 
@@ -151,16 +151,13 @@ print.gt_effect <- function(x, ...) {
 #' @export
 print.gt_desc_table <- function(x, ...) {
   if (is.null(x$table)) {
-    cat("Empty summary table. No rows have been added yet.\n")
-    cat(
-      "Add variables with add_summary(), or add a total, proportion, ",
-      "rate, or custom row.\n",
-      sep = ""
-    )
+    cat("No variables have been selected.\n")
+    cat("Add variables using `include = c(age, sex, bmi)`, or use ")
+    cat("`include = everything()` to summarise all suitable variables.\n")
   } else if (identical(x$format %||% "table", "tibble")) {
     print(x$table)
   } else {
-    print(tbl_stats(x, ...))
+    print(to_flextable(x, ...))
   }
 
   invisible(x)
@@ -184,7 +181,7 @@ print.gt_desc_table <- function(x, ...) {
 #'
 #' @export
 print.gt_prop <- function(x, ...) {
-  print(tbl_stats(x, ...))
+  print(to_flextable(x, ...))
   invisible(x)
 }
 
@@ -212,7 +209,7 @@ print.gt_prop <- function(x, ...) {
 #'
 #' @export
 print.gt_rate <- function(x, ...) {
-  print(tbl_stats(x, ...))
+  print(to_flextable(x, ...))
   invisible(x)
 }
 
@@ -234,6 +231,6 @@ print.gt_rate <- function(x, ...) {
 #'
 #' @export
 print.gt_twobytwo <- function(x, ...) {
-  print(tbl_stats(x, ...))
+  print(to_flextable(x, ...))
   invisible(x)
 }

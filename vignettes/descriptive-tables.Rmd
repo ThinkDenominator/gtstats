@@ -1,8 +1,8 @@
 ---
-title: "Building Descriptive Tables with gtstats"
+title: "Summary Tables and Customisation"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Building Descriptive Tables with gtstats}
+  %\VignetteIndexEntry{Summary Tables and Customisation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -11,26 +11,28 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment  = "#>",
-  eval     = FALSE
+  eval     = TRUE
 )
+
 ```
 
 ## Introduction
 
 The descriptive table builder is the centrepiece of **gtstats**. It lets you assemble a publication-ready "Table 1" — the standard baseline characteristics table used in clinical and epidemiological papers — through a simple, pipe-based workflow.
 
-The builder has five components:
+Think of the table as layers. Start with the descriptive foundation, then add
+only the layers required by the report:
 
 | Step | Function | What it does |
 |---|---|---|
-| 1 | `summary_table()` | Initialises the table, sets grouping |
-| 2 | `add_summary()` | Adds mean (SD) and median (IQR) rows for continuous variables |
-| 3 | `add_proportion()` | Adds n (%) rows for binary/categorical variables |
-| 4 | `add_rate()` | Adds event rate rows |
-| 5 | `add_total()` | Appends a Total (N) row |
-| 6 | `add_p()` | Appends a p-value column |
-| 7 | `add_row()` | Appends a free-text row |
-| 8 | `tbl_stats()` | Renders the assembled table as a `gt` object |
+| 1 | `summary_table()` | Builds summaries, grouping and the Overall column |
+| 2 | `add_ci()` | Adds CIs globally or to selected variables |
+| 3 | `add_p()` | Adds a p-value column when comparisons are appropriate |
+| 4 | `add_proportion()` | Highlights one selected event as a new row |
+| 5 | `add_rate()` | Adds an event-rate row |
+| 6 | `add_total()` | Adds a participant-count row |
+| 7 | `add_row()` | Adds a free-text row |
+| 8 | `customise_table()` | Finishes appearance and labels |
 
 ```{r load}
 library(gtstats)
@@ -40,12 +42,11 @@ library(gtstats)
 
 ## A minimal table
 
-Start with `summary_table()`, then pipe in whichever row-builders you need.
+For an ordinary Table 1, select all variable types together. There is no need
+to add continuous and categorical variables separately.
 
 ```{r minimal}
-summary_table(mtcars, by = am) |>
-  add_summary(vars = c(mpg, wt, cyl)) |>
-  tbl_stats()
+summary_table(mtcars, by = am, include = c(mpg, wt, cyl))
 ```
 
 `by = am` groups the table by the `am` variable (transmission type). Each level becomes a column.
@@ -57,9 +58,7 @@ summary_table(mtcars, by = am) |>
 Set `overall = TRUE` to include an additional column showing statistics for the full sample.
 
 ```{r overall}
-summary_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(vars = c(mpg, wt, cyl)) |>
-  tbl_stats()
+summary_table(mtcars, by = am, include = c(mpg, wt, cyl), overall = TRUE)
 ```
 
 ---
@@ -75,11 +74,144 @@ workflows.
 | Overall column | `overall` | `TRUE`, `"first"`, or `"last"` |
 | Continuous summary | `statistic` | `"recommended"`, `"mean_sd"`, `"mean_ci"`, `"median_iqr"`, or `"both"` |
 | Categorical display | `categorical` | `"n_percent"`, `"n_over_N_percent"`, `"n"`, or `"percent"` |
+| Categorical columns | `categorical_layout` | `"combined"` (default) or `"separate"` for categorical-only tables without CIs |
+| Binary rows | `show_dichotomous` | `"all_levels"` (default) or `"single_row"` |
+| Binary event | `value` | Named choices such as `c(smoke = "Yes")`; otherwise the second level is used |
 | Percentage denominator | `percent` | `"column"`, `"row"`, `"overall"`, or `"none"` |
 | Precision | `digits` | `c(continuous = 1, percent = 0, ci = 1)` |
 | Missing-value rows | `missing` | `"ifany"`, `"always"`, or `"no"` |
-| Categorical confidence intervals | `ci`, `conf.level` | `ci = TRUE, conf.level = 0.95` |
 | CI layout | `layout` | `"compact"` (default) or `"separate"` |
+
+### How global choices and variable exceptions work
+
+The defaults are deliberately useful, but they never lock the user in. A
+single value applies to every eligible variable. A named vector changes only
+the named variables; all unlisted variables continue to use the recommended
+summary.
+
+```{r global-and-exceptions}
+# Mean (SD) for every continuous variable
+summary_table(
+  birthwt,
+  include = c(age, lwt, bwt, smoke),
+  statistic = "mean_sd"
+)
+
+# Recommended summaries for all variables except maternal weight
+summary_table(
+  birthwt,
+  include = c(age, lwt, bwt, smoke),
+  statistic = c(lwt = "median_iqr")
+)
+```
+
+The same principle applies to `label`, `value`, and the named precision
+settings. This makes the short call beginner-friendly while preserving precise
+control for a manuscript.
+
+### Which layout option controls which columns?
+
+Two similarly named options solve different reporting problems:
+
+| Need | Use | Result |
+|---|---|---|
+| Keep ordinary categorical values as `n (%)` | `categorical_layout = "combined"` | One summary column per cohort |
+| Put `n` and `%` in different columns | `categorical_layout = "separate"` | Separate count and percentage child columns; intended for categorical-only tables without CIs |
+| Keep an estimate and its CI together | `layout = "compact"` plus `add_ci()` | One concise cell per cohort |
+| Put estimates and CIs in different columns | `layout = "separate"` plus `add_ci()` | A cohort spanner with an estimate column and an explicit confidence-interval column |
+
+`layout = "separate"` does not create empty confidence-interval columns. The
+CI columns appear only after `add_ci()`, `add_proportion(ci = TRUE)`, or an
+equivalent CI layer is present.
+
+### Compact binary variables
+
+`show_dichotomous = "single_row"` is a display choice for common Yes/No and
+Present/Absent variables. It does not turn a two-level association test into a
+one-level test. By default, gtstats displays the second declared factor level.
+Use `value` whenever the event should be explicit.
+
+```{r compact-binary-explicit}
+summary_table(
+  birthwt,
+  by = low,
+  include = c(smoke, ht, race),
+  show_dichotomous = "single_row",
+  value = c(smoke = "Yes", ht = "Yes")
+) |>
+  add_p()
+```
+
+Here `smoke` and `ht` occupy one row each, `race` retains all levels, and
+`add_p()` still tests each complete source variable.
+
+### Precision and labels
+
+Use one number when all displayed values need the same precision, or name the
+parts that differ:
+
+```{r precision-and-labels}
+summary_table(
+  birthwt,
+  by = low,
+  include = c(age, smoke),
+  digits = c(continuous = 1, percent = 0, ci = 1),
+  label = c(
+    age = "Maternal age, years",
+    smoke = "Smoking during pregnancy"
+  )
+)
+```
+
+Variable labels affect presentation only. They do not rename the columns in
+the source data or alter automatic test selection.
+
+Confidence intervals are deliberately a visible second layer:
+
+```{r ci-layer}
+summary_table(
+  mtcars,
+  by = am,
+  include = c(mpg, cyl, vs),
+  layout = "separate"
+) |>
+  add_ci()
+
+summary_table(
+  mtcars,
+  by = am,
+  include = c(mpg, cyl, vs),
+  layout = "separate"
+) |>
+  add_ci(vars = c(mpg, vs), conf.level = 0.90)
+```
+
+For a categorical-only table without confidence intervals, counts and
+percentages can instead occupy distinct child columns:
+
+```{r separate-n-percent-layout}
+summary_table(
+  mtcars,
+  by = am,
+  include = c(cyl, vs),
+  categorical_layout = "separate"
+)
+```
+
+For compact clinical Table 1 layouts, binary variables can occupy one row while
+ordinary categorical variables continue to show every level:
+
+```{r compact-binary-layout}
+summary_table(
+  birthwt,
+  by = low,
+  include = c(smoke, ht, race),
+  show_dichotomous = "single_row",
+  value = c(smoke = "Yes", ht = "Yes")
+)
+```
+
+This changes presentation only. `add_p()` still tests the full binary variable.
 
 For different continuous summaries by variable, provide a named vector:
 
@@ -100,17 +232,13 @@ summary_table(
 Categorical percentages should always identify their denominator:
 
 ```{r percentage-denominators}
-summary_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(vars = c(cyl, vs), percent = "column")
+summary_table(mtcars, by = am, overall = TRUE, include = c(cyl, vs), percent = "column")
 
-summary_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(vars = c(cyl, vs), percent = "row")
+summary_table(mtcars, by = am, overall = TRUE, include = c(cyl, vs), percent = "row")
 
-summary_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(vars = c(cyl, vs), percent = "overall")
+summary_table(mtcars, by = am, overall = TRUE, include = c(cyl, vs), percent = "overall")
 
-summary_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(vars = c(cyl, vs), percent = "none")
+summary_table(mtcars, by = am, overall = TRUE, include = c(cyl, vs), categorical = "n")
 ```
 
 `"column"` describes levels within each group, `"row"` distributes each level
@@ -121,11 +249,10 @@ shown in the table footnote.
 Missing-value rows are equally explicit:
 
 ```{r missing-rows}
-summary_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(
-    vars = c(mpg, wt, vs),
-    missing = "ifany"
-  )
+summary_table(
+  mtcars, by = am, overall = TRUE,
+  include = c(mpg, wt, vs), missing = "ifany"
+)
 ```
 
 Use `"always"` to show zero-missing rows or `"no"` to suppress them.
@@ -149,32 +276,37 @@ summary_table(
 
 ### Mean with a confidence interval
 
-Use `statistic = "mean_ci"` when the goal is descriptive precision rather than
-a p-value. The interval is a t confidence interval for the observed mean and
-uses `conf.level` (95% by default).
+Use `add_ci()` when the goal is descriptive precision rather than a p-value.
+For a mean-based continuous summary it adds a t confidence interval while
+retaining the displayed mean (SD).
 
 ```{r mean-ci}
 summary_table(
   mtcars,
   include = c(mpg, wt),
-  statistic = "mean_ci",
-  conf.level = 0.95
-)
+  statistic = "mean_sd",
+  layout = "separate"
+) |>
+  add_ci()
 ```
 
 ---
 
 ## Adding proportion rows
 
-`add_proportion()` adds a highlighted percentage row for a binary or
+`add_proportion()` is a specialist layer that adds one highlighted event row for a binary or
 categorical variable. Optionally add Wilson confidence intervals (the default)
 or request exact binomial confidence intervals with
 `ci = TRUE`.
 
 When confidence intervals make a table too dense, use
 `layout = "separate"`. Each displayed cohort then becomes a spanning header
-with a **Summary** (or **n (%)**) column and one **95% CI** column. The compact
-layout remains the default for ordinary Table 1 output.
+with a dynamically labelled summary column and an explicit **95% CI** column
+(or the selected confidence level). The
+confidence level and method are stated once in the footnote. Separate child
+columns appear only after a CI layer is added, so `layout = "separate"` alone
+does not create empty columns. The compact layout remains the default for
+ordinary Table 1 output.
 
 ```{r separate-ci-layout}
 summary_table(
@@ -182,14 +314,13 @@ summary_table(
   by = smoke,
   include = c(age, low),
   overall = "first",
-  ci = TRUE,
   layout = "separate"
-)
+) |>
+  add_ci()
 ```
 
 ```{r proportion}
-summary_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(vars = c(mpg, wt, cyl)) |>
+summary_table(mtcars, by = am, include = c(mpg, wt, cyl), overall = TRUE) |>
   add_proportion(var = vs) |>
   tbl_stats()
 ```
@@ -197,8 +328,7 @@ summary_table(mtcars, by = am, overall = TRUE) |>
 To display confidence intervals and pin the row to a specific level:
 
 ```{r proportion-ci}
-summary_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(vars = c(mpg, wt, cyl)) |>
+summary_table(mtcars, by = am, include = c(mpg, wt, cyl), overall = TRUE) |>
   add_proportion(var = vs, level = "1", ci = TRUE) |>
   tbl_stats()
 ```
@@ -210,8 +340,7 @@ summary_table(mtcars, by = am, overall = TRUE) |>
 `add_total()` appends a row at the bottom showing the total N per group.
 
 ```{r total}
-summary_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(vars = c(mpg, wt, cyl)) |>
+summary_table(mtcars, by = am, include = c(mpg, wt, cyl), overall = TRUE) |>
   add_proportion(var = vs) |>
   add_total() |>
   tbl_stats()
@@ -260,8 +389,7 @@ outcomes use their design-specific routes: paired t/Wilcoxon signed-rank,
 repeated-measures ANOVA/Friedman, McNemar, or Cochran's Q.
 
 ```{r add-p}
-summary_table(mtcars, by = am) |>
-  add_summary(vars = c(mpg, wt, cyl)) |>
+summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>
   add_proportion(var = vs) |>
   add_p() |>
   tbl_stats()
@@ -270,8 +398,7 @@ summary_table(mtcars, by = am) |>
 Raw and multiplicity-adjusted values are retained separately:
 
 ```{r adjusted-p}
-adjusted <- summary_table(mtcars, by = am) |>
-  add_summary(vars = c(mpg, wt, cyl, vs)) |>
+adjusted <- summary_table(mtcars, by = am, include = c(mpg, wt, cyl, vs)) |>
   add_p(p_adjust = "BH")
 
 adjusted$p_values
@@ -293,8 +420,7 @@ observations contributing to every variable and group.
 Pass a named character vector to `method` to override the automatic selection for specific variables:
 
 ```{r add-p-manual}
-summary_table(mtcars, by = am) |>
-  add_summary(vars = c(mpg, wt, cyl)) |>
+summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>
   add_p(method = c(mpg = "welch_t", wt = "wilcox", cyl = "chisq")) |>
   tbl_stats()
 ```
@@ -309,14 +435,14 @@ For before/after or matched data, use `paired = TRUE`:
 
 ```{r paired}
 dat <- data.frame(
+  id     = rep(1:4, 2),
   period = c("before", "before", "before", "before",
              "after",  "after",  "after",  "after"),
   score  = c(10, 12, 9, 11, 13, 16, 11, 15)
 )
 
-summary_table(dat, by = period) |>
-  add_summary(vars = score) |>
-  add_p(paired = TRUE, method = "wilcox") |>
+summary_table(dat, by = period, include = score) |>
+  add_p(paired = TRUE, id = id, method = "wilcox") |>
   tbl_stats()
 ```
 
@@ -327,7 +453,7 @@ summary_table(dat, by = period) |>
 `add_rate()` appends an event rate row calculated per a chosen multiplier, with exact Poisson confidence intervals. This is useful when your dataset contains event counts and person-time denominators.
 
 ```{r rate}
-summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
+summary_table(mtcars, by = am, overall = TRUE) |>
   add_rate(
     event      = carb,
     time       = cyl,
@@ -344,8 +470,7 @@ summary_table(mtcars, by = am, overall = TRUE, mode = "rate") |>
 `add_row()` inserts a free-text row — useful for study period notes, data source annotations, or any label that does not come from a variable.
 
 ```{r custom}
-summary_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(vars = c(mpg, wt, cyl)) |>
+summary_table(mtcars, by = am, include = c(mpg, wt, cyl), overall = TRUE) |>
   add_row(
     label   = "Study period",
     overall = "2020–2024",
@@ -361,8 +486,7 @@ summary_table(mtcars, by = am, overall = TRUE) |>
 Putting it all together — a complete, publication-ready descriptive table:
 
 ```{r full-workflow}
-summary_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(vars = c(mpg, wt, cyl)) |>
+summary_table(mtcars, by = am, include = c(mpg, wt, cyl), overall = TRUE) |>
   add_proportion(var = vs, level = "1", ci = TRUE) |>
   add_total() |>
   add_p() |>
@@ -373,15 +497,14 @@ summary_table(mtcars, by = am, overall = TRUE) |>
 
 ## Styling the output
 
-`customise_table()` applies a visual theme and relabels columns, rows, and factor levels. It operates on the `gt` object returned by `tbl_stats()`.
+`customise_table()` applies a visual theme and relabels columns, rows, and
+factor levels. Pass the result directly; it returns a flextable by default.
 
 ```{r style}
-summary_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(vars = c(mpg, wt, cyl)) |>
+summary_table(mtcars, by = am, include = c(mpg, wt, cyl), overall = TRUE) |>
   add_proportion(var = vs) |>
   add_total() |>
   add_p() |>
-  tbl_stats() |>
   customise_table(
     theme      = "journal",
     title      = "Table 1. Baseline characteristics by transmission type",
@@ -402,12 +525,99 @@ summary_table(mtcars, by = am, overall = TRUE) |>
 
 Available themes: `"default"`, `"journal"`, `"classic"`, `"minimal"`, `"compact"`.
 
+### Complete customisation guide
+
+Customisation is deliberately separated from analysis. It changes how the
+completed table looks, never its estimates, denominators, confidence intervals,
+or tests.
+
+| Task | Argument | Default and useful choices |
+|---|---|---|
+| Choose the renderer | `engine` | `"flextable"` (default, Word/PowerPoint friendly) or `"gt"` (HTML focused) |
+| Apply a visual preset | `theme` | `"default"`, `"journal"`, `"classic"`, `"minimal"`, `"compact"` |
+| Add headings | `title`, `subtitle` | One character value or `NULL` |
+| Add explanatory text | `source_note`, `footnotes` | One source note and/or a character vector of extra footnotes |
+| Rename columns | `col_labels` | Named vector: current column name = new label |
+| Rename variable rows | `row_labels` | Named vector: current row label = new label |
+| Rename category levels | `level_labels` | Named vector: current level = new level |
+| Group columns visually | `spanning_header` | One heading for result columns, or a named list mapping headings to columns |
+| Align columns | `align` | Named list containing `left`, `center`, and/or `right` column names |
+| Remove columns visually | `hide_cols` | Character vector of completed column names |
+| Emphasise columns | `bold_cols`, `italic_cols` | Character vectors of completed column names |
+| Control typography | `font_size`, `font` | Numeric size and an installed font name |
+| Control table width | `width` | Percentage from 0 to 100 for `gt` output |
+| Control individual widths | `column_widths` | Named numeric widths in inches for flextable output |
+| Add alternating rows | `row_striping`, `stripe_color` | `TRUE`/`FALSE` and a colour such as `"#F4F4F2"` |
+| Set the accent | `accent_color` | Hex colour used for rules and emphasis |
+| Choose borders | `borders` | `"horizontal"`, `"all"`, or `"minimal"` |
+| Change row spacing | `density` | `"standard"`, `"compact"`, or `"spacious"` |
+| Retain/remove package notes | `show_footnotes` | `TRUE` or `FALSE` |
+| Emphasise variable labels | `bold_labels` | `TRUE` or `FALSE` |
+| Format p-values | `pvalue_style` | `"threshold"`, `"fixed"`, or `"scientific"` |
+| Tune p-values | `pvalue_digits`, `pvalue_threshold`, `pvalue_prefix` | Digits, threshold, and optional `p =` prefix |
+
+#### A journal-style recipe
+
+```{r journal-style-recipe}
+finished_table <- summary_table(
+  birthwt,
+  by = low,
+  include = c(age, lwt, race, smoke),
+  overall = "last",
+  show_dichotomous = "single_row",
+  value = c(smoke = "Yes")
+) |>
+  add_p() |>
+  customise_table(
+    theme = "journal",
+    title = "Table 1. Maternal characteristics",
+    spanning_header = "Birth-weight outcome",
+    density = "compact",
+    borders = "horizontal",
+    font_size = 9,
+    pvalue_style = "threshold",
+    pvalue_digits = 3,
+    accent_color = "#4A4A4A",
+    show_footnotes = TRUE
+  )
+```
+
+#### Relabelling without changing the analysis
+
+Mappings always use `current = new`. Inspect the completed table first when
+you are unsure of a displayed column name.
+
+```{r display-only-relabel}
+summary_table(birthwt, by = low, include = c(race, smoke)) |>
+  customise_table(
+    col_labels = c(
+      "low = Normal birth weight" = "Normal birth weight",
+      "low = Low birth weight" = "Low birth weight"
+    ),
+    row_labels = c("Maternal race" = "Race"),
+    level_labels = c("Yes" = "Smoker", "No" = "Non-smoker")
+  )
+```
+
+#### A clean table without explanatory notes
+
+Use this only when the meaning of every statistic is defined in the manuscript
+text, caption, or journal template.
+
+```{r minimal-report-table}
+summary_table(birthwt, include = c(age, race, smoke)) |>
+  customise_table(
+    theme = "minimal",
+    show_footnotes = FALSE,
+    bold_labels = TRUE,
+    density = "compact"
+  )
+```
+
 You can also relabel factor levels within the table using `level_labels`:
 
 ```{r level-labels}
-summary_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(vars = cyl) |>
-  tbl_stats() |>
+summary_table(mtcars, by = am, include = cyl, overall = TRUE) |>
   customise_table(
     level_labels = c(
       "4" = "4-cylinder",
@@ -421,11 +631,11 @@ summary_table(mtcars, by = am, overall = TRUE) |>
 
 ## Exporting to Word
 
-Call `to_flextable()` on the `gt_desc_table` object (before rendering with `tbl_stats()`) to produce a `flextable` suitable for Word output.
+Results already print as flextables. Call `to_flextable()` explicitly when you
+want to set its font or autofit behaviour at conversion time.
 
 ```{r export}
-res <- summary_table(mtcars, by = am, overall = TRUE) |>
-  add_summary(vars = c(mpg, wt, cyl)) |>
+res <- summary_table(mtcars, by = am, include = c(mpg, wt, cyl), overall = TRUE) |>
   add_proportion(var = vs) |>
   add_total() |>
   add_p()
@@ -443,11 +653,10 @@ The gtstats table builder lets you assemble a complete "Table 1" with very littl
 
 ```
 summary_table(data, by = group, overall = TRUE)
-  |> add_summary(vars = c(...))
+  |> add_ci(vars = c(...))
+  |> add_p()
   |> add_proportion(var = ...)
   |> add_total()
-  |> add_p()
-  |> tbl_stats()
   |> customise_table(theme = "journal", ...)
 ```
 

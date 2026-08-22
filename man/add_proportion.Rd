@@ -9,11 +9,11 @@ add_proportion(
   var,
   level = NULL,
   ci = TRUE,
-  conf.level = 0.95,
-  ci_method = c("wilson", "exact"),
-  display = c("n_percent", "percent", "n_over_N_percent"),
+  conf.level = NULL,
+  ci_method = NULL,
+  display = NULL,
   layout = NULL,
-  digits = 1,
+  digits = NULL,
   label = NULL
 )
 }
@@ -28,18 +28,22 @@ automatically.}
 
 \item{ci}{Logical; whether to display a confidence interval.}
 
-\item{conf.level}{Confidence level for the interval. Default is \code{0.95}.}
+\item{conf.level}{Confidence level for the interval. \code{NULL} inherits the
+parent table setting, usually \code{0.95}.}
 
-\item{ci_method}{Confidence-interval method: \code{"wilson"} or \code{"exact"}.}
+\item{ci_method}{Confidence-interval method: \code{"wilson"} or \code{"exact"}.
+\code{NULL} inherits the parent table setting.}
 
 \item{display}{Cell display: \code{"n_percent"}, \code{"percent"}, or
-\code{"n_over_N_percent"}.}
+\code{"n_over_N_percent"}. \code{NULL} inherits the categorical display used by the
+parent table.}
 
 \item{layout}{Table layout. \code{NULL} inherits the parent table layout;
 \code{"compact"} keeps the estimate and CI together and \code{"separate"} places
 them in separate columns beneath each cohort header.}
 
-\item{digits}{Number of decimal places used when formatting percentages.}
+\item{digits}{Number of decimal places used when formatting percentages.
+\code{NULL} inherits the parent table precision.}
 
 \item{label}{Optional row label. Defaults to the variable label if available,
 otherwise the variable name.}
