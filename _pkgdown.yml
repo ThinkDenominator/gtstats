@@ -15,7 +15,7 @@ template:
   includes:
     in_header: |
       <link rel="stylesheet" href="https://thinkdenominator.com/analytics-consent.css">
-      <script>window.TD_GA_MEASUREMENT_ID = "G-EW7RP69914";</script>
+      <script>window.TD_GA_MEASUREMENT_ID = "G-79N51G5HW4";</script>
       <script defer src="https://thinkdenominator.com/analytics-consent.js"></script>
   bslib:
     primary: "#C0392B"
@@ -159,6 +159,7 @@ reference:
   - title: "Render, style, and export"
     desc: "Render as flextable by default, apply publication styling, export to Office, or opt into gt for HTML."
     contents:
+      - as_stats_table
       - customise_table
       - to_flextable
       - to_gt
