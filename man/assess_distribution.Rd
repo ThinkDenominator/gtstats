@@ -13,8 +13,7 @@ assess_distribution(
   min_n = 3,
   plots = FALSE,
   digits = 2,
-  format = c("table", "tibble"),
-  output = NULL
+  format = c("table", "tibble")
 )
 }
 \arguments{
@@ -42,8 +41,6 @@ are stored in \verb{$plots} (or \code{attr(result, "plots")} for tibble output).
 \item{digits}{Number of decimal places.}
 
 \item{format}{Output format: \code{"table"} (default) or \code{"tibble"}.}
-
-\item{output}{Compatibility alias for \code{format}.}
 }
 \value{
 With \code{format = "table"}, a \code{gt_distribution} object that prints as a

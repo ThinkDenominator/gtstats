@@ -19,7 +19,7 @@
 #' Wilson confidence intervals are used by default. Exact binomial intervals
 #' are available with `ci_method = "exact"`.
 #'
-#' @param x A `gt_desc_table` object created with [summary_table()].
+#' @param x A `gtstats_summary` object created with [summary_table()].
 #' @param var Variable to summarise as a proportion. Can be supplied as a bare
 #'   name or as a character string.
 #' @param level Optional level to count. If `NULL`, a default level is selected
@@ -40,7 +40,7 @@
 #' @param label Optional row label. Defaults to the variable label if available,
 #'   otherwise the variable name.
 #'
-#' @return An updated `gt_desc_table` object with a proportion row appended.
+#' @return An updated `gtstats_summary` object with a proportion row appended.
 #'
 #' @examples
 #' summary_table(mtcars, by = am, overall = TRUE) |>
@@ -65,7 +65,7 @@ add_proportion <- function(
     digits = NULL,
     label = NULL
 ) {
-  .validate_summary_builder(x, "add_proportion", mode = "summary")
+  .validate_summary_builder(x, "add_proportion")
   if (identical(x$categorical_layout %||% "combined", "separate")) {
     stop(
       "`add_proportion()` is not available after separating n and % columns. Use `categorical_layout = \"combined\"` for specialist proportion rows.",

@@ -8,7 +8,6 @@ summary_table(
   data,
   by = NULL,
   include = NULL,
-  mode = c("summary", "rate"),
   overall = FALSE,
   statistic = "recommended",
   categorical = c("n_percent", "n_over_N_percent", "n", "percent"),
@@ -16,12 +15,13 @@ summary_table(
   show_dichotomous = c("all_levels", "single_row"),
   value = NULL,
   percent = c("column", "row", "overall"),
+  overall_categorical = c("auto", "n_percent", "n_over_N_percent", "n", "percent"),
   digits = 1,
-  missing = c("ifany", "always", "no"),
+  missing = c("ifany", "always", "no", "as_category"),
   layout = c("compact", "separate"),
   label = NULL,
-  format = c("table", "tibble"),
-  ...
+  conf.level = 0.95,
+  format = c("table", "tibble")
 )
 }
 \arguments{
@@ -36,15 +36,12 @@ names, such as \code{c(age, sex, bmi)}, or a character vector. Mixed variable
 types can be selected together. When omitted, an empty advanced builder is
 returned.}
 
-\item{mode}{Table mode. \code{"summary"} is the normal route. \code{"rate"} is retained
-for compatibility with earlier rate-only builders.}
-
 \item{overall}{Overall-column setting. Use \code{FALSE} to omit it, \code{"first"} to
 place it before the grouped columns, or \code{"last"} to place it after them.
 \code{TRUE} is accepted as a shorthand for \code{"first"}.}
 
 \item{statistic}{Continuous summary format: \code{"recommended"}, \code{"mean_sd"},
-\code{"mean_ci"}, \code{"median_iqr"}, or \code{"both"}. A single value applies to all
+\code{"mean_se"}, \code{"mean_ci"}, \code{"median_iqr"}, or \code{"both"}. A single value applies to all
 continuous variables. In a named vector, \code{continuous} supplies a fallback
 for every continuous variable and variable names supply exceptions, for
 example \code{c(continuous = "mean_sd", lwt = "median_iqr")}. Without a
@@ -67,10 +64,20 @@ binary variables use their second declared or sorted level.}
 
 \item{percent}{Percentage denominator: \code{"column"}, \code{"row"}, or \code{"overall"}.}
 
+\item{overall_categorical}{Categorical display in the Overall column.
+\code{"auto"} (default) uses counts only with row percentages, because the
+Overall percentage would be redundant, and otherwise follows
+\code{categorical}. Explicit choices are \code{"n_percent"},
+\code{"n_over_N_percent"}, \code{"n"}, or \code{"percent"}.}
+
 \item{digits}{One number applied throughout, or a named numeric vector using
 \code{continuous}, \code{percent}, and \code{ci}.}
 
-\item{missing}{Missing-row display: \code{"ifany"}, \code{"always"}, or \code{"no"}.}
+\item{missing}{Missing-value display and percentage handling. \code{"ifany"}
+shows a missing row only when needed, \code{"always"} always shows it, and
+\code{"no"} hides it; these three calculate observed-category percentages
+from non-missing values. \code{"as_category"} displays missing values as a
+category and includes them when calculating categorical percentages.}
 
 \item{layout}{Table layout. \code{"compact"} keeps each summary in one cell.
 \code{"separate"} requests summary and CI child columns beneath each cohort
@@ -79,16 +86,14 @@ added; choosing the layout alone does not create empty CI columns.}
 
 \item{label}{Optional named character vector overriding variable labels.}
 
+\item{conf.level}{Confidence level used when \code{statistic = "mean_ci"}.}
+
 \item{format}{Display format: \code{"table"} (default) or \code{"tibble"}. The
 builder remains composable; this option changes how the completed object
 prints without discarding its audit components.}
-
-\item{...}{Compatibility arguments \code{ci}, \code{conf.level}, and \code{ci_method} from
-earlier development versions. New code should use \code{\link[=add_ci]{add_ci()}}. Unknown
-arguments are rejected.}
 }
 \value{
-A \code{gt_desc_table} object containing the source data,
+A \code{gtstats_summary} object containing the source data,
 structural settings, and placeholders for table components.
 }
 \description{
@@ -104,11 +109,9 @@ detected automatically and added using beginner-friendly defaults. There is
 no need to add continuous and categorical variables separately.
 
 When \code{include = NULL}, an empty builder is returned for specialist row-only
-workflows. Printing a completed object automatically displays a publication-ready \code{gt} table;
-call \code{\link[=tbl_stats]{tbl_stats()}} only when explicit rendering control is required.
-
-\code{mode = "rate"} remains available for compatibility, but is not needed in
-new code: create the foundation normally and add \code{\link[=add_rate]{add_rate()}} as a layer.
+workflows. Printing a completed object automatically displays a
+publication-ready \code{flextable}; call \code{\link[=to_gt]{to_gt()}} when an HTML-oriented \code{gt}
+table is required.
 
 A grouping variable may be supplied to create one column per group.
 An optional \code{overall} column can also be requested for later use.
@@ -153,6 +156,15 @@ summary_table(
   include = c(mpg, vs, am),
   show_dichotomous = "single_row",
   value = c(vs = "1", am = "1")
+)
+
+# Include Missing in a categorical percentage denominator
+missing_example <- mtcars
+missing_example$vs[1:3] <- NA
+summary_table(
+  missing_example,
+  include = vs,
+  missing = "as_category"
 )
 
 }

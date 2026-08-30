@@ -68,7 +68,7 @@ test_that("crosstabs() displays requested 2x2 measures in the rendered output", 
   expect_identical(result$epi$Measure, "Odds ratio")
   expect_true(any(grepl("OR ", result$notes, fixed = TRUE)))
   expect_true(any(grepl("Exposure:", result$notes, fixed = TRUE)))
-  expect_s3_class(tbl_stats(result), "gt_tbl")
+  expect_s3_class(to_gt(result), "gt_tbl")
 })
 
 test_that("crosstabs() omits test wording cleanly when tests are disabled", {
@@ -134,6 +134,6 @@ test_that("crosstabs() displays blank category values safely", {
 
 test_that("crosstabs() renders and exports", {
   result <- crosstabs(mtcars, cyl, gear, percent = c("row", "column"))
-  expect_s3_class(tbl_stats(result), "gt_tbl")
+  expect_s3_class(to_gt(result), "gt_tbl")
   expect_s3_class(to_flextable(result), "flextable")
 })

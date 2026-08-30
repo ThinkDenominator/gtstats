@@ -17,7 +17,7 @@ to_flextable(
 \arguments{
 \item{x}{A supported \code{gtstats} object containing a \verb{$table}
 component, such as an object returned by \code{\link[=summary_table]{summary_table()}},
-\code{\link[=summary_table]{summary_table()}}, \code{\link[=compare_groups]{compare_groups()}}, \code{\link[=proportion_stats]{proportion_stats()}}, or related
+\code{\link[=compare_groups]{compare_groups()}}, \code{\link[=proportion_stats]{proportion_stats()}}, \code{\link[=as_stats_table]{as_stats_table()}}, or related
 functions.}
 
 \item{font_size}{Font size applied to the whole table. Default is
@@ -43,7 +43,7 @@ Word, PowerPoint, and other Office-style outputs.
 This function is intended for export workflows where a \code{gtstats}
 object needs to be inserted into a report or presentation. The input
 should be the original analytical object, not the rendered \code{gt} table
-returned by \code{\link[=tbl_stats]{tbl_stats()}}.
+returned by \code{\link[=to_gt]{to_gt()}}.
 
 Text columns are left-aligned and value columns are right-aligned.
 Notes, footnotes, and p-value method footnotes are appended to the

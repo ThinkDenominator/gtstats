@@ -25,7 +25,7 @@
 #'
 #' ## Automatic selection and audit trail
 #'
-#' With `method = "auto"`, `add_p()` delegates each comparison to
+#' With `test = "auto"`, `add_p()` delegates each comparison to
 #' [compare_groups()] using the same fixed selection policy: Welch t-test or
 #' Welch ANOVA by default when distribution guidance does not flag skewness;
 #' Student's t-test or classical ANOVA when `var_equal = TRUE`; rank-based tests
@@ -45,8 +45,8 @@
 #' not a variance-test gatekeeper; Welch methods do not require equal
 #' variances.
 #'
-#' @param x A `gt_desc_table` object created with [summary_table()].
-#' @param method Statistical test to use. Either a single method string, or a
+#' @param x A `gtstats_summary` object created with [summary_table()].
+#' @param test Statistical test to use. Either a single test string, or a
 #'   named character vector/list specifying methods for individual variables.
 #'   Names may match either displayed variable labels or underlying variable
 #'   names.
@@ -57,12 +57,12 @@
 #'   derived from birth weight.
 #' @param paired Logical; whether comparisons should be treated as paired.
 #' @param id Pair or participant identifier required when `paired = TRUE`.
-#' @param distribution_check Logical; when `method = "auto"`, use distribution
+#' @param distribution_check Logical; when `test = "auto"`, use distribution
 #'   guidance to choose parametric or rank-based tests. This guidance is based
 #'   on skewness; Shapiro-Wilk is supporting information only. For paired
 #'   analyses the check is applied to within-pair differences.
 #' @param var_equal Logical; for independent, non-skewed continuous comparisons
-#'   in `method = "auto"`, use Student's t-test or classical ANOVA. The default
+#'   in `test = "auto"`, use Student's t-test or classical ANOVA. The default
 #'   `FALSE` uses Welch methods. This is a user-specified assumption, not a
 #'   variance test, and does not affect paired, categorical, ordinal, or
 #'   rank-based comparisons.
@@ -74,9 +74,9 @@
 #'   tests. One of [stats::p.adjust.methods]; default `"none"`.
 #' @param digits Number of decimal places used when formatting p-values.
 #'
-#' @return An updated `gt_desc_table` object with a `p-value` column added.
+#' @return An updated `gtstats_summary` object with a `p-value` column added.
 #'   When `paired = TRUE`, `$paired_p_notes` records the complete-pair
-#'   denominator for each displayed p-value; [tbl_stats()] displays this as a
+#'   denominator for each displayed p-value; [to_gt()] displays this as a
 #'   concise p-value footnote.
 #'
 #' @examples
@@ -84,7 +84,7 @@
 #'   add_p()
 #'
 #' summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>
-#'   add_p(method = c(mpg = "welch_t", wt = "wilcox", cyl = "chisq"))
+#'   add_p(test = c(mpg = "welch_t", wt = "wilcox", cyl = "chisq"))
 #'
 #' summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>
 #'   add_p(include = c(mpg, wt))
@@ -92,7 +92,7 @@
 #' @export
 add_p <- function(
     x,
-    method = "auto",
+    test = "auto",
     include = tidyselect::everything(),
     paired = FALSE,
     id = NULL,
@@ -118,20 +118,7 @@ add_p <- function(
     stop("`id` is required when `paired = TRUE`.", call. = FALSE)
   }
 
-  # Validate object type and table mode
-  if (!inherits(x, "gt_desc_table")) {
-    stop("`x` must be a `gt_desc_table` object.", call. = FALSE)
-  }
-
-  if (!identical(x$mode, "summary")) {
-    stop(
-      paste0(
-        "`add_p()` can only be used with descriptive tables created ",
-        "with `mode = \"summary\"`."
-      ),
-      call. = FALSE
-    )
-  }
+  .validate_summary_builder(x, "add_p")
   # Require a grouping variable because p-values compare across groups
 
   if (is.null(x$by)) {
@@ -180,32 +167,32 @@ add_p <- function(
   }
   # Resolve the requested test method for each variable
 
-  .resolve_method <- function(var_label, base_label, method) {
+  .resolve_test <- function(var_label, base_label, test) {
     allowed <- c(
       "auto", "welch_t", "t_test", "wilcox",
       "anova", "welch_anova", "kruskal", "chisq", "fisher", "mcnemar"
     )
 
-    if (is.character(method) && length(method) == 1) {
-      if (!method %in% allowed) {
-        stop(paste0("Unsupported `method`: ", method, "."), call. = FALSE)
+    if (is.character(test) && length(test) == 1) {
+      if (!test %in% allowed) {
+        stop(paste0("Unsupported `test`: ", test, "."), call. = FALSE)
       }
-      return(method)
+      return(test)
     }
 
-    if (is.list(method)) {
-      method <- unlist(method, use.names = TRUE)
+    if (is.list(test)) {
+      test <- unlist(test, use.names = TRUE)
     }
 
-    if (is.character(method) && length(method) > 1 && !is.null(names(method))) {
-      chosen <- if (var_label %in% names(method)) {
-        unname(method[var_label])
+    if (is.character(test) && length(test) > 1 && !is.null(names(test))) {
+      chosen <- if (var_label %in% names(test)) {
+        unname(test[var_label])
       } else {
         NULL
       }
 
-      if (is.null(chosen) && base_label %in% names(method)) {
-        chosen <- unname(method[base_label])
+      if (is.null(chosen) && base_label %in% names(test)) {
+        chosen <- unname(test[base_label])
       }
 
       if (is.null(chosen)) {
@@ -215,7 +202,7 @@ add_p <- function(
       if (!chosen %in% allowed) {
         stop(
           paste0(
-            "Unsupported method for variable `",
+            "Unsupported test for variable `",
             var_label,
             "`: ",
             chosen,
@@ -229,7 +216,7 @@ add_p <- function(
     }
 
     stop(
-      "`method` must be a single method string,
+      "`test` must be a single test string,
       or a named character vector/list.",
       call. = FALSE
     )
@@ -310,25 +297,28 @@ add_p <- function(
     var_name <- target$variable
     var_label <- target$label
     # Choose method either globally or variable-specific
-    chosen_method <- .resolve_method(
+    chosen_method <- .resolve_test(
       var_label = var_label,
       base_label = var_name,
-      method = method
+      test = test
     )
     # Run group comparison safely so one failure does not break the whole table
     cmp <- tryCatch(
-      compare_groups(
+      .compare_groups_impl(
         data = x$data,
-        variable = var_name,
-        group = x$by,
+        outcome_expr = var_name,
+        group_expr = x$by,
+        id_expr = id_name,
+        caller_env = parent.frame(),
+        user_call = match.call(),
+        data_name = x$inputs$data_name %||% "data",
         paired = paired,
-        id = id_name,
         test = chosen_method,
         digits = digits,
-        .distribution_check = distribution_check,
+        distribution_check = distribution_check,
         var_equal = var_equal,
         fisher_seed = fisher_seed,
-        .correction = correction
+        correction = correction
       ),
       error = function(e) {
         message("add_p() failed for ", var_name, ": ", e$message)

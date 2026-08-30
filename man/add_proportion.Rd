@@ -18,7 +18,7 @@ add_proportion(
 )
 }
 \arguments{
-\item{x}{A \code{gt_desc_table} object created with \code{\link[=summary_table]{summary_table()}}.}
+\item{x}{A \code{gtstats_summary} object created with \code{\link[=summary_table]{summary_table()}}.}
 
 \item{var}{Variable to summarise as a proportion. Can be supplied as a bare
 name or as a character string.}
@@ -49,7 +49,7 @@ them in separate columns beneath each cohort header.}
 otherwise the variable name.}
 }
 \value{
-An updated \code{gt_desc_table} object with a proportion row appended.
+An updated \code{gtstats_summary} object with a proportion row appended.
 }
 \description{
 Add a row showing the proportion of a selected level of a binary,

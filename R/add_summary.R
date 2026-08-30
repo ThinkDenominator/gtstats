@@ -10,6 +10,7 @@
 #' Continuous variables can be displayed in one of four formats:
 #' - `"recommended"`: mean (SD) or median (IQR) as appropriate
 #' - `"mean_sd"`: mean (SD)
+#' - `"mean_se"`: mean (standard error)
 #' - `"mean_ci"`: mean with a t confidence interval
 #' - `"median_iqr"`: median (IQR)
 #' - `"both"`: mean (SD) and median (IQR)
@@ -18,12 +19,10 @@
 #' `c(age, sex, bmi)`, or as a character vector, for example
 #' `c("age", "sex", "bmi")`.
 #'
-#' @param x A `gt_desc_table` object created with [summary_table()].
+#' @param x A `gtstats_summary` object created with [summary_table()].
 #' @param vars Variables to summarise. Can be supplied as bare names or as a
 #'   character vector.
-#' @param continuous_format Format to use for continuous variables. One of
-#'   `"recommended"`, `"mean_sd"`, `"mean_ci"`, `"median_iqr"`, or `"both"`.
-#' @param statistic Optional continuous summary selection. A single value
+#' @param statistic Continuous summary selection. A single value
 #'   applies to all selected continuous variables. A named character vector can
 #'   select a different summary for each variable, for example
 #'   `c(age = "mean_sd", bmi = "median_iqr")`. `"auto"` is accepted as an alias
@@ -44,20 +43,23 @@
 #'   event level used when `show_dichotomous = "single_row"`, for example
 #'   `c(smoke = "Yes", hypertension = "Yes")`. When omitted, the second
 #'   declared factor level (or the second sorted observed value) is used.
-#' @param ci Logical; append confidence intervals to categorical proportions.
-#' @param conf.level Confidence level for categorical proportion intervals.
-#' @param ci_method Binomial confidence-interval method: `"wilson"` (default)
-#'   or `"exact"`.
 #' @param layout Table layout. `"compact"` keeps each summary in one cell;
 #'   `"separate"` places summaries and confidence intervals in separate
 #'   columns once intervals are added. It does not create empty CI columns.
 #'   When omitted, the layout chosen in [summary_table()] is used.
-#' @param missing Whether explicit missing-value rows are shown: `"ifany"`,
-#'   `"always"`, or `"no"`.
+#' @param overall_categorical Categorical display used only in the Overall
+#'   column. `"auto"` uses counts only when `percent = "row"` and otherwise
+#'   follows `categorical`. Other choices are `"n_percent"`,
+#'   `"n_over_N_percent"`, `"n"`, and `"percent"`.
+#' @param missing Missing-value display and percentage handling. `"ifany"`
+#'   shows a missing row only when needed, `"always"` always shows it, and
+#'   `"no"` hides it; these three use non-missing categorical denominators.
+#'   `"as_category"` displays missing values as a category and includes them
+#'   when calculating categorical percentages.
 #' @param digits One number applied throughout, or a named numeric vector using
 #'   `continuous`, `percent`, and `ci`.
 #'
-#' @return An updated `gt_desc_table` object with summary rows added.
+#' @return An updated `gtstats_summary` object with summary rows added.
 #'
 #' @examples
 #' summary_table(mtcars, by = am) |>
@@ -67,45 +69,40 @@
 #'   add_summary(vars = c("mpg", "wt", "cyl"))
 #'
 #' summary_table(mtcars) |>
-#'   add_summary(vars = c(mpg, wt), continuous_format = "mean_sd")
+#'   add_summary(vars = c(mpg, wt), statistic = "mean_sd")
+#'
+#' missing_example <- mtcars
+#' missing_example$vs[1:3] <- NA
+#' summary_table(missing_example) |>
+#'   add_summary(vars = vs, missing = "as_category")
 #'
 #' @export
 add_summary <- function(
     x,
     vars,
-    continuous_format = c("recommended", "mean_sd", "mean_ci", "median_iqr", "both"),
-    statistic = NULL,
+    statistic = "recommended",
     percent = c("column", "row", "overall", "none"),
     categorical = c("n_percent", "n_over_N_percent", "n", "percent"),
     categorical_layout = c("combined", "separate"),
+    overall_categorical = c("auto", "n_percent", "n_over_N_percent", "n", "percent"),
     show_dichotomous = c("all_levels", "single_row"),
     value = NULL,
-    ci = FALSE,
-    conf.level = 0.95,
-    ci_method = c("wilson", "exact"),
     layout = NULL,
-    missing = c("ifany", "always", "no"),
+    missing = c("ifany", "always", "no", "as_category"),
     digits = 1
 ) {
-  .validate_summary_builder(x, "add_summary", mode = "summary")
-  continuous_format <- match.arg(continuous_format)
+  .validate_summary_builder(x, "add_summary")
   percent <- match.arg(percent)
   categorical <- match.arg(categorical)
   categorical_layout <- match.arg(categorical_layout)
+  overall_categorical <- match.arg(overall_categorical)
   show_dichotomous <- match.arg(show_dichotomous)
-  ci_method <- match.arg(ci_method)
   if (is.null(layout)) layout <- x$layout %||% "compact"
   layout <- match.arg(layout, c("compact", "separate"))
   missing <- match.arg(missing)
-  .validate_flag(ci, "ci")
+  conf.level <- x$conf.level %||% 0.95
   .validate_conf_level(conf.level)
   digits_map <- .resolve_summary_digits(digits)
-  if (isTRUE(ci) && identical(categorical, "n")) {
-    stop(
-      "`ci = TRUE` requires a percentage-based `categorical` display.",
-      call. = FALSE
-    )
-  }
 
   # Resolve variables from either bare names or character input
   vars_names <- .resolve_vars_arg(substitute(vars), env = parent.frame())
@@ -126,12 +123,6 @@ add_summary <- function(
         call. = FALSE
       )
     }
-    if (isTRUE(ci)) {
-      stop(
-        "Separate n and % columns are intended for tables without confidence intervals. Use `categorical_layout = \"combined\"` with `add_ci()`.",
-        call. = FALSE
-      )
-    }
     if (!categorical %in% c("n_percent", "n_over_N_percent")) {
       stop(
         "Separate n and % columns require `categorical = \"n_percent\"` or `\"n_over_N_percent\"`.",
@@ -141,7 +132,7 @@ add_summary <- function(
   }
 
   statistic_map <- stats::setNames(
-    rep(continuous_format, length(vars_names)),
+    rep("recommended", length(vars_names)),
     vars_names
   )
   if (!is.null(statistic)) {
@@ -152,7 +143,7 @@ add_summary <- function(
 
     statistic <- tolower(statistic)
     statistic[statistic == "auto"] <- "recommended"
-    allowed <- c("recommended", "mean_sd", "mean_ci", "median_iqr", "both")
+    allowed <- c("recommended", "mean_sd", "mean_se", "mean_ci", "median_iqr", "both")
     unsupported <- setdiff(unname(statistic), allowed)
     if (length(unsupported) > 0L) {
       stop(
@@ -224,9 +215,39 @@ add_summary <- function(
     statistic_map[recommended] <- vapply(recommended, resolve_recommended, character(1))
   }
 
-  build_summary_table <- function(by = NULL) {
+  build_summary_table <- function(by = NULL, categorical_override = categorical) {
     pieces <- lapply(vars_names, function(variable) {
       variable_type <- .detect_type(x$data[[variable]])
+      summary_data <- x$data
+      if (identical(missing, "as_category") &&
+          !identical(variable_type, "continuous") &&
+          anyNA(summary_data[[variable]])) {
+        original <- summary_data[[variable]]
+        original_label <- attr(original, "label", exact = TRUE)
+        values <- as.character(original)
+        if (any(values == "Missing", na.rm = TRUE)) {
+          stop(
+            "`missing = \"as_category\"` cannot distinguish R missing values from an existing category named \"Missing\" in `",
+            variable,
+            "`. Rename that recorded category before building the table.",
+            call. = FALSE
+          )
+        }
+        values[is.na(values)] <- "Missing"
+        if (is.factor(original)) {
+          original_levels <- levels(original)
+          summary_data[[variable]] <- factor(
+            values,
+            levels = unique(c(original_levels, "Missing")),
+            ordered = is.ordered(original)
+          )
+        } else {
+          summary_data[[variable]] <- values
+        }
+        if (!is.null(original_label)) {
+          attr(summary_data[[variable]], "label") <- original_label
+        }
+      }
       variable_digits <- if (identical(variable_type, "continuous")) {
         digits_map[["continuous"]]
       } else {
@@ -238,14 +259,14 @@ add_summary <- function(
         percent
       }
       args <- list(
-        data = x$data,
+        data = summary_data,
         vars = variable,
         continuous_format = statistic_map[[variable]],
         percent = percent_value,
-        categorical = categorical,
-        ci = ci,
+        categorical = categorical_override,
+        ci = FALSE,
         conf.level = conf.level,
-        ci_method = ci_method,
+        ci_method = "wilson",
         ci_digits = digits_map[["ci"]],
         missing = "no",
         digits = variable_digits
@@ -257,14 +278,31 @@ add_summary <- function(
       # Retain the source name while assembling the table. Publication labels
       # are not guaranteed to be unique, so they are not safe ordering keys.
       piece$.gtstats_variable <- variable
+      if (identical(missing, "as_category") &&
+          any(as.character(piece$Level) == "Missing")) {
+        piece <- dplyr::bind_rows(
+          piece[as.character(piece$Level) != "Missing", , drop = FALSE],
+          piece[as.character(piece$Level) == "Missing", , drop = FALSE]
+        )
+      }
       if (identical(show_dichotomous, "single_row") &&
           identical(variable_type, "binary")) {
         selected_level <- value_map[[variable]]
-        piece <- piece[as.character(piece$Level) == selected_level, , drop = FALSE]
+        keep <- as.character(piece$Level) == selected_level
+        if (identical(missing, "as_category")) {
+          keep <- keep | as.character(piece$Level) == "Missing"
+        }
+        piece <- piece[keep, , drop = FALSE]
+        if (identical(missing, "as_category") && nrow(piece) > 1L) {
+          piece <- dplyr::bind_rows(
+            piece[as.character(piece$Level) == selected_level, , drop = FALSE],
+            piece[as.character(piece$Level) == "Missing", , drop = FALSE]
+          )
+        }
         # A compact dichotomous result is one publication row, not a parent row
         # followed by one indented child. The selected event remains available
         # in `x$dichotomous_values` for auditing and reproducible code.
-        piece$Level <- ""
+        piece$Level[as.character(piece$Level) == selected_level] <- ""
       }
       piece
     })
@@ -283,7 +321,14 @@ add_summary <- function(
 
   # If overall summaries are requested, calculate them separately and merge
   if (isTRUE(x$overall)) {
-    overall_tbl <- build_summary_table()
+    resolved_overall_categorical <- if (identical(overall_categorical, "auto")) {
+      if (identical(percent, "row")) "n" else categorical
+    } else {
+      overall_categorical
+    }
+    overall_tbl <- build_summary_table(
+      categorical_override = resolved_overall_categorical
+    )
 
     if ("Summary" %in% names(overall_tbl)) {
       overall_tbl <- overall_tbl[, c(
@@ -318,21 +363,27 @@ add_summary <- function(
 
   # Add explicit missing rows using the same displayed columns as the summary.
   if (!identical(missing, "no")) {
-    format_missing <- function(n_missing, denominator) {
-      paste0(
-        n_missing,
-        " (",
-        .format_number(
-          if (denominator > 0) 100 * n_missing / denominator else NA_real_,
-          digits_map[["percent"]]
-        ),
-        "%)"
+    format_missing <- function(n_missing, denominator, display = categorical) {
+      percentage <- .format_number(
+        if (denominator > 0) 100 * n_missing / denominator else NA_real_,
+        digits_map[["percent"]]
       )
+      if (identical(display, "n")) return(as.character(n_missing))
+      if (identical(display, "percent")) return(paste0(percentage, "%"))
+      if (identical(display, "n_over_N_percent")) {
+        return(paste0(n_missing, "/", denominator, " (", percentage, "%)"))
+      }
+      paste0(n_missing, " (", percentage, "%)")
     }
 
     missing_rows <- lapply(vars_names, function(variable) {
       n_missing_all <- sum(is.na(x$data[[variable]]))
-      if (identical(missing, "ifany") && n_missing_all == 0L) {
+      variable_type <- .detect_type(x$data[[variable]])
+      if (identical(missing, "as_category") &&
+          !identical(variable_type, "continuous")) {
+        return(NULL)
+      }
+      if (missing %in% c("ifany", "as_category") && n_missing_all == 0L) {
         return(NULL)
       }
 
@@ -342,7 +393,14 @@ add_summary <- function(
         Level = "Missing"
       )
       if (isTRUE(x$overall)) {
-        row$Overall <- format_missing(n_missing_all, nrow(x$data))
+        overall_missing_display <- if (identical(overall_categorical, "auto")) {
+          if (identical(percent, "row")) "n" else categorical
+        } else {
+          overall_categorical
+        }
+        row$Overall <- format_missing(
+          n_missing_all, nrow(x$data), display = overall_missing_display
+        )
       }
       if (!is.null(x$by)) {
         group_columns <- .builder_group_columns(x)
@@ -412,14 +470,12 @@ add_summary <- function(
   x$percent <- percent
   x$categorical <- categorical
   x$categorical_layout <- categorical_layout
+  x$overall_categorical <- overall_categorical
   x$show_dichotomous <- show_dichotomous
   x$dichotomous_values <- c(
     x$dichotomous_values %||% character(),
     value_map
   )
-  x$ci <- ci
-  x$conf.level <- conf.level
-  x$ci_method <- ci_method
   x$digits <- digits_map
   x$missing <- missing
   x$method$percentage_denominator <- percent
@@ -442,6 +498,11 @@ add_summary <- function(
             "overall"
           } else {
             percent
+          },
+          missing = if (identical(missing, "as_category")) {
+            "as_category"
+          } else {
+            "exclude"
           }
         )
       }
@@ -477,6 +538,11 @@ add_summary <- function(
     character()
   } else if (footnote_format == "mean_sd") {
     "Continuous variables are shown as mean (SD)."
+  } else if (footnote_format == "mean_se") {
+    paste0(
+      "Continuous variables are shown as mean (SE). SE is the standard error ",
+      "of the estimated mean, not the variability of individual observations."
+    )
   } else if (footnote_format == "mean_ci") {
     paste0(
       "Continuous variables are shown as mean (", round(100 * conf.level),
@@ -512,18 +578,16 @@ add_summary <- function(
     } else {
       paste0("Categorical percentages use the ", percent, " denominator.")
     },
-    if (isTRUE(ci) && has_categorical) {
+    if (identical(missing, "as_category") && has_categorical &&
+        any(vapply(
+          x$data[names(variable_types)[variable_types != "continuous"]],
+          function(value) anyNA(value), logical(1)
+        ))) {
       paste0(
-        "Categorical proportions include ",
-        round(100 * conf.level),
-        "% ",
-        if (identical(ci_method, "wilson")) "Wilson score" else "exact binomial",
-        " confidence intervals."
+        "Missing values are treated as a category and included when ",
+        "calculating categorical percentages."
       )
-    } else {
-      character()
-    },
-    if (!identical(missing, "no") &&
+    } else if (!identical(missing, "no") &&
         (identical(missing, "always") ||
          any(vapply(x$data[vars_names], function(value) anyNA(value), logical(1))))) {
       paste0("Missing-value rows are shown ", missing, ".")
@@ -534,8 +598,6 @@ add_summary <- function(
 
   if (identical(categorical_layout, "separate")) {
     x <- .builder_use_separate_categorical_layout(x)
-  } else if (identical(layout, "separate") && isTRUE(ci)) {
-    x <- .builder_use_separate_layout(x, conf.level = conf.level)
   }
 
   x

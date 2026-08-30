@@ -325,7 +325,6 @@
 #' @param vars Optional character vector of variables. Default is all variables.
 #' @param digits Number of decimal places in concise numeric summaries.
 #' @param format Output format: `"table"` (default) or `"tibble"`.
-#' @param output Compatibility alias for `format`.
 #'
 #' @return With `format = "table"`, a `gt_describe` object that prints as a
 #'   publication-ready table. `$summary` is the concise variable overview and
@@ -335,19 +334,15 @@
 #' @examples
 #' describe_data(mtcars)
 #' describe_data(mtcars, vars = c("mpg", "cyl", "am"))
-#' tbl_stats(describe_data(mtcars))
+#' to_gt(describe_data(mtcars))
 #'
 #' @export
 describe_data <- function(
     data,
     vars = NULL,
     digits = 2,
-    format = c("table", "tibble"),
-    output = NULL
+    format = c("table", "tibble")
 ) {
-  if (!is.null(output)) {
-    format <- output
-  }
   format <- match.arg(format, c("table", "tibble"))
   vars <- .validate_vars(data, vars)
   if (!is.numeric(digits) || length(digits) != 1L ||

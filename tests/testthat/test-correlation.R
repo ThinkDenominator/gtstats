@@ -109,9 +109,9 @@ test_that("correlation() rejects retired output controls", {
   )
 })
 
-test_that("tbl_stats() works on correlation output", {
+test_that("to_gt() works on correlation output", {
   gt_obj <- correlation(mtcars, x = mpg, y = wt) |>
-    tbl_stats()
+    to_gt()
 
   expect_s3_class(gt_obj, "gt_tbl")
 })
@@ -172,7 +172,7 @@ test_that("correlation() creates a tidy publication matrix", {
   expect_equal(names(res$table), c("Variable", "mpg", "disp", "hp", "wt"))
   expect_identical(res$method$method_used, "pearson")
   expect_true(all(c("p_adjusted", "adjust_method") %in% names(res$summary)))
-  expect_s3_class(tbl_stats(res), "gt_tbl")
+  expect_s3_class(to_gt(res), "gt_tbl")
   expect_s3_class(to_flextable(res), "flextable")
 })
 

@@ -46,7 +46,7 @@
 #'
 #' .proportion_result(mtcars, var = vs, by = am, level = "1")
 #'
-#' tbl_stats(.proportion_result(mtcars, var = vs, by = am))
+#' to_gt(.proportion_result(mtcars, var = vs, by = am))
 #'
 #' @keywords internal
 #' @noRd

@@ -1,6 +1,6 @@
 #' Style a GTstats table
 #'
-#' Apply visual styling to a `gt` table produced by [tbl_stats()].
+#' Apply visual styling to a `gt` table produced by [to_gt()].
 #'
 #' This function modifies the appearance of a rendered `gtstats` table
 #' without changing the underlying statistical results. It can be used
@@ -13,9 +13,9 @@
 #' - adjust overall font size
 #'
 #' The input must already be a `gt_tbl`, so styling is applied after
-#' calling [tbl_stats()].
+#' calling [to_gt()].
 #'
-#' @param x A `gt_tbl` object, typically created with [tbl_stats()].
+#' @param x A `gt_tbl` object, typically created with [to_gt()].
 #' @param theme Table theme. One of `"default"`, `"journal"`,
 #'   `"classic"`, `"minimal"`, or `"compact"`.
 #' @param title Optional table title.
@@ -39,14 +39,14 @@
 #' @return A styled `gt_tbl` object.
 #'
 #' @examples
-#' tbl_stats(
+#' to_gt(
 #'   summary_table(mtcars, by = am) |>
 #'     add_summary(vars = c(mpg, wt)) |>
 #'     add_p()
 #' ) |>
 #'   .style_table(theme = "journal")
 #'
-#' tbl_stats(
+#' to_gt(
 #'   summary_table(mtcars, by = am, overall = TRUE) |>
 #'     add_summary(vars = c(mpg, wt, cyl)) |>
 #'     add_total()
@@ -85,7 +85,7 @@
   # Validate that the input is already a rendered gt table
   if (!inherits(x, "gt_tbl")) {
     stop(
-      "`x` must be a gt table. Use `tbl_stats()` first.",
+      "`x` must be a gt table. Use `to_gt()` first.",
       call. = FALSE
     )
   }

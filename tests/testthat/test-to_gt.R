@@ -1,36 +1,36 @@
-test_that("tbl_stats() works on basic descriptive table", {
+test_that("to_gt() works on basic descriptive table", {
   res <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   expect_s3_class(res, "gt_tbl")
 })
 
-test_that("tbl_stats() works with proportions", {
+test_that("to_gt() works with proportions", {
   res <- summary_table(mtcars, by = am) |>
     add_proportion(var = vs) |>
-    tbl_stats()
+    to_gt()
 
   expect_s3_class(res, "gt_tbl")
 })
 
-test_that("tbl_stats() works with totals", {
+test_that("to_gt() works with totals", {
   res <- summary_table(mtcars, by = am) |>
     add_summary(vars = mpg) |>
     add_total() |>
-    tbl_stats()
+    to_gt()
 
   expect_s3_class(res, "gt_tbl")
 })
 
-test_that("tbl_stats() works with p-values", {
+test_that("to_gt() works with p-values", {
   obj <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt)) |>
     add_p()
 
   expect_true("p-value" %in% names(obj$table))
 
-  res <- tbl_stats(obj)
+  res <- to_gt(obj)
   expect_s3_class(res, "gt_tbl")
 })
 
@@ -41,7 +41,7 @@ test_that("publication tables exclude analyst audit instructions", {
     add_proportion(var = vs) |>
     add_p()
 
-  rendered <- tbl_stats(obj)
+  rendered <- to_gt(obj)
   footnote_text <- paste(rendered[["_footnotes"]]$footnotes, collapse = " ")
   source_text <- paste(unlist(rendered[["_source_notes"]]), collapse = " ")
 
@@ -63,7 +63,7 @@ test_that("publication tables exclude analyst audit instructions", {
 test_that("non-standard percentage denominators remain reader-facing", {
   rendered <- summary_table(mtcars, by = am) |>
     add_summary(vars = cyl, percent = "row") |>
-    tbl_stats()
+    to_gt()
 
   footnote_text <- paste(rendered[["_footnotes"]]$footnotes, collapse = " ")
   expect_match(footnote_text, "row denominators")
@@ -71,9 +71,9 @@ test_that("non-standard percentage denominators remain reader-facing", {
 
 test_that("publication footnotes describe only statistics present in the table", {
   categorical <- summary_table(mtcars, include = c(cyl, vs)) |>
-    tbl_stats()
+    to_gt()
   continuous <- summary_table(mtcars, include = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   categorical_notes <- paste(
     categorical[["_footnotes"]]$footnotes, collapse = " "
@@ -101,7 +101,7 @@ test_that("mixed continuous summaries name their displayed variables", {
     include = c(mpg, wt, cyl),
     statistic = c(mpg = "mean_sd", wt = "median_iqr")
   ) |>
-    tbl_stats()
+    to_gt()
   footnote_text <- paste(rendered[["_footnotes"]]$footnotes, collapse = " ")
 
   expect_match(
@@ -111,10 +111,10 @@ test_that("mixed continuous summaries name their displayed variables", {
   expect_false(grepl("stated summary statistics", footnote_text, fixed = TRUE))
 })
 
-test_that("tbl_stats() works with overall column", {
+test_that("to_gt() works with overall column", {
   res <- summary_table(mtcars, by = am, overall = TRUE) |>
     add_summary(vars = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   expect_s3_class(res, "gt_tbl")
 })
@@ -128,7 +128,7 @@ test_that("descriptive headers show cohort denominators", {
   )
   rendered <- summary_table(data, by = am, overall = TRUE) |>
     add_summary(vars = c(mpg, cyl)) |>
-    tbl_stats()
+    to_gt()
 
   boxhead <- rendered[["_boxhead"]]
   labels <- stats::setNames(boxhead$column_label, boxhead$var)
@@ -157,26 +157,26 @@ test_that("descriptive headers show cohort denominators", {
 test_that("ungrouped descriptive headers show overall denominator", {
   rendered <- summary_table(mtcars) |>
     add_summary(vars = mpg) |>
-    tbl_stats()
+    to_gt()
 
   boxhead <- rendered[["_boxhead"]]
   value_label <- boxhead$column_label[boxhead$var == "Value"]
   expect_match(as.character(value_label), "Overall.*N = 32")
 })
 
-test_that("tbl_stats() errors if no table present", {
+test_that("to_gt() errors if no table present", {
   res <- summary_table(mtcars, by = am)
 
   expect_error(
-    tbl_stats(res),
+    to_gt(res),
     regexp = "no rows yet"
   )
 })
 
 test_that("inspection tables have no automatic title or subtitle", {
-  overview <- tbl_stats(describe_data(mtcars))
-  distribution <- tbl_stats(assess_distribution(mtcars, vars = "mpg"))
-  variance <- tbl_stats(assess_variance(mtcars, vars = "mpg", by = am))
+  overview <- to_gt(describe_data(mtcars))
+  distribution <- to_gt(assess_distribution(mtcars, vars = "mpg"))
+  variance <- to_gt(assess_variance(mtcars, vars = "mpg", by = am))
 
   expect_null(overview[["_heading"]]$title)
   expect_null(overview[["_heading"]]$subtitle)

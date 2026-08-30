@@ -1,15 +1,15 @@
 #' Add an event-rate row
 #'
-#' Add an event rate to a rate-mode table created with [summary_table()].
+#' Add an event rate to a table created with [summary_table()].
 #' Event counts and accumulated time are calculated from complete event-time
 #' pairs only. Event counts and time values must be finite. Exact Poisson
 #' confidence intervals are shown by default. A row with zero accumulated time
 #' is retained as `\u2014` and recorded as not estimable in the audit.
 #'
-#' `add_rate()` cannot be combined with summary-style components in the same
-#' builder because rate denominators have a different meaning.
+#' Rate denominators are tracked separately from ordinary descriptive rows and
+#' are stated in the table audit and footnote.
 #'
-#' @param x A rate-mode `gt_desc_table` created with [summary_table()].
+#' @param x A `gtstats_summary` created with [summary_table()].
 #' @param event Non-negative integer event count, supplied as a bare name or
 #'   character string. Logical values are accepted as binary event indicators.
 #' @param time Non-negative numeric person-time or exposure-time variable.
@@ -24,7 +24,7 @@
 #'   `"compact"` keeps rate and CI together and `"separate"` places them in
 #'   separate columns beneath each cohort header.
 #'
-#' @return The updated `gt_desc_table`.
+#' @return The updated `gtstats_summary`.
 #'
 #' @examples
 #' summary_table(mtcars, by = am, overall = TRUE) |>

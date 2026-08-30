@@ -1,7 +1,8 @@
 test_that("summary_table() creates base object", {
   res <- summary_table(mtcars, by = am)
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(is.list(res))
   expect_true("data" %in% names(res))
   expect_equal(res$by, "am")
@@ -21,7 +22,7 @@ test_that("a continuous statistic fallback accepts variable exceptions", {
 test_that("summary_table() works without grouping", {
   res <- summary_table(mtcars)
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_null(res$by)
 })
 
@@ -51,13 +52,13 @@ test_that("summary_table() builds a mixed-type table in one call", {
     overall = TRUE
   )
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true("summary" %in% res$components)
   expect_true("Overall" %in% names(res$table))
   expect_true(any(res$table$Variable == "mpg"))
   expect_true(any(res$table$Variable == "wt"))
   expect_true(any(res$table$Variable == "cyl"))
-  expect_s3_class(tbl_stats(res), "gt_tbl")
+  expect_s3_class(to_gt(res), "gt_tbl")
 })
 
 test_that("categorical summaries can separate n and percent columns", {
@@ -128,7 +129,7 @@ test_that("summary_table() excludes by from include", {
   expect_false(any(res$table$Variable == "am"))
 })
 
-test_that("summary_table() validates include mode and selection", {
+test_that("summary_table() validates include selection", {
   data <- mtcars
   data$am <- factor(data$am)
 
@@ -136,10 +137,7 @@ test_that("summary_table() validates include mode and selection", {
     summary_table(data, by = am, include = am),
     "at least one variable other than `by`"
   )
-  expect_error(
-    summary_table(data, include = mpg, mode = "rate"),
-    "available only"
-  )
+  expect_s3_class(summary_table(data, include = mpg), "gtstats_summary")
 })
 
 test_that("summary_table() validates overall", {
@@ -179,15 +177,15 @@ test_that("pipeline works end-to-end", {
     add_proportion(var = vs) |>
     add_total()
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true("Overall" %in% names(res$table))
   expect_true(nrow(res$table) > 0)
 })
 
-test_that("tbl_stats() returns formatted table", {
+test_that("to_gt() returns formatted table", {
   res <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   expect_s3_class(res, "gt_tbl")
 })
@@ -209,7 +207,7 @@ test_that("grouped summaries display blank category values safely", {
     add_proportion(var = outcome, level = "Yes") |>
     add_total()
 
-  expect_s3_class(result, "gt_desc_table")
+  expect_s3_class(result, "gtstats_summary")
   expect_true(any(grepl("\\(blank\\)", names(result$table))))
 })
 
@@ -236,13 +234,13 @@ test_that("summary_table() separates estimates and confidence intervals", {
     by = am,
     include = c(mpg, vs),
     overall = TRUE,
-    ci = TRUE,
     layout = "separate"
-  )
+  ) |>
+    add_ci()
 
   expect_identical(result$layout, "separate")
   expect_equal(nrow(result$display_columns), 3L)
   expect_true(all(result$display_columns$ci %in% names(result$table)))
   expect_true(any(nzchar(result$table[[result$display_columns$ci[[1L]]]])))
-  expect_s3_class(tbl_stats(result), "gt_tbl")
+  expect_s3_class(to_gt(result), "gt_tbl")
 })

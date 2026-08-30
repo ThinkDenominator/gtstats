@@ -163,7 +163,7 @@ test_that("effect_size() validates incompatible requests", {
 test_that("effect_size objects render and follow the result contract", {
   res <- effect_size(mtcars, mpg, am)
 
-  expect_s3_class(tbl_stats(res), "gt_tbl")
+  expect_s3_class(to_gt(res), "gt_tbl")
   expect_s3_class(to_flextable(res), "flextable")
   expect_true(all(c(
     "summary", "table", "inputs", "method", "assumptions",

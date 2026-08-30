@@ -117,7 +117,8 @@
 #'   `"exact"`.
 #' @param ci_digits Decimal places used for confidence limits.
 #' @param missing How to display missingness. One of `"ifany"`,
-#'   `"no"`, or `"always"`.
+#'   `"no"`, or `"always"`. Public builders implement `"as_category"`
+#'   before calling this lower-level summariser.
 #' @param digits Number of decimal places used for formatting.
 #' @param skew_cutoff Absolute skewness threshold used when
 #'   `continuous_format = "recommended"`. Values with absolute skewness greater
@@ -153,6 +154,7 @@
     continuous_format = c(
       "recommended",
       "mean_sd",
+      "mean_se",
       "mean_ci",
       "median_iqr",
       "both"
@@ -354,6 +356,7 @@
   # Choose which continuous summary display to show
   .make_cont_display <- function(
     mean_sd,
+    mean_se,
     mean_ci,
     median_iqr,
     continuous_format,
@@ -363,6 +366,7 @@
       continuous_format,
       both = paste0(mean_sd, "; ", median_iqr),
       mean_sd = mean_sd,
+      mean_se = mean_se,
       mean_ci = mean_ci,
       median_iqr = median_iqr,
       recommended = {
@@ -412,6 +416,12 @@
           .fmt_num(sd_val, digits),
           ")"
         )
+        mean_se <- paste0(
+          .fmt_num(mean_val, digits),
+          " (",
+          .fmt_num(sd_val / sqrt(n_nonmissing), digits),
+          ")"
+        )
         mean_ci <- .make_mean_ci(mean_val, sd_val, n_nonmissing)
 
         median_iqr <- paste0(
@@ -459,6 +469,7 @@
           count = NA_real_,
           percent = NA_real_,
           mean_sd = mean_sd,
+          mean_se = mean_se,
           mean_ci = mean_ci,
           median_iqr = median_iqr,
           range = range_val,
@@ -466,6 +477,7 @@
           recommendation = recommendation,
           display_value = .make_cont_display(
             mean_sd = mean_sd,
+            mean_se = mean_se,
             mean_ci = mean_ci,
             median_iqr = median_iqr,
             continuous_format = continuous_format,
@@ -489,7 +501,7 @@
             mean = NA_real_, sd = NA_real_, median = NA_real_,
             q1 = NA_real_, q3 = NA_real_, iqr = NA_real_,
             min = NA_real_, max = NA_real_, count = NA_real_,
-            percent = NA_real_, mean_sd = NA_character_,
+            percent = NA_real_, mean_sd = NA_character_, mean_se = NA_character_,
             mean_ci = NA_character_, median_iqr = NA_character_,
             range = NA_character_, count_pct = NA_character_,
             recommendation = "No observed categories",
@@ -536,6 +548,7 @@
           count = as.numeric(tab),
           percent = as.numeric(pct),
             mean_sd = NA_character_,
+            mean_se = NA_character_,
             mean_ci = NA_character_,
             median_iqr = NA_character_,
           range = NA_character_,
@@ -627,6 +640,7 @@
             min_val <- NA_real_
             max_val <- NA_real_
             mean_sd <- NA_character_
+            mean_se <- NA_character_
             mean_ci <- NA_character_
             median_iqr <- NA_character_
             range_val <- NA_character_
@@ -662,6 +676,12 @@
               .fmt_num(sd_val, digits),
               ")"
             )
+            mean_se <- paste0(
+              .fmt_num(mean_val, digits),
+              " (",
+              .fmt_num(sd_val / sqrt(n_nonmissing), digits),
+              ")"
+            )
             mean_ci <- .make_mean_ci(mean_val, sd_val, n_nonmissing)
 
             median_iqr <- paste0(
@@ -690,6 +710,7 @@
 
             display_value <- .make_cont_display(
               mean_sd = mean_sd,
+              mean_se = mean_se,
               mean_ci = mean_ci,
               median_iqr = median_iqr,
               continuous_format = continuous_format,
@@ -718,6 +739,7 @@
             count = NA_real_,
             percent = NA_real_,
             mean_sd = mean_sd,
+            mean_se = mean_se,
             mean_ci = mean_ci,
             median_iqr = median_iqr,
             range = range_val,
@@ -772,7 +794,7 @@
               mean = NA_real_, sd = NA_real_, median = NA_real_,
               q1 = NA_real_, q3 = NA_real_, iqr = NA_real_,
               min = NA_real_, max = NA_real_, count = NA_real_,
-              percent = NA_real_, mean_sd = NA_character_,
+              percent = NA_real_, mean_sd = NA_character_, mean_se = NA_character_,
               mean_ci = NA_character_, median_iqr = NA_character_,
               range = NA_character_, count_pct = "\u2014",
               recommendation = "No observed categories",
@@ -808,6 +830,7 @@
                   TRUE ~ as.numeric(column_pct[j])
                 ),
                 mean_sd = NA_character_,
+                mean_se = NA_character_,
                 mean_ci = NA_character_,
                 median_iqr = NA_character_,
                 range = NA_character_,

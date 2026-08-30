@@ -3,7 +3,7 @@ test_that("add_p() adds p-values with default auto method", {
     add_summary(vars = c(mpg, wt, cyl)) |>
     add_p()
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true("p-value" %in% names(res$table))
   expect_true(any(res$table$`p-value` != ""))
   expect_true("p_value" %in% res$components)
@@ -71,8 +71,8 @@ test_that("add_p() and compare_groups() use the same automatic routes", {
 
 test_that("add_p() replaces a previous p-value audit when rerun", {
   base <- summary_table(mtcars, by = am, include = mpg)
-  first <- add_p(base, method = c(mpg = "wilcox"))
-  rerun <- add_p(first, method = c(mpg = "welch_t"))
+  first <- add_p(base, test = c(mpg = "wilcox"))
+  rerun <- add_p(first, test = c(mpg = "welch_t"))
 
   expect_equal(rerun$p_values$test, "Welch t-test")
   selection <- rerun$diagnostics[
@@ -135,9 +135,9 @@ test_that("add_p() forwards var_equal through two- and multi-group auto routes",
 test_that("add_p() works with named method vector", {
   res <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt, cyl)) |>
-    add_p(method = c(mpg = "welch_t", wt = "wilcox", cyl = "chisq"))
+    add_p(test = c(mpg = "welch_t", wt = "wilcox", cyl = "chisq"))
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true("p-value" %in% names(res$table))
   expect_true(any(grepl("<|[0-9]", res$table$`p-value`)))
   expect_true(any(grepl("Welch t-test", res$pvalue_method_footnotes)))
@@ -151,7 +151,7 @@ test_that("add_p() safely resolves methods when variable labels are used", {
 
   res <- summary_table(dat, by = am) |>
     add_summary(vars = mpg) |>
-    add_p(method = c(mpg = "welch_t"))
+    add_p(test = c(mpg = "welch_t"))
 
   expect_true(any(res$table$`p-value` != ""))
   expect_true(any(grepl("Welch t-test", res$pvalue_method_footnotes)))
@@ -164,7 +164,7 @@ test_that("add_p() preserves clinical labels containing parentheses", {
 
   res <- summary_table(dat, by = am) |>
     add_summary(vars = c(mpg, wt)) |>
-    add_p(method = c(mpg = "welch_t", wt = "wilcox"))
+    add_p(test = c(mpg = "welch_t", wt = "wilcox"))
 
   mpg_row <- match("Fuel economy (mpg)", res$table$Variable)
   wt_row <- match("Vehicle weight (1000 lb)", res$table$Variable)
@@ -212,7 +212,7 @@ test_that("add_p() supports paired t-test", {
 
   res <- summary_table(dat, by = period) |>
     add_summary(vars = c(score)) |>
-    add_p(paired = TRUE, id = id, method = "t_test")
+    add_p(paired = TRUE, id = id, test = "t_test")
 
   expect_true("p-value" %in% names(res$table))
   expect_true(any(res$table$`p-value` != ""))
@@ -242,7 +242,7 @@ test_that("add_p() supports paired Wilcoxon signed-rank test", {
 
   res <- summary_table(dat, by = period) |>
     add_summary(vars = c(score)) |>
-    add_p(paired = TRUE, id = id, method = "wilcox")
+    add_p(paired = TRUE, id = id, test = "wilcox")
 
   expect_true("p-value" %in% names(res$table))
   expect_true(any(res$table$`p-value` != ""))
@@ -277,10 +277,10 @@ test_that("add_p() places p-values only on first row of each variable block", {
   }
 })
 
-test_that("add_p() errors if x is not gt_desc_table", {
+test_that("add_p() errors if x is not gtstats_summary", {
   expect_error(
     add_p(mtcars),
-    regexp = "gt_desc_table"
+    regexp = "gtstats_summary"
   )
 })
 
@@ -308,8 +308,8 @@ test_that("add_p() errors for unsupported single method", {
     add_summary(vars = c(mpg))
 
   expect_error(
-    add_p(res, method = "not_a_test"),
-    regexp = "Unsupported `method`"
+    add_p(res, test = "not_a_test"),
+    regexp = "Unsupported `test`"
   )
 })
 
@@ -318,15 +318,15 @@ test_that("add_p() errors for unsupported named method", {
     add_summary(vars = c(mpg))
 
   expect_error(
-    add_p(res, method = c(mpg = "not_a_test")),
-    regexp = "Unsupported `method`"
+    add_p(res, test = c(mpg = "not_a_test")),
+    regexp = "Unsupported `test`"
   )
 })
 
 test_that("add_p() accepts list method input", {
   res <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, cyl)) |>
-    add_p(method = list(mpg = "welch_t", cyl = "fisher"))
+    add_p(test = list(mpg = "welch_t", cyl = "fisher"))
 
   expect_true(any(grepl("Welch t-test", res$pvalue_method_footnotes)))
   expect_true(any(grepl("Fisher's exact test", res$pvalue_method_footnotes)))
@@ -339,7 +339,7 @@ test_that("add_p() works with overall column present", {
     add_total() |>
     add_p()
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true("Overall" %in% names(res$table))
   expect_true("p-value" %in% names(res$table))
   expect_true(any(res$table$`p-value` != ""))

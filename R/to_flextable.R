@@ -6,7 +6,7 @@
 #' This function is intended for export workflows where a `gtstats`
 #' object needs to be inserted into a report or presentation. The input
 #' should be the original analytical object, not the rendered `gt` table
-#' returned by [tbl_stats()].
+#' returned by [to_gt()].
 #'
 #' Text columns are left-aligned and value columns are right-aligned.
 #' Notes, footnotes, and p-value method footnotes are appended to the
@@ -14,7 +14,7 @@
 #'
 #' @param x A supported `gtstats` object containing a `$table`
 #'   component, such as an object returned by [summary_table()],
-#'   [summary_table()], [compare_groups()], [proportion_stats()], or related
+#'   [compare_groups()], [proportion_stats()], [as_stats_table()], or related
 #'   functions.
 #' @param font_size Font size applied to the whole table. Default is
 #'   `10`.
@@ -60,7 +60,7 @@ to_flextable <- function(
   if (inherits(x, "gt_tbl")) {
     stop(
       paste0(
-        "Please pass the gtstats object BEFORE `tbl_stats()`, ",
+        "Please pass the gtstats object BEFORE `to_gt()`, ",
         "not a rendered gt table."
       ),
       call. = FALSE
@@ -76,7 +76,7 @@ to_flextable <- function(
 
   df <- x$table
   characteristic_display <- NULL
-  if (inherits(x, "gt_desc_table")) {
+  if (inherits(x, "gtstats_summary")) {
     characteristic_display <- .builder_characteristic_display(df)
     df <- characteristic_display$data
   }
@@ -91,6 +91,33 @@ to_flextable <- function(
 
   # Build the base flextable
   ft <- flextable::flextable(df)
+  if (inherits(x, "gt_epi_table") && identical(x$inputs$layout, "wide")) {
+    groups <- attr(x$table, "epi_groups", exact = TRUE)
+    if (length(groups)) {
+      values <- ""
+      widths <- 1L
+      labels <- list(Outcome = "Outcome")
+      for (group in groups) {
+        key <- make.names(group)
+        columns <- paste0(key, c("__Cases", "__Denominator", "__Estimate", "__CI"))
+        labels[[columns[[1L]]]] <- "Cases"
+        labels[[columns[[2L]]]] <- if (identical(x$inputs$measure, "incidence_rate")) "Person-time" else "Denominator"
+        labels[[columns[[3L]]]] <- .epi_measure_label(x$inputs$measure, x$inputs$multiplier)
+        labels[[columns[[4L]]]] <- .conf_level_label(x$inputs$conf.level)
+        values <- c(values, group)
+        widths <- c(widths, 4L)
+      }
+      grouped_columns <- unlist(lapply(groups, function(group) paste0(make.names(group), c("__Cases", "__Denominator", "__Estimate", "__CI"))), use.names = FALSE)
+      trailing <- setdiff(names(df), c("Outcome", grouped_columns))
+      if (length(trailing)) {
+        values <- c(values, rep("", length(trailing)))
+        widths <- c(widths, rep(1L, length(trailing)))
+        for (column in trailing) labels[[column]] <- column
+      }
+      ft <- do.call(flextable::set_header_labels, c(list(x = ft), labels))
+      ft <- flextable::add_header_row(ft, values = values, colwidths = widths, top = TRUE)
+    }
+  }
   if (inherits(x, "gt_prop") && !is.null(x$inputs$by) &&
       is.data.frame(x$method$display_columns)) {
     display_columns <- x$method$display_columns
@@ -134,20 +161,34 @@ to_flextable <- function(
       top = TRUE
     )
   }
-  if (inherits(x, "gt_desc_table")) {
+  if (inherits(x, "gtstats_summary")) {
     if (identical(x$layout %||% "compact", "separate") &&
         is.data.frame(x$display_columns)) {
       child_labels <- c(Characteristic = "Characteristic")
       for (i in seq_len(nrow(x$display_columns))) {
         child_labels[[x$display_columns$estimate[[i]]]] <-
           x$display_columns$estimate_label[[i]]
-        child_labels[[x$display_columns$ci[[i]]]] <-
-          x$display_columns$ci_label[[i]]
+        if (!is.na(x$display_columns$ci[[i]]) &&
+            nzchar(x$display_columns$ci[[i]])) {
+          child_labels[[x$display_columns$ci[[i]]]] <-
+            x$display_columns$ci_label[[i]]
+        }
       }
+      display_value_columns <- unlist(lapply(seq_len(nrow(x$display_columns)), function(i) {
+        columns <- x$display_columns$estimate[[i]]
+        if (!is.na(x$display_columns$ci[[i]]) &&
+            nzchar(x$display_columns$ci[[i]])) {
+          columns <- c(columns, x$display_columns$ci[[i]])
+        }
+        columns
+      }), use.names = FALSE)
+      display_widths <- vapply(seq_len(nrow(x$display_columns)), function(i) {
+        1L + as.integer(!is.na(x$display_columns$ci[[i]]) &&
+          nzchar(x$display_columns$ci[[i]]))
+      }, integer(1))
       trailing <- setdiff(names(df), c(
         "Characteristic",
-        x$display_columns$estimate,
-        x$display_columns$ci
+        display_value_columns
       ))
       for (column in trailing) child_labels[[column]] <- column
       ft <- do.call(
@@ -163,7 +204,7 @@ to_flextable <- function(
         ),
         colwidths = c(
           1L,
-          rep(2L, nrow(x$display_columns)),
+          display_widths,
           rep(1L, length(trailing))
         ),
         top = TRUE
@@ -192,7 +233,7 @@ to_flextable <- function(
   }
   ft <- flextable::bold(ft, part = "header")
 
-  if (inherits(x, "gt_desc_table") && "Characteristic" %in% names(df)) {
+  if (inherits(x, "gtstats_summary") && "Characteristic" %in% names(df)) {
     label_rows <- characteristic_display$parent_rows
     if (length(label_rows) > 0L) {
       ft <- flextable::bold(
@@ -248,7 +289,7 @@ to_flextable <- function(
   # available from the original object through the dedicated audit helpers.
   if (!show_footnotes) {
     notes <- character()
-  } else if (inherits(x, "gt_desc_table")) {
+  } else if (inherits(x, "gtstats_summary")) {
     adjustment_note <- if (!identical(x$method$p_adjust %||% "none", "none")) {
       paste0(
         "P-values use the ", x$method$p_adjust,

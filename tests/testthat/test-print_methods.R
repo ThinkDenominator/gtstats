@@ -40,7 +40,7 @@ test_that("print.gt_correlation() returns invisibly and renders the table", {
   expect_identical(out, obj)
 })
 
-test_that("print.gt_desc_table() works when table is empty", {
+test_that("print.gtstats_summary() works when table is empty", {
   obj <- summary_table(mtcars, by = am)
 
   expect_output(
@@ -50,7 +50,7 @@ test_that("print.gt_desc_table() works when table is empty", {
   expect_identical(out, obj)
 })
 
-test_that("print.gt_desc_table() works when table has rows", {
+test_that("print.gtstats_summary() works when table has rows", {
   obj <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt))
 
@@ -96,7 +96,7 @@ test_that("print.gt_twobytwo() returns invisibly and prints a gt table", {
 
 test_that("print.gt_compare() has a publication-ready gt representation", {
   obj <- compare_groups(mtcars, variable = mpg, group = am)
-  expect_s3_class(tbl_stats(obj), "gt_tbl")
+  expect_s3_class(to_gt(obj), "gt_tbl")
 })
 
 test_that("direct and incremental summary tables both render", {

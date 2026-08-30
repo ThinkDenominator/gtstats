@@ -79,26 +79,24 @@ test_that("compare_groups() treats an independent ordered outcome as categorical
 test_that("compare_groups() rejects retired public arguments but accepts var_equal", {
   expect_error(
     compare_groups(mtcars, mpg, group = am, distribution_check = FALSE),
-    "Unused arguments"
+    "unused argument"
   )
   expect_error(
     compare_groups(mtcars, vs, group = am, correction = FALSE),
-    "Unused arguments"
+    "unused argument"
   )
   expect_error(
     compare_groups(mtcars, outcome = mpg, by = am),
-    "Unused arguments"
+    "unused argument"
   )
 })
 
 test_that("var_equal changes only the independent parametric auto route", {
   two_group <- compare_groups(
-    mtcars, mpg, group = am, var_equal = TRUE,
-    .distribution_check = FALSE
+    mtcars, mpg, group = am, var_equal = TRUE
   )
   multi_group <- compare_groups(
-    mtcars, mpg, group = cyl, var_equal = TRUE,
-    .distribution_check = FALSE
+    mtcars, mpg, group = cyl, var_equal = TRUE
   )
 
   expect_equal(two_group$inferential$test_used[[1]], "Student t-test")
@@ -126,7 +124,7 @@ test_that("skewness, pairing, and categorical routes ignore var_equal", {
   )
   paired_result <- compare_groups(
     paired, value, visit, paired = TRUE, id = id, var_equal = TRUE,
-    .distribution_check = FALSE
+    test = "t_test"
   )
   expect_equal(paired_result$inferential$test_used[[1]], "Paired t-test")
 
@@ -138,7 +136,7 @@ test_that("skewness, pairing, and categorical routes ignore var_equal", {
 test_that("var_equal is validated and hidden .var_equal is retired", {
   expect_error(compare_groups(mtcars, mpg, am, var_equal = "yes"), "var_equal")
   expect_error(compare_groups(mtcars, mpg, am, var_equal = NA), "var_equal")
-  expect_error(compare_groups(mtcars, mpg, am, .var_equal = TRUE), "Unused arguments")
+  expect_error(compare_groups(mtcars, mpg, am, .var_equal = TRUE), "unused argument")
 })
 
 test_that("compare_groups() supports Student t-test", {
@@ -640,7 +638,7 @@ test_that("paired output identifies within-pair estimates and exclusions", {
   expect_true(any(grepl("Mean within-pair difference", names(result$table))))
   expect_true(any(grepl("within-pair difference is Baseline minus Follow-up", result$notes)))
   expect_true(any(grepl("1 participant was excluded", result$notes)))
-  rendered <- tbl_stats(result)
+  rendered <- to_gt(result)
   expect_match(paste(capture.output(rendered), collapse = " "), "complete pairs")
 })
 
@@ -678,7 +676,7 @@ test_that("repeated-measures ANOVA table flags the sphericity review", {
   )
   result <- compare_groups(dat, score, visit, paired = TRUE, id = id,
                            test = "rm_anova")
-  rendered <- tbl_stats(result)
+  rendered <- to_gt(result)
   expect_match(paste(capture.output(rendered), collapse = " "), "Greenhouse-Geisser")
 })
 

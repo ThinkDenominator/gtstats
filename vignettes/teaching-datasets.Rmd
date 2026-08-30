@@ -15,12 +15,15 @@ library(gtstats)
 
 # Built-in teaching datasets
 
-gtstats includes three labelled datasets. They make tutorials, classroom
+gtstats includes five labelled datasets. They make tutorials, classroom
 material, peer feedback, and reproducible examples work without another
 package. They are examples for learning, not data for clinical decision-making.
 
 ```r
-data("birthwt", "trial_data", "paired_data", package = "gtstats")
+data(
+  "birthwt", "trial_data", "paired_data", "outbreak_data",
+  "surveillance_data", package = "gtstats"
+)
 ```
 
 | Dataset | Design | Main teaching use | Automatic branches demonstrated |
@@ -28,6 +31,8 @@ data("birthwt", "trial_data", "paired_data", package = "gtstats")
 | `birthwt` | Real observational low-birth-weight study; 189 births | Table 1, data understanding, binary and multi-level categorical data, 2x2 epidemiology | Welch t / Wilcoxon, chi-square / Fisher, RR/OR/RD |
 | `trial_data` | Synthetic three-arm trial; 180 participants | Independent groups, ordinal outcomes, correlation, rates | Welch ANOVA, Kruskal-Wallis, chi-square, Fisher exact |
 | `paired_data` | Synthetic long-format follow-up; 90 complete pairs | Before/after or matched analysis | paired t-test, Wilcoxon signed-rank, McNemar |
+| `outbreak_data` | Real CDC Oswego foodborne-outbreak line list; 75 interviews | Attack rates from individual-level exposure and illness data | line-list `epi_table()` route, Fisher/chi-square, RR/OR/RD |
+| `surveillance_data` | Real archived CDC weekly hospital surveillance; 808 health service areas | Rates from aggregate counts and population denominators | aggregate `epi_table()` route and exact Poisson CIs |
 
 ## `birthwt`: real clinical teaching data
 
@@ -99,6 +104,61 @@ compare_groups(
   paired = TRUE, id = id
 )
 ```
+
+## `outbreak_data`: line-list outbreak analysis
+
+`outbreak_data` contains the 75 interview records from CDC's classic Oswego
+church-supper investigation. The observations are unchanged; gtstats only uses
+beginner-friendly variable names, `Yes`/`No` factors, and labels. This example
+estimates illness attack rates among people who did and did not eat vanilla ice
+cream, with an association test and 2x2 effect estimates.
+
+```r
+epi_table(
+  outbreak_data,
+  outcomes = ill,
+  by = vanilla_ice_cream,
+  event = "Yes",
+  measure = "attack_rate",
+  p_value = TRUE,
+  effects = "all"
+)
+```
+
+## `surveillance_data`: aggregate surveillance rates
+
+`surveillance_data` is an archived CDC extract for the report dated 12 January
+2024. Each row is one health service area with an admission count and population
+denominator. Two areas have insufficient admission data; remove those rows
+explicitly before calculating rates. Because `admission_level` is derived from
+the published rate, this teaching example is descriptive and does not request a
+p-value.
+
+```r
+complete_surveillance <- subset(surveillance_data, !is.na(admissions))
+
+epi_table(
+  complete_surveillance,
+  numerator = admissions,
+  denominator = population,
+  label = admission_level,
+  measure = "incidence_rate",
+  multiplier = 100000
+)
+```
+
+The result is a weekly hospital-admission rate per 100,000 population. These
+archived provisional data demonstrate the workflow; they must not be presented
+as current surveillance.
+
+## Provenance and reuse
+
+Both real epidemiology datasets are traceable to CDC. The surveillance metadata
+identifies the source as a US Government work. CDC states that most agency
+material is public domain, while requiring attribution and a non-endorsement
+statement. CDC supplied the source material and does not endorse gtstats; the
+original material is available without charge from CDC. See the package dataset
+help pages for source links and the exact transformations.
 
 ## Transparency note
 

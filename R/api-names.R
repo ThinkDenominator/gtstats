@@ -374,7 +374,6 @@ crosstabs <- function(
 #' @param path Optional output directory. When omitted, `filename` is used as
 #'   supplied, so a simple filename saves in the current working directory.
 #' @param title,subtitle Optional table title and subtitle.
-#' @param pvalue_style P-value display style for tables.
 #' @param bold_labels Logical; bold variable labels in tables.
 #' @param show_footnotes Logical; include explanatory table footnotes.
 #' @param zoom,expand Image-export controls for tables.
@@ -408,7 +407,6 @@ save_output <- function(
     path = NULL,
     title = NULL,
     subtitle = NULL,
-    pvalue_style = c("default", "scientific"),
     bold_labels = TRUE,
     show_footnotes = TRUE,
     zoom = 2,
@@ -454,7 +452,7 @@ save_output <- function(
   } else {
     .save_table(
       x = x, filename = filename, path = path, title = title,
-      subtitle = subtitle, pvalue_style = pvalue_style,
+      subtitle = subtitle,
       bold_labels = bold_labels, show_footnotes = show_footnotes,
       zoom = zoom, expand = expand, vwidth = vwidth, vheight = vheight,
       quiet = quiet, ...
@@ -701,7 +699,7 @@ customise_table <- function(
     }
     if (isTRUE(prefix) && !startsWith(value, "<")) paste0("p = ", value) else value
   }
-  if (inherits(x, "gt_desc_table") && is.data.frame(x$p_values) &&
+  if (inherits(x, "gtstats_summary") && is.data.frame(x$p_values) &&
       "p-value" %in% names(x$table)) {
     for (i in seq_len(nrow(x$p_values))) {
       row <- x$p_values$row_index[[i]]

@@ -18,7 +18,7 @@ add_rate(
 )
 }
 \arguments{
-\item{x}{A rate-mode \code{gt_desc_table} created with \code{\link[=summary_table]{summary_table()}}.}
+\item{x}{A \code{gtstats_summary} created with \code{\link[=summary_table]{summary_table()}}.}
 
 \item{event}{Non-negative integer event count, supplied as a bare name or
 character string. Logical values are accepted as binary event indicators.}
@@ -43,18 +43,18 @@ character string. Logical values are accepted as binary event indicators.}
 separate columns beneath each cohort header.}
 }
 \value{
-The updated \code{gt_desc_table}.
+The updated \code{gtstats_summary}.
 }
 \description{
-Add an event rate to a rate-mode table created with \code{\link[=summary_table]{summary_table()}}.
+Add an event rate to a table created with \code{\link[=summary_table]{summary_table()}}.
 Event counts and accumulated time are calculated from complete event-time
 pairs only. Event counts and time values must be finite. Exact Poisson
 confidence intervals are shown by default. A row with zero accumulated time
 is retained as \verb{\\u2014} and recorded as not estimable in the audit.
 }
 \details{
-\code{add_rate()} cannot be combined with summary-style components in the same
-builder because rate denominators have a different meaning.
+Rate denominators are tracked separately from ordinary descriptive rows and
+are stated in the table audit and footnote.
 }
 \examples{
 summary_table(mtcars, by = am, overall = TRUE) |>

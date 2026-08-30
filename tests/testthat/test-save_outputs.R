@@ -29,7 +29,7 @@ test_that("save_output() saves html from a gt_tbl object", {
 
   gt_obj <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   out_file <- tempfile(fileext = ".html")
 
@@ -156,7 +156,7 @@ test_that("save_output() creates nested directory if needed", {
   expect_true(file.exists(out))
 })
 
-test_that("save_output() passes title and subtitle through tbl_stats()", {
+test_that("save_output() passes title and subtitle through to_gt()", {
   skip_if_not_installed("gt")
 
   res <- summary_table(mtcars, by = am) |>

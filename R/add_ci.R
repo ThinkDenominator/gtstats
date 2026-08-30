@@ -11,7 +11,7 @@
 #' columns. The confidence level and interval method are stated once in the
 #' publication footnote.
 #'
-#' @param x A table created by [summary_table()].
+#' @param x A table created by [summary_table()] or [as_stats_table()].
 #' @param vars Variables that should receive confidence intervals. `NULL`
 #'   (default) selects every eligible variable already in the table. Variables
 #'   may be supplied as bare names, for example `c(age, sex)`, or as a character
@@ -22,8 +22,17 @@
 #'   usual t interval.
 #' @param digits Decimal places for confidence limits. `NULL` inherits the
 #'   confidence-interval precision from the table.
+#' @param type For [as_stats_table()] input, the explicit aggregate-data
+#'   calculation: `"proportion"`, `"rate"`, `"mean"`, or `"normal"`.
+#' @param estimate,numerator,denominator,sd,n,se Columns containing the required
+#'   aggregate inputs. Supply bare column names or single character names.
+#'   Proportions and rates require `numerator` and `denominator`; means require
+#'   `estimate`, `sd`, and `n`; normal intervals require `estimate` and `se`.
+#' @param multiplier Positive rate multiplier, such as `1000` person-years.
+#' @param ci_name Optional name for the added interval column. The default is
+#'   the confidence-level label, for example `"95% CI"`.
 #'
-#' @return The updated `gt_desc_table` object.
+#' @return The updated `gtstats_summary` object.
 #'
 #' @examples
 #' summary_table(mtcars, by = am, include = c(mpg, cyl), layout = "separate") |>
@@ -32,15 +41,54 @@
 #' summary_table(mtcars, by = am, include = c(mpg, cyl, vs)) |>
 #'   add_ci(vars = c(mpg, vs), conf.level = 0.90)
 #'
+#' aggregate_rates <- data.frame(
+#'   Group = c("A", "B"), Events = c(8, 14), PersonYears = c(420, 510)
+#' )
+#' as_stats_table(aggregate_rates) |>
+#'   add_ci(type = "rate", numerator = Events, denominator = PersonYears,
+#'          multiplier = 1000)
+#'
 #' @export
 add_ci <- function(
     x,
     vars = NULL,
     conf.level = 0.95,
     method = c("wilson", "exact"),
-    digits = NULL
+    digits = NULL,
+    type = NULL,
+    estimate = NULL,
+    numerator = NULL,
+    denominator = NULL,
+    sd = NULL,
+    n = NULL,
+    se = NULL,
+    multiplier = 1,
+    ci_name = NULL
 ) {
-  .validate_summary_builder(x, "add_ci", mode = "summary")
+  if (inherits(x, "gt_data_table")) {
+    return(.add_aggregate_ci(
+      x = x,
+      type = type,
+      estimate_expr = substitute(estimate),
+      numerator_expr = substitute(numerator),
+      denominator_expr = substitute(denominator),
+      sd_expr = substitute(sd),
+      n_expr = substitute(n),
+      se_expr = substitute(se),
+      env = parent.frame(),
+      conf.level = conf.level,
+      method = match.arg(method),
+      digits = digits,
+      multiplier = multiplier,
+      ci_name = ci_name
+    ))
+  }
+  .validate_summary_builder(x, "add_ci")
+  aggregate_arguments <- list(type, estimate, numerator, denominator, sd, n, se, ci_name)
+  if (any(vapply(aggregate_arguments, function(value) !is.null(value), logical(1))) ||
+      !identical(multiplier, 1)) {
+    stop("Aggregate CI arguments are available only for `as_stats_table()` input.", call. = FALSE)
+  }
   method <- match.arg(method)
   .validate_conf_level(conf.level)
   if (!is.null(digits)) .validate_digits(digits)
@@ -142,7 +190,10 @@ add_ci <- function(
   for (variable in eligible) {
     label <- .get_var_label(x$data, variable)
     variable_type <- .detect_type(x$data[[variable]])
-    row_indices <- which(x$table$Variable == label & x$table$Level != "Missing")
+    row_indices <- which(
+      x$table$Variable == label &
+        (x$table$Level != "Missing" | identical(x$missing, "as_category"))
+    )
     if (length(row_indices) == 0L) next
 
     for (source in names(group_masks)) {
@@ -158,17 +209,33 @@ add_ci <- function(
           put_ci(row_index, source, estimate + c(-1, 1) * critical * se)
         }
       } else {
-        nonmissing <- !is.na(values)
+        displayed_values <- as.character(values)
+        if (identical(x$missing, "as_category")) {
+          displayed_values[is.na(displayed_values)] <- "Missing"
+        }
+        included <- if (identical(x$missing, "as_category")) {
+          rep(TRUE, length(displayed_values))
+        } else {
+          !is.na(displayed_values)
+        }
         for (row_index in row_indices) {
           level <- x$table$Level[[row_index]]
-          numerator <- sum(as.character(values[nonmissing]) == level)
+          numerator <- sum(displayed_values[included] == level)
           denominator <- if (identical(x$percent %||% "column", "row") &&
                              !is.null(x$by) && source != "Overall") {
-            sum(as.character(x$data[[variable]][!is.na(x$data[[variable]])]) == level)
+            all_values <- as.character(x$data[[variable]])
+            if (identical(x$missing, "as_category")) {
+              all_values[is.na(all_values)] <- "Missing"
+            }
+            sum(all_values == level, na.rm = TRUE)
           } else if (identical(x$percent %||% "column", "overall") && source != "Overall") {
-            sum(!is.na(x$data[[variable]]))
+            if (identical(x$missing, "as_category")) {
+              nrow(x$data)
+            } else {
+              sum(!is.na(x$data[[variable]]))
+            }
           } else {
-            sum(nonmissing)
+            sum(included)
           }
           if (denominator > 0L) {
             interval <- 100 * .binomial_ci(

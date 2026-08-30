@@ -2,7 +2,7 @@ test_that("add_summary() adds summary rows to ungrouped descriptive table", {
   res <- summary_table(mtcars) |>
     add_summary(vars = c(mpg, wt))
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(all(c("Variable", "Level", "Value") %in% names(res$table)))
   expect_true(any(res$table$Variable %in% c("mpg", "wt")))
   expect_true("summary" %in% res$components)
@@ -12,7 +12,7 @@ test_that("add_summary() adds summary rows to grouped descriptive table", {
   res <- summary_table(mtcars, by = am, overall = TRUE) |>
     add_summary(vars = c(mpg, wt, cyl))
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(all(c("Variable", "Level", "am = 1", "am = 0") %in% names(res$table)))
   expect_true(any(res$table$Variable %in% c("mpg", "wt", "cyl")))
 })
@@ -21,7 +21,7 @@ test_that("add_summary() adds overall column when requested", {
   res <- summary_table(mtcars, by = am, overall = TRUE) |>
     add_summary(vars = c(mpg, wt))
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true("Overall" %in% names(res$table))
   expect_true(all(c("am = 1", "am = 0") %in% names(res$table)))
 })
@@ -52,7 +52,7 @@ test_that("add_summary() works with single bare variable", {
   res <- summary_table(mtcars, by = am) |>
     add_summary(vars = mpg)
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(any(res$table$Variable == "mpg"))
 })
 
@@ -60,7 +60,7 @@ test_that("add_summary() works with bare c() variables", {
   res <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt, cyl))
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(all(c("mpg", "wt", "cyl") %in% unique(res$table$Variable)))
 })
 
@@ -68,21 +68,21 @@ test_that("add_summary() works with character vector variables", {
   res <- summary_table(mtcars, by = am) |>
     add_summary(vars = c("mpg", "wt", "cyl"))
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(all(c("mpg", "wt", "cyl") %in% unique(res$table$Variable)))
 })
 
 test_that("add_summary() supports mean_sd format", {
   res <- summary_table(mtcars, by = am) |>
-    add_summary(vars = c(mpg), continuous_format = "mean_sd")
+    add_summary(vars = c(mpg), statistic = "mean_sd")
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(any(grepl("mean \\(SD\\)", res$footnotes, ignore.case = TRUE)))
 })
 
 test_that("add_summary() supports mean_ci format", {
   res <- summary_table(mtcars, by = am, overall = TRUE) |>
-    add_summary(vars = mpg, continuous_format = "mean_ci")
+    add_summary(vars = mpg, statistic = "mean_ci")
 
   expected <- mean(mtcars$mpg) + c(-1, 1) *
     stats::qt(0.975, df = nrow(mtcars) - 1) *
@@ -100,17 +100,17 @@ test_that("add_summary() supports mean_ci format", {
 
 test_that("add_summary() supports median_iqr format", {
   res <- summary_table(mtcars, by = am) |>
-    add_summary(vars = c(mpg), continuous_format = "median_iqr")
+    add_summary(vars = c(mpg), statistic = "median_iqr")
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(any(grepl("median \\(IQR\\)", res$footnotes, ignore.case = TRUE)))
 })
 
 test_that("add_summary() supports recommended format", {
   res <- summary_table(mtcars, by = am) |>
-    add_summary(vars = c(mpg), continuous_format = "recommended")
+    add_summary(vars = c(mpg), statistic = "recommended")
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_identical(unname(res$summary_statistics[["mpg"]]), "mean_sd")
   expect_identical(
     unname(res$summary_statistics_requested[["mpg"]]),
@@ -121,9 +121,9 @@ test_that("add_summary() supports recommended format", {
 
 test_that("add_summary() supports both format", {
   res <- summary_table(mtcars, by = am) |>
-    add_summary(vars = c(mpg), continuous_format = "both")
+    add_summary(vars = c(mpg), statistic = "both")
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(any(grepl("mean \\(SD\\) and median \\(IQR\\)", res$footnotes, ignore.case = TRUE)))
 })
 
@@ -147,28 +147,25 @@ test_that("add_summary() can append a new variable in a later call", {
   expect_true(all(c("mpg", "wt") %in% res$table$Variable))
 })
 
-test_that("add_summary() can be followed by tbl_stats()", {
+test_that("add_summary() can be followed by to_gt()", {
   gt_obj <- summary_table(mtcars, by = am, overall = TRUE) |>
     add_summary(vars = c(mpg, wt, cyl)) |>
-    tbl_stats()
+    to_gt()
 
   expect_s3_class(gt_obj, "gt_tbl")
 })
 
-test_that("add_summary() errors if x is not gt_desc_table", {
+test_that("add_summary() errors if x is not gtstats_summary", {
   expect_error(
     add_summary(mtcars, vars = c(mpg, wt)),
-    regexp = "gt_desc_table"
+    regexp = "gtstats_summary"
   )
 })
 
-test_that("add_summary() errors in non-summary mode", {
-  res <- summary_table(mtcars, by = am, mode = "rate")
-
-  expect_error(
-    add_summary(res, vars = c(mpg, wt)),
-    regexp = "mode = \"summary\""
-  )
+test_that("add_summary() extends an empty summary builder", {
+  res <- summary_table(mtcars, by = am)
+  result <- add_summary(res, vars = c(mpg, wt))
+  expect_equal(names(result$summary_statistics), c("mpg", "wt"))
 })
 
 test_that("add_summary() errors for invalid vars specification", {

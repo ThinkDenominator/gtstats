@@ -1,7 +1,7 @@
 test_that("standalone analyses support publication and console formats", {
   expect_s3_class(describe_data(mtcars), "gt_describe")
   expect_s3_class(describe_data(mtcars, format = "tibble"), "tbl_df")
-  expect_s3_class(describe_data(mtcars, output = "tibble"), "tbl_df")
+  expect_s3_class(describe_data(mtcars, format = "tibble"), "tbl_df")
 
   expect_s3_class(
     assess_distribution(mtcars, vars = mpg, format = "tibble"),
@@ -42,7 +42,7 @@ test_that("summary builder remains composable in console format", {
   ) |>
     add_p()
 
-  expect_s3_class(x, "gt_desc_table")
+  expect_s3_class(x, "gtstats_summary")
   expect_identical(x$format, "tibble")
   expect_s3_class(x$table, "tbl_df")
   expect_output(print(x), "# A tibble")

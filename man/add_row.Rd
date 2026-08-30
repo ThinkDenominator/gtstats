@@ -7,7 +7,7 @@
 add_row(x, label, overall = NULL, values = NULL, level = "")
 }
 \arguments{
-\item{x}{A \code{gt_desc_table} object created with \code{\link[=summary_table]{summary_table()}}.}
+\item{x}{A \code{gtstats_summary} object created with \code{\link[=summary_table]{summary_table()}}.}
 
 \item{label}{A single character string giving the row label to display in the
 \code{Variable} column.}
@@ -23,7 +23,7 @@ for example \code{c("am = 1" = "2020-2024", "am = 0" = "2020-2024")}.}
 empty string.}
 }
 \value{
-An updated \code{gt_desc_table} object with the custom row appended.
+An updated \code{gtstats_summary} object with the custom row appended.
 }
 \description{
 Add a user-defined row to a \code{gtstats} descriptive table. This is useful for

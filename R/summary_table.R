@@ -11,11 +11,9 @@
 #' no need to add continuous and categorical variables separately.
 #'
 #' When `include = NULL`, an empty builder is returned for specialist row-only
-#' workflows. Printing a completed object automatically displays a publication-ready `gt` table;
-#' call [tbl_stats()] only when explicit rendering control is required.
-#'
-#' `mode = "rate"` remains available for compatibility, but is not needed in
-#' new code: create the foundation normally and add [add_rate()] as a layer.
+#' workflows. Printing a completed object automatically displays a
+#' publication-ready `flextable`; call [to_gt()] when an HTML-oriented `gt`
+#' table is required.
 #'
 #' A grouping variable may be supplied to create one column per group.
 #' An optional `overall` column can also be requested for later use.
@@ -28,13 +26,11 @@
 #'   names, such as `c(age, sex, bmi)`, or a character vector. Mixed variable
 #'   types can be selected together. When omitted, an empty advanced builder is
 #'   returned.
-#' @param mode Table mode. `"summary"` is the normal route. `"rate"` is retained
-#'   for compatibility with earlier rate-only builders.
 #' @param overall Overall-column setting. Use `FALSE` to omit it, `"first"` to
 #'   place it before the grouped columns, or `"last"` to place it after them.
 #'   `TRUE` is accepted as a shorthand for `"first"`.
 #' @param statistic Continuous summary format: `"recommended"`, `"mean_sd"`,
-#'   `"mean_ci"`, `"median_iqr"`, or `"both"`. A single value applies to all
+#'   `"mean_se"`, `"mean_ci"`, `"median_iqr"`, or `"both"`. A single value applies to all
 #'   continuous variables. In a named vector, `continuous` supplies a fallback
 #'   for every continuous variable and variable names supply exceptions, for
 #'   example `c(continuous = "mean_sd", lwt = "median_iqr")`. Without a
@@ -51,22 +47,29 @@
 #'   level for compact binary rows, for example `c(smoke = "Yes")`. Unspecified
 #'   binary variables use their second declared or sorted level.
 #' @param percent Percentage denominator: `"column"`, `"row"`, or `"overall"`.
+#' @param overall_categorical Categorical display in the Overall column.
+#'   `"auto"` (default) uses counts only with row percentages, because the
+#'   Overall percentage would be redundant, and otherwise follows
+#'   `categorical`. Explicit choices are `"n_percent"`,
+#'   `"n_over_N_percent"`, `"n"`, or `"percent"`.
 #' @param digits One number applied throughout, or a named numeric vector using
 #'   `continuous`, `percent`, and `ci`.
-#' @param missing Missing-row display: `"ifany"`, `"always"`, or `"no"`.
+#' @param missing Missing-value display and percentage handling. `"ifany"`
+#'   shows a missing row only when needed, `"always"` always shows it, and
+#'   `"no"` hides it; these three calculate observed-category percentages
+#'   from non-missing values. `"as_category"` displays missing values as a
+#'   category and includes them when calculating categorical percentages.
 #' @param layout Table layout. `"compact"` keeps each summary in one cell.
 #'   `"separate"` requests summary and CI child columns beneath each cohort
 #'   header. Those child columns appear only after confidence intervals are
 #'   added; choosing the layout alone does not create empty CI columns.
 #' @param label Optional named character vector overriding variable labels.
+#' @param conf.level Confidence level used when `statistic = "mean_ci"`.
 #' @param format Display format: `"table"` (default) or `"tibble"`. The
 #'   builder remains composable; this option changes how the completed object
 #'   prints without discarding its audit components.
-#' @param ... Compatibility arguments `ci`, `conf.level`, and `ci_method` from
-#'   earlier development versions. New code should use [add_ci()]. Unknown
-#'   arguments are rejected.
 #'
-#' @return A `gt_desc_table` object containing the source data,
+#' @return A `gtstats_summary` object containing the source data,
 #'   structural settings, and placeholders for table components.
 #'
 #' @examples
@@ -111,12 +114,20 @@
 #'   value = c(vs = "1", am = "1")
 #' )
 #'
+#' # Include Missing in a categorical percentage denominator
+#' missing_example <- mtcars
+#' missing_example$vs[1:3] <- NA
+#' summary_table(
+#'   missing_example,
+#'   include = vs,
+#'   missing = "as_category"
+#' )
+#'
 #' @export
 summary_table <- function(
     data,
     by = NULL,
     include = NULL,
-    mode = c("summary", "rate"),
     overall = FALSE,
     statistic = "recommended",
     categorical = c("n_percent", "n_over_N_percent", "n", "percent"),
@@ -124,34 +135,23 @@ summary_table <- function(
     show_dichotomous = c("all_levels", "single_row"),
     value = NULL,
     percent = c("column", "row", "overall"),
+    overall_categorical = c("auto", "n_percent", "n_over_N_percent", "n", "percent"),
     digits = 1,
-    missing = c("ifany", "always", "no"),
+    missing = c("ifany", "always", "no", "as_category"),
     layout = c("compact", "separate"),
     label = NULL,
-    format = c("table", "tibble"),
-    ...
+    conf.level = 0.95,
+    format = c("table", "tibble")
 ) {
-  dots <- list(...)
-  unknown_dots <- setdiff(names(dots), c("ci", "conf.level", "ci_method"))
-  if (length(unknown_dots) > 0L) {
-    stop(
-      "Unused argument", if (length(unknown_dots) > 1L) "s" else "", ": ",
-      paste0("`", unknown_dots, "`", collapse = ", "), ".",
-      call. = FALSE
-    )
-  }
-  ci <- dots$ci %||% FALSE
-  conf.level <- dots$conf.level %||% 0.95
-  ci_method <- dots$ci_method %||% "wilson"
   format <- match.arg(format)
-  mode <- match.arg(mode)
   categorical <- match.arg(categorical)
   categorical_layout <- match.arg(categorical_layout)
   show_dichotomous <- match.arg(show_dichotomous)
   percent <- match.arg(percent)
+  overall_categorical <- match.arg(overall_categorical)
   missing <- match.arg(missing)
-  ci_method <- match.arg(ci_method, c("wilson", "exact"))
   layout <- match.arg(layout)
+  .validate_conf_level(conf.level)
   if (is.logical(overall) && length(overall) == 1L && !is.na(overall)) {
     overall_position <- "first"
     overall_requested <- isTRUE(overall)
@@ -165,15 +165,7 @@ summary_table <- function(
       call. = FALSE
     )
   }
-  .validate_flag(ci, "ci")
-  .validate_conf_level(conf.level)
   .resolve_summary_digits(digits)
-  if (isTRUE(ci) && identical(categorical, "n")) {
-    stop(
-      "`ci = TRUE` requires a percentage-based `categorical` display.",
-      call. = FALSE
-    )
-  }
 
   if (!is.data.frame(data)) {
     stop("`data` must be a data.frame.", call. = FALSE)
@@ -234,9 +226,10 @@ summary_table <- function(
     data = data,
     data_name = deparse(substitute(data)),
     by = by,
-    mode = mode,
     overall = overall_requested,
     overall_position = overall_position,
+    overall_categorical = overall_categorical,
+    conf.level = conf.level,
     layout = layout,
     categorical_layout = categorical_layout,
     format = format,
@@ -247,7 +240,6 @@ summary_table <- function(
     methods_used = character(),
     pvalue_method_footnotes = character(),
     method = list(
-      builder_mode = mode,
       percentage_denominator = NULL,
       missing_rows = NULL,
       p_adjust = NULL
@@ -258,7 +250,9 @@ summary_table <- function(
     call = match.call()
   )
 
-  class(result) <- c("gt_desc_table", "gtstats", "list")
+  # Engine-neutral result: conversion to gt or flextable is an explicit
+  # presentation decision.
+  class(result) <- c("gtstats_summary", "gtstats", "list")
 
   if (!is.null(label)) {
     for (variable in names(label)) {
@@ -267,12 +261,6 @@ summary_table <- function(
   }
 
   if (!is.null(include_names)) {
-    if (!identical(mode, "summary")) {
-      stop(
-        "`include` is available only when `mode = \"summary\"`.",
-        call. = FALSE
-      )
-    }
     include_names <- setdiff(include_names, by %||% character())
     if (length(include_names) == 0L) {
       stop(
@@ -289,11 +277,9 @@ summary_table <- function(
       value = value,
       categorical_layout = categorical_layout,
       percent = percent,
+      overall_categorical = overall_categorical,
       digits = digits,
       missing = missing,
-      ci = ci,
-      conf.level = conf.level,
-      ci_method = ci_method,
       layout = layout
     )
   }

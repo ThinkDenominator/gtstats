@@ -119,7 +119,6 @@
 #'   Set to `NULL` to use the current random-number state.
 #' @param format Output format: `"table"` (default) or a plain console
 #'   `"tibble"`.
-#' @param ... Reserved for internal package use.
 #'
 #' @return A `gt_compare` object containing:
 #' \itemize{
@@ -166,7 +165,7 @@
 #'
 #' compare_groups(mtcars, variable = mpg, group = am, var_equal = TRUE)
 #'
-#' tbl_stats(compare_groups(mtcars, variable = mpg, group = am))
+#' to_gt(compare_groups(mtcars, variable = mpg, group = am))
 #'
 #' @export
 compare_groups <- function(
@@ -185,34 +184,64 @@ compare_groups <- function(
     digits = 2,
     var_equal = FALSE,
     fisher_seed = 1049L,
+    format = c("table", "tibble")
+) {
+  .compare_groups_impl(
+    data = data,
+    outcome_expr = substitute(variable),
+    group_expr = substitute(group),
+    id_expr = substitute(id),
+    caller_env = parent.frame(),
+    user_call = match.call(),
+    data_name = deparse(substitute(data)),
+    paired = paired,
+    test = test,
+    effect_size = effect_size,
+    conf.level = conf.level,
+    digits = digits,
+    var_equal = var_equal,
+    fisher_seed = fisher_seed,
+    format = format,
+    distribution_check = TRUE,
+    correction = TRUE,
+    quiet = FALSE
+  )
+}
+
+.compare_groups_impl <- function(
+    data,
+    outcome_expr,
+    group_expr,
+    id_expr,
+    caller_env,
+    user_call,
+    data_name,
+    paired = FALSE,
+    test = c(
+      "auto", "t_test", "welch_t", "wilcox",
+      "anova", "welch_anova", "kruskal", "chisq", "fisher", "mcnemar",
+      "rm_anova", "friedman", "cochran_q"
+    ),
+    effect_size = FALSE,
+    conf.level = 0.95,
+    digits = 2,
+    var_equal = FALSE,
+    fisher_seed = 1049L,
     format = c("table", "tibble"),
-    ...
+    distribution_check = TRUE,
+    correction = TRUE,
+    quiet = FALSE
 ) {
   format <- match.arg(format)
-  dots_expr <- match.call(expand.dots = FALSE)$...
-  dots_names <- names(dots_expr) %||% character()
-  allowed_internal <- c(".distribution_check", ".correction", ".quiet")
-  unknown_internal <- setdiff(dots_names, allowed_internal)
-  if (length(unknown_internal) > 0L || any(!nzchar(dots_names))) {
-    stop("Unused arguments supplied through `...`.", call. = FALSE)
-  }
-  internal_names <- intersect(
-    dots_names,
-    c(".distribution_check", ".correction", ".quiet")
-  )
-  internal <- lapply(dots_expr[internal_names], eval, envir = parent.frame())
   test <- match.arg(test)
   .validate_flag(paired, "paired")
   .validate_flag(effect_size, "effect_size")
   .validate_conf_level(conf.level)
   .validate_digits(digits)
-  distribution_check <- internal$.distribution_check %||% TRUE
-  correction <- internal$.correction %||% TRUE
-  quiet <- internal$.quiet %||% FALSE
-  .validate_flag(distribution_check, ".distribution_check")
+  .validate_flag(distribution_check, "distribution_check")
   .validate_flag(var_equal, "var_equal")
-  .validate_flag(correction, ".correction")
-  .validate_flag(quiet, ".quiet")
+  .validate_flag(correction, "correction")
+  .validate_flag(quiet, "quiet")
   if (!is.null(fisher_seed) &&
       (!is.numeric(fisher_seed) || length(fisher_seed) != 1L ||
        is.na(fisher_seed) || !is.finite(fisher_seed))) {
@@ -225,15 +254,12 @@ compare_groups <- function(
   }
 
   # Resolve variable and grouping names from bare or character input
-  outcome_expr <- substitute(variable)
-  group_expr <- substitute(group)
-
   outcome_eval <- tryCatch(
-    eval(outcome_expr, parent.frame()),
+    eval(outcome_expr, caller_env),
     error = function(e) NULL
   )
   group_eval <- tryCatch(
-    eval(group_expr, parent.frame()),
+    eval(group_expr, caller_env),
     error = function(e) NULL
   )
 
@@ -274,8 +300,8 @@ compare_groups <- function(
   }
 
   id_name <- .resolve_var_arg(
-    substitute(id),
-    env = parent.frame(),
+    id_expr,
+    env = caller_env,
     allow_null = TRUE
   )
   if (isTRUE(paired) && is.null(id_name)) {
@@ -2234,7 +2260,7 @@ compare_groups <- function(
 
   result <- list(
     inputs = list(
-      data_name = deparse(substitute(data)),
+      data_name = data_name,
       variable = outcome_name,
       group = group_name,
       id = id_name,
@@ -2394,7 +2420,7 @@ compare_groups <- function(
         effect_note
       )
     },
-    call = match.call()
+    call = user_call
   )
 
   class(result) <- c("gt_compare", "gtstats", "list")

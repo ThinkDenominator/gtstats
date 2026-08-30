@@ -10,7 +10,6 @@ save_output(
   path = NULL,
   title = NULL,
   subtitle = NULL,
-  pvalue_style = c("default", "scientific"),
   bold_labels = TRUE,
   show_footnotes = TRUE,
   zoom = 2,
@@ -38,8 +37,6 @@ report.}
 supplied, so a simple filename saves in the current working directory.}
 
 \item{title, subtitle}{Optional table title and subtitle.}
-
-\item{pvalue_style}{P-value display style for tables.}
 
 \item{bold_labels}{Logical; bold variable labels in tables.}
 

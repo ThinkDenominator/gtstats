@@ -23,3 +23,5 @@
 ^Rplots\.pdf$
 ^not-a-plot\.png$
 ^cran-comments\.md$
+^CITATION\.cff$
+^\.RDataTmp$

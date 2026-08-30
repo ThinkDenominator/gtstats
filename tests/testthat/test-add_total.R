@@ -2,7 +2,7 @@ test_that("add_total() adds total row to ungrouped descriptive table", {
   res <- summary_table(mtcars) |>
     add_total()
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(any(res$table$Variable == "Total (N)"))
   expect_true("Value" %in% names(res$table))
   expect_true(any(res$table$Value == as.character(nrow(mtcars))))
@@ -14,7 +14,7 @@ test_that("add_total() adds total row to grouped descriptive table", {
   res <- summary_table(mtcars, by = am) |>
     add_total()
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(any(res$table$Variable == "Total (N)"))
   expect_true(all(c("am = 1", "am = 0") %in% names(res$table)))
 
@@ -28,7 +28,7 @@ test_that("add_total() adds total row to grouped descriptive table with overall"
   res <- summary_table(mtcars, by = am, overall = TRUE) |>
     add_total()
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true("Overall" %in% names(res$table))
   idx <- which(res$table$Variable == "Total (N)")
   expect_true(length(idx) == 1)
@@ -39,7 +39,7 @@ test_that("add_total() supports custom label", {
   res <- summary_table(mtcars, by = am) |>
     add_total(label = "Total participants")
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(any(res$table$Variable == "Total participants"))
 })
 
@@ -56,7 +56,7 @@ test_that("add_total() works after summary rows are added", {
     add_summary(vars = c(mpg, wt)) |>
     add_total()
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(any(res$table$Variable == "Total (N)"))
 })
 
@@ -64,34 +64,31 @@ test_that("add_total() works when table is initially empty", {
   res <- summary_table(mtcars, by = am) |>
     add_total()
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_equal(nrow(res$table), 1)
   expect_true(any(res$table$Variable == "Total (N)"))
 })
 
-test_that("add_total() can be followed by tbl_stats()", {
+test_that("add_total() can be followed by to_gt()", {
   gt_obj <- summary_table(mtcars, by = am, overall = TRUE) |>
     add_summary(vars = c(mpg, wt)) |>
     add_total() |>
-    tbl_stats()
+    to_gt()
 
   expect_s3_class(gt_obj, "gt_tbl")
 })
 
-test_that("add_total() errors if x is not gt_desc_table", {
+test_that("add_total() errors if x is not gtstats_summary", {
   expect_error(
     add_total(mtcars),
-    regexp = "gt_desc_table"
+    regexp = "gtstats_summary"
   )
 })
 
-test_that("add_total() errors in non-summary mode", {
-  res <- summary_table(mtcars, by = am, mode = "rate")
-
-  expect_error(
-    add_total(res),
-    regexp = "mode = \"summary\""
-  )
+test_that("add_total() works on an empty summary builder", {
+  res <- summary_table(mtcars, by = am)
+  result <- add_total(res)
+  expect_true("total" %in% result$components)
 })
 
 test_that("add_total() errors for invalid label", {

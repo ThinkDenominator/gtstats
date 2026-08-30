@@ -115,7 +115,7 @@ print.gt_correlation <- function(x, ...) {
 #' Print the publication-ready table stored by a `gt_effect` object.
 #'
 #' @param x A `gt_effect` object.
-#' @param ... Further arguments passed to [tbl_stats()].
+#' @param ... Further arguments passed to [to_gt()].
 #'
 #' @return The input object, invisibly.
 #'
@@ -131,15 +131,14 @@ print.gt_effect <- function(x, ...) {
 
 #' Print a descriptive table
 #'
-#' Print a completed `gt_desc_table` as a publication-ready `gt` table.
+#' Print a completed `gtstats_summary` as a publication-ready `flextable`.
 #' An empty builder instead prints a short instruction explaining how to add
 #' rows.
 #'
-#' The print method shows the table mode, source data, grouping status,
-#' whether an overall column is requested, and the first few rows of the
-#' current table builder.
+#' Use `format = "tibble"` in [summary_table()] for a plain console table, or
+#' call [to_gt()] when an HTML-oriented `gt` table is required.
 #'
-#' @param x A `gt_desc_table` object.
+#' @param x A `gtstats_summary` object.
 #' @param ... Further arguments passed to methods.
 #'
 #' @return The input object, invisibly.
@@ -149,7 +148,7 @@ print.gt_effect <- function(x, ...) {
 #' print(x)
 #'
 #' @export
-print.gt_desc_table <- function(x, ...) {
+print.gtstats_summary <- function(x, ...) {
   if (is.null(x$table)) {
     cat("No variables have been selected.\n")
     cat("Add variables using `include = c(age, sex, bmi)`, or use ")
@@ -209,6 +208,17 @@ print.gt_prop <- function(x, ...) {
 #'
 #' @export
 print.gt_rate <- function(x, ...) {
+  print(to_flextable(x, ...))
+  invisible(x)
+}
+
+#' Print an outbreak and surveillance table
+#'
+#' @param x A `gt_epi_table` object.
+#' @param ... Further arguments passed to [to_flextable()].
+#' @return The input object, invisibly.
+#' @export
+print.gt_epi_table <- function(x, ...) {
   print(to_flextable(x, ...))
   invisible(x)
 }

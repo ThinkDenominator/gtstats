@@ -7,7 +7,6 @@
 denominators_stats(
   x,
   format = c("table", "tibble"),
-  output = NULL,
   title = "Denominator audit",
   subtitle = NULL,
   view = c("readable", "audit")
@@ -17,9 +16,6 @@ denominators_stats(
 \item{x}{A \code{gtstats} result.}
 
 \item{format}{Output format: \code{"table"} (default) or \code{"tibble"}.}
-
-\item{output}{Compatibility alias accepting \code{"gt"}, \code{"table"}, or
-\code{"tibble"}.}
 
 \item{title, subtitle}{Optional table heading used for \code{format = "table"}.}
 

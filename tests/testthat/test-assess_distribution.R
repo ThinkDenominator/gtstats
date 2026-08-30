@@ -115,7 +115,7 @@ test_that("assess_distribution() creates optional visual diagnostics", {
   expect_named(res$plots$mpg, c("histogram", "density", "qq", "boxplot"))
   expect_s3_class(res$plots$mpg$histogram, "ggplot")
 
-  tibble_result <- assess_distribution(mtcars, vars = mpg, plots = TRUE, output = "tibble")
+  tibble_result <- assess_distribution(mtcars, vars = mpg, plots = TRUE, format = "tibble")
   expect_s3_class(attr(tibble_result, "plots")$mpg$qq, "ggplot")
   expect_true(is.data.frame(attr(tibble_result, "recommendations")))
 })
@@ -127,7 +127,7 @@ test_that("assess_distribution() validates inputs and supported routes", {
   expect_error(assess_distribution(mtcars, plots = NA), "plots")
 
   res <- assess_distribution(mtcars, vars = c(mpg, wt))
-  expect_s3_class(tbl_stats(res), "gt_tbl")
+  expect_s3_class(to_gt(res), "gt_tbl")
   expect_s3_class(to_flextable(res), "flextable")
-  expect_s3_class(assess_distribution(mtcars, vars = mpg, output = "tibble"), "tbl_df")
+  expect_s3_class(assess_distribution(mtcars, vars = mpg, format = "tibble"), "tbl_df")
 })

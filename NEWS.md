@@ -1,15 +1,76 @@
 # gtstats 1.0.0
 
+* Added `missing = "as_category"` to `summary_table()` and `add_summary()`.
+  For categorical variables, missing values are displayed as a category and
+  included in percentage denominators. The existing `"ifany"`, `"always"`,
+  and `"no"` settings retain non-missing denominators. Continuous missingness
+  remains a separate row, and missing values are never silently recoded as a
+  non-event.
+
+* Synchronised the README, app manual, function-options material, styling and
+  export guide, GUI wording, and pkgdown navigation around the three distinct
+  table routes: `summary_table()` for participant-level data, `epi_table()` for
+  outbreak/surveillance calculations, and value-preserving
+  `as_stats_table()` for final results calculated elsewhere.
+
+* Finalised the pre-CRAN presentation API. `add_summary()` now uses one
+  `statistic` argument and leaves confidence intervals exclusively to
+  `add_ci()`. Removed development-only no-op `digits` and `pvalue_style`
+  controls from `to_gt()` and `save_output()`; working p-value styling remains
+  available through `customise_table()`.
+
+* Removed the hidden internal `...` interface from `compare_groups()`.
+  Package layers now call a private comparison engine while the public
+  function has a fully explicit, documented signature.
+
+* Added explicit `statistic = "mean_se"` support. It is never selected
+  automatically because SE describes precision of the estimated mean rather
+  than variability among observations.
+
+* `summary_table()` now returns the engine-neutral `gtstats_summary` class.
+  Use `to_gt()` or `to_flextable()` for explicit rendering.
+
+* Standardised `add_p(test = ...)` with `compare_groups(test = ...)` and
+  retired the development-only `method` spelling for inferential test choice.
+
+* Retired the redundant `tbl_stats()` renderer and development-only
+  `summary_table(mode = "rate")` route. Use `to_gt()` and add rates with
+  `add_rate()`.
+
+* Added two real, traceable CDC teaching datasets: `outbreak_data`, the classic
+  Oswego foodborne-outbreak line list, and `surveillance_data`, an archived
+  weekly hospital-admission surveillance extract. They demonstrate the
+  line-list and aggregate routes of `epi_table()` and include explicit source,
+  transformation, and reuse documentation.
+
+* `summary_table()` gains `overall_categorical`. Automatic mode shows counts
+  in the Overall column when grouped cells use row percentages; users can
+  explicitly request n (%), n/N (%), counts, or percentages.
+* `add_ci()` now accepts `as_stats_table()` results and calculates confidence
+  intervals from explicitly mapped aggregate columns for proportions, rates,
+  means, or estimates with standard errors. Statistical meaning is never
+  guessed from column names.
+
+* Added `as_stats_table()` to format, customise, and export an already
+  summarised data frame without recalculating its values.
+* The GUI can now select a data frame from the current R environment and can
+  send already summarised data directly to the table customiser.
+
 * Added `show_dichotomous = "single_row"` with optional named `value` choices
   to `summary_table()` and `add_summary()`. This matches gtregression and gives
   conventional one-event-per-row binary summaries without changing full-variable
   inference.
+* Replaced the Summary-table app's hidden text mapping for compact binary
+  summaries with an explicit event-level selector for every selected binary
+  variable. Switching between one event row and all levels now produces a
+  visible, reproducible change in both the table and generated R code.
 * Reduced publication footnote type in flextable and gt output, and exposed the
   binary display and advanced styling choices in the gtstats app.
 
 * Made publication output Office-first: supported results now print as
   `flextable` objects by default. `to_gt()` provides an explicit HTML-focused
-  route, while `tbl_stats()` remains as a compatibility alias. `save_output()`
+  route. The redundant development renderer alias was retired; use `to_gt()`.
+  `save_output()`
   now accepts raw gtstats results, flextables and gt tables and supports PPTX.
 
 * Extended `customise_table()` with spanning headers, additional or suppressed
@@ -184,3 +245,17 @@
   the same publication-table default and `format = "tibble"` console route.
 * Corrected the paired manual case study to use `summary_table(by = visit)` and
   added an explicit console example for variance diagnostics.
+* Redesigned the app's Summary table workspace as a five-stage ribbon
+  (Foundation, Statistics, P-values, Add, and Design). Foundation keeps data,
+  compact searchable variable selection, grouping and Overall together.
+  Downloads and reusable R code now sit with the persistent publication
+  preview instead of occupying a separate Export tab.
+* Made Summary-table variable selection explicitly reversible: the app shows
+  selected and available-variable counts, provides an Add variables button,
+  and reopens the searchable list after an item is removed. Ribbon menus now
+  render beyond their cards instead of being clipped.
+* Added `epi_table()` for publication-ready outbreak and surveillance tables
+  from either individual line-list data or aggregate numerator/denominator
+  data. The function makes events, denominators, scale and confidence-interval
+  methods explicit; optional p-values and two-group epidemiological effects are
+  separate reporting layers.

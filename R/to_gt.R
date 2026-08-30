@@ -1,8 +1,4 @@
 .builder_publication_note <- function(object) {
-  if (identical(object$mode, "rate")) {
-    return(paste(unique(object$footnotes), collapse = " "))
-  }
-
   notes <- character()
   helper_notes <- object$footnotes %||% character()
 
@@ -40,6 +36,7 @@
       switch(
         format,
         mean_sd = "mean (SD)",
+        mean_se = "mean (SE)",
         mean_ci = paste0(
           "mean (", round(100 * (object$conf.level %||% 0.95)), "% CI)"
         ),
@@ -53,6 +50,11 @@
       character()
     } else if (identical(continuous_formats, "mean_sd")) {
       "Continuous data are mean (SD)."
+    } else if (identical(continuous_formats, "mean_se")) {
+      paste0(
+        "Continuous data are mean (SE). SE is the standard error of the ",
+        "estimated mean, not the variability of individual observations."
+      )
     } else if (identical(continuous_formats, "mean_ci")) {
       paste0(
         "Continuous data are mean (",
@@ -96,6 +98,13 @@
       "Categorical data are n (%)."
     }
     notes <- c(notes, continuous_text)
+    if ("mean_se" %in% continuous_formats &&
+        !identical(continuous_formats, "mean_se")) {
+      notes <- c(
+        notes,
+        "SE is the standard error of the estimated mean, not the variability of individual observations."
+      )
+    }
     if (length(categorical_vars) > 0L) notes <- c(notes, categorical_text)
 
     if (length(categorical_vars) > 0L && percent %in% c("row", "overall")) {
@@ -106,6 +115,16 @@
           if (identical(percent, "row")) "row" else "overall",
           " denominators."
         )
+      )
+    }
+
+    if (length(categorical_vars) > 0L &&
+        isTRUE(object$overall) &&
+        identical(percent, "row") &&
+        identical(object$overall_categorical %||% "auto", "auto")) {
+      notes <- c(
+        notes,
+        "Overall categorical values are counts; grouped percentages use row denominators."
       )
     }
 
@@ -170,11 +189,11 @@
   paste(unique(notes[nzchar(notes)]), collapse = " ")
 }
 
-#' Create formatted gt tables from gtstats objects
+#' Convert a gtstats result to a gt table
 #'
 #' Render supported `gtstats` objects as formatted `gt` tables.
 #'
-#' This function is the main rendering bridge between analytical
+#' This function is the explicit rendering bridge between analytical
 #' `gtstats` objects and presentation-ready table output. It supports
 #' descriptive, inferential, epidemiological, and table-builder
 #' objects created by the package and applies a consistent visual
@@ -190,14 +209,12 @@
 #' - `gt_prop`
 #' - `gt_rate`
 #' - `gt_twobytwo`
-#' - `gt_desc_table`
+#' - `gtstats_summary`
+#' - `gt_data_table`
 #'
 #' @param x A supported `gtstats` object.
 #' @param title Optional table title.
 #' @param subtitle Optional table subtitle.
-#' @param digits Optional digits argument reserved for future use.
-#' @param pvalue_style P-value display style. Currently stored but
-#'   reserved for future formatting extensions.
 #' @param bold_labels Logical; whether to bold variable labels where
 #'   appropriate.
 #' @param show_footnotes Logical; whether explanatory footnotes should
@@ -206,13 +223,13 @@
 #' @return A `gt_tbl` object.
 #'
 #' @examples
-#' tbl_stats(describe_data(mtcars))
+#' to_gt(describe_data(mtcars))
 #'
-#' tbl_stats(summary_table(mtcars, by = am, include = c(mpg, wt)))
+#' to_gt(summary_table(mtcars, by = am, include = c(mpg, wt)))
 #'
-#' tbl_stats(compare_groups(mtcars, variable = mpg, group = am))
+#' to_gt(compare_groups(mtcars, variable = mpg, group = am))
 #'
-#' tbl_stats(
+#' to_gt(
 #'   summary_table(
 #'     mtcars,
 #'     by = am,
@@ -224,17 +241,13 @@
 #' )
 #'
 #' @export
-tbl_stats <- function(
+to_gt <- function(
     x,
     title = NULL,
     subtitle = NULL,
-    digits = NULL,
-    pvalue_style = c("default", "scientific"),
     bold_labels = TRUE,
     show_footnotes = TRUE
 ) {
-  pvalue_style <- match.arg(pvalue_style)
-
   # Apply title and subtitle when supplied
   .apply_header <- function(gt_tbl, title = NULL, subtitle = NULL) {
     if (!is.null(title) || !is.null(subtitle)) {
@@ -273,6 +286,31 @@ tbl_stats <- function(
     # assumptions_stats(), diagnostics_stats(), and denominators_stats().
     # They are analyst audit information, not publication-table annotations.
     gt_tbl
+  }
+
+  # Render an already summarised data frame without changing its values.
+  if (inherits(x, "gt_data_table")) {
+    gt_tbl <- gt::gt(x$table)
+    gt_tbl <- .apply_header(gt_tbl, title = title, subtitle = subtitle)
+    gt_tbl <- .style_common(gt_tbl)
+    text_columns <- names(x$table)[vapply(
+      x$table,
+      function(column) is.character(column) || is.factor(column),
+      logical(1)
+    )]
+    if (length(text_columns)) {
+      gt_tbl <- gt::cols_align(gt_tbl, align = "left", columns = text_columns)
+    }
+    numeric_columns <- names(x$table)[vapply(x$table, is.numeric, logical(1))]
+    if (length(numeric_columns)) {
+      gt_tbl <- gt::cols_align(gt_tbl, align = "right", columns = numeric_columns)
+    }
+    if (show_footnotes && length(x$notes %||% character())) {
+      for (note in x$notes) {
+        gt_tbl <- gt::tab_source_note(gt_tbl, source_note = note)
+      }
+    }
+    return(gt_tbl)
   }
 
   # Render dataset overview tables
@@ -707,12 +745,12 @@ tbl_stats <- function(
   }
 
   # Render descriptive table builder output
-  if (inherits(x, "gt_desc_table")) {
+  if (inherits(x, "gtstats_summary")) {
     if (is.null(x$table)) {
       stop(
         paste0(
           "This descriptive table has no rows yet. Add rows ",
-          "before calling `tbl_stats()`."
+          "before calling `to_gt()`."
         ),
         call. = FALSE
       )
@@ -726,10 +764,11 @@ tbl_stats <- function(
     if (identical(x$layout %||% "compact", "separate") &&
         is.data.frame(x$display_columns)) {
       for (i in seq_len(nrow(x$display_columns))) {
-        child_columns <- c(
-          x$display_columns$estimate[[i]],
-          x$display_columns$ci[[i]]
-        )
+        child_columns <- c(x$display_columns$estimate[[i]])
+        if (!is.na(x$display_columns$ci[[i]]) &&
+            nzchar(x$display_columns$ci[[i]])) {
+          child_columns <- c(child_columns, x$display_columns$ci[[i]])
+        }
         gt_tbl <- gt::tab_spanner(
           gt_tbl,
           label = gt::md(sub(
@@ -737,13 +776,11 @@ tbl_stats <- function(
           )),
           columns = tidyselect::all_of(child_columns)
         )
-        labels <- stats::setNames(
-          list(
-            x$display_columns$estimate_label[[i]],
-            x$display_columns$ci_label[[i]]
-          ),
-          child_columns
-        )
+        child_labels <- c(x$display_columns$estimate_label[[i]])
+        if (length(child_columns) == 2L) {
+          child_labels <- c(child_labels, x$display_columns$ci_label[[i]])
+        }
+        labels <- stats::setNames(as.list(child_labels), child_columns)
         gt_tbl <- do.call(gt::cols_label, c(list(.data = gt_tbl), labels))
       }
     }
@@ -960,6 +997,31 @@ tbl_stats <- function(
   }
 
   # Render 2x2 epidemiology tables
+  if (inherits(x, "gt_epi_table")) {
+    gt_tbl <- gt::gt(x$table)
+    groups <- attr(x$table, "epi_groups", exact = TRUE)
+    if (identical(x$inputs$layout, "wide") && length(groups)) {
+      labels <- list(Outcome = "Outcome")
+      for (group in groups) {
+        key <- make.names(group)
+        columns <- paste0(key, c("__Cases", "__Denominator", "__Estimate", "__CI"))
+        gt_tbl <- gt::tab_spanner(gt_tbl, label = group, columns = tidyselect::all_of(columns))
+        labels[[columns[[1L]]]] <- "Cases"
+        labels[[columns[[2L]]]] <- if (identical(x$inputs$measure, "incidence_rate")) "Person-time" else "Denominator"
+        labels[[columns[[3L]]]] <- .epi_measure_label(x$inputs$measure, x$inputs$multiplier)
+        labels[[columns[[4L]]]] <- .conf_level_label(x$inputs$conf.level)
+      }
+      gt_tbl <- do.call(gt::cols_label, c(list(.data = gt_tbl), labels))
+    }
+    gt_tbl <- .apply_header(gt_tbl, title = title, subtitle = subtitle)
+    gt_tbl <- .style_common(gt_tbl)
+    gt_tbl <- gt::cols_align(gt_tbl, align = "left", columns = tidyselect::all_of(intersect(c("Outcome", "Group"), names(x$table))))
+    gt_tbl <- gt::cols_align(gt_tbl, align = "right", columns = tidyselect::all_of(setdiff(names(x$table), c("Outcome", "Group"))))
+    if (show_footnotes) for (note in x$notes) gt_tbl <- gt::tab_source_note(gt_tbl, source_note = note)
+    return(.add_audit_note(gt_tbl, x))
+  }
+
+  # Render 2x2 epidemiology tables
   if (inherits(x, "gt_twobytwo")) {
     gt_tbl <- gt::gt(x$table)
 
@@ -1029,38 +1091,7 @@ tbl_stats <- function(
   }
 
   stop(
-    "`tbl_stats()` does not yet support this object class.",
+    "`to_gt()` does not yet support this object class.",
     call. = FALSE
-  )
-}
-
-#' Convert a gtstats result to a gt table
-#'
-#' Explicitly render a supported `gtstats` result as a publication-ready
-#' [gt::gt()] table. Package print methods use [to_flextable()] by default;
-#' `to_gt()` is the opt-in route for HTML-oriented `gt` workflows.
-#'
-#' @inheritParams tbl_stats
-#' @return A `gt_tbl` object.
-#' @examples
-#' to_gt(summary_table(mtcars, include = c(mpg, wt)))
-#' @export
-to_gt <- function(
-    x,
-    title = NULL,
-    subtitle = NULL,
-    digits = NULL,
-    pvalue_style = c("default", "scientific"),
-    bold_labels = TRUE,
-    show_footnotes = TRUE
-) {
-  tbl_stats(
-    x,
-    title = title,
-    subtitle = subtitle,
-    digits = digits,
-    pvalue_style = pvalue_style,
-    bold_labels = bold_labels,
-    show_footnotes = show_footnotes
   )
 }

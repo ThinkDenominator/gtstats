@@ -7,7 +7,7 @@
 add_total(x, label = "Total (N)", position = c("last", "first"))
 }
 \arguments{
-\item{x}{A \code{gt_desc_table} object created with \code{\link[=summary_table]{summary_table()}}.}
+\item{x}{A \code{gtstats_summary} object created with \code{\link[=summary_table]{summary_table()}}.}
 
 \item{label}{Row label to display in the \code{Variable} column. Defaults to
 \code{"Total (N)"}.}
@@ -16,7 +16,7 @@ add_total(x, label = "Total (N)", position = c("last", "first"))
 sizes at the top of the table or \code{"last"} to append them.}
 }
 \value{
-An updated \code{gt_desc_table} object with a total row appended.
+An updated \code{gtstats_summary} object with a total row appended.
 }
 \description{
 Add a total row to a \code{gtstats} descriptive table showing the number of

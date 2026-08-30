@@ -1,0 +1,51 @@
+cff-version: 1.2.0
+message: "If you use gtstats in your work, please cite it using the metadata below."
+title: "gtstats: Beginner-Friendly Statistics and Publication-Ready Tables"
+type: software
+version: 1.0.0
+doi: 10.5281/zenodo.22180130
+url: "https://gtstats.thinkdenominator.com/"
+repository-code: "https://github.com/ThinkDenominator/gtstats"
+license: MIT
+authors:
+  - family-names: Polani
+    given-names: Rubeshkumar
+    orcid: "https://orcid.org/0000-0002-0418-7592"
+  - family-names: Kaviprawin
+    given-names: Mogan
+    orcid: "https://orcid.org/0000-0002-1659-059X"
+  - family-names: Sakthivel
+    given-names: Manikandanesan
+    orcid: "https://orcid.org/0000-0002-5438-3970"
+  - family-names: Eliyas
+    given-names: Salin K
+    orcid: "https://orcid.org/0000-0002-8020-5860"
+  - family-names: Krishnamoorthy
+    given-names: Yuvaraj
+    orcid: "https://orcid.org/0000-0003-4688-510X"
+keywords:
+  - R
+  - descriptive statistics
+  - inferential statistics
+  - epidemiology
+  - public health
+  - publication-ready tables
+  - reproducible research
+preferred-citation:
+  type: software
+  title: "gtstats: Beginner-Friendly Statistics and Publication-Ready Tables"
+  version: 1.0.0
+  year: 2026
+  doi: 10.5281/zenodo.22180130
+  url: "https://gtstats.thinkdenominator.com/"
+  authors:
+    - family-names: Polani
+      given-names: Rubeshkumar
+    - family-names: Kaviprawin
+      given-names: Mogan
+    - family-names: Sakthivel
+      given-names: Manikandanesan
+    - family-names: Eliyas
+      given-names: Salin K
+    - family-names: Krishnamoorthy
+      given-names: Yuvaraj

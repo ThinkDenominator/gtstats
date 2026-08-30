@@ -85,6 +85,6 @@ rate_stats(df, event = event, time = ptime)
 
 rate_stats(df, event = event, time = ptime, by = arm)
 
-tbl_stats(rate_stats(df, event = event, time = ptime, by = arm))
+to_gt(rate_stats(df, event = event, time = ptime, by = arm))
 
 }

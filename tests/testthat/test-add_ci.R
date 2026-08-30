@@ -4,7 +4,7 @@ test_that("add_ci() adds intervals to all eligible summaries", {
   ) |>
     add_ci()
 
-  expect_s3_class(result, "gt_desc_table")
+  expect_s3_class(result, "gtstats_summary")
   expect_true("ci" %in% result$components)
   expect_setequal(result$ci_variables, c("mpg", "cyl"))
   expect_true(all(grepl("\\d", result$table$summary_1_ci)))

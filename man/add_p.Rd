@@ -6,7 +6,7 @@
 \usage{
 add_p(
   x,
-  method = "auto",
+  test = "auto",
   include = tidyselect::everything(),
   paired = FALSE,
   id = NULL,
@@ -19,9 +19,9 @@ add_p(
 )
 }
 \arguments{
-\item{x}{A \code{gt_desc_table} object created with \code{\link[=summary_table]{summary_table()}}.}
+\item{x}{A \code{gtstats_summary} object created with \code{\link[=summary_table]{summary_table()}}.}
 
-\item{method}{Statistical test to use. Either a single method string, or a
+\item{test}{Statistical test to use. Either a single test string, or a
 named character vector/list specifying methods for individual variables.
 Names may match either displayed variable labels or underlying variable
 names.}
@@ -36,13 +36,13 @@ derived from birth weight.}
 
 \item{id}{Pair or participant identifier required when \code{paired = TRUE}.}
 
-\item{distribution_check}{Logical; when \code{method = "auto"}, use distribution
+\item{distribution_check}{Logical; when \code{test = "auto"}, use distribution
 guidance to choose parametric or rank-based tests. This guidance is based
 on skewness; Shapiro-Wilk is supporting information only. For paired
 analyses the check is applied to within-pair differences.}
 
 \item{var_equal}{Logical; for independent, non-skewed continuous comparisons
-in \code{method = "auto"}, use Student's t-test or classical ANOVA. The default
+in \code{test = "auto"}, use Student's t-test or classical ANOVA. The default
 \code{FALSE} uses Welch methods. This is a user-specified assumption, not a
 variance test, and does not affect paired, categorical, ordinal, or
 rank-based comparisons.}
@@ -59,9 +59,9 @@ tests. One of \link[stats:p.adjust.methods]{stats::p.adjust.methods}; default \c
 \item{digits}{Number of decimal places used when formatting p-values.}
 }
 \value{
-An updated \code{gt_desc_table} object with a \code{p-value} column added.
+An updated \code{gtstats_summary} object with a \code{p-value} column added.
 When \code{paired = TRUE}, \verb{$paired_p_notes} records the complete-pair
-denominator for each displayed p-value; \code{\link[=tbl_stats]{tbl_stats()}} displays this as a
+denominator for each displayed p-value; \code{\link[=to_gt]{to_gt()}} displays this as a
 concise p-value footnote.
 }
 \description{
@@ -92,7 +92,7 @@ You may also provide a named character vector or named list to specify
 different methods for individual variables.
 \subsection{Automatic selection and audit trail}{
 
-With \code{method = "auto"}, \code{add_p()} delegates each comparison to
+With \code{test = "auto"}, \code{add_p()} delegates each comparison to
 \code{\link[=compare_groups]{compare_groups()}} using the same fixed selection policy: Welch t-test or
 Welch ANOVA by default when distribution guidance does not flag skewness;
 Student's t-test or classical ANOVA when \code{var_equal = TRUE}; rank-based tests
@@ -118,7 +118,7 @@ summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>
   add_p()
 
 summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>
-  add_p(method = c(mpg = "welch_t", wt = "wilcox", cyl = "chisq"))
+  add_p(test = c(mpg = "welch_t", wt = "wilcox", cyl = "chisq"))
 
 summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>
   add_p(include = c(mpg, wt))

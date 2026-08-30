@@ -6,7 +6,7 @@ test_that("add_row() adds a row to grouped descriptive table", {
       values = c("am = 1" = "2020\u20132024", "am = 0" = "2020\u20132024")
     )
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(any(res$table$Variable == "Study period"))
   expect_true(any(res$table$`am = 1` == "2020\u20132024"))
   expect_true(any(res$table$`am = 0` == "2020\u20132024"))
@@ -22,7 +22,7 @@ test_that("add_row() adds a row to grouped descriptive table with overall", {
       values = c("am = 1" = "2020\u20132024", "am = 0" = "2020\u20132024")
     )
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(any(res$table$Variable == "Study period"))
   expect_true("Overall" %in% names(res$table))
   expect_true(any(res$table$Overall == "2020\u20132024"))
@@ -36,7 +36,7 @@ test_that("add_row() adds a row to ungrouped descriptive table", {
       values = "2020\u20132024"
     )
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(any(res$table$Variable == "Study period"))
   expect_true("Value" %in% names(res$table))
   expect_true(any(res$table$Value == "2020\u20132024"))
@@ -62,7 +62,7 @@ test_that("add_row() works when table is initially empty", {
       values = c("am = 1" = "2020\u20132024", "am = 0" = "2020\u20132024")
     )
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_equal(nrow(res$table), 1)
   expect_true(all(c("Variable", "Level", "am = 1", "am = 0") %in% names(res$table)))
 })
@@ -79,10 +79,10 @@ test_that("add_row() accepts list values", {
   expect_true(any(res$table$`am = 1` == "2020\u20132024"))
 })
 
-test_that("add_row() errors if x is not gt_desc_table", {
+test_that("add_row() errors if x is not gtstats_summary", {
   expect_error(
     add_row(mtcars, label = "Study period"),
-    regexp = "gt_desc_table"
+    regexp = "gtstats_summary"
   )
 })
 
@@ -185,7 +185,7 @@ test_that("add_row() errors for multiple values in ungrouped table", {
   )
 })
 
-test_that("tbl_stats() works after add_row()", {
+test_that("to_gt() works after add_row()", {
   gt_obj <- summary_table(mtcars, by = am, overall = TRUE) |>
     add_summary(vars = c(mpg, wt)) |>
     add_row(
@@ -193,7 +193,7 @@ test_that("tbl_stats() works after add_row()", {
       overall = "2020\u20132024",
       values = c("am = 1" = "2020\u20132024", "am = 0" = "2020\u20132024")
     ) |>
-    tbl_stats()
+    to_gt()
 
   expect_s3_class(gt_obj, "gt_tbl")
 })

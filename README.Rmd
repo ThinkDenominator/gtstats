@@ -39,6 +39,7 @@ review.
 | Assess | `assess_distribution()` | Distribution diagnostics and descriptive guidance for continuous variables |
 | Assess | `assess_variance()` | Group SDs, variances, spread ratios, and median-centred Levene support |
 | Describe | `summary_table()` | Publication-ready participant-characteristics table |
+| Present calculated results | `as_stats_table()` | Value-preserving publication table for an already summarised data frame |
 | Compare | `compare_groups()` | One focused group comparison with a clearly identified test and automatic-selection rule |
 | Audit | `assumptions_stats()`, `diagnostics_stats()`, `denominators_stats()` | Transparent decisions and analysis population |
 | Export | `customise_table()`, `to_gt()`, `save_output()` | A modifiable, report-ready table |
@@ -85,11 +86,14 @@ library(gtstats)
 
 ## Built-in teaching data
 
-gtstats includes three labelled datasets, so examples work without installing
+gtstats includes five labelled datasets, so examples work without installing
 other packages:
 
 ```r
-data("birthwt", "trial_data", "paired_data", package = "gtstats")
+data(
+  "birthwt", "trial_data", "paired_data", "outbreak_data",
+  "surveillance_data", package = "gtstats"
+)
 ```
 
 - `birthwt`: real low-birth-weight clinical data for descriptive tables,
@@ -98,16 +102,21 @@ data("birthwt", "trial_data", "paired_data", package = "gtstats")
   Kruskal-Wallis, chi-square, Fisher exact, correlations, and rates.
 - `paired_data`: long-format paired follow-up data for paired t-tests,
   Wilcoxon signed-rank, and McNemar tests.
+- `outbreak_data`: the real CDC Oswego foodborne-outbreak line list for attack
+  rates and 2x2 epidemiology.
+- `surveillance_data`: an archived CDC weekly hospital-admission extract for
+  aggregate counts, population denominators, and rates per 100,000.
 
 ## Prefer a guided interface?
 
 The package remains code-first, but a Shiny companion is available when you
-prefer to learn by clicking through the workflow. It includes the three
-teaching datasets, CSV/Excel upload, a working data dictionary, distribution
-and variance checks, a layer-by-layer Summary table, focused group comparisons, crosstabs,
-Word/HTML/PDF/RTF table downloads, an in-session history, and copyable or
-downloadable R code for every analysis. Excel import uses the optional `rio`
-package.
+prefer to learn by clicking through the workflow. It includes all five
+teaching datasets, data from the current R environment, CSV/Excel upload, a
+working data dictionary, distribution and variance checks, a layer-by-layer
+summary table, outbreak and surveillance tables, focused group comparisons,
+correlations and crosstabs. Tables can be downloaded as Word, HTML, PDF, or
+RTF, and every analysis has copyable and downloadable R code. Excel import
+uses the optional `rio` package.
 
 ```r
 install.packages("shiny") # once, if needed
@@ -118,6 +127,12 @@ gtstats_app() # opens in the RStudio Viewer when available
 The interface is intentionally a guide rather than a black box: use the code
 shown beside each result in an R script or Quarto document to keep the final
 analysis reproducible.
+
+The app keeps three table routes separate. Choose **Summary table** for raw
+participant-level data, **Epi table** when events and
+denominators still need calculation, and **Current data are final calculated
+results** in **Customise table** only when every supplied row and value should
+be preserved exactly through `as_stats_table()`.
 
 ## Five-minute workflow
 
@@ -156,6 +171,15 @@ compact_binary_table <- summary_table(
   include = c(smoke, ht, race),
   show_dichotomous = "single_row",
   value = c(smoke = "Yes", ht = "Yes")
+)
+
+# Missing values are excluded from categorical percentage denominators by
+# default. Use this explicit option only when Missing is itself a reported
+# category and should contribute to 100%.
+missing_as_category <- summary_table(
+  birthwt,
+  include = c(race, smoke),
+  missing = "as_category"
 )
 
 comparison <- compare_groups(birthwt, variable = lwt, group = low)
@@ -229,7 +253,9 @@ work before the completed tibble is printed.
 | Understand | `describe_data()`, `assess_distribution()`, `assess_variance()` |
 | Build Table 1 | `summary_table()`, `add_ci()`, `add_p()`, `add_proportion()`, `add_rate()`, `add_total()`, `add_row()` |
 | Compare | `compare_groups()`, `effect_size()`, `correlation()` |
-| Epidemiology | `proportion_stats()`, `rate_stats()`, `crosstabs()` |
+| Outbreak and surveillance tables | `epi_table()` |
+| Format an already calculated data frame | `as_stats_table()` |
+| Focused epidemiology calculations | `proportion_stats()`, `rate_stats()`, `crosstabs()` |
 | Inspect decisions | `assumptions_stats()`, `diagnostics_stats()`, `denominators_stats()` |
 | Visualise | `plot_compare()`, `plot_correlation()` |
 | Guided interface | `gtstats_app()` |
@@ -246,9 +272,21 @@ correlation(mtcars, vars = c(mpg, disp, hp, wt)) |>
 
 ## Citation
 
-Until the package is on CRAN or has a DOI, use the package citation generated
-by R:
+If `gtstats` contributes to your analysis, tables, teaching, or publication,
+please cite:
+
+> Polani R, Kaviprawin M, Sakthivel M, Eliyas SK, Krishnamoorthy Y (2026).
+> *gtstats: Beginner-Friendly Statistics and Publication-Ready Tables*.
+> R package version 1.0.0. <https://gtstats.thinkdenominator.com/>.
+
+R returns the authoritative citation and BibTeX entry installed with the
+package:
 
 ```r
 citation("gtstats")
+toBibtex(citation("gtstats"))
 ```
+
+The pkgdown **Citing gtstats** article provides a copy-ready BibTeX record and
+reproducibility guidance. The reserved Zenodo DOI will be added here after its
+record is published and the DOI resolves publicly.

@@ -17,8 +17,7 @@ compare_groups(
   digits = 2,
   var_equal = FALSE,
   fisher_seed = 1049L,
-  format = c("table", "tibble"),
-  ...
+  format = c("table", "tibble")
 )
 }
 \arguments{
@@ -63,8 +62,6 @@ Set to \code{NULL} to use the current random-number state.}
 
 \item{format}{Output format: \code{"table"} (default) or a plain console
 \code{"tibble"}.}
-
-\item{...}{Reserved for internal package use.}
 }
 \value{
 A \code{gt_compare} object containing:
@@ -212,6 +209,6 @@ compare_groups(
 
 compare_groups(mtcars, variable = mpg, group = am, var_equal = TRUE)
 
-tbl_stats(compare_groups(mtcars, variable = mpg, group = am))
+to_gt(compare_groups(mtcars, variable = mpg, group = am))
 
 }

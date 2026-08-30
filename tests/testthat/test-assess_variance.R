@@ -16,7 +16,7 @@ test_that("assess_variance() returns grouped variance diagnostics", {
   expect_equal(nrow(res$diagnostics), 2L)
   expect_match(res$notes[["welch"]], "do not require equal variances")
   expect_true(all(res$diagnostics$sd_ratio >= 1, na.rm = TRUE))
-  expect_s3_class(tbl_stats(res), "gt_tbl")
+  expect_s3_class(to_gt(res), "gt_tbl")
   expect_s3_class(to_flextable(res), "flextable")
 })
 
@@ -27,7 +27,7 @@ test_that("assess_variance() accepts bare and character variable names", {
   expect_equal(bare$summary$variable, character$summary$variable)
   expect_equal(bare$summary$group, character$summary$group)
   expect_s3_class(
-    assess_variance(mtcars, vars = mpg, by = am, output = "tibble"),
+    assess_variance(mtcars, vars = mpg, by = am, format = "tibble"),
     "tbl_df"
   )
 })

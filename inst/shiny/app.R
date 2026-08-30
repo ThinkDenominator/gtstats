@@ -20,10 +20,18 @@ app_data <- function(name) {
   get(name, envir = environment)
 }
 
+environment_data_frames <- function(envir = .GlobalEnv) {
+  objects <- ls(envir = envir, all.names = FALSE)
+  objects[vapply(objects, function(name) {
+    value <- tryCatch(get(name, envir = envir, inherits = FALSE), error = function(e) NULL)
+    is.data.frame(value)
+  }, logical(1))]
+}
+
 as_gt <- function(x) {
   if (inherits(x, "gt_tbl")) return(x)
   if (!is.null(x$table) && inherits(x$table, "gt_tbl")) return(x$table)
-  if (inherits(x, "gtstats")) return(gtstats::tbl_stats(x))
+  if (inherits(x, "gtstats")) return(gtstats::to_gt(x))
   if (is.data.frame(x)) return(gt::gt(x))
   stop("This result cannot be displayed as a table.", call. = FALSE)
 }
@@ -247,7 +255,41 @@ pre { background: #F8FAFC; border: 1px solid var(--gtx-line); border-radius: 8px
 .gtx-variable-options table { min-width: 500px; }
 .gtx-variable-options td, .gtx-variable-options th { vertical-align: middle !important; }
 .gtx-variable-options .form-group { margin-bottom: 0; }
+.gtx-summary-workspace { margin-bottom: 24px; }
+.gtx-summary-intro { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 12px; }
+.gtx-summary-intro h2 { margin: 0 0 4px; font-size: 1.45rem; font-weight: 800; letter-spacing: -.02em; }
+.gtx-summary-intro .help-copy { margin: 0; max-width: 760px; }
+.gtx-summary-ribbon { background: #fff; border: 1px solid var(--gtx-line); border-radius: 12px; box-shadow: 0 2px 6px rgba(15, 23, 42, .045); margin-bottom: 14px; overflow: visible; }
+.gtx-summary-ribbon .tab-content { overflow: visible; }
+.gtx-summary-ribbon .selectize-dropdown, .gtx-summary-ribbon .dropdown-menu { z-index: 3000; }
+.gtx-summary-ribbon .nav-tabs { background: #F0F0ED; padding: 7px 10px 0; border-bottom: 1px solid var(--gtx-line); }
+.gtx-summary-ribbon .nav-tabs > li > a { margin-right: 3px; padding: 10px 15px; color: #454542; }
+.gtx-summary-ribbon .nav-tabs > li.active > a { background: #fff; color: #111; border-bottom-color: #fff; }
+.gtx-summary-ribbon .tab-content { padding: 16px 18px 6px; min-height: 190px; }
+.gtx-ribbon-group { border-right: 1px solid var(--gtx-line); padding-right: 18px; min-height: 145px; }
+.gtx-ribbon-group:last-child { border-right: 0; }
+.gtx-ribbon-group h4 { margin: 0 0 4px; font-size: 1rem; font-weight: 800; }
+.gtx-ribbon-group .help-copy { font-size: .86rem; margin-bottom: 9px; }
+.gtx-summary-stage { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 14px; align-items: start; }
+.gtx-summary-preview { min-width: 0; }
+.gtx-summary-preview .gtx-card { min-height: 370px; }
+.gtx-recipe-rail { position: sticky; top: 12px; }
+.gtx-recipe-rail .gtx-card { padding: 15px; }
+.gtx-recipe-rail h3 { font-size: 1.05rem; }
+.gtx-recipe-row { display: flex; align-items: flex-start; gap: 9px; padding: 8px 0; border-bottom: 1px solid #ECECEA; }
+.gtx-recipe-row:last-child { border-bottom: 0; }
+.gtx-recipe-dot { flex: 0 0 auto; width: 21px; height: 21px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: #E7E7E4; color: #555552; font-size: .72rem; font-weight: 800; }
+.gtx-recipe-row.ready .gtx-recipe-dot { background: var(--gtx-green-soft); color: var(--gtx-green); }
+.gtx-recipe-label { font-size: .85rem; line-height: 1.35; }
+.gtx-recipe-label strong { display: block; color: #292926; }
+.gtx-recipe-label span { color: var(--gtx-muted); }
+.gtx-build-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #fff; border: 1px solid var(--gtx-line); border-radius: 10px; padding: 10px 13px; margin-bottom: 14px; }
+.gtx-build-bar .help-copy { margin: 0; }
+.gtx-build-bar .btn { min-width: 190px; margin: 0; }
+.gtx-layer-card { border: 1px solid var(--gtx-line); border-radius: 8px; padding: 11px 13px; background: #FAFAF8; margin-bottom: 10px; }
+.gtx-layer-card > .checkbox { margin-top: 0; }
 @media (max-width: 767px) { body { font-size: 14px; } .gtx-card, .cardish { padding: 14px; border-radius: 10px; } .gtx-side { position: static; } .navbar-header { min-height: 58px; } .navbar-collapse { border-top-color: rgba(255,255,255,.18); box-shadow: none; } .navbar-nav { margin-top: 0; margin-bottom: 0; } .navbar-nav > li > a { padding: 12px 15px; } .gtx-session-bar { padding: 9px 15px; font-size: .88rem; } .gtx-workflow { margin-top: 10px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; } .gtx-workflow-step { flex: 0 0 auto; } .download-strip { display: flex; flex-wrap: wrap; gap: 5px; } .download-strip .btn { margin: 0; } .app-close { right: 12px; bottom: 12px; } }
+@media (max-width: 991px) { .gtx-summary-stage { grid-template-columns: 1fr; } .gtx-recipe-rail { position: static; } .gtx-ribbon-group { border-right: 0; border-bottom: 1px solid var(--gtx-line); padding: 0 0 12px; margin-bottom: 12px; min-height: 0; } }
 "
 
 copy_code_js <- "
@@ -269,6 +311,12 @@ $(document).on('click', '.copy-code', function () {
     document.execCommand('copy'); document.body.removeChild(area); copied();
   }
 });
+Shiny.addCustomMessageHandler('gtstats-open-selectize', function (id) {
+  var element = document.getElementById(id);
+  if (!element || !element.selectize) return;
+  element.selectize.focus();
+  element.selectize.open();
+});
 "
 
 ui <- navbarPage(
@@ -288,11 +336,29 @@ ui <- navbarPage(
           column(4, div(class = "cardish gtx-side",
             tags$h3("Choose your data"),
             radioButtons("data_source", NULL,
-              choices = c("Use a teaching dataset" = "teaching", "Upload my own data" = "upload"),
+              choices = c(
+                "Use a teaching dataset" = "teaching",
+                "Use data from my R environment" = "environment",
+                "Upload my own data" = "upload"
+              ),
               selected = "teaching"),
             conditionalPanel("input.data_source === 'teaching'",
-              selectInput("teaching_data", "Teaching dataset", choices = c("Birth-weight example" = "birthwt", "Three-arm trial" = "trial_data", "Paired-data example" = "paired_data"), selected = "birthwt"),
+              selectInput(
+                "teaching_data", "Teaching dataset",
+                choices = c(
+                  "Birth-weight example" = "birthwt",
+                  "Three-arm trial" = "trial_data",
+                  "Paired-data example" = "paired_data",
+                  "CDC Oswego outbreak" = "outbreak_data",
+                  "CDC hospital surveillance" = "surveillance_data"
+                ),
+                selected = "birthwt"
+              ),
               tags$p(class = "help-copy", "Choose a labelled example designed for a different common analysis.")),
+            conditionalPanel("input.data_source === 'environment'",
+              uiOutput("environment_data_ui"),
+              actionButton("refresh_environment_data", "Refresh data-frame list"),
+              tags$p(class = "help-copy", "Select a data frame or tibble already created in your current R session. Refresh after creating or renaming an object.")),
             conditionalPanel("input.data_source === 'upload'",
               fileInput("data_file", "Data file", accept = c(".csv", ".xlsx", ".xls", ".rds", ".dta", ".sav", "text/csv", "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")),
               textInput("upload_sheet", "Excel worksheet (optional)", placeholder = "First sheet by default"),
@@ -400,188 +466,312 @@ ui <- navbarPage(
         br(), gtstats:::mod_data_prep_ui("data_prep")
       ),
       tabPanel("Summary table", value = "table1",
-        br(), fluidRow(
-          column(5, div(class = "cardish gtx-side",
-            tags$h3("Build your table, layer by layer"),
-            tags$p(class = "help-copy", "Start with the descriptive foundation, then add only the layers your report needs. Like peeling an onion, every layer remains visible in the generated R code."),
-            tags$div(class = "gtx-control-section",
-              tags$div(class = "gtx-control-title", tags$span(class = "gtx-control-number", "1"), "Build the foundation"),
-              tags$p(class = "help-copy", "Choose the variables and column structure. Rates and other specialist rows can be added later as optional layers."),
-              selectInput("table_group", "Group columns by (optional)", choices = NULL),
-              selectInput("table_overall", "Overall column", choices = c("No overall column" = "false", "First" = "first", "Last" = "last")),
-              selectInput("table_layout", "Table layout", choices = c("Compact cells" = "compact", "Separate estimate and 95% CI columns" = "separate"), selected = "compact")
-            ),
-            conditionalPanel("true",
-              tags$div(class = "gtx-control-section",
-                tags$div(class = "gtx-control-title", tags$span(class = "gtx-control-number", "2"), "Choose how values are shown"),
-                checkboxInput("table_include_summary", "Include ordinary variable summaries", TRUE),
+        br(), div(class = "gtx-summary-workspace",
+          div(class = "gtx-summary-intro",
+            div(tags$h2("Build a summary table"), tags$p(class = "help-copy", "Choose ingredients from left to right. The preview stays in place while you refine the recipe.")),
+            tags$span(class = "gtx-badge", "Publication-ready")
+          ),
+          div(class = "gtx-summary-ribbon",
+            tabsetPanel(id = "summary_ribbon", selected = "Foundation",
+              tabPanel("Foundation",
+                fluidRow(
+                  column(3, div(class = "gtx-ribbon-group",
+                    tags$h4("1 · Data"),
+                    tags$p(class = "help-copy", "The prepared dataset from Data or Data Prep flows into this table automatically."),
+                    uiOutput("summary_foundation_data")
+                  )),
+                  column(5, div(class = "gtx-ribbon-group",
+                    tags$h4("2 · Variables"),
+                    tags$p(class = "help-copy", "Search and select the characteristics to summarise."),
+                    checkboxInput("table_include_summary", "Include ordinary variable summaries", TRUE),
+                    conditionalPanel("input.table_include_summary", uiOutput("table_vars_ui")),
+                    conditionalPanel("input.table_include_summary",
+                      uiOutput("table_variable_status"),
+                      tags$div(class = "button-row",
+                        actionButton("table_add_variables", "Add variables", icon = icon("plus")),
+                        actionButton("table_select_all", "Select all"),
+                        actionButton("table_clear_all", "Clear")
+                      )
+                    ),
+                    conditionalPanel("!input.table_include_summary", tags$div(class = "gtx-note", "Ordinary summaries are off. Use Add to create a total, selected proportion, rate, or custom row."))
+                  )),
+                  column(4, div(class = "gtx-ribbon-group",
+                    tags$h4("3 · Columns"),
+                    tags$p(class = "help-copy", "Optionally group columns and add an Overall column."),
+                    selectInput("table_group", "Group columns by (optional)", choices = NULL),
+                    selectInput("table_overall", "Overall column", choices = c("No overall column" = "false", "First" = "first", "Last" = "last"))
+                  ))
+                )
+              ),
+              tabPanel("Statistics",
                 conditionalPanel("input.table_include_summary",
-                  uiOutput("table_vars_ui"),
-                  tags$div(class = "button-row",
-                    actionButton("table_select_all", "Select all"),
-                    actionButton("table_clear_all", "Clear")
-                  ),
-                  selectInput("table_stat_default", "Default for continuous variables", choices = c("Recommended" = "recommended", "Mean (SD)" = "mean_sd", "Mean (95% CI)" = "mean_ci", "Median (IQR)" = "median_iqr", "Mean (SD) and median (IQR)" = "both")),
-                  tags$p(class = "help-copy", "Choose the rule for all continuous variables, then enter only exceptions below. Unlisted continuous variables use Recommended when the global choice is Recommended."),
-                  textAreaInput("table_stat_overrides", "Summary-statistic overrides (optional)", rows = 4, placeholder = "age = mean_sd\nlwt = median_iqr\nbwt = mean_ci"),
-                  tags$div(class = "button-row", actionButton("table_stat_example", "Insert example"), actionButton("table_stat_clear", "Clear overrides")),
-                  uiOutput("table_stat_override_status"),
-                  selectInput("table_categorical", "Categorical display", choices = c("n (%)" = "n_percent", "n/N (%)" = "n_over_N_percent", "n only" = "n", "% only" = "percent")),
-                  selectInput(
-                    "table_dichotomous", "Binary variables",
-                    choices = c(
-                      "Show both levels" = "all_levels",
-                      "Show one event level" = "single_row"
-                    ),
-                    selected = "all_levels"
-                  ),
-                  conditionalPanel(
-                    "input.table_dichotomous === 'single_row'",
-                    tags$p(class = "help-copy", "Each binary variable becomes one compact row. By default the second declared level is shown. Enter only event-level overrides below."),
-                    textAreaInput(
-                      "table_dichotomous_values", "Event levels (optional)", rows = 3,
-                      placeholder = "smoke = Yes\nht = Yes"
-                    ),
-                    tags$p(class = "help-copy", "Use one `variable = event level` per line. The selected event is retained in the result metadata and generated code.")
-                  ),
-                  selectInput(
-                    "table_categorical_layout",
-                    "Categorical columns",
-                    choices = c(
-                      "Keep n and % together (recommended)" = "combined",
-                      "Place n and % in separate columns" = "separate"
-                    ),
-                    selected = "combined"
-                  ),
-                  tags$p(class = "help-copy", "Separate n and % columns are available for categorical-only tables without confidence intervals."),
-                  tags$div(class = "card-heading", tags$h4("Percentage denominator"), actionLink("percent_help", "Why?")),
-                  selectInput("table_percent", NULL, choices = c("Within each column" = "column", "Within each row" = "row", "Whole dataset" = "overall")),
-                  selectInput("table_missing", "Missing values", choices = c("Show when present" = "ifany", "Always show" = "always", "Do not show" = "no")),
-                  numericInput("table_digits", "Decimal places", 1, min = 0, max = 5, step = 1)
-                )
-              )
-            ),
-            conditionalPanel("true",
-              tags$div(class = "gtx-control-section",
-                tags$div(class = "gtx-control-title", tags$span(class = "gtx-control-number", "3"), "Add confidence intervals"),
-                checkboxInput("table_ci", "Add confidence intervals", FALSE),
-                conditionalPanel("input.table_ci",
-                  tags$p(class = "help-copy", "Apply globally, or choose particular variables. Categorical levels receive proportion CIs; continuous means receive mean CIs. Median (IQR) summaries stay unchanged."),
-                  selectInput("table_ci_scope", "Apply to", choices = c("All eligible variables" = "all", "Selected variables" = "selected")),
-                  conditionalPanel("input.table_ci_scope === 'selected'", uiOutput("table_ci_vars_ui")),
-                  selectInput("table_ci_method", "Categorical CI method", choices = c("Wilson (recommended)" = "wilson", "Exact binomial" = "exact")),
-                  numericInput("table_conf_level", "Confidence level", 0.95, min = 0.5, max = 0.999, step = 0.01)
-                )
-              )
-            ),
-            conditionalPanel("true",
-              tags$div(class = "gtx-control-section",
-              tags$div(class = "gtx-control-title", tags$span(class = "gtx-control-number", "4"), "Add statistical comparisons"),
-              checkboxInput("table_p", "Add p-values (requires a group)", FALSE),
-              conditionalPanel(
-                "input.table_p",
-                tags$p(class = "help-copy", "Auto is used for every unlisted variable. Enter only exceptions; use none to keep a variable descriptive without testing it."),
-                textAreaInput(
-                  "table_test_overrides", "P-value test overrides (optional)", rows = 5,
-                  placeholder = "age = welch_t\nlwt = wilcox\nrace = fisher\nbwt = none"
-                ),
-                tags$div(class = "button-row",
-                  actionButton("table_test_example", "Insert example"),
-                  actionButton("table_test_clear", "Clear overrides")
-                ),
-                uiOutput("table_test_override_status"),
-                tags$details(class = "gtx-details",
-                  tags$summary("Advanced Auto-test settings"),
-                  checkboxInput("table_p_paired", "Repeated measurements from the same participant", FALSE),
-                  conditionalPanel("input.table_p_paired", selectInput("table_p_id", "Participant ID", choices = NULL)),
-                  checkboxInput("table_distribution_check", "Use distribution guidance in Auto", TRUE),
-                  checkboxInput("table_var_equal", "For Auto: equal variances are justified", FALSE),
-                  checkboxInput("table_p_correction", "Continuity correction where applicable", TRUE),
-                  selectInput("table_p_adjust", "Multiple-testing adjustment", choices = c("None" = "none", "Holm" = "holm", "Bonferroni" = "bonferroni", "Benjamini-Hochberg" = "BH", "False-discovery rate" = "fdr")),
-                  numericInput("table_p_digits", "P-value decimal places", 3, min = 1, max = 6, step = 1),
-                  numericInput("table_fisher_seed", "Fisher simulation seed", 1049, min = 1, step = 1),
-                  tags$p(class = "help-copy", "Distribution guidance uses marked skewness, not Shapiro-Wilk alone. Equal variances changes only suitable independent parametric tests; it does not run a variance test.")
-                )
-              ))
-            ),
-            tags$details(class = "gtx-details gtx-control-section", open = FALSE,
-              tags$summary(tags$span(class = "gtx-control-title", tags$span(class = "gtx-control-number", "5"), "Add specialist ingredients")),
-              conditionalPanel("true",
-                checkboxInput("table_add_total", "Add total N row", FALSE),
-                conditionalPanel("input.table_add_total",
-                  textInput("table_total_label", "Total-row label", value = "Total (N)"),
-                  selectInput("table_total_position", "Position", choices = c("First" = "first", "Last" = "last"))
-                ),
-                checkboxInput("table_add_proportion", "Add selected proportion row", FALSE),
-                conditionalPanel("input.table_add_proportion",
-                  selectInput("table_prop_var", "Variable", choices = NULL),
-                  uiOutput("table_prop_level_ui"),
-                  textInput("table_prop_label", "Row label (optional)", placeholder = "Example: Low birth weight"),
-                  tags$p(class = "help-copy", "This adds one clinically important event as a new row. It is not needed to add CIs to ordinary categorical rows."),
-                  checkboxInput("table_prop_ci", "Add confidence interval", TRUE),
-                  tags$details(class = "gtx-details",
-                    tags$summary("Advanced proportion options"),
-                    selectInput("table_prop_settings", "Settings", choices = c("Inherit from the table" = "inherit", "Override for this row" = "custom")),
-                    conditionalPanel("input.table_prop_settings === 'custom'",
-                      selectInput("table_prop_display", "Display", choices = c("n (%)" = "n_percent", "% only" = "percent", "n/N (%)" = "n_over_N_percent")),
-                      conditionalPanel("input.table_prop_ci",
-                        numericInput("table_prop_conf", "Confidence level", 0.95, min = 0.5, max = 0.999, step = 0.01),
-                        selectInput("table_prop_ci_method", "Interval method", choices = c("Wilson (recommended)" = "wilson", "Exact binomial" = "exact"))
+                  fluidRow(
+                    column(4, div(class = "gtx-ribbon-group",
+                      tags$h4("Continuous summaries"),
+                      selectInput("table_stat_default", "Default for continuous variables", choices = c("Recommended" = "recommended", "Mean (SD)" = "mean_sd", "Mean (SE) — specialist" = "mean_se", "Mean (95% CI)" = "mean_ci", "Median (IQR)" = "median_iqr", "Mean (SD) and median (IQR)" = "both")),
+                      textAreaInput("table_stat_overrides", "Exceptions (optional)", rows = 3, placeholder = "age = mean_sd\nlwt = median_iqr"),
+                      tags$div(class = "button-row", actionButton("table_stat_example", "Insert example"), actionButton("table_stat_clear", "Clear")),
+                      uiOutput("table_stat_override_status")
+                    )),
+                    column(4, div(class = "gtx-ribbon-group",
+                      tags$h4("Categorical summaries"),
+                      selectInput("table_categorical", "Display", choices = c("n (%)" = "n_percent", "n/N (%)" = "n_over_N_percent", "n only" = "n", "% only" = "percent")),
+                      selectInput("table_percent", "Percentage denominator", choices = c("Within each column" = "column", "Within each row" = "row", "Whole dataset" = "overall")),
+                      actionLink("percent_help", "How are denominators chosen?"),
+                      conditionalPanel("input.table_overall !== 'false'",
+                        selectInput("table_overall_categorical", "Overall categorical display", choices = c("Automatic (counts for row percentages)" = "auto", "n (%)" = "n_percent", "n/N (%)" = "n_over_N_percent", "n only" = "n", "% only" = "percent"), selected = "auto")
                       ),
-                      numericInput("table_prop_digits", "Decimal places", 1, min = 0, max = 5, step = 1)
-                    )
+                      selectInput("table_dichotomous", "Binary variables", choices = c("Show both levels" = "all_levels", "Show one event level" = "single_row"), selected = "all_levels"),
+                      conditionalPanel("input.table_dichotomous === 'single_row'",
+                        tags$p(class = "help-copy", "Choose the event shown for each selected binary variable."),
+                        uiOutput("table_dichotomous_level_ui"),
+                        tags$div(style = "display:none;", textAreaInput("table_dichotomous_values", "Legacy event-level mapping", rows = 2))
+                      ),
+                      selectInput("table_categorical_layout", "Categorical columns", choices = c("Keep n and % together" = "combined", "Place n and % in separate columns" = "separate"), selected = "combined")
+                    )),
+                    column(4, div(class = "gtx-ribbon-group",
+                      tags$h4("Table detail"),
+                      selectInput("table_layout", "Estimate and CI layout", choices = c("Compact cells" = "compact", "Separate estimate and 95% CI columns" = "separate"), selected = "compact"),
+                      selectInput(
+                        "table_missing", "Missing values",
+                        choices = c(
+                          "Show when present" = "ifany",
+                          "Always show" = "always",
+                          "Do not show" = "no",
+                          "Treat as a category (include in percentages)" = "as_category"
+                        )
+                      ),
+                      tags$p(
+                        class = "help-copy",
+                        "Treat as a category makes Missing part of categorical percentages; it does not recode Missing as No."
+                      ),
+                      numericInput("table_digits", "Decimal places", 1, min = 0, max = 5, step = 1),
+                      tags$p(class = "help-copy", "Unlisted variables follow the selected global rule. Recommended uses the package's descriptive guidance.")
+                    ))
                   )
                 )
               ),
-              checkboxInput("table_add_rate", "Add an event rate", FALSE),
-              conditionalPanel("input.table_add_rate",
-                tags$p(class = "help-copy", "A rate needs an event-count variable and a person-time variable."),
-                selectInput("table_rate_event", "Event count", choices = NULL),
-                selectInput("table_rate_time", "Person-time", choices = NULL),
-                textInput("table_rate_label", "Rate label (optional)"),
-                numericInput("table_rate_multiplier", "Multiplier", 1000, min = 0.0001),
-                textInput("table_rate_time_label", "Time-unit label (optional)", placeholder = "Example: person-years"),
-                checkboxInput("table_rate_ci", "Add confidence interval", TRUE),
-                conditionalPanel("input.table_rate_ci", numericInput("table_rate_conf", "Confidence level", 0.95, min = 0.5, max = 0.999, step = 0.01)),
-                numericInput("table_rate_digits", "Decimal places", 1, min = 0, max = 5, step = 1)
+              tabPanel("P-values",
+                fluidRow(
+                  column(7, div(class = "gtx-ribbon-group",
+                    checkboxInput("table_p", "Add p-values", FALSE),
+                    conditionalPanel("input.table_p",
+                      tags$p(class = "help-copy", "Auto applies to unlisted variables. Add exceptions only where your analysis plan specifies a method."),
+                      textAreaInput("table_test_overrides", "Test exceptions", rows = 4, placeholder = "age = welch_t\nlwt = wilcox\nrace = fisher"),
+                      tags$div(class = "button-row", actionButton("table_test_example", "Insert example"), actionButton("table_test_clear", "Clear")),
+                      uiOutput("table_test_override_status")
+                    )
+                  )),
+                  column(5, div(class = "gtx-ribbon-group",
+                    tags$h4("Automatic-test settings"),
+                    tags$p(class = "help-copy", "These settings affect Auto only; explicit test exceptions take priority."),
+                    checkboxInput("table_p_paired", "Repeated measurements", FALSE),
+                    conditionalPanel("input.table_p_paired", selectInput("table_p_id", "Participant ID", choices = NULL)),
+                    checkboxInput("table_distribution_check", "Use distribution guidance", TRUE),
+                    checkboxInput("table_var_equal", "Equal variances are justified", FALSE),
+                    checkboxInput("table_p_correction", "Continuity correction", TRUE),
+                    selectInput("table_p_adjust", "Multiple-testing adjustment", choices = c("None" = "none", "Holm" = "holm", "Bonferroni" = "bonferroni", "Benjamini-Hochberg" = "BH", "False-discovery rate" = "fdr")),
+                    fluidRow(column(6, numericInput("table_p_digits", "P-value decimals", 3, min = 1, max = 6, step = 1)), column(6, numericInput("table_fisher_seed", "Fisher seed", 1049, min = 1, step = 1)))
+                  ))
+                )
               ),
-              checkboxInput("table_add_row", "Add a custom text row", FALSE),
-              conditionalPanel("input.table_add_row",
-                textInput("table_row_label", "Row label"),
-                textInput("table_row_level", "Level text (optional)"),
-                uiOutput("table_row_values_ui")
+              tabPanel("Add",
+                tags$p(class = "help-copy", "Add only what answers your reporting question. Each enabled layer is reproduced in the generated R code."),
+                fluidRow(
+                  column(4,
+                    div(class = "gtx-layer-card",
+                      checkboxInput("table_ci", "Confidence intervals", FALSE),
+                      conditionalPanel("input.table_ci",
+                        selectInput("table_ci_scope", "Apply to", choices = c("All eligible variables" = "all", "Selected variables" = "selected")),
+                        conditionalPanel("input.table_ci_scope === 'selected'", uiOutput("table_ci_vars_ui")),
+                        selectInput("table_ci_method", "Categorical CI method", choices = c("Wilson (recommended)" = "wilson", "Exact binomial" = "exact")),
+                        numericInput("table_conf_level", "Confidence level", 0.95, min = 0.5, max = 0.999, step = 0.01)
+                      )
+                    ),
+                    div(class = "gtx-layer-card",
+                      checkboxInput("table_add_total", "Total N row", FALSE),
+                      conditionalPanel("input.table_add_total", textInput("table_total_label", "Label", value = "Total (N)"), selectInput("table_total_position", "Position", choices = c("First" = "first", "Last" = "last")))
+                    )
+                  ),
+                  column(8, div(class = "gtx-layer-card",
+                    tags$h4("Specialist rows"),
+                    tags$p(class = "help-copy", "Open only the ingredient that answers your reporting question."),
+                    fluidRow(
+                      column(4, tags$details(class = "gtx-details", tags$summary("Selected proportion row"),
+                        checkboxInput("table_add_proportion", "Add selected proportion", FALSE),
+                        conditionalPanel("input.table_add_proportion",
+                          selectInput("table_prop_var", "Variable", choices = NULL), uiOutput("table_prop_level_ui"),
+                          textInput("table_prop_label", "Row label (optional)"), checkboxInput("table_prop_ci", "Add confidence interval", TRUE),
+                          tags$details(class = "gtx-details", tags$summary("Advanced options"),
+                            selectInput("table_prop_settings", "Settings", choices = c("Inherit from table" = "inherit", "Override for this row" = "custom")),
+                            conditionalPanel("input.table_prop_settings === 'custom'", selectInput("table_prop_display", "Display", choices = c("n (%)" = "n_percent", "% only" = "percent", "n/N (%)" = "n_over_N_percent")), conditionalPanel("input.table_prop_ci", numericInput("table_prop_conf", "Confidence level", 0.95, min = 0.5, max = 0.999, step = 0.01), selectInput("table_prop_ci_method", "Interval method", choices = c("Wilson" = "wilson", "Exact binomial" = "exact"))), numericInput("table_prop_digits", "Decimal places", 1, min = 0, max = 5, step = 1))
+                          )
+                        )
+                      )),
+                      column(4, tags$details(class = "gtx-details", tags$summary("Event rate"),
+                        checkboxInput("table_add_rate", "Add event rate", FALSE),
+                        conditionalPanel("input.table_add_rate", selectInput("table_rate_event", "Event count", choices = NULL), selectInput("table_rate_time", "Person-time", choices = NULL), textInput("table_rate_label", "Rate label (optional)"), numericInput("table_rate_multiplier", "Multiplier", 1000, min = 0.0001), textInput("table_rate_time_label", "Time-unit label (optional)"), checkboxInput("table_rate_ci", "Add confidence interval", TRUE), conditionalPanel("input.table_rate_ci", numericInput("table_rate_conf", "Confidence level", 0.95, min = 0.5, max = 0.999, step = 0.01)), numericInput("table_rate_digits", "Decimal places", 1, min = 0, max = 5, step = 1))
+                      )),
+                      column(4, tags$details(class = "gtx-details", tags$summary("Custom text row"),
+                        checkboxInput("table_add_row", "Add custom row", FALSE),
+                        conditionalPanel("input.table_add_row", textInput("table_row_label", "Row label"), textInput("table_row_level", "Level text (optional)"), uiOutput("table_row_values_ui"))
+                      ))
+                    )
+                  ))
+                )
+              ),
+              tabPanel("Design",
+                fluidRow(
+                  column(4, div(class = "gtx-ribbon-group", tags$h4("Appearance"), selectInput("table_theme", "Table theme", choices = c("GTstats default" = "default", "Journal" = "journal", "Classic" = "classic", "Minimal" = "minimal", "Compact" = "compact")), numericInput("table_font_size", "Font size", 14, min = 9, max = 24, step = 1))),
+                  column(4, div(class = "gtx-ribbon-group", tags$h4("Heading"), textInput("table_title", "Title (optional)", placeholder = "Participant characteristics"), textInput("table_subtitle", "Subtitle (optional)"))),
+                  column(4, div(class = "gtx-ribbon-group", tags$h4("Emphasis"), checkboxInput("table_bold_labels", "Bold variable labels", TRUE), checkboxInput("table_footnotes", "Show relevant footnotes", TRUE), checkboxInput("table_striping", "Alternate row shading", FALSE), tags$p(class = "help-copy", "For advanced spanners, borders and journal styling, continue to Customise table after building.")))
+                )
               )
-            ),
-            tags$details(class = "gtx-details gtx-control-section",
-              tags$summary(tags$span(class = "gtx-control-title", tags$span(class = "gtx-control-number", "6"), "Finish the appearance")),
-              selectInput("table_theme", "Table theme", choices = c("GTstats default" = "default", "Journal" = "journal", "Classic" = "classic", "Minimal" = "minimal", "Compact" = "compact")),
-              textInput("table_title", "Title (optional)", placeholder = "Example: Participant characteristics"),
-              textInput("table_subtitle", "Subtitle (optional)"),
-              checkboxInput("table_bold_labels", "Bold variable labels", TRUE),
-              checkboxInput("table_footnotes", "Show relevant footnotes", TRUE),
-              checkboxInput("table_striping", "Alternate row shading", FALSE),
-              numericInput("table_font_size", "Font size", 14, min = 9, max = 24, step = 1)
-            ),
-            actionButton("run_table", "Create summary table", class = "btn-primary")
-          )),
-          column(7,
-            tabsetPanel(
-              tabPanel("Table", div(class = "gtx-card",
-                tags$h3("Publication-ready preview"),
-                download_strip("summary"), gt::gt_output("summary_table"),
-                tags$div(class = "gtx-step", tags$strong("What next? "), "Copy or download the R code for your report. Use the controls on the left to tailor the summary table before exporting.")
-              )),
-              tabPanel("Code", code_card("summary_code"))
             )
+          ),
+          div(class = "gtx-build-bar",
+            tags$p(class = "help-copy", tags$strong("Ready when you are. "), "Create the table after changing ingredients; the last completed result remains visible."),
+            actionButton("run_table", "Create / update table", class = "btn-primary")
+          ),
+          div(class = "gtx-summary-stage",
+            div(class = "gtx-summary-preview", div(class = "gtx-card",
+              div(class = "card-heading", tags$h3("Publication-ready preview"), download_strip("summary")),
+              gt::gt_output("summary_table"),
+              tags$details(class = "gtx-details", tags$summary("Reusable R code"), code_card("summary_code"))
+            )),
+            div(class = "gtx-recipe-rail", div(class = "gtx-card", tags$h3("Your table recipe"), uiOutput("summary_build_status")))
+          )
+        )
+      ),
+      tabPanel("Epi table", value = "epi",
+        br(), div(class = "gtx-summary-workspace",
+          div(class = "gtx-summary-intro",
+            div(tags$h2("Build an epidemiology table"), tags$p(class = "help-copy", "Start with the data structure, define the event and denominator, then add comparisons only when they answer the research question.")),
+            tags$span(class = "gtx-badge", "Epi table")
+          ),
+          div(class = "gtx-summary-ribbon",
+            tabsetPanel(id = "epi_ribbon", selected = "Data structure",
+              tabPanel("Data structure", fluidRow(
+                column(4, div(class = "gtx-ribbon-group",
+                  tags$h4("1 · Structure"),
+                  radioButtons("epi_route", "How are the data stored?", choices = c("One row per person/record" = "line_list", "Numerator and denominator columns" = "aggregate")),
+                  tags$p(class = "help-copy", "Line lists count a selected event among non-missing records. Aggregate data use the supplied numerator and denominator exactly.")
+                )),
+                column(4, div(class = "gtx-ribbon-group",
+                  tags$h4("2 · Measure"),
+                  selectInput("epi_measure", "What are you estimating?", choices = c("Proportion" = "proportion", "Prevalence" = "prevalence", "Attack rate" = "attack_rate", "Incidence rate" = "incidence_rate")),
+                  selectInput("epi_multiplier", "Report per", choices = c("100 (%)" = "100", "1,000" = "1000", "10,000" = "10000", "100,000 (one lakh)" = "100000", "1,000,000" = "1000000", "Custom" = "custom"), selected = "100"),
+                  conditionalPanel("input.epi_multiplier === 'custom'", numericInput("epi_multiplier_custom", "Custom multiplier", 100, min = 0.0001))
+                )),
+                column(4, div(class = "gtx-ribbon-group",
+                  tags$h4("3 · Grouping"),
+                  selectInput("epi_group", "Compare or display by (optional)", choices = NULL),
+                  tags$p(class = "help-copy", "Leave blank for an overall estimate. A group is required only for p-values or effect measures.")
+                ))
+              )),
+              tabPanel("Ingredients", fluidRow(
+                column(7, div(class = "gtx-ribbon-group",
+                  conditionalPanel("input.epi_route === 'line_list'",
+                    tags$h4("Line-list outcomes"),
+                    checkboxGroupInput("epi_outcomes", "Select one or more outcomes", choices = NULL),
+                    tags$p(class = "help-copy", "For each outcome, explicitly choose which value means the event."),
+                    uiOutput("epi_event_levels_ui"),
+                    conditionalPanel("input.epi_measure === 'incidence_rate'", selectInput("epi_person_time", "Person-time column", choices = NULL))
+                  ),
+                  conditionalPanel("input.epi_route === 'aggregate'",
+                    tags$h4("Aggregate columns"),
+                    selectInput("epi_numerator", "Numerator / cases", choices = NULL),
+                    selectInput("epi_denominator", "Denominator / population or person-time", choices = NULL),
+                    selectInput("epi_label_column", "Outcome label column (optional)", choices = NULL),
+                    textInput("epi_label_text", "Or a single outcome label", placeholder = "Example: Influenza")
+                  )
+                )),
+                column(5, div(class = "gtx-ribbon-group",
+                  tags$h4("Denominator rule"),
+                  uiOutput("epi_denominator_explanation"),
+                  tags$div(class = "gtx-note", "Confidence intervals are always included. Case-only line lists cannot estimate an attack rate without an external denominator; use the aggregate route instead.")
+                ))
+              )),
+              tabPanel("Reporting", fluidRow(
+                column(4, div(class = "gtx-ribbon-group",
+                  tags$h4("Confidence interval"),
+                  selectInput("epi_ci_method", "Binomial method", choices = c("Wilson (recommended)" = "wilson", "Exact binomial" = "exact")),
+                  numericInput("epi_conf", "Confidence level", 0.95, min = 0.5, max = 0.999, step = 0.01),
+                  tags$p(class = "help-copy", "Incidence rates use an exact Poisson interval regardless of this setting.")
+                )),
+                column(4, div(class = "gtx-ribbon-group",
+                  tags$h4("Optional comparison"),
+                  checkboxInput("epi_p", "Add p-values", FALSE),
+                  conditionalPanel("input.epi_p", selectInput("epi_p_adjust", "Multiple-testing adjustment", choices = c("None" = "none", "Holm" = "holm", "Bonferroni" = "bonferroni", "Benjamini-Hochberg" = "BH"))),
+                  checkboxInput("epi_effects", "Add two-group effect measures", FALSE),
+                  tags$p(class = "help-copy", "Risk ratio, risk difference and odds ratio are shown for two risk groups; incidence tables show an incidence-rate ratio.")
+                )),
+                column(4, div(class = "gtx-ribbon-group",
+                  tags$h4("Layout"),
+                  selectInput("epi_layout", "Table layout", choices = c("Automatic" = "auto", "Wide groups" = "wide", "Long tidy rows" = "long")),
+                  numericInput("epi_digits", "Decimal places", 1, min = 0, max = 5),
+                  tags$p(class = "help-copy", "Automatic uses a wide table for up to four groups and a long table for larger surveillance tables.")
+                ))
+              ))
+            )
+          ),
+          div(class = "gtx-build-bar",
+            tags$p(class = "help-copy", tags$strong("Check the denominator before running. "), "The audit remains available in the result object and downloads."),
+            actionButton("run_epi", "Create / update epidemiology table", class = "btn-primary")
+          ),
+          div(class = "gtx-summary-stage",
+            div(class = "gtx-summary-preview", div(class = "gtx-card",
+              div(class = "card-heading", tags$h3("Publication-ready preview"), download_strip("epi")),
+              gt::gt_output("epi_table"),
+              tags$details(class = "gtx-details", tags$summary("Reusable R code"), code_card("epi_code"))
+            )),
+            div(class = "gtx-recipe-rail", div(class = "gtx-card", tags$h3("Denominator audit"), gt::gt_output("epi_denominators"), tags$h3("Effect estimates"), gt::gt_output("epi_effect_table")))
           )
         )
       ),
       tabPanel("Customise table", value = "customise",
         br(), fluidRow(
           column(4, div(class = "cardish gtx-side",
-            tags$h3("Refine your summary table"),
-            tags$p(class = "help-copy", "Your completed Summary table is carried forward automatically. If it has not been created yet, return to Summary table and click Create summary table."),
+            tags$h3("Refine a completed table"),
+            tags$p(class = "help-copy", "Style a completed table, or preserve a data frame whose final statistics have already been calculated elsewhere."),
+            radioButtons(
+              "custom_source", "Table source",
+              choices = c(
+                "Completed Summary table" = "summary",
+                "Completed Epi table" = "epi",
+                "Current data are final calculated results" = "data"
+              ),
+              selected = "summary"
+            ),
             uiOutput("custom_source_ui"),
+            conditionalPanel(
+              "input.custom_source === 'data'",
+              checkboxInput("custom_add_ci", "Calculate a confidence interval from aggregate columns", FALSE),
+              conditionalPanel(
+                "input.custom_add_ci",
+                selectInput(
+                  "custom_ci_type", "Interval for",
+                  choices = c(
+                    "Proportion" = "proportion", "Rate" = "rate",
+                    "Mean" = "mean", "Estimate with standard error" = "normal"
+                  )
+                ),
+                uiOutput("custom_ci_recipe_ui"),
+                uiOutput("custom_ci_columns_ui"),
+                numericInput("custom_ci_conf", "Confidence level", 0.95, min = 0.5, max = 0.999, step = 0.01),
+                numericInput("custom_ci_digits", "CI decimal places", 1, min = 0, max = 6, step = 1),
+                conditionalPanel(
+                  "input.custom_ci_type === 'proportion'",
+                  selectInput("custom_ci_method", "Proportion interval", choices = c("Wilson (recommended)" = "wilson", "Exact binomial" = "exact"))
+                ),
+                conditionalPanel(
+                  "input.custom_ci_type === 'rate'",
+                  numericInput("custom_ci_multiplier", "Rate multiplier", 1000, min = 0.0001)
+                ),
+                textInput("custom_ci_name", "CI column name (optional)", placeholder = "95% CI"),
+                tags$p(class = "help-copy", "Choose the columns that contain the ingredients below. The app never guesses their statistical meaning from a column name.")
+              )
+            ),
             tags$h4("Text and labels"),
             textInput("custom_title", "Title (optional)", placeholder = "Example: Participant characteristics"),
             textInput("custom_subtitle", "Subtitle (optional)"),
@@ -836,7 +1026,7 @@ server <- function(input, output, session) {
   table_selection <- reactiveVal(NULL)
   initial_clicks <- reactiveValues(
     distribution = NULL, table = NULL, comparison = NULL, correlation = NULL,
-    crosstab = NULL, customise = NULL
+    crosstab = NULL, epi = NULL, customise = NULL
   )
 
   # A browser can restore a previous Shiny session's action-button values.
@@ -846,6 +1036,7 @@ server <- function(input, output, session) {
     isolate({
       initial_clicks$distribution <- input$run_distribution %||% 0
       initial_clicks$table <- input$run_table %||% 0
+      initial_clicks$epi <- input$run_epi %||% 0
       initial_clicks$comparison <- input$run_compare %||% 0
       initial_clicks$correlation <- input$run_correlation %||% 0
       initial_clicks$crosstab <- input$run_cross %||% 0
@@ -896,7 +1087,16 @@ server <- function(input, output, session) {
   }, ignoreInit = TRUE)
 
   imported_data <- reactive({
-    if (identical(input$data_source, "upload")) {
+    if (identical(input$data_source, "environment")) {
+      req(nzchar(input$environment_data %||% ""))
+      validate(need(
+        exists(input$environment_data, envir = .GlobalEnv, inherits = FALSE),
+        "The selected R object no longer exists. Refresh the list and choose another data frame."
+      ))
+      value <- get(input$environment_data, envir = .GlobalEnv, inherits = FALSE)
+      validate(need(is.data.frame(value), "The selected R object is no longer a data frame. Refresh the list and choose another object."))
+      value
+    } else if (identical(input$data_source, "upload")) {
       req(input$data_file)
       extension <- tolower(tools::file_ext(input$data_file$name))
       if (identical(extension, "csv")) {
@@ -923,6 +1123,28 @@ server <- function(input, output, session) {
     }
   })
 
+  environment_data_version <- reactiveVal(0L)
+  observeEvent(input$refresh_environment_data, {
+    environment_data_version(environment_data_version() + 1L)
+  }, ignoreInit = TRUE)
+  output$environment_data_ui <- renderUI({
+    environment_data_version()
+    choices <- environment_data_frames(.GlobalEnv)
+    selected <- input$environment_data %||% ""
+    if (!selected %in% choices) selected <- if (length(choices)) choices[[1L]] else ""
+    if (!length(choices)) {
+      return(tags$div(
+        class = "gtx-note",
+        tags$strong("No data frames found. "),
+        "Create a data frame in the R console, then click Refresh data-frame list."
+      ))
+    }
+    selectInput(
+      "environment_data", "Data frame in the R environment",
+      choices = stats::setNames(choices, choices), selected = selected
+    )
+  })
+
   data_prep <- gtstats:::mod_data_prep_server("data_prep", source_data = imported_data)
   selected_data <- reactive({
     prepared <- data_prep$result()
@@ -930,12 +1152,18 @@ server <- function(input, output, session) {
   })
   output$active_data_status <- renderUI({
     data <- selected_data()
-    source <- if (identical(input$data_source, "upload")) "Uploaded data" else paste0("Teaching dataset: ", input$teaching_data %||% "birthwt")
+    source <- if (identical(input$data_source, "upload")) {
+      "Uploaded data"
+    } else if (identical(input$data_source, "environment")) {
+      paste0("R environment: ", input$environment_data %||% "not selected")
+    } else {
+      paste0("Teaching dataset: ", input$teaching_data %||% "birthwt")
+    }
     state <- if (isTRUE(data_prep$using_prepared())) "prepared data" else "original data"
     tags$div(class = "gtx-session-bar", paste0(source, " · ", nrow(data), " rows · ", ncol(data), " variables · Analyses use ", state))
   })
   output$workflow_progress <- renderUI({
-    steps <- c(data = "1 Data", data_prep = "2 Prepare", understand = "3 Understand", table1 = "4 Summary table", customise = "5 Customise", compare = "6 Compare", correlation = "7 Correlation", crosstabs = "8 Crosstabs")
+    steps <- c(data = "1 Data", data_prep = "2 Prepare", understand = "3 Understand", table1 = "4 Summary table", epi = "5 Epi table", customise = "6 Customise", compare = "7 Compare", correlation = "8 Correlation", crosstabs = "9 Crosstabs")
     current <- input$workflow %||% "data"
     tags$div(class = "gtx-workflow", lapply(names(steps), function(step) {
       tags$span(class = paste("gtx-workflow-step", if (identical(step, current)) "active" else ""), steps[[step]])
@@ -945,7 +1173,7 @@ server <- function(input, output, session) {
   observeEvent(selected_data(), {
     data <- selected_data()
     variables <- names(data)
-    data_overview <- gtstats::describe_data(data, output = "tibble")
+    data_overview <- gtstats::describe_data(data, format = "tibble")
     continuous <- data_overview$variable[data_overview$type == "continuous"]
     discrete <- data_overview$variable[data_overview$type %in% c("binary", "categorical", "ordinal")]
     group_variables <- if (length(discrete)) discrete else variables
@@ -953,6 +1181,15 @@ server <- function(input, output, session) {
     group_choices <- c("No grouping" = "", stats::setNames(group_variables, group_variables))
     updateSelectInput(session, "diagnostic_group", choices = group_choices, selected = "")
     updateSelectInput(session, "table_group", choices = group_choices, selected = "")
+    updateSelectInput(session, "epi_group", choices = c("No grouping" = "", stats::setNames(variables, variables)), selected = "")
+    updateCheckboxGroupInput(session, "epi_outcomes", choices = stats::setNames(variables, variables), selected = head(discrete, min(2L, length(discrete))))
+    numeric_choices <- variables[vapply(data, is.numeric, logical(1))]
+    first_numeric <- if (length(numeric_choices)) numeric_choices[[1L]] else ""
+    second_numeric <- if (length(numeric_choices)) numeric_choices[[min(2L, length(numeric_choices))]] else ""
+    updateSelectInput(session, "epi_numerator", choices = numeric_choices, selected = first_numeric)
+    updateSelectInput(session, "epi_denominator", choices = numeric_choices, selected = second_numeric)
+    updateSelectInput(session, "epi_person_time", choices = numeric_choices, selected = first_numeric)
+    updateSelectInput(session, "epi_label_column", choices = c("Use a single label below" = "", stats::setNames(variables, variables)), selected = "")
     compare_default <- if ("age" %in% variables) {
       "age"
     } else {
@@ -978,6 +1215,9 @@ server <- function(input, output, session) {
     table_selection(setdiff(names(selected_data()), input$table_group %||% ""))
   })
   observeEvent(input$table_clear_all, table_selection(character()))
+  observeEvent(input$table_add_variables, {
+    session$sendCustomMessage("gtstats-open-selectize", "table_vars")
+  }, ignoreInit = TRUE)
   observeEvent(input$table_vars, table_selection(input$table_vars), ignoreInit = TRUE)
 
   observeEvent(input$correlation_select_all, {
@@ -1044,6 +1284,15 @@ server <- function(input, output, session) {
     updateSelectInput(session, "distribution_plot_variable", choices = variables, selected = selected)
   }, ignoreInit = FALSE)
 
+  output$summary_foundation_data <- renderUI({
+    data <- selected_data()
+    tags$div(
+      class = "gtx-note",
+      tags$strong("Current prepared data"),
+      tags$br(),
+      data_type_note(data)
+    )
+  })
   output$table_vars_ui <- renderUI({
     variables <- names(selected_data())
     group <- input$table_group %||% ""
@@ -1051,9 +1300,36 @@ server <- function(input, output, session) {
     selected <- table_selection()
     if (is.null(selected)) selected <- choices
     selected <- intersect(selected, choices)
-    checkboxGroupInput(
-      "table_vars", "Select variables to summarise",
-      choices = choices, selected = selected
+    selectizeInput(
+      "table_vars", "Variables to summarise",
+      choices = choices, selected = selected, multiple = TRUE,
+      options = list(
+        plugins = list("remove_button"),
+        placeholder = "Click here to search or choose variables",
+        openOnFocus = TRUE,
+        closeAfterSelect = FALSE,
+        dropdownParent = "body"
+      )
+    )
+  })
+  output$table_variable_status <- renderUI({
+    variables <- setdiff(names(selected_data()), input$table_group %||% "")
+    selected <- intersect(input$table_vars %||% character(), variables)
+    available <- setdiff(variables, selected)
+    preview <- head(available, 6L)
+    available_text <- if (!length(available)) {
+      "All available variables are selected."
+    } else {
+      paste0(
+        length(available), " available to add: ", paste(preview, collapse = ", "),
+        if (length(available) > length(preview)) ", …" else "", "."
+      )
+    }
+    tags$p(
+      class = "help-copy",
+      tags$strong(paste0(length(selected), " selected. ")),
+      available_text,
+      " Use × to remove an item; use Add variables to bring it back."
     )
   })
   output$table_ci_vars_ui <- renderUI({
@@ -1063,10 +1339,92 @@ server <- function(input, output, session) {
       choices = choices, selected = intersect(input$table_ci_vars %||% choices, choices)
     )
   })
+  output$summary_build_status <- renderUI({
+    variables <- input$table_vars %||% character()
+    group <- input$table_group %||% ""
+    overall <- input$table_overall %||% "false"
+    layers <- c(
+      if (isTRUE(input$table_ci)) "CIs",
+      if (isTRUE(input$table_p)) "p-values",
+      if (isTRUE(input$table_add_total)) "total N",
+      if (isTRUE(input$table_add_proportion)) "proportion",
+      if (isTRUE(input$table_add_rate)) "rate",
+      if (isTRUE(input$table_add_row)) "custom row"
+    )
+    recipe_row <- function(number, title, detail, ready = TRUE) {
+      tags$div(
+        class = paste("gtx-recipe-row", if (isTRUE(ready)) "ready" else ""),
+        tags$span(class = "gtx-recipe-dot", if (isTRUE(ready)) "✓" else number),
+        tags$div(class = "gtx-recipe-label", tags$strong(title), tags$span(detail))
+      )
+    }
+    tagList(
+      recipe_row("1", "Data", data_type_note(selected_data())),
+      recipe_row(
+        "2", "Variables",
+        if (isTRUE(input$table_include_summary) && length(variables)) {
+          paste(length(variables), "selected")
+        } else if (isTRUE(input$table_include_summary)) {
+          "Choose at least one"
+        } else {
+          "Ordinary summaries off"
+        },
+        !isTRUE(input$table_include_summary) || length(variables) > 0L
+      ),
+      recipe_row(
+        "3", "Columns",
+        paste0(if (nzchar(group)) paste("Grouped by", group) else "Ungrouped",
+          if (!identical(overall, "false")) paste0(" · Overall ", overall) else "")
+      ),
+      recipe_row("4", "Added layers", if (length(layers)) paste(layers, collapse = ", ") else "None — descriptive table only"),
+      recipe_row("5", "Design", paste("Theme:", input$table_theme %||% "default")),
+      tags$p(class = "help-copy", "The preview is the last table you created. Change ingredients, then use Create / update table.")
+    )
+  })
 
   table_type_map <- reactive({
-    overview <- gtstats::describe_data(selected_data(), output = "tibble")
+    overview <- gtstats::describe_data(selected_data(), format = "tibble")
     stats::setNames(overview$type, overview$variable)
+  })
+  table_binary_variables <- reactive({
+    selected <- input$table_vars %||% character()
+    types <- table_type_map()
+    selected[selected %in% names(types)[types == "binary"]]
+  })
+  output$table_dichotomous_level_ui <- renderUI({
+    variables <- table_binary_variables()
+    if (!length(variables)) {
+      return(tags$div(class = "gtx-note", "No selected variable is currently detected as binary."))
+    }
+    tagList(lapply(seq_along(variables), function(index) {
+      variable <- variables[[index]]
+      values <- selected_data()[[variable]]
+      available <- if (is.factor(values)) {
+        levels(droplevels(values))
+      } else {
+        unique(as.character(values[!is.na(values)]))
+      }
+      default <- gtstats:::.default_dichotomous_level(values)
+      label <- gtstats:::.get_var_label(selected_data(), variable)
+      selectInput(
+        paste0("table_dichotomous_level_", index),
+        paste0(label, " (", variable, ")"),
+        choices = available,
+        selected = if (default %in% available) default else tail(available, 1L)
+      )
+    }))
+  })
+  table_dichotomous_settings <- reactive({
+    legacy <- parse_label_mapping(
+      input$table_dichotomous_values,
+      "Binary event levels"
+    )
+    variables <- table_binary_variables()
+    selected <- stats::setNames(vapply(seq_along(variables), function(index) {
+      input[[paste0("table_dichotomous_level_", index)]] %||% ""
+    }, character(1)), variables)
+    selected <- selected[nzchar(selected)]
+    c(legacy[setdiff(names(legacy), names(selected))], selected)
   })
   observe({
     types <- table_type_map()
@@ -1116,7 +1474,7 @@ server <- function(input, output, session) {
     vars <- input$table_vars %||% character()
     types <- table_type_map()
     summary_allowed <- list(
-      continuous = c("recommended", "mean_sd", "mean_ci", "median_iqr", "both"),
+      continuous = c("recommended", "mean_sd", "mean_se", "mean_ci", "median_iqr", "both"),
       binary = character(), categorical = character(), ordinal = character()
     )
     test_allowed <- list(
@@ -1171,7 +1529,7 @@ server <- function(input, output, session) {
     if (!length(continuous)) {
       showNotification("Select at least one continuous variable first.", type = "warning")
     } else {
-      choices <- c("mean_sd", "median_iqr", "mean_ci")
+      choices <- c("mean_sd", "mean_se", "median_iqr", "mean_ci")
       example <- paste0(head(continuous, 3L), " = ", head(choices, length(head(continuous, 3L))))
       updateTextAreaInput(session, "table_stat_overrides", value = paste(example, collapse = "\n"))
     }
@@ -1203,14 +1561,16 @@ server <- function(input, output, session) {
   output$data_preview <- render_result(data_preview_result)
   download_result(output, "data_preview", data_preview_result)
   data_dictionary_result <- reactive({
-    overview <- gtstats::describe_data(selected_data(), output = "tibble")
+    overview <- gtstats::describe_data(selected_data(), format = "tibble")
     keep <- intersect(c("variable", "label", "type", "complete", "n_unique", "range_levels"), names(overview))
     gt::gt(overview[, keep, drop = FALSE])
   })
   output$data_dictionary <- render_result(data_dictionary_result)
   download_result(output, "data_dictionary", data_dictionary_result)
   data_code <- reactive({
-    if (identical(input$data_source, "upload")) {
+    if (identical(input$data_source, "environment")) {
+      paste0("data <- ", deparse(as.name(input$environment_data)))
+    } else if (identical(input$data_source, "upload")) {
       extension <- tolower(tools::file_ext(input$data_file$name %||% "csv"))
       if (extension %in% c("xlsx", "xls")) {
         'data <- rio::import("path/to/file.xlsx") |> as.data.frame()'
@@ -1316,7 +1676,6 @@ server <- function(input, output, session) {
   observeEvent(input$run_table, {
     req(!is.null(initial_clicks$table),
       (input$run_table %||% 0) > initial_clicks$table)
-    mode <- "summary"
     include_summary <- !identical(input$table_include_summary, FALSE)
     vars <- if (include_summary) input$table_vars %||% character() else character()
     if (include_summary) {
@@ -1327,7 +1686,7 @@ server <- function(input, output, session) {
     if (include_summary) {
       validate(need(!length(settings$statistic$errors), paste(settings$statistic$errors, collapse = "\n")))
       dichotomous_values <- tryCatch(
-        parse_label_mapping(input$table_dichotomous_values, "Binary event levels"),
+        table_dichotomous_settings(),
         error = function(error) error
       )
       if (inherits(dichotomous_values, "error")) {
@@ -1361,7 +1720,7 @@ server <- function(input, output, session) {
       statistic_default
     }
     args <- list(
-      data = selected_data(), mode = mode,
+      data = selected_data(),
       layout = input$table_layout %||% "compact"
     )
     if (include_summary) {
@@ -1377,6 +1736,9 @@ server <- function(input, output, session) {
         args$categorical_layout <- "separate"
       }
       args$percent <- input$table_percent %||% "column"
+      if (!identical(input$table_overall %||% "false", "false")) {
+        args$overall_categorical <- input$table_overall_categorical %||% "auto"
+      }
       args$missing <- input$table_missing %||% "ifany"
       args$digits <- table_digits
     }
@@ -1414,7 +1776,7 @@ server <- function(input, output, session) {
       if (length(tested_vars) > 0L) {
         p_args <- list(
           x = result,
-          method = if (length(explicit_methods)) explicit_methods else "auto",
+          test = if (length(explicit_methods)) explicit_methods else "auto",
           include = tested_vars,
           paired = isTRUE(input$table_p_paired),
           distribution_check = isTRUE(input$table_distribution_check),
@@ -1510,7 +1872,6 @@ server <- function(input, output, session) {
   output$summary_table <- render_result(summary_display_result)
   download_result(output, "summary", summary_display_result)
   summary_code <- reactive({
-    mode <- "summary"
     group <- input$table_group %||% ""
     settings <- table_override_settings()
     base_args <- "data"
@@ -1536,8 +1897,18 @@ server <- function(input, output, session) {
         paste0("missing = ", sprintf('"%s"', input$table_missing %||% "ifany")),
         paste0("digits = ", input$table_digits %||% 1L)
       )
+      if (!identical(input$table_overall %||% "false", "false")) {
+        base_args <- append(
+          base_args,
+          paste0("overall_categorical = ", sprintf('"%s"', input$table_overall_categorical %||% "auto")),
+          after = match(
+            paste0("percent = ", sprintf('"%s"', input$table_percent %||% "column")),
+            base_args
+          )
+        )
+      }
       dichotomous_values <- tryCatch(
-        parse_label_mapping(input$table_dichotomous_values, "Binary event levels"),
+        table_dichotomous_settings(),
         error = function(error) character()
       )
       if (identical(input$table_dichotomous %||% "all_levels", "single_row") &&
@@ -1586,7 +1957,7 @@ server <- function(input, output, session) {
           paste0(", include = ", code_vector(tested_vars))
         } else ""
         additions <- c(additions, paste0(
-          "|>\n  add_p(method = ", method_code,
+          "|>\n  add_p(test = ", method_code,
           include_code,
           ", paired = ", if (isTRUE(input$table_p_paired)) "TRUE" else "FALSE",
           if (isTRUE(input$table_p_paired)) paste0(", id = ", input$table_p_id) else "",
@@ -1971,6 +2342,28 @@ server <- function(input, output, session) {
   download_code(output, "crosstab_code", crosstab_code)
 
   output$custom_source_ui <- renderUI({
+    if (identical(input$custom_source %||% "summary", "data")) {
+      data <- selected_data()
+      return(tags$div(
+        class = "gtx-step",
+        tags$strong("Preserving current data as final calculated results: "),
+        paste0(
+          nrow(data), " rows × ", ncol(data),
+          " columns. No values will be summarised, tested, or recalculated. ",
+          "Use Summary table instead if rows represent participants or observations."
+        )
+      ))
+    }
+    if (identical(input$custom_source %||% "summary", "epi")) {
+      if (is.null(epi_result())) {
+        return(tags$div(
+          class = "gtx-note",
+          tags$strong("No Epi table yet. "),
+          "Open Epi table, define the event and denominator, then click Create / update epidemiology table."
+        ))
+      }
+      return(tags$div(class = "gtx-step", tags$strong("Using: "), "the most recently created Epi table"))
+    }
     if (is.null(table_result())) {
       return(tags$div(
         class = "gtx-note",
@@ -1983,13 +2376,226 @@ server <- function(input, output, session) {
       tags$strong("Using: "), "the most recently created Summary table"
     )
   })
+  output$custom_ci_columns_ui <- renderUI({
+    req(identical(input$custom_source %||% "summary", "data"))
+    numeric_columns <- names(selected_data())[vapply(selected_data(), is.numeric, logical(1))]
+    if (!length(numeric_columns)) {
+      return(tags$div(class = "gtx-note", "No numeric columns are available for a confidence-interval calculation."))
+    }
+    selector <- function(id, label, preferred = character()) {
+      selected <- intersect(preferred, numeric_columns)
+      selectInput(
+        id, label, choices = stats::setNames(numeric_columns, numeric_columns),
+        selected = if (length(selected)) selected[[1L]] else numeric_columns[[1L]]
+      )
+    }
+    type <- input$custom_ci_type %||% "proportion"
+    if (type %in% c("proportion", "rate")) {
+      tagList(
+        selector("custom_ci_numerator", if (type == "rate") "Event-count column" else "Numerator/events column", c("events", "Events", "cases", "Cases")),
+        selector("custom_ci_denominator", if (type == "rate") "Person-time/exposure column" else "Denominator/total column", c("person_time", "PersonYears", "total", "Total", "denominator"))
+      )
+    } else if (identical(type, "mean")) {
+      tagList(
+        selector("custom_ci_estimate", "Mean column", c("mean", "Mean")),
+        selector("custom_ci_sd", "SD column", c("sd", "SD")),
+        selector("custom_ci_n", "Sample-size column", c("n", "N"))
+      )
+    } else {
+      tagList(
+        selector("custom_ci_estimate", "Estimate column", c("estimate", "Estimate")),
+        selector("custom_ci_se", "Standard-error column", c("se", "SE", "standard_error"))
+      )
+    }
+  })
+  output$custom_ci_recipe_ui <- renderUI({
+    type <- input$custom_ci_type %||% "proportion"
+    recipe <- switch(
+      type,
+      proportion = list(
+        title = "Proportion recipe",
+        ingredients = "number with the event + total number assessed",
+        result = "Wilson score confidence interval for the percentage"
+      ),
+      rate = list(
+        title = "Rate recipe",
+        ingredients = "number of events + person-time or exposure",
+        result = "exact Poisson confidence interval for the rate"
+      ),
+      mean = list(
+        title = "Mean recipe",
+        ingredients = "mean + standard deviation + sample size",
+        result = "t-based confidence interval for the mean"
+      ),
+      normal = list(
+        title = "Estimate recipe",
+        ingredients = "estimate + standard error",
+        result = "normal-approximation confidence interval"
+      )
+    )
+    tags$div(
+      class = "gtx-step",
+      tags$strong(paste0(recipe$title, ": ")),
+      recipe$ingredients,
+      tags$br(),
+      tags$span(class = "help-copy", paste0("Produces a ", recipe$result, "."))
+    )
+  })
+  aggregate_ci_arguments <- reactive({
+    type <- input$custom_ci_type %||% "proportion"
+    arguments <- list(
+      type = type,
+      conf.level = input$custom_ci_conf %||% 0.95,
+      digits = as.integer(input$custom_ci_digits %||% 1L)
+    )
+    if (type %in% c("proportion", "rate")) {
+      arguments$numerator <- input$custom_ci_numerator
+      arguments$denominator <- input$custom_ci_denominator
+    } else if (identical(type, "mean")) {
+      arguments$estimate <- input$custom_ci_estimate
+      arguments$sd <- input$custom_ci_sd
+      arguments$n <- input$custom_ci_n
+    } else {
+      arguments$estimate <- input$custom_ci_estimate
+      arguments$se <- input$custom_ci_se
+    }
+    if (identical(type, "proportion")) arguments$method <- input$custom_ci_method %||% "wilson"
+    if (identical(type, "rate")) arguments$multiplier <- input$custom_ci_multiplier %||% 1000
+    if (nzchar(input$custom_ci_name %||% "")) arguments$ci_name <- input$custom_ci_name
+    arguments
+  })
+  output$epi_event_levels_ui <- renderUI({
+    req(identical(input$epi_route %||% "line_list", "line_list"))
+    outcomes <- input$epi_outcomes %||% character()
+    data <- selected_data()
+    if (!length(outcomes)) return(tags$div(class = "gtx-note", "Select at least one outcome."))
+    tagList(lapply(seq_along(outcomes), function(i) {
+      variable <- outcomes[[i]]
+      choices <- unique(as.character(stats::na.omit(data[[variable]])))
+      preferred <- tryCatch(gtstats:::.select_target_level(data[[variable]]), error = function(e) choices[[1L]])
+      selectInput(paste0("epi_event_", i), paste0(variable, ": event value"), choices = choices, selected = preferred)
+    }))
+  })
+  output$epi_denominator_explanation <- renderUI({
+    if (identical(input$epi_route %||% "line_list", "aggregate")) {
+      tags$p(class = "help-copy", if (identical(input$epi_measure %||% "proportion", "incidence_rate")) "Cases are divided by the selected accumulated person-time column." else "Cases are divided by the selected population/eligible denominator column.")
+    } else {
+      tags$p(class = "help-copy", if (identical(input$epi_measure %||% "proportion", "incidence_rate")) "Events are divided by accumulated person-time among records with a non-missing outcome." else "The denominator is all non-missing observations for that outcome within each group.")
+    }
+  })
+
+  epi_result <- reactiveVal(NULL)
+  observeEvent(selected_data(), epi_result(NULL), ignoreInit = TRUE)
+  observeEvent(input$epi_measure, {
+    updateSelectInput(session, "epi_multiplier", selected = if (identical(input$epi_measure, "incidence_rate")) "1000" else "100")
+  }, ignoreInit = TRUE)
+  epi_multiplier_value <- reactive({
+    if (identical(input$epi_multiplier %||% "100", "custom")) input$epi_multiplier_custom %||% 100 else as.numeric(input$epi_multiplier %||% 100)
+  })
+  epi_code <- reactive({
+    route <- input$epi_route %||% "line_list"
+    group <- input$epi_group %||% ""
+    common <- c(
+      if (nzchar(group)) paste0("  by = ", group) else character(),
+      paste0('  measure = "', input$epi_measure %||% "proportion", '"'),
+      paste0("  multiplier = ", epi_multiplier_value()),
+      paste0('  ci_method = "', input$epi_ci_method %||% "wilson", '"'),
+      paste0("  conf.level = ", input$epi_conf %||% 0.95),
+      if (isTRUE(input$epi_p)) "  p_value = TRUE" else character(),
+      if (isTRUE(input$epi_p) && !identical(input$epi_p_adjust %||% "none", "none")) paste0('  p_adjust = "', input$epi_p_adjust, '"') else character(),
+      if (isTRUE(input$epi_effects)) '  effects = "all"' else character(),
+      paste0('  layout = "', input$epi_layout %||% "auto", '"'),
+      paste0("  digits = ", input$epi_digits %||% 1)
+    )
+    ingredients <- if (identical(route, "line_list")) {
+      outcomes <- input$epi_outcomes %||% character()
+      events <- vapply(seq_along(outcomes), function(i) input[[paste0("epi_event_", i)]] %||% "", character(1))
+      event_code <- paste0("c(", paste(paste0(outcomes, " = ", sprintf('"%s"', events)), collapse = ", "), ")")
+      c(paste0("  outcomes = c(", paste(outcomes, collapse = ", "), ")"), paste0("  event = ", event_code), if (identical(input$epi_measure, "incidence_rate")) paste0("  person_time = ", input$epi_person_time) else character())
+    } else {
+      label_line <- if (nzchar(input$epi_label_column %||% "")) paste0("  label = ", input$epi_label_column) else if (nzchar(input$epi_label_text %||% "")) paste0("  label = ", sprintf('"%s"', input$epi_label_text)) else character()
+      c(paste0("  numerator = ", input$epi_numerator), paste0("  denominator = ", input$epi_denominator), label_line)
+    }
+    paste0("epi_result <- epi_table(\n  data,\n", paste(c(ingredients, common), collapse = ",\n"), "\n)")
+  })
+  observeEvent(input$run_epi, {
+    req(!is.null(initial_clicks$epi), (input$run_epi %||% 0) > initial_clicks$epi)
+    route <- input$epi_route %||% "line_list"
+    arguments <- list(
+      data = selected_data(), measure = input$epi_measure %||% "proportion",
+      multiplier = epi_multiplier_value(), ci_method = input$epi_ci_method %||% "wilson",
+      conf.level = input$epi_conf %||% 0.95, p_value = isTRUE(input$epi_p),
+      p_adjust = input$epi_p_adjust %||% "none", effects = if (isTRUE(input$epi_effects)) "all" else "none",
+      layout = input$epi_layout %||% "auto", digits = input$epi_digits %||% 1
+    )
+    if (nzchar(input$epi_group %||% "")) arguments$by <- input$epi_group
+    if (identical(route, "line_list")) {
+      outcomes <- input$epi_outcomes %||% character()
+      validate(need(length(outcomes), "Select at least one outcome."))
+      events <- vapply(seq_along(outcomes), function(i) input[[paste0("epi_event_", i)]] %||% "", character(1))
+      validate(need(all(nzchar(events)), "Choose an event value for every outcome."))
+      arguments$outcomes <- outcomes
+      arguments$event <- stats::setNames(events, outcomes)
+      if (identical(input$epi_measure, "incidence_rate")) arguments$person_time <- input$epi_person_time
+    } else {
+      validate(need(nzchar(input$epi_numerator %||% "") && nzchar(input$epi_denominator %||% ""), "Choose numerator and denominator columns."))
+      arguments$numerator <- input$epi_numerator
+      arguments$denominator <- input$epi_denominator
+      if (nzchar(input$epi_label_column %||% "")) arguments$label <- input$epi_label_column else if (nzchar(input$epi_label_text %||% "")) arguments$label <- input$epi_label_text
+    }
+    if ((isTRUE(input$epi_p) || isTRUE(input$epi_effects)) && !nzchar(input$epi_group %||% "")) validate(need(FALSE, "Choose a grouping variable before adding p-values or effect measures."))
+    result <- do.call(gtstats::epi_table, arguments)
+    if (isTRUE(input$epi_effects)) validate(need(length(unique(result$summary$group)) == 2L, "Effect measures require exactly two observed groups."))
+    epi_result(result)
+  }, ignoreInit = TRUE)
+  output$epi_table <- render_result(epi_result)
+  download_result(output, "epi", epi_result)
+  output$epi_code <- renderText(epi_code())
+  download_code(output, "epi_code", epi_code)
+  output$epi_denominators <- gt::render_gt({ req(epi_result()); gt::gt(epi_result()$denominators) })
+  output$epi_effect_table <- gt::render_gt({ req(epi_result()); if (!nrow(epi_result()$effects)) return(gt::gt(data.frame(Note = "No two-group effect measures requested."))); gt::gt(epi_result()$effects) })
+
   selected_completed_table <- reactive({
-    req(table_result())
-    table_result()
+    if (identical(input$custom_source %||% "summary", "data")) {
+      result <- gtstats::as_stats_table(selected_data())
+      if (isTRUE(input$custom_add_ci)) {
+        result <- do.call(gtstats::add_ci, c(list(x = result), aggregate_ci_arguments()))
+      }
+      result
+    } else if (identical(input$custom_source %||% "summary", "epi")) {
+      req(epi_result())
+      epi_result()
+    } else {
+      req(table_result())
+      table_result()
+    }
   })
   completed_table_code <- reactive({
-    req(table_result())
-    summary_code()
+    if (identical(input$custom_source %||% "summary", "data")) {
+      code <- "as_stats_table(data)"
+      if (isTRUE(input$custom_add_ci)) {
+        arguments <- aggregate_ci_arguments()
+        column_arguments <- intersect(names(arguments), c("estimate", "numerator", "denominator", "sd", "n", "se"))
+        lines <- vapply(names(arguments), function(name) {
+          value <- arguments[[name]]
+          if (name %in% column_arguments) {
+            paste0("    ", name, " = ", deparse(as.name(value)))
+          } else if (is.character(value)) {
+            paste0("    ", name, " = ", sprintf('"%s"', value))
+          } else {
+            paste0("    ", name, " = ", value)
+          }
+        }, character(1))
+        code <- paste0(code, " |>\n  add_ci(\n", paste(lines, collapse = ",\n"), "\n  )")
+      }
+      code
+    } else if (identical(input$custom_source %||% "summary", "epi")) {
+      req(epi_result())
+      epi_code()
+    } else {
+      req(table_result())
+      summary_code()
+    }
   })
   custom_settings <- reactive({
     list(
@@ -2008,6 +2614,12 @@ server <- function(input, output, session) {
   })
   customised_result <- reactiveVal(NULL)
   observeEvent(table_result(), {
+    customised_result(NULL)
+  }, ignoreInit = TRUE)
+  observeEvent(epi_result(), {
+    customised_result(NULL)
+  }, ignoreInit = TRUE)
+  observeEvent(list(input$custom_source, selected_data()), {
     customised_result(NULL)
   }, ignoreInit = TRUE)
   observeEvent(input$run_customise, {
@@ -2054,12 +2666,24 @@ server <- function(input, output, session) {
     ))
   }, ignoreInit = TRUE)
   customised_display_result <- reactive({
-    customised_result() %||% table_result()
+    customised_result() %||% tryCatch(
+      selected_completed_table(),
+      error = function(error) NULL
+    )
   })
   output$custom_preview_message <- renderUI({
-    if (is.null(table_result())) return(NULL)
+    if (is.null(customised_display_result())) return(NULL)
     if (is.null(customised_result())) {
-      tags$p(class = "help-copy", "This is the current Summary table. Change the controls and click Apply table changes to create a customised copy.")
+      tags$p(
+        class = "help-copy",
+        if (identical(input$custom_source %||% "summary", "data")) {
+          "This preview uses the current rows and calculated values exactly as supplied. Change the controls and click Apply table changes to style it."
+        } else if (identical(input$custom_source %||% "summary", "epi")) {
+          "This is the current Epi table. Styling changes do not alter events, denominators, intervals, p-values or effect estimates."
+        } else {
+          "This is the current Summary table. Change the controls and click Apply table changes to create a customised copy."
+        }
+      )
     } else {
       tags$p(class = "help-copy", "Customisation applied. The underlying Summary-table statistics are unchanged.")
     }

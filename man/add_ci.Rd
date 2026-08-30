@@ -9,11 +9,20 @@ add_ci(
   vars = NULL,
   conf.level = 0.95,
   method = c("wilson", "exact"),
-  digits = NULL
+  digits = NULL,
+  type = NULL,
+  estimate = NULL,
+  numerator = NULL,
+  denominator = NULL,
+  sd = NULL,
+  n = NULL,
+  se = NULL,
+  multiplier = 1,
+  ci_name = NULL
 )
 }
 \arguments{
-\item{x}{A table created by \code{\link[=summary_table]{summary_table()}}.}
+\item{x}{A table created by \code{\link[=summary_table]{summary_table()}} or \code{\link[=as_stats_table]{as_stats_table()}}.}
 
 \item{vars}{Variables that should receive confidence intervals. \code{NULL}
 (default) selects every eligible variable already in the table. Variables
@@ -28,9 +37,22 @@ usual t interval.}
 
 \item{digits}{Decimal places for confidence limits. \code{NULL} inherits the
 confidence-interval precision from the table.}
+
+\item{type}{For \code{\link[=as_stats_table]{as_stats_table()}} input, the explicit aggregate-data
+calculation: \code{"proportion"}, \code{"rate"}, \code{"mean"}, or \code{"normal"}.}
+
+\item{estimate, numerator, denominator, sd, n, se}{Columns containing the required
+aggregate inputs. Supply bare column names or single character names.
+Proportions and rates require \code{numerator} and \code{denominator}; means require
+\code{estimate}, \code{sd}, and \code{n}; normal intervals require \code{estimate} and \code{se}.}
+
+\item{multiplier}{Positive rate multiplier, such as \code{1000} person-years.}
+
+\item{ci_name}{Optional name for the added interval column. The default is
+the confidence-level label, for example \code{"95\% CI"}.}
 }
 \value{
-The updated \code{gt_desc_table} object.
+The updated \code{gtstats_summary} object.
 }
 \description{
 Add confidence intervals to all eligible summaries, or only to selected
@@ -50,5 +72,12 @@ summary_table(mtcars, by = am, include = c(mpg, cyl), layout = "separate") |>
 
 summary_table(mtcars, by = am, include = c(mpg, cyl, vs)) |>
   add_ci(vars = c(mpg, vs), conf.level = 0.90)
+
+aggregate_rates <- data.frame(
+  Group = c("A", "B"), Events = c(8, 14), PersonYears = c(420, 510)
+)
+as_stats_table(aggregate_rates) |>
+  add_ci(type = "rate", numerator = Events, denominator = PersonYears,
+         multiplier = 1000)
 
 }

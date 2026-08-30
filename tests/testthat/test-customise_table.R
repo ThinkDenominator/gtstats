@@ -1,7 +1,7 @@
 test_that("customise_table() works on gt table", {
   gt_obj <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   styled <- customise_table(gt_obj)
 
@@ -11,7 +11,7 @@ test_that("customise_table() works on gt table", {
 test_that("customise_table() updates title and subtitle", {
   gt_obj <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   styled <- customise_table(
     gt_obj,
@@ -25,7 +25,7 @@ test_that("customise_table() updates title and subtitle", {
 test_that("customise_table() relabels columns", {
   gt_obj <- summary_table(mtcars, by = am, overall = TRUE) |>
     add_summary(vars = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   styled <- customise_table(
     gt_obj,
@@ -38,7 +38,7 @@ test_that("customise_table() relabels columns", {
 test_that("customise_table() relabels row and level values for Variable tables", {
   gt_obj <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, cyl)) |>
-    tbl_stats()
+    to_gt()
 
   styled <- customise_table(
     gt_obj,
@@ -51,7 +51,7 @@ test_that("customise_table() relabels row and level values for Variable tables",
 
 test_that("customise_table() relabels row values for Measure tables", {
   gt_obj <- crosstabs(mtcars, row = am, col = vs) |>
-    tbl_stats()
+    to_gt()
 
   styled <- customise_table(
     gt_obj,
@@ -64,11 +64,11 @@ test_that("customise_table() relabels row values for Measure tables", {
   expect_s3_class(styled, "gt_tbl")
 })
 
-test_that("customise_table() preserves footnotes from tbl_stats output", {
+test_that("customise_table() preserves footnotes from to_gt output", {
   gt_obj <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt)) |>
     add_p() |>
-    tbl_stats()
+    to_gt()
 
   styled <- customise_table(
     gt_obj,
@@ -82,7 +82,7 @@ test_that("customise_table() preserves footnotes from tbl_stats output", {
 test_that("customise_table() supports journal theme", {
   gt_obj <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   styled <- customise_table(gt_obj, theme = "journal")
 
@@ -92,7 +92,7 @@ test_that("customise_table() supports journal theme", {
 test_that("customise_table() supports classic theme", {
   gt_obj <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   styled <- customise_table(gt_obj, theme = "classic")
 
@@ -102,7 +102,7 @@ test_that("customise_table() supports classic theme", {
 test_that("customise_table() supports minimal theme", {
   gt_obj <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   styled <- customise_table(gt_obj, theme = "minimal")
 
@@ -112,7 +112,7 @@ test_that("customise_table() supports minimal theme", {
 test_that("customise_table() supports compact theme", {
   gt_obj <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   styled <- customise_table(gt_obj, theme = "compact")
 
@@ -122,7 +122,7 @@ test_that("customise_table() supports compact theme", {
 test_that("customise_table() supports default theme explicitly", {
   gt_obj <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   styled <- customise_table(gt_obj, theme = "default")
 
@@ -132,7 +132,7 @@ test_that("customise_table() supports default theme explicitly", {
 test_that("customise_table() supports alignment options including center", {
   gt_obj <- summary_table(mtcars, by = am, overall = TRUE) |>
     add_summary(vars = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   styled <- customise_table(
     gt_obj,
@@ -149,7 +149,7 @@ test_that("customise_table() supports alignment options including center", {
 test_that("customise_table() supports hide_cols", {
   gt_obj <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   styled <- customise_table(
     gt_obj,
@@ -162,7 +162,7 @@ test_that("customise_table() supports hide_cols", {
 test_that("customise_table() supports source note", {
   gt_obj <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   styled <- customise_table(
     gt_obj,
@@ -175,7 +175,7 @@ test_that("customise_table() supports source note", {
 test_that("customise_table() supports bold and italic column styling", {
   gt_obj <- summary_table(mtcars, by = am, overall = TRUE) |>
     add_summary(vars = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   styled <- customise_table(
     gt_obj,
@@ -189,7 +189,7 @@ test_that("customise_table() supports bold and italic column styling", {
 test_that("customise_table() supports font size override", {
   gt_obj <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   styled <- customise_table(
     gt_obj,
@@ -202,7 +202,7 @@ test_that("customise_table() supports font size override", {
 test_that("customise_table() supports row striping on", {
   gt_obj <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   styled <- customise_table(
     gt_obj,
@@ -215,7 +215,7 @@ test_that("customise_table() supports row striping on", {
 test_that("customise_table() supports row striping off", {
   gt_obj <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   styled <- customise_table(
     gt_obj,
@@ -228,7 +228,7 @@ test_that("customise_table() supports row striping off", {
 test_that("customise_table() supports accent color and stripe color", {
   gt_obj <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   styled <- customise_table(
     gt_obj,

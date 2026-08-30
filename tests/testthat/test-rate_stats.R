@@ -90,7 +90,7 @@ test_that("rate_stats() respects multiplier", {
   expect_false(identical(res1$table[["Rate per 1,000"]], res2$table[["Rate per 100"]]))
 })
 
-test_that("tbl_stats() works on rate_stats output", {
+test_that("to_gt() works on rate_stats output", {
   df <- data.frame(
     event = c(1, 0, 1, 0, 1, 1),
     ptime = c(10, 12, 8, 9, 11, 7),
@@ -98,7 +98,7 @@ test_that("tbl_stats() works on rate_stats output", {
   )
 
   result <- rate_stats(df, event = event, time = ptime, by = arm)
-  gt_obj <- tbl_stats(result)
+  gt_obj <- to_gt(result)
 
   expect_s3_class(gt_obj, "gt_tbl")
   expect_identical(
@@ -245,7 +245,7 @@ test_that("rate_stats() respects factor order and custom time label", {
 
   expect_identical(result$summary$group, c("A", "B"))
   expect_identical(result$method$display_columns$group, c("A", "B"))
-  rendered <- tbl_stats(result)
+  rendered <- to_gt(result)
   expect_true("Person-years" %in% rendered[["_boxhead"]]$column_label)
   expect_true("Rate per 1,000" %in% rendered[["_boxhead"]]$column_label)
   expect_identical(result$inputs$time_label, "person-years")

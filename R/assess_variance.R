@@ -32,7 +32,6 @@
 #'   Brown-Forsythe form). Both are supporting diagnostics, not gatekeepers for
 #'   ANOVA or Welch methods.
 #' @param format Output format: `"table"` (default) or `"tibble"`.
-#' @param output Compatibility alias for `format`.
 #'
 #' @return With `format = "table"`, a `gt_variance` object that prints as one
 #'   readable row per variable: each group's `n` and SD, the observed SD ratio,
@@ -54,12 +53,8 @@ assess_variance <- function(
     by,
     digits = 2,
     test = c("levene", "none", "bartlett"),
-    format = c("table", "tibble"),
-    output = NULL
+    format = c("table", "tibble")
 ) {
-  if (!is.null(output)) {
-    format <- output
-  }
   format <- match.arg(format, c("table", "tibble"))
   test <- match.arg(test)
   if (!is.data.frame(data)) {

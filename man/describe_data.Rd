@@ -4,13 +4,7 @@
 \alias{describe_data}
 \title{Understand a dataset before analysis}
 \usage{
-describe_data(
-  data,
-  vars = NULL,
-  digits = 2,
-  format = c("table", "tibble"),
-  output = NULL
-)
+describe_data(data, vars = NULL, digits = 2, format = c("table", "tibble"))
 }
 \arguments{
 \item{data}{A data.frame.}
@@ -20,8 +14,6 @@ describe_data(
 \item{digits}{Number of decimal places in concise numeric summaries.}
 
 \item{format}{Output format: \code{"table"} (default) or \code{"tibble"}.}
-
-\item{output}{Compatibility alias for \code{format}.}
 }
 \value{
 With \code{format = "table"}, a \code{gt_describe} object that prints as a
@@ -44,6 +36,6 @@ statistics, and \code{\link[=compare_groups]{compare_groups()}} for inferential 
 \examples{
 describe_data(mtcars)
 describe_data(mtcars, vars = c("mpg", "cyl", "am"))
-tbl_stats(describe_data(mtcars))
+to_gt(describe_data(mtcars))
 
 }

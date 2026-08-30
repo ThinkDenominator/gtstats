@@ -48,7 +48,7 @@
 #'
 #' correlation(mtcars, x = "mpg", y = "disp", method = "pearson")
 #'
-#' tbl_stats(correlation(mtcars, x = mpg, y = wt))
+#' to_gt(correlation(mtcars, x = mpg, y = wt))
 #'
 #' @noRd
 .correlation_pair <- function(

@@ -10,7 +10,7 @@
 #' - if `by` is used, values must be named using displayed group column names
 #' - if neither `overall` nor `by` is used, a single `Value` column is used
 #'
-#' @param x A `gt_desc_table` object created with [summary_table()].
+#' @param x A `gtstats_summary` object created with [summary_table()].
 #' @param label A single character string giving the row label to display in the
 #'   `Variable` column.
 #' @param overall Optional value to display in the `Overall` column when the
@@ -21,7 +21,7 @@
 #' @param level Optional text to display in the `Level` column. Defaults to an
 #'   empty string.
 #'
-#' @return An updated `gt_desc_table` object with the custom row appended.
+#' @return An updated `gtstats_summary` object with the custom row appended.
 #'
 #' @examples
 #' res <- summary_table(mtcars, by = am, include = c(mpg, wt), overall = TRUE) |>

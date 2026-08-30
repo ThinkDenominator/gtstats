@@ -13,13 +13,13 @@
 #' This helper can be used only with descriptive tables created in
 #' `mode = "summary"`.
 #'
-#' @param x A `gt_desc_table` object created with [summary_table()].
+#' @param x A `gtstats_summary` object created with [summary_table()].
 #' @param label Row label to display in the `Variable` column. Defaults to
 #'   `"Total (N)"`.
 #' @param position Position of the total row. Use `"first"` to place sample
 #'   sizes at the top of the table or `"last"` to append them.
 #'
-#' @return An updated `gt_desc_table` object with a total row appended.
+#' @return An updated `gtstats_summary` object with a total row appended.
 #'
 #' @examples
 #' summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>
@@ -38,7 +38,7 @@ add_total <- function(
     position = c("last", "first")
 ) {
   position <- match.arg(position)
-  .validate_summary_builder(x, "add_total", mode = "summary")
+  .validate_summary_builder(x, "add_total")
 
   # Validate row label
   if (!is.character(label) || length(label) != 1L || is.na(label) ||

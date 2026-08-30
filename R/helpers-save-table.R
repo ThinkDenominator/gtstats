@@ -13,14 +13,13 @@
 #' @param filename Output file name, including extension.
 #' @param path Optional directory to save into. Defaults to
 #'   the current working directory.
-#' @param title Optional title passed to [tbl_stats()] when `x` is a
+#' @param title Optional title passed to [to_gt()] when `x` is a
 #'   `gtstats` object.
-#' @param subtitle Optional subtitle passed to [tbl_stats()].
-#' @param pvalue_style P-value display style passed to [tbl_stats()].
+#' @param subtitle Optional subtitle passed to [to_gt()].
 #' @param bold_labels Logical; whether labels should be bolded in
-#'   [tbl_stats()].
+#'   [to_gt()].
 #' @param show_footnotes Logical; whether footnotes should be shown in
-#'   [tbl_stats()].
+#'   [to_gt()].
 #' @param zoom Scaling factor used for PNG export where supported.
 #' @param expand Number of pixels to expand image borders for PNG
 #'   export.
@@ -44,7 +43,7 @@
 #' .save_table(res, filename = "table1.html")
 #' }
 #'
-#' gt_obj <- tbl_stats(res)
+#' gt_obj <- to_gt(res)
 #'
 #' \donttest{
 #' .save_table(gt_obj, filename = "table2.html")
@@ -56,7 +55,6 @@
     path = NULL,
     title = NULL,
     subtitle = NULL,
-    pvalue_style = c("default", "scientific"),
     bold_labels = TRUE,
     show_footnotes = TRUE,
     zoom = 1.5,
@@ -66,8 +64,6 @@
     quiet = FALSE,
     ...
 ) {
-  pvalue_style <- match.arg(pvalue_style)
-
   # Validate filename and optional output path
   if (!is.character(filename) || length(filename) != 1 ||
       is.na(filename) || filename == "") {
@@ -123,9 +119,10 @@
     "gt_compare",
     "gt_correlation",
     "gt_effect",
-    "gt_desc_table",
+    "gtstats_summary",
     "gt_prop",
     "gt_rate",
+    "gt_epi_table",
     "gt_twobytwo",
     "gt_describe"
   )
@@ -163,11 +160,10 @@
   gt_obj <- if (inherits(x, "gt_tbl")) {
     x
   } else {
-    tbl_stats(
+    to_gt(
       x,
       title = title,
       subtitle = subtitle,
-      pvalue_style = pvalue_style,
       bold_labels = bold_labels,
       show_footnotes = show_footnotes
     )
@@ -177,7 +173,7 @@
     stop(
       paste0(
         "`x` must be a gtstats object compatible with ",
-        "`tbl_stats()` or a `gt_tbl`."
+        "`to_gt()` or a `gt_tbl`."
       ),
       call. = FALSE
     )

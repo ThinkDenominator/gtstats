@@ -26,7 +26,6 @@
 #'   are stored in `$plots` (or `attr(result, "plots")` for tibble output).
 #' @param digits Number of decimal places.
 #' @param format Output format: `"table"` (default) or `"tibble"`.
-#' @param output Compatibility alias for `format`.
 #'
 #' @return With `format = "table"`, a `gt_distribution` object that prints as a
 #'   publication-ready table. `$summary` contains group-level diagnostics and
@@ -49,12 +48,8 @@ assess_distribution <- function(
     min_n = 3,
     plots = FALSE,
     digits = 2,
-    format = c("table", "tibble"),
-    output = NULL
+    format = c("table", "tibble")
 ) {
-  if (!is.null(output)) {
-    format <- output
-  }
   format <- match.arg(format, c("table", "tibble"))
   if (!is.data.frame(data)) {
     stop("`data` must be a data.frame.", call. = FALSE)

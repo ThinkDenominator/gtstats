@@ -1,0 +1,14 @@
+bibentry(
+  bibtype = "Manual",
+  title = "gtstats: Beginner-Friendly Statistics and Publication-Ready Tables",
+  author = c(
+    person("Rubeshkumar", "Polani"),
+    person("Mogan", "Kaviprawin"),
+    person("Manikandanesan", "Sakthivel"),
+    person("Salin K", "Eliyas"),
+    person("Yuvaraj", "Krishnamoorthy")
+  ),
+  year = "2026",
+  note = "R package version 1.0.0",
+  url = "https://gtstats.thinkdenominator.com/"
+)

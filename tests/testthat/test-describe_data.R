@@ -152,12 +152,12 @@ test_that("describe_data() validates inputs", {
 
 test_that("describe_data() renders through supported routes", {
   res <- describe_data(mtcars, vars = c("mpg", "wt", "am"))
-  expect_s3_class(tbl_stats(res), "gt_tbl")
+  expect_s3_class(to_gt(res), "gt_tbl")
   expect_s3_class(to_flextable(res), "flextable")
 })
 
 test_that("describe_data() returns a tibble when requested", {
-  res <- describe_data(mtcars, vars = c("mpg", "am"), output = "tibble")
+  res <- describe_data(mtcars, vars = c("mpg", "am"), format = "tibble")
   expect_s3_class(res, "tbl_df")
   expect_identical(ncol(res), 7L)
 })

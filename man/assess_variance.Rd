@@ -10,8 +10,7 @@ assess_variance(
   by,
   digits = 2,
   test = c("levene", "none", "bartlett"),
-  format = c("table", "tibble"),
-  output = NULL
+  format = c("table", "tibble")
 )
 }
 \arguments{
@@ -34,8 +33,6 @@ Brown-Forsythe form). Both are supporting diagnostics, not gatekeepers for
 ANOVA or Welch methods.}
 
 \item{format}{Output format: \code{"table"} (default) or \code{"tibble"}.}
-
-\item{output}{Compatibility alias for \code{format}.}
 }
 \value{
 With \code{format = "table"}, a \code{gt_variance} object that prints as one

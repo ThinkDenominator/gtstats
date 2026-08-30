@@ -120,10 +120,16 @@
     data,
     variable,
     by = NULL,
-    percent = c("column", "row", "overall", "none")
+    percent = c("column", "row", "overall", "none"),
+    missing = c("exclude", "as_category")
 ) {
   percent <- match.arg(percent)
-  values <- as.character(data[[variable]])
+  missing <- match.arg(missing)
+  raw_values <- as.character(data[[variable]])
+  values <- raw_values
+  if (identical(missing, "as_category")) {
+    values[is.na(values)] <- "Missing"
+  }
   levels <- sort(unique(values[!is.na(values)]))
   if (length(levels) == 0L) {
     return(.empty_denominators())
@@ -149,35 +155,49 @@
     )
   }
 
-  overall_denominator <- sum(!is.na(values))
+  overall_denominator <- if (identical(missing, "as_category")) {
+    length(values)
+  } else {
+    sum(!is.na(values))
+  }
   dplyr::bind_rows(lapply(levels, function(level_value) {
     row_denominator <- sum(values == level_value, na.rm = TRUE)
     dplyr::bind_rows(lapply(names(groups), function(group_label) {
       idx <- groups[[group_label]]
       group_values <- values[idx]
-      group_nonmissing <- sum(!is.na(group_values))
+      group_raw_values <- raw_values[idx]
+      group_nonmissing <- sum(!is.na(group_raw_values))
       numerator <- sum(group_values == level_value, na.rm = TRUE)
       denominator <- switch(
         percent,
-        column = group_nonmissing,
+        column = if (identical(missing, "as_category")) length(group_values) else group_nonmissing,
         row = row_denominator,
         overall = overall_denominator,
         none = group_nonmissing
       )
-      rule <- switch(
-        percent,
-        column = "Non-missing observations within displayed group",
-        row = "Non-missing observations for this category across displayed groups",
-        overall = "All non-missing observations of this variable",
-        none = "Counts displayed; non-missing denominator retained for audit"
-      )
+      rule <- if (identical(missing, "as_category") && !identical(percent, "none")) {
+        switch(
+          percent,
+          column = "All observations within displayed group; missing is a category",
+          row = "All observations in this category across displayed groups; missing is a category",
+          overall = "All observations; missing is a category"
+        )
+      } else {
+        switch(
+          percent,
+          column = "Non-missing observations within displayed group",
+          row = "Non-missing observations for this category across displayed groups",
+          overall = "All non-missing observations of this variable",
+          none = "Counts displayed; non-missing denominator retained for audit"
+        )
+      }
       .denominators_tbl(
         variable = variable,
         level = level_value,
         group = group_label,
         n_total = length(group_values),
         n_nonmissing = group_nonmissing,
-        n_missing = sum(is.na(group_values)),
+        n_missing = sum(is.na(group_raw_values)),
         numerator = numerator,
         denominator = denominator,
         rule = rule

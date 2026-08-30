@@ -130,11 +130,11 @@ test_that("to_flextable() validates presentation options", {
 test_that("to_flextable() errors when given gt table instead of GTstats object", {
   gt_obj <- summary_table(mtcars, by = am) |>
     add_summary(vars = c(mpg, wt)) |>
-    tbl_stats()
+    to_gt()
 
   expect_error(
     to_flextable(gt_obj),
-    regexp = "tbl_stats"
+    regexp = "to_gt"
   )
 })
 

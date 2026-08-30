@@ -1,16 +1,8 @@
 # Internal summary-table builder helpers ----------------------------------
 
-.validate_summary_builder <- function(x, caller, mode = NULL) {
-  if (!inherits(x, "gt_desc_table")) {
-    stop("`x` must be a `gt_desc_table` object.", call. = FALSE)
-  }
-
-  if (!is.null(mode) && !identical(x$mode, mode)) {
-    stop(
-      "`", caller, "()` can only be used with tables created with ",
-      "`mode = \"", mode, "\"`.",
-      call. = FALSE
-    )
+.validate_summary_builder <- function(x, caller) {
+  if (!inherits(x, "gtstats_summary")) {
+    stop("`x` must be a `gtstats_summary` object created by `summary_table()`.", call. = FALSE)
   }
 
   invisible(TRUE)
@@ -289,14 +281,16 @@
     percent_col <- paste0("summary_", i, "_percent")
     parts <- lapply(x$table[[base]], .split_categorical_display)
     rebuilt[[count_col]] <- vapply(parts, `[[`, character(1), "count")
-    rebuilt[[percent_col]] <- vapply(parts, `[[`, character(1), "percent")
+    percentages <- vapply(parts, `[[`, character(1), "percent")
+    has_percentages <- any(!is.na(percentages) & nzchar(percentages))
+    if (has_percentages) rebuilt[[percent_col]] <- percentages
     display[[i]] <- tibble::tibble(
       group = headers[[base]] %||% base,
       source = base,
       estimate = count_col,
-      ci = percent_col,
+      ci = if (has_percentages) percent_col else NA_character_,
       estimate_label = count_label,
-      ci_label = "%"
+      ci_label = if (has_percentages) "%" else NA_character_
     )
   }
   for (column in remaining) rebuilt[[column]] <- x$table[[column]]
@@ -310,7 +304,9 @@
   mapping <- x$display_columns[x$display_columns$source == source, , drop = FALSE]
   if (nrow(mapping) != 1L) return(row)
   row[[mapping$estimate[[1L]]]] <- estimate
-  row[[mapping$ci[[1L]]]] <- ci
+  if (!is.na(mapping$ci[[1L]]) && nzchar(mapping$ci[[1L]])) {
+    row[[mapping$ci[[1L]]]] <- ci
+  }
   row
 }
 

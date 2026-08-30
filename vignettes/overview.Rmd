@@ -18,11 +18,13 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
 |---|---|---|
 | What is in my dataset? | `describe_data()` | `assess_distribution()` and `assess_variance()` for selected continuous variables |
 | How do I describe participants by group? | `summary_table()` | `add_p()`, `add_total()`, or `add_proportion()` only when justified |
+| How do I report outbreak or surveillance measures? | `epi_table()` | Review its denominator and effect-measure components |
+| How do I format final results calculated elsewhere? | `as_stats_table()` | `customise_table()` and `save_output()` |
 | Do groups differ for one variable? | `compare_groups()` | `effect_size()` for magnitude; audit helpers for review |
 | Are two continuous variables associated? | `correlation()` | `plot_correlation()` |
 | What is a proportion or rate? | `proportion_stats()` or `rate_stats()` | — |
 | What are RR, OR, and risk difference? | `crosstabs()` | — |
-| How do I change the finished table? | `tbl_stats()` | `customise_table()`, `to_flextable()`, `save_output()` |
+| How do I change the finished table? | `to_gt()` | `customise_table()`, `to_flextable()`, `save_output()` |
 
 ## The core distinction
 
@@ -51,12 +53,18 @@ diagnostics_stats(result)
 ## A minimal decision tree
 
 ```text
-Raw dataset
+Participant-level data
   └─ describe_data()
       ├─ assess_distribution()  → how to present selected continuous variables
       ├─ assess_variance()      → how observed spread differs across groups
       ├─ summary_table()        → Table 1 / participant characteristics
       └─ compare_groups()       → one inferential question
+
+Outbreak or surveillance data
+  └─ epi_table()                → events, denominators, risks, or rates
+
+Already calculated results
+  └─ as_stats_table()           → preserve values; style and export only
 ```
 
 The [Start here](getting-started.html) article explains the minimal workflow;

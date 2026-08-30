@@ -21,7 +21,7 @@ test_that("crosstabs() provides the finalized two-by-two API", {
 test_that("customise_table() provides the finalized styling API", {
   table <- summary_table(mtcars) |>
     add_summary(vars = mpg) |>
-    tbl_stats()
+    to_gt()
 
   result <- customise_table(table, title = "Test table")
   expect_s3_class(result, "gt_tbl")
@@ -85,15 +85,17 @@ test_that("only finalized conflict-free public names are exported", {
     "add_row", "add_ci", "add_p", "add_proportion", "add_rate",
     "add_summary", "add_total", "assess_distribution", "assess_variance",
     "assumptions_stats", "compare_groups", "correlation",
-    "customise_table", "denominators_stats", "describe_data",
+    "as_stats_table", "customise_table", "denominators_stats", "describe_data",
     "diagnostics_stats", "effect_size", "gtstats_app", "plot_compare",
     "plot_correlation", "proportion_stats", "rate_stats",
+    "epi_table",
     "save_output",
-    "summary_table", "tbl_stats", "to_flextable", "to_gt", "crosstabs"
+    "summary_table", "to_flextable", "to_gt", "crosstabs"
   ))
 
   expect_identical(exports, finalized_api)
   expect_false(any(c(
+    "tbl_stats",
     "prop_ci",
     "twobytwo_table",
     "twobytwo_stats",
@@ -104,4 +106,28 @@ test_that("only finalized conflict-free public names are exported", {
     "correlate_vars",
     "add_custom_row"
   ) %in% exports))
+})
+
+test_that("the pre-CRAN summary API has one coherent vocabulary", {
+  expect_s3_class(
+    summary_table(mtcars, include = c(mpg, wt)),
+    "gtstats_summary"
+  )
+  expect_false("gt_desc_table" %in% class(
+    summary_table(mtcars, include = mpg)
+  ))
+
+  expect_false(any(c("mode", "ci", "ci_method", "...") %in%
+    names(formals(summary_table))))
+  expect_false(any(c(
+    "continuous_format", "ci", "conf.level", "ci_method"
+  ) %in% names(formals(add_summary))))
+  expect_false("..." %in% names(formals(compare_groups)))
+  expect_false(any(c("digits", "pvalue_style") %in% names(formals(to_gt))))
+  expect_false("pvalue_style" %in% names(formals(save_output)))
+  expect_true("test" %in% names(formals(add_p)))
+  expect_false("method" %in% names(formals(add_p)))
+  expect_false("output" %in% names(formals(describe_data)))
+  expect_false("output" %in% names(formals(assess_distribution)))
+  expect_false("output" %in% names(formals(assess_variance)))
 })

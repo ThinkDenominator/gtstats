@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{A \code{gt_effect} object.}
 
-\item{...}{Further arguments passed to \code{\link[=tbl_stats]{tbl_stats()}}.}
+\item{...}{Further arguments passed to \code{\link[=to_gt]{to_gt()}}.}
 }
 \value{
 The input object, invisibly.

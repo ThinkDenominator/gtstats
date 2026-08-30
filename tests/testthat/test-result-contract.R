@@ -81,9 +81,9 @@ test_that("inspection helpers return tibble and gt routes", {
     names(denominators_stats(result, format = "tibble"))))
   expect_true("check" %in% names(diagnostics_stats(result, format = "tibble", view = "audit")))
   expect_true("n_nonmissing" %in% names(denominators_stats(result, format = "tibble", view = "audit")))
-  expect_s3_class(assumptions_stats(result, output = "gt"), "gt_tbl")
-  expect_s3_class(diagnostics_stats(result, output = "gt"), "gt_tbl")
-  expect_s3_class(denominators_stats(result, output = "gt"), "gt_tbl")
+  expect_s3_class(assumptions_stats(result, format = "table"), "gt_tbl")
+  expect_s3_class(diagnostics_stats(result, format = "table"), "gt_tbl")
+  expect_s3_class(denominators_stats(result, format = "table"), "gt_tbl")
 })
 
 test_that("inspection helpers reject unsupported objects", {

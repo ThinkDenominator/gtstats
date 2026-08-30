@@ -83,8 +83,6 @@
 #'
 #' @param x A `gtstats` result.
 #' @param format Output format: `"table"` (default) or `"tibble"`.
-#' @param output Compatibility alias accepting `"gt"`, `"table"`, or
-#'   `"tibble"`.
 #' @param view Either `"checklist"` (the default, plain-language view) or
 #'   `"audit"` (technical status and result codes).
 #' @param title,subtitle Optional table heading used for `format = "table"`.
@@ -97,12 +95,10 @@
 assumptions_stats <- function(
     x,
     format = c("table", "tibble"),
-    output = NULL,
     title = "Checks before reporting",
     subtitle = NULL,
     view = c("checklist", "audit")
 ) {
-  if (!is.null(output)) format <- if (identical(output, "gt")) "table" else output
   format <- match.arg(format, c("table", "tibble"))
   output <- if (identical(format, "table")) "gt" else "tibble"
   view <- match.arg(view)
@@ -162,12 +158,10 @@ assumptions_stats <- function(
 diagnostics_stats <- function(
     x,
     format = c("table", "tibble"),
-    output = NULL,
     title = "Diagnostics",
     subtitle = NULL,
     view = c("readable", "audit")
 ) {
-  if (!is.null(output)) format <- if (identical(output, "gt")) "table" else output
   format <- match.arg(format, c("table", "tibble"))
   output <- if (identical(format, "table")) "gt" else "tibble"
   view <- match.arg(view)
@@ -211,12 +205,10 @@ diagnostics_stats <- function(
 denominators_stats <- function(
     x,
     format = c("table", "tibble"),
-    output = NULL,
     title = "Denominator audit",
     subtitle = NULL,
     view = c("readable", "audit")
 ) {
-  if (!is.null(output)) format <- if (identical(output, "gt")) "table" else output
   format <- match.arg(format, c("table", "tibble"))
   output <- if (identical(format, "table")) "gt" else "tibble"
   view <- match.arg(view)
@@ -230,6 +222,28 @@ denominators_stats <- function(
     stop("`x` must be a gtstats result object.", call. = FALSE)
   }
   denominators <- tibble::as_tibble(x$denominators)
+  if (all(c("outcome", "cases", "denominator") %in% names(denominators))) {
+    readable <- tibble::tibble(
+      Variable = if ("label" %in% names(denominators)) {
+        denominators$label
+      } else {
+        denominators$outcome
+      },
+      Level = NA_character_,
+      Group = denominators$group,
+      `Eligible observations` = denominators$denominator,
+      `Used in analysis` = denominators$denominator,
+      `Missing / excluded` = NA_integer_,
+      Numerator = denominators$cases,
+      Denominator = denominators$denominator,
+      Rule = if (identical(x$inputs$route, "line_list")) {
+        "Non-missing outcome records within group"
+      } else {
+        "Supplied aggregate denominator"
+      }
+    )
+    return(.inspect_display_table(readable, output, title, subtitle))
+  }
   if (!"level" %in% names(denominators)) {
     denominators$level <- NA_character_
   }

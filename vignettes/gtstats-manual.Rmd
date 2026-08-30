@@ -111,16 +111,17 @@ install.packages("rio")
 
 The tabs are deliberately ordered to follow a safe statistical workflow.
 
-1. **Data** — choose a teaching dataset or upload your own data.
+1. **Data** — choose a teaching dataset, a data frame already in the R environment, or upload a file.
 2. **Data Prep** — optionally make safe, reversible changes before analysis.
 3. **Understand** — inspect types, completeness, distribution, and spread.
 4. **Summary table** — create the descriptive table for a report.
-5. **Customise table** — refine the completed Summary table without changing results.
-6. **Compare groups** — answer one focused inferential question.
-7. **Correlation** — analyse a continuous pair or build a correlation matrix.
-8. **Crosstabs** — inspect categorical association and 2×2 measures.
-9. **History** — see which analyses were run during this session.
-10. **Help** — revisit the safe beginner workflow.
+5. **Epi table** — estimate outbreak and surveillance measures using an explicit event and denominator.
+6. **Customise table** — refine the completed Summary or epidemiology table without changing results.
+7. **Compare groups** — answer one focused inferential question.
+8. **Correlation** — analyse a continuous pair or build a correlation matrix.
+9. **Crosstabs** — inspect categorical association and 2×2 measures.
+10. **History** — see which analyses were run during this session.
+11. **Help** — revisit the safe beginner workflow.
 
 The app will not run a summary table, comparison, correlation, or cross-tab until you press the
 relevant action button. This prevents accidental analysis while the app is
@@ -145,10 +146,16 @@ Close app button.<br>
 Suggested file: <code>vignettes/images/app-01-overview-data.png</code>
 </div>
 
-Use the **Data** tab first. You can select one of three labelled teaching
-datasets from one compact dropdown, or upload your own data. Uploads support
-CSV, Excel (`.xlsx`/`.xls`), R data (`.rds`), Stata (`.dta`), and SPSS
-(`.sav`). Excel, Stata, and SPSS files use the optional `rio` package.
+Use the **Data** tab first. Choose a labelled teaching dataset, select a data
+frame or tibble that already exists in the current R environment, or upload a
+file. **Refresh data-frame list** detects objects created after the app was
+opened. Only data-frame-like objects are offered, which prevents accidental
+selection of models, functions, or vectors.
+
+Uploads support CSV, Excel (`.xlsx`/`.xls`), R data (`.rds`), Stata (`.dta`),
+and SPSS (`.sav`). Excel, Stata, and SPSS files use the optional `rio` package.
+Environment selection is intended for the locally launched app; a remotely
+hosted app cannot inspect objects in a visitor's desktop R session.
 
 # Data Prep tab
 
@@ -341,26 +348,29 @@ this into a script if these checks informed a reporting decision.
 # Summary table tab
 
 <div class="app-shot">
-<strong>Screenshot 4 — Summary table recipe</strong>
-Show the variable tickboxes, group/Overall controls, summary and p-value
-override boxes, CI layer, binary-row option, and specialist ingredients.<br>
-Suggested file: <code>vignettes/images/app-04-summary-recipe.png</code>
+<strong>Screenshot 4 — Summary table ribbon and persistent preview</strong>
+Show the Foundation–Design ribbon, Create / update table button, publication
+preview with download buttons, and the Table recipe rail.<br>
+Suggested file: <code>vignettes/images/app-04-summary-ribbon.png</code>
 </div>
 
-The **Summary table** tab is organised as a recipe with five stages:
+The **Summary table** workspace behaves like a familiar document editor. Its
+ribbon contains five explicit tabs while the table preview remains in the same
+place:
 
-1. **Start the table**: choose Summary or Rate mode, grouping, Overall position,
-   and compact or separate-column layout.
-2. **Add the main summaries**: select ordinary variables and their descriptive
-   presentation. Untick this ingredient when building a specialist-only table.
-3. **Add optional ingredients**: total N, a selected proportion, a rate, or a
-   custom text row.
-4. **Add statistical comparisons**: optional p-values and test overrides.
-5. **Finish the appearance**: title, theme, typography, and striping.
+1. **Foundation** keeps the current data, variable selection, grouping variable and Overall column together.
+2. **Statistics** controls continuous summaries, categorical presentation, denominators, missing values and layout.
+3. **P-values** adds inferential tests and exposes transparent Auto settings and test-specific exceptions.
+4. **Add** layers CIs, total N, a selected proportion, a rate, or a custom row.
+5. **Design** changes appearance without changing the statistics.
 
-The statistical and structural controls remain visible. Advanced Auto-test
-settings and cosmetic controls are collapsed until needed, keeping the normal
-beginner route short.
+Downloads sit beside the persistent preview rather than in a separate workflow
+tab. Expand **Reusable R code** beneath the preview to copy or download the
+complete recipe for RStudio.
+
+The recipe rail confirms the active data, selected variables, column structure,
+added layers, and theme. Changing a control does not destroy the current table:
+click **Create / update table** when the revised recipe is ready.
 
 ## Choose a group
 
@@ -371,14 +381,19 @@ as one of the rows.
 
 ## Select variables
 
-Tick variables individually, or use **Select all** / **Clear**. You can mix
+Search for variables in the compact multi-select, or use **Select all** /
+**Clear**. The line beneath it reports how many variables are selected and
+previews variables still available. Removing a variable with × does not delete
+it from the data: click **Add variables** to reopen the complete searchable
+list and add it again. You can mix
 continuous, binary, categorical, and ordered variables in one selection. The
 app calls `summary_table()` once and lets gtstats detect their types.
 
 For binary variables, **Binary variables** can retain both levels or show one
-compact event row. When one row is selected, the app uses the second declared
-level by default and accepts explicit `variable = event` choices such as
-`smoke = Yes`. The generated script records these choices with
+compact event row. When one row is selected, the app displays an event-level
+selector for every selected binary variable. It uses the second declared level
+by default, but the user can explicitly choose, for example, `Yes` for smoking
+and `No` for hypertension. The generated script records these choices with
 `show_dichotomous` and `value`.
 
 There is no need to separately select “continuous variables” and “categorical
@@ -396,9 +411,9 @@ write a pipeline manually:
 | Rate | Event count, person-time, label, multiplier, time label, CI and precision | `add_rate()` |
 | Custom row | Label, optional level, Overall and group-specific text | `add_row()` |
 
-Rate rows require **Rate table** mode. Total, proportion, ordinary summaries,
-and p-values use **Summary table** mode. This prevents statistically invalid
-helper combinations while keeping all relevant options available.
+The Add ribbon keeps specialist rows distinct from ordinary summaries. A
+selected proportion highlights one clinically important event; it is not
+needed merely to add CIs to existing categorical levels.
 
 For example, choose Summary table, group by `smoke`, place Overall first, use
 Separate columns, untick ordinary summaries, and add the `low = Low birth
@@ -449,7 +464,8 @@ so “95% CI” is not repeated inside every table cell.
 | Categorical display | n (%), n/N (%), n only, or percentage only |
 | Categorical columns | Keep n (%) together, or separate n and % for categorical-only tables without CIs |
 | Percentage denominator | Column, row, or the entire dataset |
-| Missing values | Show if present, always, or never |
+| Overall categorical display | Automatic, n (%), n/N (%), n only, or percentage only |
+| Missing values | `ifany`, `always`, and `no` control only whether a missingness row is shown and retain non-missing denominators; `as_category` treats Missing as a displayed category included in categorical percentages |
 | Decimal places | Number of displayed decimal places |
 
 Choose the percentage denominator intentionally. **Within each column** answers
@@ -457,16 +473,22 @@ Choose the percentage denominator intentionally. **Within each column** answers
 choice. **Within each row** answers a different question: how a level is
 distributed across the displayed groups.
 
+When row percentages and an Overall column are combined, **Automatic** shows
+Overall categorical counts and grouped row percentages. This prevents a
+whole-sample percentage from appearing to use the same denominator as the
+grouped cells. Users can override it when their reporting plan explicitly
+requires another Overall display. With separate categorical columns, the app
+omits the unused Overall percentage child column rather than leaving it blank.
+
 ## Build the table layer by layer
 
-The Summary table tab follows the same onion-like model as the R API:
+The Summary table ribbon follows the same onion-like model as the R API:
 
-1. **Build the foundation** with data, variables, groups and an optional Overall column.
-2. **Choose how values are shown**, including summaries, percentage denominators and missing values.
-3. **Add confidence intervals** globally or only to selected variables.
-4. **Add statistical comparisons** only when the table needs p-values.
-5. Open **Specialist ingredients** for a selected-event proportion, rate, total row or custom row.
-6. Finish the appearance and export the table or its reproducible R script.
+1. Use **Foundation** to confirm the data, select variables, group columns and place Overall.
+2. Use **Statistics** to choose summaries, missing-value display and layout.
+3. Use **P-values** only when the table needs comparisons; Auto remains transparent and overridable.
+4. Use **Add** to layer confidence intervals globally or only for selected variables, then add specialist rows only when they answer the report question.
+5. Use **Design** to finish the publication table; download the result or its R script directly from the preview.
 
 Selecting confidence intervals generates a visible `add_ci()` layer. The app
 does not hide that choice inside `summary_table()`. Categorical levels receive
@@ -526,6 +548,36 @@ pipeline and every selected layer, including the base summaries, `add_ci()`,
 This is the route from a point-and-click table to a reproducible manuscript
 table.
 
+# Epi table tab
+
+<div class="app-shot">
+<strong>Screenshot — Epi table recipe</strong>
+Show Data structure, Ingredients and Reporting, together with the persistent
+preview, denominator audit and generated code.<br>
+Suggested file: <code>vignettes/images/app-epi-table.png</code>
+</div>
+
+This workspace is deliberately separate from Summary table. A Summary table
+describes participants; this workflow estimates disease occurrence and must
+make the numerator and denominator explicit.
+
+1. Choose **One row per person/record** for a line list or **Numerator and denominator columns** for aggregate surveillance data.
+2. Choose proportion, prevalence, attack rate or incidence rate and its reporting scale.
+3. Optionally group by a ward, site, exposure or another meaningful stratum.
+4. For a line list, select outcomes and explicitly choose the event value for each one. For aggregate data, map the numerator and denominator columns.
+5. Review the denominator explanation before running the table.
+6. Add p-values only when the question compares groups. Add epidemiological effect measures only for exactly two groups.
+
+Confidence intervals are always present: Wilson is the default for risk-like
+measures, exact binomial is optional, and incidence rates use exact Poisson
+intervals. The generated code records every event, denominator, scale and
+optional comparison. `$denominators`, `$p_values`, and `$effects` remain
+available for audit.
+
+The app prevents a case-only line list from being presented as an attack rate.
+When only cases are present, switch to aggregate data and provide the eligible
+population denominator.
+
 # Customise table tab
 
 <div class="app-shot">
@@ -535,13 +587,34 @@ density, font, colours, footnotes, p-value style, and export controls.<br>
 Suggested file: <code>vignettes/images/app-05-customise.png</code>
 </div>
 
-Use this tab after creating a Summary table when its presentation needs
-to match a manuscript, journal, report, or local wording convention. It follows
-the same post-processing idea as the gtregression app.
+Use this tab when a table's presentation needs to match a manuscript, journal,
+report, or local wording convention. It follows the same post-processing idea
+as the gtregression app.
+
+Choose the source at the top of the tab:
+
+- **Completed Summary table** carries forward the most recently generated
+  `summary_table()` result.
+- **Current data are final calculated results** treats every current row and
+  column as a final value. It does not recalculate descriptive summaries or
+  p-values. Do not choose this route for participant-level raw data.
+
+The second route is useful after `dplyr::summarise()` or when an analyst has
+received a calculated results sheet. Generated code wraps the data with
+`as_stats_table(data)` before applying `customise_table()`, so the workflow is
+fully reproducible.
+
+For already summarised data, tick **Calculate a confidence interval from
+aggregate columns** only when the data contain the required ingredients. Pick
+the calculation type, then map its columns: successes/total for a proportion,
+events/exposure for a rate, mean/SD/N for a mean, or estimate/SE for a normal
+interval. The app previews the completed table and generates the matching
+`as_stats_table() |> add_ci()` code. It never guesses these meanings from a
+column name.
 
 The most recently completed Summary table is carried forward and displayed
-automatically. If no Summary table exists, the app clearly directs the user
-back to the preceding tab.
+automatically. If no Summary table exists, either return to the preceding tab
+or deliberately choose the already-summarised-data route.
 
 1. Review the Summary table already displayed in the preview.
 2. Optionally provide a title, subtitle, or additional note.

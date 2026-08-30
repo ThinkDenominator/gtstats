@@ -61,10 +61,10 @@ test_that("proportion_stats() grouped publication output uses paired group colum
   expect_identical(res$method$display_columns$group, res$summary$group)
 })
 
-test_that("tbl_stats() works on proportion_stats output", {
+test_that("to_gt() works on proportion_stats output", {
   result <- proportion_stats(mtcars, var = vs, by = am)
   gt_obj <- result |>
-    tbl_stats()
+    to_gt()
 
   expect_s3_class(gt_obj, "gt_tbl")
   expect_identical(

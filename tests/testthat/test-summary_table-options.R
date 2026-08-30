@@ -38,9 +38,9 @@ test_that("summary_table() supports named precision controls", {
     by = am,
     include = c(mpg, cyl),
     overall = TRUE,
-    digits = c(continuous = 2, percent = 0, ci = 2),
-    ci = TRUE
-  )
+    digits = c(continuous = 2, percent = 0, ci = 2)
+  ) |>
+    add_ci(digits = 2)
 
   expect_match(res$table$Overall[[1L]], "\\d+\\.\\d{2} \\(")
   expect_true(any(grepl("\\(\\d+%\\); \\d+\\.\\d{2}", res$table$Overall)))
@@ -95,6 +95,23 @@ test_that("summary_table() supports mean_ci without p-values", {
   expect_false(any(grepl("Missing-value", res$footnotes, fixed = TRUE)))
 })
 
+test_that("summary_table() supports mean (SE) as an explicit specialist summary", {
+  result <- summary_table(
+    mtcars,
+    include = c(mpg, wt),
+    statistic = c(continuous = "mean_se", wt = "median_iqr")
+  )
+
+  expected_se <- stats::sd(mtcars$mpg) / sqrt(sum(!is.na(mtcars$mpg)))
+  expect_identical(result$summary_statistics[["mpg"]], "mean_se")
+  expect_match(result$table$Value[[1L]], sprintf("\\(%.1f\\)", expected_se))
+  expect_match(
+    .builder_publication_note(result),
+    "standard error of the estimated mean",
+    fixed = TRUE
+  )
+})
+
 test_that("summary_table() supports percentage denominators", {
   data <- mtcars
   data$am <- factor(data$am)
@@ -115,6 +132,50 @@ test_that("summary_table() supports percentage denominators", {
   expect_equal(overall$method$percentage_denominator, "overall")
   expect_false(identical(column$table, row$table))
   expect_false(identical(column$table, overall$table))
+})
+
+test_that("Overall categorical display is sensible for row percentages", {
+  data <- data.frame(
+    arm = factor(c("A", "A", "B", "B")),
+    response = factor(c("Yes", "No", "Yes", "Yes"))
+  )
+
+  automatic <- summary_table(
+    data, by = arm, include = response,
+    overall = TRUE, percent = "row"
+  )
+  explicit_percent <- summary_table(
+    data, by = arm, include = response,
+    overall = TRUE, percent = "row",
+    overall_categorical = "n_percent"
+  )
+  explicit_count <- summary_table(
+    data, by = arm, include = response,
+    overall = TRUE, percent = "column",
+    overall_categorical = "n"
+  )
+
+  expect_identical(automatic$table$Overall, c("1", "3"))
+  expect_match(
+    .builder_publication_note(automatic),
+    "Overall categorical values are counts",
+    fixed = TRUE
+  )
+  expect_match(explicit_percent$table$Overall, "%", fixed = TRUE)
+  expect_identical(explicit_count$table$Overall, c("1", "3"))
+
+  separate <- summary_table(
+    data, by = arm, include = response,
+    overall = TRUE, percent = "row",
+    categorical_layout = "separate"
+  )
+  overall_mapping <- separate$display_columns[
+    separate$display_columns$source == "Overall", , drop = FALSE
+  ]
+  expect_true(is.na(overall_mapping$ci))
+  expect_false(any(grepl("summary_1_percent", names(separate$table), fixed = TRUE)))
+  expect_s3_class(to_flextable(separate), "flextable")
+  expect_s3_class(to_gt(separate), "gt_tbl")
 })
 
 test_that("summary_table() audits the denominator used for each categorical cell", {
@@ -194,16 +255,16 @@ test_that("recommended continuous summaries use one format across all columns", 
 
 test_that("summary_table() exposes Wilson and exact categorical CI methods", {
   data <- data.frame(outcome = factor(c(rep("No", 7), rep("Yes", 3))))
-  wilson <- summary_table(data, include = outcome, ci = TRUE)
-  exact <- summary_table(
-    data, include = outcome, ci = TRUE, ci_method = "exact"
-  )
+  wilson <- summary_table(data, include = outcome) |>
+    add_ci()
+  exact <- summary_table(data, include = outcome) |>
+    add_ci(method = "exact")
 
   expect_identical(wilson$ci_method, "wilson")
   expect_identical(exact$ci_method, "exact")
   expect_false(identical(wilson$table$Value, exact$table$Value))
-  expect_true(any(grepl("Wilson score", wilson$footnotes, fixed = TRUE)))
-  expect_true(any(grepl("exact binomial", exact$footnotes, fixed = TRUE)))
+  expect_match(.builder_publication_note(wilson), "Wilson score", fixed = TRUE)
+  expect_match(.builder_publication_note(exact), "exact binomial", fixed = TRUE)
 })
 
 test_that("summary_table() validates the combined overall setting", {
@@ -237,10 +298,10 @@ test_that("summary_table() provides categorical CIs without p-values", {
     data,
     include = vs,
     categorical = "percent",
-    ci = TRUE,
     conf.level = 0.90,
     digits = c(percent = 1, ci = 2)
-  )
+  ) |>
+    add_ci(conf.level = 0.90, digits = 2)
 
   expect_false("p-value" %in% names(res$table))
   expect_false(any(grepl("90% CI", res$table$Value, fixed = TRUE)))
@@ -293,12 +354,9 @@ test_that("summary_table() validates customization arguments", {
     summary_table(mtcars, include = mpg, conf.level = 1),
     "between 0 and 1"
   )
-  expect_error(
-    summary_table(
-      mtcars, include = cyl, categorical = "n", ci = TRUE
-    ),
-    "requires"
-  )
+  count_ci <- summary_table(mtcars, include = cyl, categorical = "n") |>
+    add_ci()
+  expect_true(any(grepl(";", count_ci$table$Value, fixed = TRUE)))
 })
 
 test_that("categorical CIs handle zero cells and missing values", {
@@ -314,9 +372,9 @@ test_that("categorical CIs handle zero cells and missing values", {
     data,
     by = group,
     include = outcome,
-    ci = TRUE,
     missing = "ifany"
-  )
+  ) |>
+    add_ci()
 
   expect_true(any(grepl("0 \\(0.0%\\); 0.0–", unlist(res$table))))
   expect_true(any(res$table$Level == "Missing"))
@@ -356,11 +414,103 @@ test_that("rate-only tables honour overall position", {
   res <- summary_table(
     data,
     by = group,
-    overall = "last",
-    mode = "rate"
+    overall = "last"
   ) |>
     add_rate(event = event, time = time, label = "Event rate")
 
   expect_equal(tail(names(res$table), 1L), "Overall")
   expect_true("rate" %in% res$components)
+})
+
+test_that("missing as_category enters categorical percentage denominators", {
+  data <- data.frame(
+    catheter = factor(
+      c(rep("Yes", 32), rep(NA_character_, 68)),
+      levels = c("No", "Yes")
+    )
+  )
+
+  result <- summary_table(
+    data,
+    include = catheter,
+    missing = "as_category"
+  )
+
+  expect_equal(
+    result$table$Value[result$table$Level == "Yes"],
+    "32 (32.0%)"
+  )
+  expect_equal(
+    result$table$Value[result$table$Level == "Missing"],
+    "68 (68.0%)"
+  )
+  expect_true(any(grepl(
+    "Missing values are treated as a category",
+    result$footnotes,
+    fixed = TRUE
+  )))
+  expect_true(all(
+    result$denominators$denominator[
+      result$denominators$level %in% c("No", "Yes", "Missing")
+    ] == 100
+  ))
+})
+
+test_that("missing as_category works by group and preserves compact event rows", {
+  data <- data.frame(
+    group = factor(rep(c("A", "B"), each = 4)),
+    event = factor(
+      c("No", "Yes", NA, NA, "No", "Yes", "Yes", NA),
+      levels = c("No", "Yes")
+    )
+  )
+
+  result <- summary_table(
+    data,
+    by = group,
+    include = event,
+    show_dichotomous = "single_row",
+    value = c(event = "Yes"),
+    missing = "as_category"
+  )
+
+  expect_identical(result$table$Level, c("", "Missing"))
+  expect_equal(result$table[["group = A"]], c("1 (25.0%)", "2 (50.0%)"))
+  expect_equal(result$table[["group = B"]], c("2 (50.0%)", "1 (25.0%)"))
+})
+
+test_that("missing as_category keeps continuous missingness separate", {
+  data <- data.frame(value = c(1, 2, NA_real_))
+  result <- summary_table(
+    data,
+    include = value,
+    missing = "as_category"
+  )
+  expect_true(any(result$table$Level == "Missing"))
+  expect_equal(result$table$Value[result$table$Level == "Missing"], "1 (33.3%)")
+})
+
+test_that("add_ci treats as_category missingness as a categorical proportion", {
+  data <- data.frame(
+    status = factor(c("Yes", "Yes", NA, NA), levels = c("No", "Yes"))
+  )
+  result <- summary_table(
+    data,
+    include = status,
+    missing = "as_category"
+  ) |>
+    add_ci()
+
+  expect_match(
+    result$table$Value[result$table$Level == "Missing"],
+    "2 \\(50.0%\\);"
+  )
+})
+
+test_that("missing as_category does not merge recorded and R missing values", {
+  data <- data.frame(status = c("Yes", "Missing", NA_character_))
+  expect_error(
+    summary_table(data, include = status, missing = "as_category"),
+    "cannot distinguish"
+  )
 })

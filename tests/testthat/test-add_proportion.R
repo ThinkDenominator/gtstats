@@ -2,7 +2,7 @@ test_that("add_proportion() adds proportion row to ungrouped descriptive table",
   res <- summary_table(mtcars) |>
     add_proportion(var = vs)
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(any(grepl("^vs", res$table$Variable)))
   expect_true("Value" %in% names(res$table))
   expect_true("proportion" %in% res$components)
@@ -13,7 +13,7 @@ test_that("add_proportion() adds proportion row to grouped descriptive table", {
   res <- summary_table(mtcars, by = am) |>
     add_proportion(var = vs)
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(any(grepl("^vs", res$table$Variable)))
   expect_true(all(c("am = 1", "am = 0") %in% names(res$table)))
 })
@@ -22,7 +22,7 @@ test_that("add_proportion() adds proportion row to grouped table with overall", 
   res <- summary_table(mtcars, by = am, overall = TRUE) |>
     add_proportion(var = vs)
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true("Overall" %in% names(res$table))
   expect_true(any(grepl("^vs", res$table$Variable)))
 })
@@ -31,7 +31,7 @@ test_that("add_proportion() accepts character variable name", {
   res <- summary_table(mtcars, by = am) |>
     add_proportion(var = "vs")
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(any(grepl("^vs", res$table$Variable)))
 })
 
@@ -39,7 +39,7 @@ test_that("add_proportion() supports explicit level", {
   res <- summary_table(mtcars, by = am) |>
     add_proportion(var = vs, level = "1")
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(any(grepl("\\(1\\)", res$table$Variable)))
 })
 
@@ -47,7 +47,7 @@ test_that("add_proportion() supports custom label", {
   res <- summary_table(mtcars, by = am) |>
     add_proportion(var = vs, label = "Engine shape")
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(any(res$table$Variable == "Engine shape"))
   expect_false(any(res$table$Variable == "Engine shape (1)"))
   expect_match(res$footnotes, "Confidence intervals: 95% intervals use the Wilson score method", fixed = TRUE)
@@ -70,7 +70,7 @@ test_that("add_proportion() supports ci = FALSE", {
   res <- summary_table(mtcars, by = am) |>
     add_proportion(var = vs, ci = FALSE)
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_false(any(grepl("Selected event", res$footnotes)))
   expect_false(any(grepl("add_p", res$footnotes, fixed = TRUE)))
 })
@@ -79,7 +79,7 @@ test_that("add_proportion() works for categorical variable", {
   res <- summary_table(mtcars, by = am) |>
     add_proportion(var = cyl)
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(any(grepl("^cyl", res$table$Variable)))
 })
 
@@ -87,32 +87,29 @@ test_that("add_proportion() chooses level automatically for binary variable", {
   res <- summary_table(mtcars, by = am) |>
     add_proportion(var = vs)
 
-  expect_s3_class(res, "gt_desc_table")
+  expect_s3_class(res, "gtstats_summary")
   expect_true(any(grepl("\\(", res$table$Variable)))
 })
 
-test_that("add_proportion() can be followed by tbl_stats()", {
+test_that("add_proportion() can be followed by to_gt()", {
   gt_obj <- summary_table(mtcars, by = am, overall = TRUE) |>
     add_proportion(var = vs) |>
-    tbl_stats()
+    to_gt()
 
   expect_s3_class(gt_obj, "gt_tbl")
 })
 
-test_that("add_proportion() errors if x is not gt_desc_table", {
+test_that("add_proportion() errors if x is not gtstats_summary", {
   expect_error(
     add_proportion(mtcars, var = vs),
-    regexp = "gt_desc_table"
+    regexp = "gtstats_summary"
   )
 })
 
-test_that("add_proportion() errors in non-summary mode", {
-  res <- summary_table(mtcars, by = am, mode = "rate")
-
-  expect_error(
-    add_proportion(res, var = vs),
-    regexp = "mode = \"summary\""
-  )
+test_that("add_proportion() works on an empty summary builder", {
+  res <- summary_table(mtcars, by = am)
+  result <- add_proportion(res, var = vs)
+  expect_true("proportion" %in% result$components)
 })
 
 test_that("add_proportion() errors if variable is missing", {
@@ -199,5 +196,5 @@ test_that("add_proportion() supports a separate publication layout", {
   expect_true(all(result$display_columns$estimate_label == "n (%)"))
   expect_true(all(grepl("_ci$", result$display_columns$ci)))
   expect_false(any(grepl("95% CI", unlist(result$table), fixed = TRUE)))
-  expect_s3_class(tbl_stats(result), "gt_tbl")
+  expect_s3_class(to_gt(result), "gt_tbl")
 })

@@ -49,6 +49,67 @@ The reserved name `continuous` supplies a default for all selected continuous
 variables. A named variable then overrides it. Variables not covered by a
 global or specific rule retain the package recommendation.
 
+## Format statistics calculated elsewhere
+
+If a data frame already contains the final numbers, do not pass it to
+`summary_table()`: that would summarise those numbers again. Wrap it with
+`as_stats_table()` instead. The wrapper preserves the supplied rows and values
+and makes the object compatible with the same styling and export tools.
+
+```{r calculated-table}
+calculated <- mtcars |>
+  dplyr::group_by(am) |>
+  dplyr::summarise(
+    N = dplyr::n(),
+    `Mean mpg` = round(mean(mpg), 1),
+    .groups = "drop"
+  )
+
+calculated_table <- as_stats_table(
+  calculated,
+  notes = "Values were calculated before table formatting."
+)
+
+customise_table(calculated_table, title = "Summary supplied by the analyst")
+```
+
+If the supplied data contain the ingredients for a confidence interval, map
+them explicitly before styling. For example, event counts and person-time can
+be converted to exact Poisson rate intervals:
+
+```{r aggregate-rate-ci}
+rates <- data.frame(
+  Group = c("Intervention", "Control"),
+  Events = c(8, 14),
+  PersonYears = c(420, 510)
+)
+
+rate_table <- as_stats_table(rates) |>
+  add_ci(
+    type = "rate",
+    numerator = Events,
+    denominator = PersonYears,
+    multiplier = 1000
+  )
+
+customise_table(rate_table, title = "Events per 1,000 person-years")
+```
+
+The mapping is intentionally explicit: gtstats does not guess denominators or
+statistical meaning from uploaded column names.
+
+The distinction is important:
+
+| What each row represents | Correct starting function |
+|---|---|
+| Participant or ordinary observation | `summary_table()` |
+| Outbreak/surveillance observation or aggregate numerator and denominator | `epi_table()` |
+| Final result calculated upstream | `as_stats_table()` |
+
+An `as_stats_table()` result prints as a publication-ready flextable and can
+be passed directly to `customise_table()`, `to_flextable()`, `to_gt()`, or
+`save_output()`. Styling never changes its supplied values.
+
 ## Themes and journal styling
 
 ```{r themes}

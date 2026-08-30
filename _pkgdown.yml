@@ -55,6 +55,8 @@ navbar:
           href: articles/function-options.html
         - text: "Teaching datasets"
           href: articles/teaching-datasets.html
+        - text: "Citing gtstats"
+          href: articles/citation.html
         - text: "Missing data and denominators"
           href: articles/missing-data-denominators.html
         - text: "---"
@@ -68,6 +70,8 @@ navbar:
           href: articles/epi-helpers.html
         - text: "Styling and exporting tables"
           href: articles/styling-export.html
+        - text: "Already calculated result tables"
+          href: articles/styling-export.html#format-statistics-calculated-elsewhere
     reference:
       text: "Reference"
       href: reference/index.html
@@ -86,6 +90,7 @@ articles:
       - overview
       - function-options
       - teaching-datasets
+      - citation
       - missing-data-denominators
   - title: "Workflows and details"
     navbar: "Deep dives"
@@ -102,6 +107,8 @@ reference:
       - birthwt
       - trial_data
       - paired_data
+      - outbreak_data
+      - surveillance_data
 
   - title: "Guided interface"
     desc: "A point-and-click companion that generates reproducible gtstats code."
@@ -135,9 +142,11 @@ reference:
 
   - title: "Epidemiology"
     desc: >
-      Proportions with exact binomial confidence intervals, event rates with exact
-      Poisson confidence intervals, and 2x2 tables with RR, OR, and RD.
+      Proportions with Wilson score confidence intervals by default (exact
+      binomial optional), event rates with exact Poisson confidence intervals,
+      and 2x2 tables with RR, OR, and RD.
     contents:
+      - epi_table
       - proportion_stats
       - rate_stats
       - crosstabs
@@ -157,13 +166,12 @@ reference:
       - add_summary
 
   - title: "Render, style, and export"
-    desc: "Render as flextable by default, apply publication styling, export to Office, or opt into gt for HTML."
+    desc: "Preserve already calculated tables, render as flextable by default, apply publication styling, export to Office, or opt into gt for HTML."
     contents:
       - as_stats_table
       - customise_table
       - to_flextable
       - to_gt
-      - tbl_stats
       - save_output
   - title: "Print methods"
     desc: "S3 print methods called automatically when printing gtstats objects to the console."
