@@ -3,6 +3,7 @@ pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   birthweight-case-study: birthweight-case-study.html
+  citation: citation.html
   descriptive-tables: descriptive-tables.html
   epi-helpers: epi-helpers.html
   function-options: function-options.html
@@ -13,7 +14,7 @@ articles:
   overview: overview.html
   styling-export: styling-export.html
   teaching-datasets: teaching-datasets.html
-last_built: 2026-08-22T17:43Z
+last_built: 2026-08-30T20:30Z
 urls:
   reference: https://gtstats.thinkdenominator.com/reference
   article: https://gtstats.thinkdenominator.com/articles

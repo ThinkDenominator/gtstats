@@ -18,8 +18,7 @@ assess_distribution(
   min_n = 3,
   plots = FALSE,
   digits = 2,
-  format = c("table", "tibble"),
-  output = NULL
+  format = c("table", "tibble")
 )
 ```
 
@@ -67,10 +66,6 @@ assess_distribution(
 - format:
 
   Output format: `"table"` (default) or `"tibble"`.
-
-- output:
-
-  Compatibility alias for `format`.
 
 ## Value
 

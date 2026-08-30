@@ -59,6 +59,91 @@ The reserved name `continuous` supplies a default for all selected
 continuous variables. A named variable then overrides it. Variables not
 covered by a global or specific rule retain the package recommendation.
 
+## Format statistics calculated elsewhere
+
+If a data frame already contains the final numbers, do not pass it to
+[`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md):
+that would summarise those numbers again. Wrap it with
+[`as_stats_table()`](https://gtstats.thinkdenominator.com/reference/as_stats_table.md)
+instead. The wrapper preserves the supplied rows and values and makes
+the object compatible with the same styling and export tools.
+
+``` r
+
+calculated <- mtcars |>
+  dplyr::group_by(am) |>
+  dplyr::summarise(
+    N = dplyr::n(),
+    `Mean mpg` = round(mean(mpg), 1),
+    .groups = "drop"
+  )
+
+calculated_table <- as_stats_table(
+  calculated,
+  notes = "Values were calculated before table formatting."
+)
+
+customise_table(calculated_table, title = "Summary supplied by the analyst")
+```
+
+| Summary supplied by the analyst                 |     |          |
+|-------------------------------------------------|-----|----------|
+| am                                              | N   | Mean mpg |
+| 0                                               | 19  | 17.1     |
+| 1                                               | 13  | 24.4     |
+| Values were calculated before table formatting. |     |          |
+
+If the supplied data contain the ingredients for a confidence interval,
+map them explicitly before styling. For example, event counts and
+person-time can be converted to exact Poisson rate intervals:
+
+``` r
+
+rates <- data.frame(
+  Group = c("Intervention", "Control"),
+  Events = c(8, 14),
+  PersonYears = c(420, 510)
+)
+
+rate_table <- as_stats_table(rates) |>
+  add_ci(
+    type = "rate",
+    numerator = Events,
+    denominator = PersonYears,
+    multiplier = 1000
+  )
+
+customise_table(rate_table, title = "Events per 1,000 person-years")
+```
+
+| Events per 1,000 person-years |  |  |  |
+|----|----|----|----|
+| Group | Events | PersonYears | 95% CI |
+| Intervention | 8 | 420 | 8.2–37.5 |
+| Control | 14 | 510 | 15.0–46.1 |
+| 95% CI uses the exact Poisson interval; rates are expressed per 1000 units of person-time or exposure. |  |  |  |
+
+The mapping is intentionally explicit: gtstats does not guess
+denominators or statistical meaning from uploaded column names.
+
+The distinction is important:
+
+| What each row represents | Correct starting function |
+|----|----|
+| Participant or ordinary observation | [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md) |
+| Outbreak/surveillance observation or aggregate numerator and denominator | [`epi_table()`](https://gtstats.thinkdenominator.com/reference/epi_table.md) |
+| Final result calculated upstream | [`as_stats_table()`](https://gtstats.thinkdenominator.com/reference/as_stats_table.md) |
+
+An
+[`as_stats_table()`](https://gtstats.thinkdenominator.com/reference/as_stats_table.md)
+result prints as a publication-ready flextable and can be passed
+directly to
+[`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md),
+[`to_flextable()`](https://gtstats.thinkdenominator.com/reference/to_flextable.md),
+[`to_gt()`](https://gtstats.thinkdenominator.com/reference/to_gt.md), or
+[`save_output()`](https://gtstats.thinkdenominator.com/reference/save_output.md).
+Styling never changes its supplied values.
+
 ## Themes and journal styling
 
 ``` r

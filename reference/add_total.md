@@ -13,7 +13,7 @@ add_total(x, label = "Total (N)", position = c("last", "first"))
 
 - x:
 
-  A `gt_desc_table` object created with
+  A `gtstats_summary` object created with
   [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md).
 
 - label:
@@ -28,7 +28,7 @@ add_total(x, label = "Total (N)", position = c("last", "first"))
 
 ## Value
 
-An updated `gt_desc_table` object with a total row appended.
+An updated `gtstats_summary` object with a total row appended.
 
 ## Details
 

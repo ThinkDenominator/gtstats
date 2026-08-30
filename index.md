@@ -24,6 +24,7 @@ automatic decisions for review.
 | Assess | [`assess_distribution()`](https://gtstats.thinkdenominator.com/reference/assess_distribution.md) | Distribution diagnostics and descriptive guidance for continuous variables |
 | Assess | [`assess_variance()`](https://gtstats.thinkdenominator.com/reference/assess_variance.md) | Group SDs, variances, spread ratios, and median-centred Levene support |
 | Describe | [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md) | Publication-ready participant-characteristics table |
+| Present calculated results | [`as_stats_table()`](https://gtstats.thinkdenominator.com/reference/as_stats_table.md) | Value-preserving publication table for an already summarised data frame |
 | Compare | [`compare_groups()`](https://gtstats.thinkdenominator.com/reference/compare_groups.md) | One focused group comparison with a clearly identified test and automatic-selection rule |
 | Audit | [`assumptions_stats()`](https://gtstats.thinkdenominator.com/reference/assumptions_stats.md), [`diagnostics_stats()`](https://gtstats.thinkdenominator.com/reference/diagnostics_stats.md), [`denominators_stats()`](https://gtstats.thinkdenominator.com/reference/denominators_stats.md) | Transparent decisions and analysis population |
 | Export | [`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md), [`to_gt()`](https://gtstats.thinkdenominator.com/reference/to_gt.md), [`save_output()`](https://gtstats.thinkdenominator.com/reference/save_output.md) | A modifiable, report-ready table |
@@ -88,12 +89,15 @@ library(gtstats)
 
 ## Built-in teaching data
 
-gtstats includes three labelled datasets, so examples work without
+gtstats includes five labelled datasets, so examples work without
 installing other packages:
 
 ``` r
 
-data("birthwt", "trial_data", "paired_data", package = "gtstats")
+data(
+  "birthwt", "trial_data", "paired_data", "outbreak_data",
+  "surveillance_data", package = "gtstats"
+)
 ```
 
 - `birthwt`: real low-birth-weight clinical data for descriptive tables,
@@ -102,16 +106,21 @@ data("birthwt", "trial_data", "paired_data", package = "gtstats")
   Kruskal-Wallis, chi-square, Fisher exact, correlations, and rates.
 - `paired_data`: long-format paired follow-up data for paired t-tests,
   Wilcoxon signed-rank, and McNemar tests.
+- `outbreak_data`: the real CDC Oswego foodborne-outbreak line list for
+  attack rates and 2x2 epidemiology.
+- `surveillance_data`: an archived CDC weekly hospital-admission extract
+  for aggregate counts, population denominators, and rates per 100,000.
 
 ## Prefer a guided interface?
 
 The package remains code-first, but a Shiny companion is available when
-you prefer to learn by clicking through the workflow. It includes the
-three teaching datasets, CSV/Excel upload, a working data dictionary,
-distribution and variance checks, a layer-by-layer Summary table,
-focused group comparisons, crosstabs, Word/HTML/PDF/RTF table downloads,
-an in-session history, and copyable or downloadable R code for every
-analysis. Excel import uses the optional `rio` package.
+you prefer to learn by clicking through the workflow. It includes all
+five teaching datasets, data from the current R environment, CSV/Excel
+upload, a working data dictionary, distribution and variance checks, a
+layer-by-layer summary table, outbreak and surveillance tables, focused
+group comparisons, correlations and crosstabs. Tables can be downloaded
+as Word, HTML, PDF, or RTF, and every analysis has copyable and
+downloadable R code. Excel import uses the optional `rio` package.
 
 ``` r
 
@@ -123,6 +132,13 @@ gtstats_app() # opens in the RStudio Viewer when available
 The interface is intentionally a guide rather than a black box: use the
 code shown beside each result in an R script or Quarto document to keep
 the final analysis reproducible.
+
+The app keeps three table routes separate. Choose **Summary table** for
+raw participant-level data, **Epi table** when events and denominators
+still need calculation, and **Current data are final calculated
+results** in **Customise table** only when every supplied row and value
+should be preserved exactly through
+[`as_stats_table()`](https://gtstats.thinkdenominator.com/reference/as_stats_table.md).
 
 ## Five-minute workflow
 
@@ -162,6 +178,15 @@ compact_binary_table <- summary_table(
   include = c(smoke, ht, race),
   show_dichotomous = "single_row",
   value = c(smoke = "Yes", ht = "Yes")
+)
+
+# Missing values are excluded from categorical percentage denominators by
+# default. Use this explicit option only when Missing is itself a reported
+# category and should contribute to 100%.
+missing_as_category <- summary_table(
+  birthwt,
+  include = c(race, smoke),
+  missing = "as_category"
 )
 
 comparison <- compare_groups(birthwt, variable = lwt, group = low)
@@ -242,7 +267,9 @@ other layers still work before the completed tibble is printed.
 | Understand | [`describe_data()`](https://gtstats.thinkdenominator.com/reference/describe_data.md), [`assess_distribution()`](https://gtstats.thinkdenominator.com/reference/assess_distribution.md), [`assess_variance()`](https://gtstats.thinkdenominator.com/reference/assess_variance.md) |
 | Build Table 1 | [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md), [`add_ci()`](https://gtstats.thinkdenominator.com/reference/add_ci.md), [`add_p()`](https://gtstats.thinkdenominator.com/reference/add_p.md), [`add_proportion()`](https://gtstats.thinkdenominator.com/reference/add_proportion.md), [`add_rate()`](https://gtstats.thinkdenominator.com/reference/add_rate.md), [`add_total()`](https://gtstats.thinkdenominator.com/reference/add_total.md), [`add_row()`](https://gtstats.thinkdenominator.com/reference/add_row.md) |
 | Compare | [`compare_groups()`](https://gtstats.thinkdenominator.com/reference/compare_groups.md), [`effect_size()`](https://gtstats.thinkdenominator.com/reference/effect_size.md), [`correlation()`](https://gtstats.thinkdenominator.com/reference/correlation.md) |
-| Epidemiology | [`proportion_stats()`](https://gtstats.thinkdenominator.com/reference/proportion_stats.md), [`rate_stats()`](https://gtstats.thinkdenominator.com/reference/rate_stats.md), [`crosstabs()`](https://gtstats.thinkdenominator.com/reference/crosstabs.md) |
+| Outbreak and surveillance tables | [`epi_table()`](https://gtstats.thinkdenominator.com/reference/epi_table.md) |
+| Format an already calculated data frame | [`as_stats_table()`](https://gtstats.thinkdenominator.com/reference/as_stats_table.md) |
+| Focused epidemiology calculations | [`proportion_stats()`](https://gtstats.thinkdenominator.com/reference/proportion_stats.md), [`rate_stats()`](https://gtstats.thinkdenominator.com/reference/rate_stats.md), [`crosstabs()`](https://gtstats.thinkdenominator.com/reference/crosstabs.md) |
 | Inspect decisions | [`assumptions_stats()`](https://gtstats.thinkdenominator.com/reference/assumptions_stats.md), [`diagnostics_stats()`](https://gtstats.thinkdenominator.com/reference/diagnostics_stats.md), [`denominators_stats()`](https://gtstats.thinkdenominator.com/reference/denominators_stats.md) |
 | Visualise | [`plot_compare()`](https://gtstats.thinkdenominator.com/reference/plot_compare.md), [`plot_correlation()`](https://gtstats.thinkdenominator.com/reference/plot_correlation.md) |
 | Guided interface | [`gtstats_app()`](https://gtstats.thinkdenominator.com/reference/gtstats_app.md) |
@@ -262,10 +289,23 @@ correlation(mtcars, vars = c(mpg, disp, hp, wt)) |>
 
 ## Citation
 
-Until the package is on CRAN or has a DOI, use the package citation
-generated by R:
+If `gtstats` contributes to your analysis, tables, teaching, or
+publication, please cite:
+
+> Polani R, Kaviprawin M, Sakthivel M, Eliyas SK, Krishnamoorthy Y
+> (2026). *gtstats: Beginner-Friendly Statistics and Publication-Ready
+> Tables*. R package version 1.0.0.
+> <https://gtstats.thinkdenominator.com/>.
+
+R returns the authoritative citation and BibTeX entry installed with the
+package:
 
 ``` r
 
 citation("gtstats")
+toBibtex(citation("gtstats"))
 ```
+
+The pkgdown **Citing gtstats** article provides a copy-ready BibTeX
+record and reproducibility guidance. The reserved Zenodo DOI will be
+added here after its record is published and the DOI resolves publicly.

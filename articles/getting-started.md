@@ -82,7 +82,10 @@ workflow or sharing reproducible examples:
 
 ``` r
 
-data("birthwt", "trial_data", "paired_data", package = "gtstats")
+data(
+  "birthwt", "trial_data", "paired_data", "outbreak_data",
+  "surveillance_data", package = "gtstats"
+)
 ```
 
 `birthwt` is a real low-birth-weight study dataset. `trial_data` is a
@@ -90,7 +93,11 @@ three-arm synthetic clinical trial designed to demonstrate Welch ANOVA,
 Kruskal-Wallis, chi-square, Fisher exact, correlation, and rates.
 `paired_data` is long-format paired follow-up data for paired t-tests,
 Wilcoxon signed-rank, and McNemar tests. Each help page contains its
-data dictionary and examples.
+data dictionary and examples. `outbreak_data` is CDC’s classic Oswego
+foodborne-outbreak line list, while `surveillance_data` is an archived
+CDC weekly hospital-admission extract. They demonstrate the line-list
+and aggregate-data routes of
+[`epi_table()`](https://gtstats.thinkdenominator.com/reference/epi_table.md).
 
 ### Prefer a guided interface?
 
@@ -98,11 +105,13 @@ data dictionary and examples.
 is an optional Shiny companion for learners and collaborators who prefer
 a menu-driven starting point. It can load a built-in teaching dataset or
 a CSV/Excel file, show a working data dictionary, then guide the user
-through data description, distribution and spread checks, Table 1, group
-comparisons, and crosstabs. Every analysis page displays the
-corresponding R code with copy and `.R` download buttons, while result
-tables can be downloaded as Word, HTML, PDF, or RTF. The optional `rio`
-package enables Excel import.
+through data description, distribution and spread checks, summary
+tables, outbreak and surveillance tables, group comparisons,
+correlations, and crosstabs. It can also preserve an already calculated
+results data frame as a publication table. Every analysis page displays
+the corresponding R code with copy and `.R` download buttons, while
+result tables can be downloaded as Word, HTML, PDF, or RTF. The optional
+`rio` package enables Excel import.
 
 ``` r
 
@@ -119,6 +128,14 @@ reporting. While the app is open, the R console displays
 `Listening on ...`; this is normal. Click **Close app** in the
 bottom-right corner of the interface to end the local session cleanly
 and return to the R prompt.
+
+Choose the route from what each row represents:
+
+| Your data | Use | Why |
+|----|----|----|
+| One row per participant or observation | [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md) | Descriptive statistics still need calculating |
+| Outbreak line list or surveillance numerator/denominator data | [`epi_table()`](https://gtstats.thinkdenominator.com/reference/epi_table.md) | Events, denominators, rates, or risks still need calculating |
+| One row per final result, calculated elsewhere | [`as_stats_table()`](https://gtstats.thinkdenominator.com/reference/as_stats_table.md) | Preserve every supplied value and only format the table |
 
 ### 2. Assess distribution for descriptive reporting
 
@@ -215,6 +232,14 @@ to_flextable(table_one)
 ```
 
 [TABLE]
+
+By default, categorical percentages use non-missing observations. If
+Missing is a meaningful reported category that should contribute to the
+denominator, choose `missing = "as_category"`. This is different from
+merely showing a missingness row with `"ifany"` or `"always"`; see
+[Missing data and
+denominators](https://gtstats.thinkdenominator.com/articles/missing-data-denominators.md)
+before using it.
 
 Add optional rows only when they answer a specific reporting need:
 

@@ -10,6 +10,10 @@ Built-in, labelled datasets for reproducible learning and examples.
   : Three-arm clinical trial teaching data
 - [`paired_data`](https://gtstats.thinkdenominator.com/reference/paired_data.md)
   : Paired follow-up teaching data
+- [`outbreak_data`](https://gtstats.thinkdenominator.com/reference/outbreak_data.md)
+  : Oswego foodborne-outbreak line list
+- [`surveillance_data`](https://gtstats.thinkdenominator.com/reference/surveillance_data.md)
+  : Archived weekly US hospital-admission surveillance data
 
 ## Guided interface
 
@@ -69,9 +73,12 @@ Visualise group comparisons and statistical outputs.
 
 ## Epidemiology
 
-Proportions with exact binomial confidence intervals, event rates with
-exact Poisson confidence intervals, and 2x2 tables with RR, OR, and RD.
+Proportions with Wilson score confidence intervals by default (exact
+binomial optional), event rates with exact Poisson confidence intervals,
+and 2x2 tables with RR, OR, and RD.
 
+- [`epi_table()`](https://gtstats.thinkdenominator.com/reference/epi_table.md)
+  : Outbreak and surveillance summary table
 - [`proportion_stats()`](https://gtstats.thinkdenominator.com/reference/proportion_stats.md)
   : Proportion statistics
 - [`rate_stats()`](https://gtstats.thinkdenominator.com/reference/rate_stats.md)
@@ -103,17 +110,17 @@ comparisons, or specialist rows only when required.
 
 ## Render, style, and export
 
-Render as flextable by default, apply publication styling, export to
-Office, or opt into gt for HTML.
+Preserve already calculated tables, render as flextable by default,
+apply publication styling, export to Office, or opt into gt for HTML.
 
+- [`as_stats_table()`](https://gtstats.thinkdenominator.com/reference/as_stats_table.md)
+  : Convert an already summarised data frame into a publication table
 - [`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md)
   : Customize a gtstats table
 - [`to_flextable()`](https://gtstats.thinkdenominator.com/reference/to_flextable.md)
   : Convert a gtstats object to flextable
 - [`to_gt()`](https://gtstats.thinkdenominator.com/reference/to_gt.md) :
   Convert a gtstats result to a gt table
-- [`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md)
-  : Create formatted gt tables from gtstats objects
 - [`save_output()`](https://gtstats.thinkdenominator.com/reference/save_output.md)
   : Save a gtstats table or plot
 
@@ -126,14 +133,16 @@ the console.
   : Print a gtstats compare object
 - [`print(`*`<gt_correlation>`*`)`](https://gtstats.thinkdenominator.com/reference/print.gt_correlation.md)
   : Print a gtstats correlation object
-- [`print(`*`<gt_desc_table>`*`)`](https://gtstats.thinkdenominator.com/reference/print.gt_desc_table.md)
-  : Print a descriptive table
+- [`print(`*`<gt_data_table>`*`)`](https://gtstats.thinkdenominator.com/reference/print.gt_data_table.md)
+  : Print an already summarised gtstats table
 - [`print(`*`<gt_describe>`*`)`](https://gtstats.thinkdenominator.com/reference/print.gt_describe.md)
   : Print a gtstats describe object
 - [`print(`*`<gt_distribution>`*`)`](https://gtstats.thinkdenominator.com/reference/print.gt_distribution.md)
   : Print a gtstats distribution object
 - [`print(`*`<gt_effect>`*`)`](https://gtstats.thinkdenominator.com/reference/print.gt_effect.md)
   : Print a gtstats effect-size object
+- [`print(`*`<gt_epi_table>`*`)`](https://gtstats.thinkdenominator.com/reference/print.gt_epi_table.md)
+  : Print an outbreak and surveillance table
 - [`print(`*`<gt_prop>`*`)`](https://gtstats.thinkdenominator.com/reference/print.gt_prop.md)
   : Print a gtstats proportion object
 - [`print(`*`<gt_rate>`*`)`](https://gtstats.thinkdenominator.com/reference/print.gt_rate.md)
@@ -142,3 +151,5 @@ the console.
   : Print a gtstats 2x2 table object
 - [`print(`*`<gt_variance>`*`)`](https://gtstats.thinkdenominator.com/reference/print.gt_variance.md)
   : Print a gtstats variance object
+- [`print(`*`<gtstats_summary>`*`)`](https://gtstats.thinkdenominator.com/reference/print.gtstats_summary.md)
+  : Print a descriptive table

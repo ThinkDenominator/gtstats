@@ -19,7 +19,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/thinkdenominator/gtstats/blob/main/DESCRIPTION)
+[`inst/CITATION`](https://github.com/thinkdenominator/gtstats/blob/main/inst/CITATION)
 
 Polani R, Kaviprawin M, Sakthivel M, Eliyas S, Krishnamoorthy Y (2026).
 *gtstats: Beginner-Friendly Statistics and Publication-Ready Tables*. R

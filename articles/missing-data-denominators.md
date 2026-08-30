@@ -127,9 +127,37 @@ to_flextable(summary_table(dat, by = arm, include = smoker, categorical = "n"))
 [TABLE]
 
 `missing = "ifany"` displays a Missing row only when it is needed. Use
-`"always"` to show zero-missing rows or `"no"` to suppress them.
-Suppressing a row does not put missing values back into a categorical
-denominator.
+`"always"` to show zero-missing rows or `"no"` to suppress them. These
+three settings calculate observed-category percentages from non-missing
+values; suppressing the row does not change that denominator.
+
+Use `missing = "as_category"` when missing values should form part of
+the displayed categorical distribution. The Missing row is then included
+in the percentage denominator, so the observed categories plus Missing
+sum to 100%.
+
+``` r
+
+catheter_data <- data.frame(
+  catheter = factor(
+    c(rep("Yes", 32), rep(NA_character_, 68)),
+    levels = c("No", "Yes")
+  )
+)
+
+summary_table(
+  catheter_data,
+  include = catheter,
+  missing = "as_category"
+) |> to_flextable()
+```
+
+[TABLE]
+
+This reports 32/100 (32%) as documented Yes and 68/100 (68%) as Missing.
+It does not assume that missing records are No. For continuous
+variables, missing values cannot become a numeric category and therefore
+remain a separate missingness row.
 
 Continuous summaries use observed finite values of that variable. A
 displayed Missing row is calculated against all rows in the relevant
@@ -175,9 +203,10 @@ denominators_stats(smoking)
 | smoker | NA | arm = Control | 2 | 2 | 0 | NA | 2 | Non-missing observations; event level = Yes |
 | smoker | NA | arm = Treatment | 3 | 2 | 1 | NA | 2 | Non-missing observations; event level = Yes |
 
-If unknown status should be included in the clinical denominator, do not
-assume the observed-data proportion answers that question. Report
-unknown values or define the required analysis approach in advance.
+If unknown status should be included in a categorical descriptive
+distribution, use `missing = "as_category"`. Do not assume that an
+unknown value is a non-event; recode it to No only when that meaning is
+justified by the data definition.
 
 An all-missing categorical variable remains visible in
 [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md)

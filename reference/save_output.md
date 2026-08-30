@@ -14,7 +14,6 @@ save_output(
   path = NULL,
   title = NULL,
   subtitle = NULL,
-  pvalue_style = c("default", "scientific"),
   bold_labels = TRUE,
   show_footnotes = TRUE,
   zoom = 2,
@@ -51,10 +50,6 @@ save_output(
 - title, subtitle:
 
   Optional table title and subtitle.
-
-- pvalue_style:
-
-  P-value display style for tables.
 
 - bold_labels:
 

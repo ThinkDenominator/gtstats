@@ -6,11 +6,13 @@
 |----|----|----|
 | What is in my dataset? | [`describe_data()`](https://gtstats.thinkdenominator.com/reference/describe_data.md) | [`assess_distribution()`](https://gtstats.thinkdenominator.com/reference/assess_distribution.md) and [`assess_variance()`](https://gtstats.thinkdenominator.com/reference/assess_variance.md) for selected continuous variables |
 | How do I describe participants by group? | [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md) | [`add_p()`](https://gtstats.thinkdenominator.com/reference/add_p.md), [`add_total()`](https://gtstats.thinkdenominator.com/reference/add_total.md), or [`add_proportion()`](https://gtstats.thinkdenominator.com/reference/add_proportion.md) only when justified |
+| How do I report outbreak or surveillance measures? | [`epi_table()`](https://gtstats.thinkdenominator.com/reference/epi_table.md) | Review its denominator and effect-measure components |
+| How do I format final results calculated elsewhere? | [`as_stats_table()`](https://gtstats.thinkdenominator.com/reference/as_stats_table.md) | [`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md) and [`save_output()`](https://gtstats.thinkdenominator.com/reference/save_output.md) |
 | Do groups differ for one variable? | [`compare_groups()`](https://gtstats.thinkdenominator.com/reference/compare_groups.md) | [`effect_size()`](https://gtstats.thinkdenominator.com/reference/effect_size.md) for magnitude; audit helpers for review |
 | Are two continuous variables associated? | [`correlation()`](https://gtstats.thinkdenominator.com/reference/correlation.md) | [`plot_correlation()`](https://gtstats.thinkdenominator.com/reference/plot_correlation.md) |
 | What is a proportion or rate? | [`proportion_stats()`](https://gtstats.thinkdenominator.com/reference/proportion_stats.md) or [`rate_stats()`](https://gtstats.thinkdenominator.com/reference/rate_stats.md) | — |
 | What are RR, OR, and risk difference? | [`crosstabs()`](https://gtstats.thinkdenominator.com/reference/crosstabs.md) | — |
-| How do I change the finished table? | [`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md) | [`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md), [`to_flextable()`](https://gtstats.thinkdenominator.com/reference/to_flextable.md), [`save_output()`](https://gtstats.thinkdenominator.com/reference/save_output.md) |
+| How do I change the finished table? | [`to_gt()`](https://gtstats.thinkdenominator.com/reference/to_gt.md) | [`customise_table()`](https://gtstats.thinkdenominator.com/reference/customise_table.md), [`to_flextable()`](https://gtstats.thinkdenominator.com/reference/to_flextable.md), [`save_output()`](https://gtstats.thinkdenominator.com/reference/save_output.md) |
 
 ### The core distinction
 
@@ -46,12 +48,18 @@ diagnostics_stats(result)
 ### A minimal decision tree
 
 ``` text
-Raw dataset
+Participant-level data
   └─ describe_data()
       ├─ assess_distribution()  → how to present selected continuous variables
       ├─ assess_variance()      → how observed spread differs across groups
       ├─ summary_table()        → Table 1 / participant characteristics
       └─ compare_groups()       → one inferential question
+
+Outbreak or surveillance data
+  └─ epi_table()                → events, denominators, risks, or rates
+
+Already calculated results
+  └─ as_stats_table()           → preserve values; style and export only
 ```
 
 The [Start

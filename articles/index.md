@@ -35,6 +35,9 @@
   Built-in clinical and simulated datasets for reproducible gtstats
   examples.
 
+- [Citing
+  gtstats](https://gtstats.thinkdenominator.com/articles/citation.md):
+
 - [Missing data and
   denominators](https://gtstats.thinkdenominator.com/articles/missing-data-denominators.md):
 

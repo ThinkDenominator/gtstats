@@ -7,20 +7,91 @@ library(gtstats)
 
 ## Overview
 
-gtstats includes three standalone helper functions aimed specifically at
-clinical and epidemiological analysis:
+gtstats provides one table workflow plus three focused epidemiology
+helpers:
 
 | Function | Purpose |
 |----|----|
+| [`epi_table()`](https://gtstats.thinkdenominator.com/reference/epi_table.md) | Multi-outcome outbreak and surveillance tables from line-list or aggregate data |
 | [`proportion_stats()`](https://gtstats.thinkdenominator.com/reference/proportion_stats.md) | Proportions with Wilson or exact confidence intervals |
 | [`rate_stats()`](https://gtstats.thinkdenominator.com/reference/rate_stats.md) | Event rates with exact Poisson confidence intervals |
 | [`crosstabs()`](https://gtstats.thinkdenominator.com/reference/crosstabs.md) | Publication-ready categorical cross-tabs; 2×2 tables also give RR, OR and RD |
 
-All three follow the same pattern: pass in your data frame, name the
+All functions follow the same pattern: pass in your data frame, name the
 relevant variables, and optionally supply a grouping variable with
 `by =`. They print as flextables by default; call
 [`to_gt()`](https://gtstats.thinkdenominator.com/reference/to_gt.md) for
 an explicit gt table.
+
+------------------------------------------------------------------------
+
+## epi_table() — Outbreak and surveillance reporting
+
+[`epi_table()`](https://gtstats.thinkdenominator.com/reference/epi_table.md)
+is the table-level workflow. It is the appropriate choice when several
+outcomes or strata must be reported together and the numerator,
+denominator and uncertainty must remain visible. It does not replace
+[`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md):
+the latter describes participant characteristics, whereas
+[`epi_table()`](https://gtstats.thinkdenominator.com/reference/epi_table.md)
+estimates occurrence.
+
+### Individual line-list data
+
+``` r
+
+data("birthwt", package = "gtstats")
+epi_line <- epi_table(
+  birthwt,
+  outcomes = low,
+  by = smoke,
+  event = "Low birth weight",
+  measure = "prevalence",
+  p_value = TRUE,
+  effects = "all"
+)
+to_flextable(epi_line)
+```
+
+[TABLE]
+
+For each outcome, the denominator is the number of non-missing records
+in the relevant group. A case-only line list therefore cannot estimate
+an attack rate; use aggregate data with an external population
+denominator.
+
+### Aggregate surveillance data
+
+``` r
+
+surveillance <- data.frame(
+  ward = c("A", "B", "C"),
+  cases = c(12, 7, 4),
+  population = c(80, 65, 52)
+)
+epi_aggregate <- epi_table(
+  surveillance,
+  numerator = cases,
+  denominator = population,
+  by = ward,
+  label = "Influenza",
+  measure = "attack_rate",
+  multiplier = 100
+)
+to_flextable(epi_aggregate)
+```
+
+|  | A |  |  |  | B |  |  |  | C |  |  |  |
+|----|----|----|----|----|----|----|----|----|----|----|----|----|
+| Outcome | Cases | Denominator | Attack rate (%) | 95% CI | Cases | Denominator | Attack rate (%) | 95% CI | Cases | Denominator | Attack rate (%) | 95% CI |
+| Influenza | 12 | 80 | 15.0 | 8.8–24.4 | 7 | 65 | 10.8 | 5.3–20.6 | 4 | 52 | 7.7 | 3.0–18.2 |
+| 95% CI is a wilson binomial interval. |  |  |  |  |  |  |  |  |  |  |  |  |
+
+For incidence rates, the denominator is accumulated person-time and the
+interval is exact Poisson. Optional p-values compare groups. Effect
+estimates are available only for exactly two groups, because their
+direction must be unambiguous. Inspect `$denominators`, `$p_values` and
+`$effects` before reporting.
 
 ------------------------------------------------------------------------
 
@@ -80,7 +151,7 @@ to_flextable(proportion_stats(mtcars, var = vs, by = am, level = "1"))
 
 ``` r
 
-tbl_stats(proportion_stats(mtcars, var = vs, by = am))
+to_gt(proportion_stats(mtcars, var = vs, by = am))
 ```
 
 [TABLE]
@@ -95,7 +166,7 @@ embeds the same calculation inside the table builder:
 summary_table(mtcars, by = am, overall = TRUE) |>
   add_proportion(var = vs, level = "1", ci = TRUE) |>
   add_total() |>
-  tbl_stats()
+  to_gt()
 ```
 
 [TABLE]
@@ -154,7 +225,7 @@ to_flextable(rate_stats(df, event = event, time = ptime, by = arm))
 ``` r
 
 rate_stats(df, event = event, time = ptime, by = arm) |>
-  tbl_stats()
+  to_gt()
 ```
 
 [TABLE]
@@ -173,7 +244,7 @@ summary_table(mtcars, by = am, overall = TRUE) |>
     label      = "Carburettor rate (per 1 000)",
     multiplier = 1000
   ) |>
-  tbl_stats()
+  to_gt()
 ```
 
 [TABLE]
@@ -230,7 +301,7 @@ to_flextable(crosstabs(mtcars, row = am, col = vs))
 
 ``` r
 
-tbl_stats(crosstabs(mtcars, row = am, col = vs))
+to_gt(crosstabs(mtcars, row = am, col = vs))
 ```
 
 [TABLE]

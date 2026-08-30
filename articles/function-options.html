@@ -15,7 +15,7 @@
 <meta name="description" content="A quick, practical reference for every gtstats function.">
 <meta property="og:description" content="A quick, practical reference for every gtstats function.">
 <link rel="stylesheet" href="https://thinkdenominator.com/analytics-consent.css">
-<script>window.TD_GA_MEASUREMENT_ID = "G-EW7RP69914";</script><script defer src="https://thinkdenominator.com/analytics-consent.js"></script>
+<script>window.TD_GA_MEASUREMENT_ID = "G-79N51G5HW4";</script><script defer src="https://thinkdenominator.com/analytics-consent.js"></script>
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -45,6 +45,7 @@
     <li><a class="dropdown-item" href="../articles/overview.html">Function map</a></li>
     <li><a class="dropdown-item" href="../articles/function-options.html">Function options</a></li>
     <li><a class="dropdown-item" href="../articles/teaching-datasets.html">Teaching datasets</a></li>
+    <li><a class="dropdown-item" href="../articles/citation.html">Citing gtstats</a></li>
     <li><a class="dropdown-item" href="../articles/missing-data-denominators.html">Missing data and denominators</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/descriptive-tables.html">Summary tables and customisation</a></li>
@@ -52,6 +53,7 @@
     <li><a class="dropdown-item" href="../articles/inferential-tests.html#default-selection-policy">Automatic test algorithm</a></li>
     <li><a class="dropdown-item" href="../articles/epi-helpers.html">Epidemiology helpers</a></li>
     <li><a class="dropdown-item" href="../articles/styling-export.html">Styling and exporting tables</a></li>
+    <li><a class="dropdown-item" href="../articles/styling-export.html#format-statistics-calculated-elsewhere">Already calculated result tables</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
@@ -146,11 +148,81 @@ as PNG/PDF, and reproduced from its Code panel. CSV input works
 directly; Excel input additionally needs <code>rio</code>. Display
 customisation never changes estimates or test selection, and the app
 does not replace a reproducible R script.</p>
+<p>Within <strong>Customise table</strong>, choose <strong>Current data
+are final calculated results</strong> only for an already summarised
+results sheet. The generated code uses <code>as_stats_table(data)</code>
+and preserves its rows and values. Participant-level raw data belong in
+<strong>Summary table</strong>; outbreak or surveillance calculations
+belong in <strong>Epi table</strong>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"shiny"</span><span class="op">)</span> <span class="co"># once, if needed</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"rio"</span><span class="op">)</span>   <span class="co"># once, only for Excel files</span></span>
 <span><span class="fu"><a href="../reference/gtstats_app.html">gtstats_app</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
+</div>
+<div class="section level3">
+<h3 id="choose-the-right-table-function">Choose the right table function<a class="anchor" aria-label="anchor" href="#choose-the-right-table-function"></a>
+</h3>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Question</th>
+<th>Use</th>
+<th>Boundary</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Describe several participant characteristics</td>
+<td><code><a href="../reference/summary_table.html">summary_table()</a></code></td>
+<td>Manuscript descriptive tables and optional CI/p-value layers</td>
+</tr>
+<tr class="even">
+<td>Compare one outcome across groups</td>
+<td><code><a href="../reference/compare_groups.html">compare_groups()</a></code></td>
+<td>One outcome only; use <code>summary_table() |&gt; add_p()</code> for
+many variables</td>
+</tr>
+<tr class="odd">
+<td>Report several outbreak or surveillance outcomes</td>
+<td><code><a href="../reference/epi_table.html">epi_table()</a></code></td>
+<td>Line-list or aggregate epidemiological data</td>
+</tr>
+<tr class="even">
+<td>Estimate one selected proportion</td>
+<td><code><a href="../reference/proportion_stats.html">proportion_stats()</a></code></td>
+<td>One event level, with its denominator and CI</td>
+</tr>
+<tr class="odd">
+<td>Estimate one event/person-time rate</td>
+<td><code><a href="../reference/rate_stats.html">rate_stats()</a></code></td>
+<td>One event count and one exposure-time denominator</td>
+</tr>
+<tr class="even">
+<td>Explore two categorical variables</td>
+<td><code><a href="../reference/crosstabs.html">crosstabs()</a></code></td>
+<td>n x m percentages; OR, RR and RD when the table is 2 x 2</td>
+</tr>
+<tr class="odd">
+<td>Highlight one event or rate inside Table 1</td>
+<td>
+<code><a href="../reference/add_proportion.html">add_proportion()</a></code> or <code><a href="../reference/add_rate.html">add_rate()</a></code>
+</td>
+<td>Specialist rows, not the global CI route</td>
+</tr>
+<tr class="even">
+<td>Present already calculated numeric results</td>
+<td><code><a href="../reference/as_stats_table.html">as_stats_table()</a></code></td>
+<td>Does not parse or recalculate formatted text</td>
+</tr>
+</tbody>
+</table>
+<p>Use <code><a href="../reference/add_ci.html">add_ci()</a></code> to add intervals to eligible variables
+already present in a summary table. <code><a href="../reference/add_proportion.html">add_proportion()</a></code> is
+intentionally narrower: it adds one selected-event row.</p>
 </div>
 <div class="section level3">
 <h3 id="understand-the-data">1. Understand the data<a class="anchor" aria-label="anchor" href="#understand-the-data"></a>
@@ -192,8 +264,7 @@ does not replace a reproducible R script.</p>
 <td>
 <code>"table"</code>; also <code>"tibble"</code>
 </td>
-<td>Choose the publication table or a plain console tibble
-(<code>output</code> remains a compatibility alias)</td>
+<td>Choose the publication table or a plain console tibble</td>
 </tr>
 </tbody>
 </table>
@@ -259,8 +330,7 @@ does not replace a reproducible R script.</p>
 <td>
 <code>"table"</code>; also <code>"tibble"</code>
 </td>
-<td>Choose the publication table or a plain console tibble
-(<code>output</code> remains a compatibility alias)</td>
+<td>Choose the publication table or a plain console tibble</td>
 </tr>
 </tbody>
 </table>
@@ -316,8 +386,7 @@ test</td>
 <td>
 <code>"table"</code>; also <code>"tibble"</code>
 </td>
-<td>Choose the publication table or a plain console tibble
-(<code>output</code> remains a compatibility alias)</td>
+<td>Choose the publication table or a plain console tibble</td>
 </tr>
 </tbody>
 </table>
@@ -376,13 +445,6 @@ prespecified <code>var_equal</code> choice.</p>
 empty builder</td>
 </tr>
 <tr class="even">
-<td><code>mode</code></td>
-<td>
-<code>"summary"</code>; also <code>"rate"</code>
-</td>
-<td>Choose a descriptive Table 1 or a rate-only builder</td>
-</tr>
-<tr class="odd">
 <td><code>overall</code></td>
 <td>
 <code>FALSE</code>;
@@ -390,16 +452,18 @@ empty builder</td>
 </td>
 <td>Add an Overall column and choose its position</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>statistic</code></td>
 <td>
 <code>"recommended"</code>; <code>"mean_sd"</code>,
-<code>"mean_ci"</code>, <code>"median_iqr"</code>,
-<code>"both"</code>
+<code>"mean_se"</code>, <code>"mean_ci"</code>,
+<code>"median_iqr"</code>, <code>"both"</code>
 </td>
-<td>Continuous-variable presentation; may be named by variable</td>
+<td>Continuous-variable presentation; may be named by variable.
+<code>"mean_se"</code> is specialist and is never selected
+automatically.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>categorical</code></td>
 <td>
 <code>"n_percent"</code>; <code>"n_over_N_percent"</code>,
@@ -407,13 +471,23 @@ empty builder</td>
 </td>
 <td>Categorical cell display</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>categorical_layout</code></td>
 <td>
 <code>"combined"</code>; also <code>"separate"</code>
 </td>
 <td>Keep n (%) together, or use distinct n and % child columns in
 categorical-only tables without CIs</td>
+</tr>
+<tr class="even">
+<td><code>overall_categorical</code></td>
+<td>
+<code>"auto"</code>; also <code>"n_percent"</code>,
+<code>"n_over_N_percent"</code>, <code>"n"</code>,
+<code>"percent"</code>
+</td>
+<td>Control only the Overall categorical cells. Automatic mode uses
+counts when grouped cells use row percentages</td>
 </tr>
 <tr class="odd">
 <td><code>show_dichotomous</code></td>
@@ -448,9 +522,12 @@ e.g. <code>c(smoke = "Yes")</code>
 <tr class="odd">
 <td><code>missing</code></td>
 <td>
-<code>"ifany"</code>; <code>"always"</code>, <code>"no"</code>
+<code>"ifany"</code>; <code>"always"</code>, <code>"no"</code>,
+<code>"as_category"</code>
 </td>
-<td>Show missing rows only when needed, always, or never</td>
+<td>Show missing rows when needed, always, or never;
+<code>"as_category"</code> also includes missing in categorical
+percentages</td>
 </tr>
 <tr class="even">
 <td><code>layout</code></td>
@@ -555,13 +632,101 @@ repeated in every cell.</p>
 <span>  <span class="fu"><a href="../reference/add_p.html">add_p</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level5">
-<h5 id="add_summary-advanced-compatibility-helper">
-<code>add_summary()</code> (advanced compatibility helper)<a class="anchor" aria-label="anchor" href="#add_summary-advanced-compatibility-helper"></a>
+<h5 id="add_summary-incremental-builder">
+<code>add_summary()</code> (incremental builder)<a class="anchor" aria-label="anchor" href="#add_summary-incremental-builder"></a>
 </h5>
 <p>The beginner route is <code>summary_table(..., include = ...)</code>.
-<code><a href="../reference/add_summary.html">add_summary()</a></code> remains available for older
-incremental-builder code, but it is not needed to separate continuous
-and categorical variables or to build an ordinary Table 1.</p>
+<code><a href="../reference/add_summary.html">add_summary()</a></code> supports deliberate incremental construction
+when an empty builder was created with <code>include = NULL</code>. It
+uses the same vocabulary as <code><a href="../reference/summary_table.html">summary_table()</a></code>; confidence
+intervals remain a separate <code><a href="../reference/add_ci.html">add_ci()</a></code> layer.</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Option</th>
+<th>Default / available choices</th>
+<th>What it changes</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>vars</code></td>
+<td>required</td>
+<td>Variables appended to the current builder</td>
+</tr>
+<tr class="even">
+<td><code>statistic</code></td>
+<td>
+<code>"recommended"</code>; <code>"mean_sd"</code>,
+<code>"mean_se"</code>, <code>"mean_ci"</code>,
+<code>"median_iqr"</code>, <code>"both"</code>; named overrides</td>
+<td>Continuous summaries for the appended variables</td>
+</tr>
+<tr class="odd">
+<td><code>categorical</code></td>
+<td>
+<code>"n_percent"</code>; <code>"n_over_N_percent"</code>,
+<code>"n"</code>, <code>"percent"</code>
+</td>
+<td>Categorical cell display</td>
+</tr>
+<tr class="even">
+<td><code>categorical_layout</code></td>
+<td>
+<code>"combined"</code>; <code>"separate"</code>
+</td>
+<td>Combined n (%) or separate n and % child columns for
+categorical-only tables</td>
+</tr>
+<tr class="odd">
+<td>
+<code>show_dichotomous</code>, <code>value</code>
+</td>
+<td>
+<code>"all_levels"</code>, <code>NULL</code>;
+<code>"single_row"</code>, named event levels</td>
+<td>Full or compact binary display</td>
+</tr>
+<tr class="even">
+<td><code>percent</code></td>
+<td>
+<code>"column"</code>; <code>"row"</code>, <code>"overall"</code>,
+<code>"none"</code>
+</td>
+<td>Percentage denominator</td>
+</tr>
+<tr class="odd">
+<td><code>overall_categorical</code></td>
+<td>
+<code>"auto"</code>; explicit categorical formats</td>
+<td>Overall-column categorical display</td>
+</tr>
+<tr class="even">
+<td><code>layout</code></td>
+<td>inherited; <code>"compact"</code>, <code>"separate"</code>
+</td>
+<td>Table layout to retain for later layers</td>
+</tr>
+<tr class="odd">
+<td><code>missing</code></td>
+<td>
+<code>"ifany"</code>; <code>"always"</code>, <code>"no"</code>,
+<code>"as_category"</code>
+</td>
+<td>Missing-row display; <code>"as_category"</code> includes missing in
+categorical percentages</td>
+</tr>
+<tr class="even">
+<td><code>digits</code></td>
+<td>
+<code>1</code>; named precision map</td>
+<td>Display precision</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level5">
 <h5 id="specialist-and-structural-helpers">Specialist and structural helpers<a class="anchor" aria-label="anchor" href="#specialist-and-structural-helpers"></a>
@@ -690,11 +855,10 @@ table</td>
 <tr class="odd">
 <td><code><a href="../reference/add_p.html">add_p()</a></code></td>
 <td>
-<code>method</code>, <code>include</code>
+<code>test</code>, <code>include</code>
 </td>
 <td>
-<code>method = "auto"</code>;
-<code>include = everything()</code>
+<code>test = "auto"</code>; <code>include = everything()</code>
 </td>
 <td>Automatic or explicit test choice; omit inappropriate comparisons
 while retaining their descriptive rows</td>
@@ -746,8 +910,8 @@ parametric route, and continuity correction</td>
 </table>
 <p>Independent ordered factors use the same chi-square/Fisher
 distribution comparison as other categorical variables. Request
-<code>method = "wilcox"</code> or <code>method = "kruskal"</code> when
-the ordered scale itself is the intended rank-based comparison. If an
+<code>test = "wilcox"</code> or <code>test = "kruskal"</code> when the
+ordered scale itself is the intended rank-based comparison. If an
 ordered factor and another variable share the same publication label,
 source-variable identity—not the displayed label—determines the test and
 superscript.</p>
@@ -848,7 +1012,7 @@ paired</td>
 <div class="section level5">
 <h5 id="exact-test-auto-algorithm">Exact <code>test = "auto"</code> algorithm<a class="anchor" aria-label="anchor" href="#exact-test-auto-algorithm"></a>
 </h5>
-<p><code>add_p(method = "auto")</code> delegates to this same algorithm
+<p><code>add_p(test = "auto")</code> delegates to this same algorithm
 for every variable.</p>
 <table class="table">
 <colgroup>
@@ -1133,6 +1297,128 @@ prespecified analyses or establish causation.</p>
 <h3 id="epidemiology">3. Epidemiology<a class="anchor" aria-label="anchor" href="#epidemiology"></a>
 </h3>
 <div class="section level4">
+<h4 id="epi_table">
+<code>epi_table()</code><a class="anchor" aria-label="anchor" href="#epi_table"></a>
+</h4>
+<p>Use <code><a href="../reference/epi_table.html">epi_table()</a></code> when a table must report several
+outbreak or surveillance estimates with their cases, denominators and
+confidence intervals. It accepts either individual line-list outcomes or
+already aggregated numerator and denominator columns. These routes are
+deliberately mutually exclusive.</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Option</th>
+<th>Default / available choices</th>
+<th>What it changes</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>outcomes</code></td>
+<td>line-list route</td>
+<td>Select one or more individual-record outcomes</td>
+</tr>
+<tr class="even">
+<td><code>event</code></td>
+<td>sensible default; scalar or named vector</td>
+<td>Define the counted event for every selected outcome; explicit values
+are recommended</td>
+</tr>
+<tr class="odd">
+<td>
+<code>numerator</code>, <code>denominator</code>
+</td>
+<td>aggregate route</td>
+<td>Supply event counts and eligible population/person-time</td>
+</tr>
+<tr class="even">
+<td><code>label</code></td>
+<td><code>NULL</code></td>
+<td>Use an aggregate label column or a single reporting label</td>
+</tr>
+<tr class="odd">
+<td><code>person_time</code></td>
+<td><code>NULL</code></td>
+<td>Required for a line-list incidence rate</td>
+</tr>
+<tr class="even">
+<td><code>by</code></td>
+<td><code>NULL</code></td>
+<td>Produce estimates by group and enable optional comparisons</td>
+</tr>
+<tr class="odd">
+<td><code>measure</code></td>
+<td>
+<code>"proportion"</code>; also <code>"prevalence"</code>,
+<code>"attack_rate"</code>, <code>"incidence_rate"</code>
+</td>
+<td>Define the interpretation and interval family</td>
+</tr>
+<tr class="even">
+<td><code>multiplier</code></td>
+<td>
+<code>100</code>, or <code>1000</code> for incidence</td>
+<td>Report per 100, 1,000, 10,000, 100,000 or another positive
+scale</td>
+</tr>
+<tr class="odd">
+<td><code>ci_method</code></td>
+<td>
+<code>"wilson"</code>; also <code>"exact"</code>
+</td>
+<td>Binomial interval; incidence always uses exact Poisson</td>
+</tr>
+<tr class="even">
+<td>
+<code>p_value</code>, <code>p_adjust</code>
+</td>
+<td>
+<code>FALSE</code>, <code>"none"</code>
+</td>
+<td>Optionally compare groups and adjust across outcomes</td>
+</tr>
+<tr class="odd">
+<td><code>effects</code></td>
+<td>
+<code>"none"</code>; <code>"all"</code>, <code>"rr"</code>,
+<code>"rd"</code>, <code>"or"</code>, or <code>"irr"</code>
+</td>
+<td>Add appropriate effect estimates when exactly two groups are
+present</td>
+</tr>
+<tr class="even">
+<td><code>layout</code></td>
+<td>
+<code>"auto"</code>; <code>"wide"</code>, <code>"long"</code>
+</td>
+<td>Auto uses wide output for up to four groups</td>
+</tr>
+<tr class="odd">
+<td>
+<code>conf.level</code>, <code>digits</code>,
+<code>format</code>
+</td>
+<td>
+<code>0.95</code>, <code>1</code>, <code>"table"</code>
+</td>
+<td>Confidence, precision and publication/tibble output</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/epi_table.html">epi_table</a></span><span class="op">(</span></span>
+<span>  <span class="va">birthwt_data</span>,</span>
+<span>  outcomes <span class="op">=</span> <span class="va">low</span>,</span>
+<span>  by <span class="op">=</span> <span class="va">smoke</span>,</span>
+<span>  event <span class="op">=</span> <span class="st">"Low birth weight"</span>,</span>
+<span>  measure <span class="op">=</span> <span class="st">"prevalence"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level4">
 <h4 id="proportion_stats">
 <code>proportion_stats()</code><a class="anchor" aria-label="anchor" href="#proportion_stats"></a>
 </h4>
@@ -1264,7 +1550,7 @@ number of contributing records.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/proportion_stats.html">proportion_stats</a></span><span class="op">(</span><span class="va">birthwt_data</span>, var <span class="op">=</span> <span class="va">smoke</span>, by <span class="op">=</span> <span class="va">low</span>, level <span class="op">=</span> <span class="st">"Yes"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
@@ -1360,7 +1646,7 @@ direction</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/crosstabs.html">crosstabs</a></span><span class="op">(</span><span class="va">birthwt_data</span>, row <span class="op">=</span> <span class="va">smoke</span>, col <span class="op">=</span> <span class="va">low</span>, percent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"row"</span>, <span class="st">"column"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
@@ -1636,9 +1922,12 @@ same data.</p>
 </table>
 </div>
 <div class="section level4">
-<h4 id="tbl_stats">
-<code>tbl_stats()</code><a class="anchor" aria-label="anchor" href="#tbl_stats"></a>
+<h4 id="customise_table">
+<code>customise_table()</code><a class="anchor" aria-label="anchor" href="#customise_table"></a>
 </h4>
+<p>Before styling a table of values calculated elsewhere, wrap it with
+<code><a href="../reference/as_stats_table.html">as_stats_table()</a></code>. This preserves every supplied row and
+value; it does not recalculate statistics.</p>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -1646,55 +1935,93 @@ same data.</p>
 <col width="33%">
 </colgroup>
 <thead><tr class="header">
-<th>Option</th>
+<th>
+<code><a href="../reference/as_stats_table.html">as_stats_table()</a></code> option</th>
 <th>Default / available choices</th>
 <th>What it changes</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>x</code></td>
-<td>required</td>
-<td>A supported analytical/builder result to render as
-<code>gt</code>
-</td>
+<td><code>data</code></td>
+<td>required data frame/tibble</td>
+<td>Uses the already calculated rows and columns as the table body</td>
 </tr>
 <tr class="even">
+<td><code>notes</code></td>
 <td>
-<code>title</code>, <code>subtitle</code>
-</td>
-<td><code>NULL</code></td>
-<td>Optional table heading</td>
-</tr>
-<tr class="odd">
-<td>
-<code>bold_labels</code>, <code>show_footnotes</code>
-</td>
-<td>
-<code>TRUE</code>, <code>TRUE</code>
-</td>
-<td>Variable-label emphasis and explanatory footnotes</td>
-</tr>
-<tr class="even">
-<td>
-<code>digits</code>, <code>pvalue_style</code>
-</td>
-<td>
-<code>NULL</code>;
-<code>"default"</code>/<code>"scientific"</code>
-</td>
-<td>Reserved compatibility controls; set precision in the analysis
-function</td>
+<code>NULL</code>; character vector</td>
+<td>Adds concise explanatory notes below the table</td>
 </tr>
 </tbody>
 </table>
-<p><code><a href="../reference/tbl_stats.html">tbl_stats()</a></code> remains the compatibility name for explicit
-<code>gt</code> rendering. New code may use the clearer alias
-<code><a href="../reference/to_gt.html">to_gt()</a></code> with the same arguments.</p>
-</div>
-<div class="section level4">
-<h4 id="customise_table">
-<code>customise_table()</code><a class="anchor" aria-label="anchor" href="#customise_table"></a>
-</h4>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">calculated</span> <span class="op">&lt;-</span> <span class="va">mtcars</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>N <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span>, `Mean mpg` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">mpg</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/as_stats_table.html">as_stats_table</a></span><span class="op">(</span><span class="va">calculated</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/customise_table.html">customise_table</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Calculated vehicle summary"</span><span class="op">)</span></span></code></pre></div>
+<p>For aggregate data, <code><a href="../reference/add_ci.html">add_ci()</a></code> requires explicit
+ingredients. It never infers whether a denominator means participants,
+person-time, or something else.</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>
+<code><a href="../reference/add_ci.html">add_ci()</a></code> aggregate option</th>
+<th>Required columns</th>
+<th>Method</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>type = "proportion"</code></td>
+<td>
+<code>numerator</code>, <code>denominator</code>
+</td>
+<td>Wilson score by default; <code>method = "exact"</code> is
+available</td>
+</tr>
+<tr class="even">
+<td><code>type = "rate"</code></td>
+<td>
+<code>numerator</code>, <code>denominator</code>
+</td>
+<td>Exact Poisson; use <code>multiplier</code> for rates per 100, 1,000,
+etc.</td>
+</tr>
+<tr class="odd">
+<td><code>type = "mean"</code></td>
+<td>
+<code>estimate</code>, <code>sd</code>, <code>n</code>
+</td>
+<td>t-based interval for a mean</td>
+</tr>
+<tr class="even">
+<td><code>type = "normal"</code></td>
+<td>
+<code>estimate</code>, <code>se</code>
+</td>
+<td>Normal-approximation interval</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">rates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  Group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Treatment"</span>, <span class="st">"Control"</span><span class="op">)</span>,</span>
+<span>  Events <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">12</span>, <span class="fl">18</span><span class="op">)</span>,</span>
+<span>  PersonYears <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">840</span>, <span class="fl">910</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/as_stats_table.html">as_stats_table</a></span><span class="op">(</span><span class="va">rates</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/add_ci.html">add_ci</a></span><span class="op">(</span></span>
+<span>    type <span class="op">=</span> <span class="st">"rate"</span>,</span>
+<span>    numerator <span class="op">=</span> <span class="va">Events</span>,</span>
+<span>    denominator <span class="op">=</span> <span class="va">PersonYears</span>,</span>
+<span>    multiplier <span class="op">=</span> <span class="fl">1000</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -2000,7 +2327,7 @@ plus filename with extension</td>
 <code>.pdf</code>, and <code>.tex</code>. Office formats use the
 flextable-first route. A mixed list of tables and plots is supported for
 <code>.docx</code> reports.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/save_output.html">save_output</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    <span class="st">"Dataset overview"</span> <span class="op">=</span> <span class="fu"><a href="../reference/describe_data.html">describe_data</a></span><span class="op">(</span><span class="va">birthwt</span><span class="op">)</span>,</span>
@@ -2016,7 +2343,7 @@ flextable-first route. A mixed list of tables and plots is supported for
 <span>  title <span class="op">=</span> <span class="st">"Birth-weight study"</span>,</span>
 <span>  page_break <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/summary_table.html">summary_table</a></span><span class="op">(</span><span class="va">birthwt_data</span>, by <span class="op">=</span> <span class="va">low</span>, include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">smoke</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/add_p.html">add_p</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/customise_table.html">customise_table</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Baseline characteristics"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -2027,7 +2354,7 @@ flextable-first route. A mixed list of tables and plots is supported for
 <h3 id="the-shortest-useful-workflow">The shortest useful workflow<a class="anchor" aria-label="anchor" href="#the-shortest-useful-workflow"></a>
 </h3>
 <p>Most users need only this sequence:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/describe_data.html">describe_data</a></span><span class="op">(</span><span class="va">birthwt_data</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/assess_distribution.html">assess_distribution</a></span><span class="op">(</span><span class="va">birthwt_data</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">lwt</span>, <span class="va">bwt</span><span class="op">)</span>, by <span class="op">=</span> <span class="va">low</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/summary_table.html">summary_table</a></span><span class="op">(</span><span class="va">birthwt_data</span>, by <span class="op">=</span> <span class="va">low</span>, include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">lwt</span>, <span class="va">smoke</span><span class="op">)</span>, overall <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>

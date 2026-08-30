@@ -9,13 +9,7 @@ levels. Potential data-quality findings are kept separately in
 ## Usage
 
 ``` r
-describe_data(
-  data,
-  vars = NULL,
-  digits = 2,
-  format = c("table", "tibble"),
-  output = NULL
-)
+describe_data(data, vars = NULL, digits = 2, format = c("table", "tibble"))
 ```
 
 ## Arguments
@@ -35,10 +29,6 @@ describe_data(
 - format:
 
   Output format: `"table"` (default) or `"tibble"`.
-
-- output:
-
-  Compatibility alias for `format`.
 
 ## Value
 
@@ -63,7 +53,7 @@ for inferential comparisons.
 ``` r
 describe_data(mtcars)
 describe_data(mtcars, vars = c("mpg", "cyl", "am"))
-tbl_stats(describe_data(mtcars))
+to_gt(describe_data(mtcars))
 
 
   

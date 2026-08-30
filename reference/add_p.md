@@ -11,7 +11,7 @@ indicating which statistical test was used.
 ``` r
 add_p(
   x,
-  method = "auto",
+  test = "auto",
   include = tidyselect::everything(),
   paired = FALSE,
   id = NULL,
@@ -28,12 +28,12 @@ add_p(
 
 - x:
 
-  A `gt_desc_table` object created with
+  A `gtstats_summary` object created with
   [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md).
 
-- method:
+- test:
 
-  Statistical test to use. Either a single method string, or a named
+  Statistical test to use. Either a single test string, or a named
   character vector/list specifying methods for individual variables.
   Names may match either displayed variable labels or underlying
   variable names.
@@ -56,7 +56,7 @@ add_p(
 
 - distribution_check:
 
-  Logical; when `method = "auto"`, use distribution guidance to choose
+  Logical; when `test = "auto"`, use distribution guidance to choose
   parametric or rank-based tests. This guidance is based on skewness;
   Shapiro-Wilk is supporting information only. For paired analyses the
   check is applied to within-pair differences.
@@ -64,10 +64,10 @@ add_p(
 - var_equal:
 
   Logical; for independent, non-skewed continuous comparisons in
-  `method = "auto"`, use Student's t-test or classical ANOVA. The
-  default `FALSE` uses Welch methods. This is a user-specified
-  assumption, not a variance test, and does not affect paired,
-  categorical, ordinal, or rank-based comparisons.
+  `test = "auto"`, use Student's t-test or classical ANOVA. The default
+  `FALSE` uses Welch methods. This is a user-specified assumption, not a
+  variance test, and does not affect paired, categorical, ordinal, or
+  rank-based comparisons.
 
 - correction:
 
@@ -91,10 +91,10 @@ add_p(
 
 ## Value
 
-An updated `gt_desc_table` object with a `p-value` column added. When
+An updated `gtstats_summary` object with a `p-value` column added. When
 `paired = TRUE`, `$paired_p_notes` records the complete-pair denominator
 for each displayed p-value;
-[`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md)
+[`to_gt()`](https://gtstats.thinkdenominator.com/reference/to_gt.md)
 displays this as a concise p-value footnote.
 
 ## Details
@@ -130,7 +130,7 @@ different methods for individual variables.
 
 ### Automatic selection and audit trail
 
-With `method = "auto"`, `add_p()` delegates each comparison to
+With `test = "auto"`, `add_p()` delegates each comparison to
 [`compare_groups()`](https://gtstats.thinkdenominator.com/reference/compare_groups.md)
 using the same fixed selection policy: Welch t-test or Welch ANOVA by
 default when distribution guidance does not flag skewness; Student's
@@ -158,7 +158,7 @@ summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>
   add_p()
 
 summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>
-  add_p(method = c(mpg = "welch_t", wt = "wilcox", cyl = "chisq"))
+  add_p(test = c(mpg = "welch_t", wt = "wilcox", cyl = "chisq"))
 
 summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>
   add_p(include = c(mpg, wt))

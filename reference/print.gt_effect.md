@@ -18,7 +18,7 @@ print(x, ...)
 - ...:
 
   Further arguments passed to
-  [`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md).
+  [`to_gt()`](https://gtstats.thinkdenominator.com/reference/to_gt.md).
 
 ## Value
 

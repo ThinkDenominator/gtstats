@@ -366,7 +366,7 @@ Tests can be prespecified per variable:
 
 summary_table(mtcars, by = am, include = c(mpg, wt, vs)) |>
   add_p(
-    method = c(
+    test = c(
       mpg = "welch_t",
       wt = "wilcox",
       vs = "fisher"

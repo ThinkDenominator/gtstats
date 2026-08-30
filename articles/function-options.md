@@ -44,12 +44,38 @@ CSV input works directly; Excel input additionally needs `rio`. Display
 customisation never changes estimates or test selection, and the app
 does not replace a reproducible R script.
 
+Within **Customise table**, choose **Current data are final calculated
+results** only for an already summarised results sheet. The generated
+code uses `as_stats_table(data)` and preserves its rows and values.
+Participant-level raw data belong in **Summary table**; outbreak or
+surveillance calculations belong in **Epi table**.
+
 ``` r
 
 install.packages("shiny") # once, if needed
 install.packages("rio")   # once, only for Excel files
 gtstats_app()
 ```
+
+### Choose the right table function
+
+| Question | Use | Boundary |
+|----|----|----|
+| Describe several participant characteristics | [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md) | Manuscript descriptive tables and optional CI/p-value layers |
+| Compare one outcome across groups | [`compare_groups()`](https://gtstats.thinkdenominator.com/reference/compare_groups.md) | One outcome only; use `summary_table() |> add_p()` for many variables |
+| Report several outbreak or surveillance outcomes | [`epi_table()`](https://gtstats.thinkdenominator.com/reference/epi_table.md) | Line-list or aggregate epidemiological data |
+| Estimate one selected proportion | [`proportion_stats()`](https://gtstats.thinkdenominator.com/reference/proportion_stats.md) | One event level, with its denominator and CI |
+| Estimate one event/person-time rate | [`rate_stats()`](https://gtstats.thinkdenominator.com/reference/rate_stats.md) | One event count and one exposure-time denominator |
+| Explore two categorical variables | [`crosstabs()`](https://gtstats.thinkdenominator.com/reference/crosstabs.md) | n x m percentages; OR, RR and RD when the table is 2 x 2 |
+| Highlight one event or rate inside Table 1 | [`add_proportion()`](https://gtstats.thinkdenominator.com/reference/add_proportion.md) or [`add_rate()`](https://gtstats.thinkdenominator.com/reference/add_rate.md) | Specialist rows, not the global CI route |
+| Present already calculated numeric results | [`as_stats_table()`](https://gtstats.thinkdenominator.com/reference/as_stats_table.md) | Does not parse or recalculate formatted text |
+
+Use
+[`add_ci()`](https://gtstats.thinkdenominator.com/reference/add_ci.md)
+to add intervals to eligible variables already present in a summary
+table.
+[`add_proportion()`](https://gtstats.thinkdenominator.com/reference/add_proportion.md)
+is intentionally narrower: it adds one selected-event row.
 
 ### 1. Understand the data
 
@@ -60,7 +86,7 @@ gtstats_app()
 | `data` | required | Data frame to inspect |
 | `vars` | `NULL`: all variables | Restrict the overview to selected variables |
 | `digits` | `2` | Precision for displayed numeric values |
-| `format` | `"table"`; also `"tibble"` | Choose the publication table or a plain console tibble (`output` remains a compatibility alias) |
+| `format` | `"table"`; also `"tibble"` | Choose the publication table or a plain console tibble |
 
 ``` r
 
@@ -78,7 +104,7 @@ describe_data(birthwt_data, vars = c("age", "smoke"))
 | `min_n` | `3` | Minimum usable observations for a distribution assessment |
 | `plots` | `FALSE` | Return histogram, density, Q-Q, and boxplot diagnostics |
 | `digits` | `2` | Display precision |
-| `format` | `"table"`; also `"tibble"` | Choose the publication table or a plain console tibble (`output` remains a compatibility alias) |
+| `format` | `"table"`; also `"tibble"` | Choose the publication table or a plain console tibble |
 
 ``` r
 
@@ -93,7 +119,7 @@ assess_distribution(birthwt_data, vars = c(age, lwt), by = low)
 | `vars` | `NULL`: all eligible continuous variables | Restrict variables to inspect |
 | `digits` | `2` | SD, variance, and ratio precision |
 | `test` | `"levene"`; also `"none"`, `"bartlett"` | Display median-centred Levene (Brown-Forsythe) by default; Bartlett remains optional supporting information; neither selects the comparison test |
-| `format` | `"table"`; also `"tibble"` | Choose the publication table or a plain console tibble (`output` remains a compatibility alias) |
+| `format` | `"table"`; also `"tibble"` | Choose the publication table or a plain console tibble |
 
 [`assess_variance()`](https://gtstats.thinkdenominator.com/reference/assess_variance.md)
 prints one row per variable. Read it from left to right: each group
@@ -123,16 +149,16 @@ assess_variance(birthwt_data, vars = c(age, lwt), by = low, test = "levene")
 | `data` | required | Data frame to summarise |
 | `by` | `NULL` | Create one column per observed group |
 | `include` | `NULL` | Build the table immediately from selected variables; omit for an empty builder |
-| `mode` | `"summary"`; also `"rate"` | Choose a descriptive Table 1 or a rate-only builder |
 | `overall` | `FALSE`; `TRUE`/`"first"`/`"last"` | Add an Overall column and choose its position |
-| `statistic` | `"recommended"`; `"mean_sd"`, `"mean_ci"`, `"median_iqr"`, `"both"` | Continuous-variable presentation; may be named by variable |
+| `statistic` | `"recommended"`; `"mean_sd"`, `"mean_se"`, `"mean_ci"`, `"median_iqr"`, `"both"` | Continuous-variable presentation; may be named by variable. `"mean_se"` is specialist and is never selected automatically. |
 | `categorical` | `"n_percent"`; `"n_over_N_percent"`, `"n"`, `"percent"` | Categorical cell display |
 | `categorical_layout` | `"combined"`; also `"separate"` | Keep n (%) together, or use distinct n and % child columns in categorical-only tables without CIs |
+| `overall_categorical` | `"auto"`; also `"n_percent"`, `"n_over_N_percent"`, `"n"`, `"percent"` | Control only the Overall categorical cells. Automatic mode uses counts when grouped cells use row percentages |
 | `show_dichotomous` | `"all_levels"`; also `"single_row"` | Show both binary levels or one compact event row |
 | `value` | `NULL`; named vector/list | Select event levels for compact binary rows, e.g. `c(smoke = "Yes")` |
 | `percent` | `"column"`; `"row"`, `"overall"` | Denominator used for categorical percentages |
 | `digits` | `1`, or named `continuous`, `percent`, `ci` values | Global display precision |
-| `missing` | `"ifany"`; `"always"`, `"no"` | Show missing rows only when needed, always, or never |
+| `missing` | `"ifany"`; `"always"`, `"no"`, `"as_category"` | Show missing rows when needed, always, or never; `"as_category"` also includes missing in categorical percentages |
 | `layout` | `"compact"`; also `"separate"` | Request summary and CI child columns; they appear only when a CI layer is added, so empty CI columns are never shown |
 | `label` | `NULL` | Named replacement labels for source variables |
 | `format` | `"table"`; also `"tibble"` | Publication table by default; console mode prints the completed builder’s plain tibble and remains compatible with `add_*()` layers |
@@ -186,13 +212,29 @@ summary_table(
   add_p()
 ```
 
-##### `add_summary()` (advanced compatibility helper)
+##### `add_summary()` (incremental builder)
 
 The beginner route is `summary_table(..., include = ...)`.
 [`add_summary()`](https://gtstats.thinkdenominator.com/reference/add_summary.md)
-remains available for older incremental-builder code, but it is not
-needed to separate continuous and categorical variables or to build an
-ordinary Table 1.
+supports deliberate incremental construction when an empty builder was
+created with `include = NULL`. It uses the same vocabulary as
+[`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md);
+confidence intervals remain a separate
+[`add_ci()`](https://gtstats.thinkdenominator.com/reference/add_ci.md)
+layer.
+
+| Option | Default / available choices | What it changes |
+|----|----|----|
+| `vars` | required | Variables appended to the current builder |
+| `statistic` | `"recommended"`; `"mean_sd"`, `"mean_se"`, `"mean_ci"`, `"median_iqr"`, `"both"`; named overrides | Continuous summaries for the appended variables |
+| `categorical` | `"n_percent"`; `"n_over_N_percent"`, `"n"`, `"percent"` | Categorical cell display |
+| `categorical_layout` | `"combined"`; `"separate"` | Combined n (%) or separate n and % child columns for categorical-only tables |
+| `show_dichotomous`, `value` | `"all_levels"`, `NULL`; `"single_row"`, named event levels | Full or compact binary display |
+| `percent` | `"column"`; `"row"`, `"overall"`, `"none"` | Percentage denominator |
+| `overall_categorical` | `"auto"`; explicit categorical formats | Overall-column categorical display |
+| `layout` | inherited; `"compact"`, `"separate"` | Table layout to retain for later layers |
+| `missing` | `"ifany"`; `"always"`, `"no"`, `"as_category"` | Missing-row display; `"as_category"` includes missing in categorical percentages |
+| `digits` | `1`; named precision map | Display precision |
 
 ##### Specialist and structural helpers
 
@@ -210,7 +252,7 @@ ordinary Table 1.
 | [`add_total()`](https://gtstats.thinkdenominator.com/reference/add_total.md) | `label`, `position` | `"Total (N)"`; `"last"` or `"first"` | One cohort-size row; headers already show N |
 | [`add_row()`](https://gtstats.thinkdenominator.com/reference/add_row.md) | `label` | required | Free-text row label |
 |  | `overall`, `values`, `level` | `NULL`, named group values, `""` | Values for Overall/group columns and an optional Level entry |
-| [`add_p()`](https://gtstats.thinkdenominator.com/reference/add_p.md) | `method`, `include` | `method = "auto"`; `include = everything()` | Automatic or explicit test choice; omit inappropriate comparisons while retaining their descriptive rows |
+| [`add_p()`](https://gtstats.thinkdenominator.com/reference/add_p.md) | `test`, `include` | `test = "auto"`; `include = everything()` | Automatic or explicit test choice; omit inappropriate comparisons while retaining their descriptive rows |
 |  | `paired`, `id` | `FALSE`, `NULL` | Paired analysis and participant identifier |
 |  | `distribution_check`, `var_equal`, `correction` | `TRUE`, `FALSE`, `TRUE` | Auto marked-skew guidance, the prespecified equal-variance parametric route, and continuity correction |
 |  | `fisher_seed` | `1049`; `NULL` uses current RNG state | Makes simulated Fisher p-values for larger tables reproducible |
@@ -218,8 +260,8 @@ ordinary Table 1.
 |  | `digits` | `3` | P-value precision |
 
 Independent ordered factors use the same chi-square/Fisher distribution
-comparison as other categorical variables. Request `method = "wilcox"`
-or `method = "kruskal"` when the ordered scale itself is the intended
+comparison as other categorical variables. Request `test = "wilcox"` or
+`test = "kruskal"` when the ordered scale itself is the intended
 rank-based comparison. If an ordered factor and another variable share
 the same publication label, source-variable identity—not the displayed
 label—determines the test and superscript.
@@ -260,7 +302,7 @@ compare_groups(birthwt_data, variable = lwt, group = low, test = "welch_t")
 
 ##### Exact `test = "auto"` algorithm
 
-`add_p(method = "auto")` delegates to this same algorithm for every
+`add_p(test = "auto")` delegates to this same algorithm for every
 variable.
 
 | Outcome and design | Automatic decision | Automatic test |
@@ -339,6 +381,42 @@ exploratory; multiplicity-adjusted p-values do not replace prespecified
 analyses or establish causation.
 
 ### 3. Epidemiology
+
+#### `epi_table()`
+
+Use
+[`epi_table()`](https://gtstats.thinkdenominator.com/reference/epi_table.md)
+when a table must report several outbreak or surveillance estimates with
+their cases, denominators and confidence intervals. It accepts either
+individual line-list outcomes or already aggregated numerator and
+denominator columns. These routes are deliberately mutually exclusive.
+
+| Option | Default / available choices | What it changes |
+|----|----|----|
+| `outcomes` | line-list route | Select one or more individual-record outcomes |
+| `event` | sensible default; scalar or named vector | Define the counted event for every selected outcome; explicit values are recommended |
+| `numerator`, `denominator` | aggregate route | Supply event counts and eligible population/person-time |
+| `label` | `NULL` | Use an aggregate label column or a single reporting label |
+| `person_time` | `NULL` | Required for a line-list incidence rate |
+| `by` | `NULL` | Produce estimates by group and enable optional comparisons |
+| `measure` | `"proportion"`; also `"prevalence"`, `"attack_rate"`, `"incidence_rate"` | Define the interpretation and interval family |
+| `multiplier` | `100`, or `1000` for incidence | Report per 100, 1,000, 10,000, 100,000 or another positive scale |
+| `ci_method` | `"wilson"`; also `"exact"` | Binomial interval; incidence always uses exact Poisson |
+| `p_value`, `p_adjust` | `FALSE`, `"none"` | Optionally compare groups and adjust across outcomes |
+| `effects` | `"none"`; `"all"`, `"rr"`, `"rd"`, `"or"`, or `"irr"` | Add appropriate effect estimates when exactly two groups are present |
+| `layout` | `"auto"`; `"wide"`, `"long"` | Auto uses wide output for up to four groups |
+| `conf.level`, `digits`, `format` | `0.95`, `1`, `"table"` | Confidence, precision and publication/tibble output |
+
+``` r
+
+epi_table(
+  birthwt_data,
+  outcomes = low,
+  by = smoke,
+  event = "Low birth weight",
+  measure = "prevalence"
+)
+```
 
 #### `proportion_stats()`
 
@@ -445,22 +523,55 @@ data.
 |  | `view` | `"readable"`; also `"audit"` | Reader-facing labels or raw denominator fields |
 |  | `title`, `subtitle` | `"Denominator audit"`, `NULL` | Heading when `format = "table"` |
 
-#### `tbl_stats()`
-
-| Option | Default / available choices | What it changes |
-|----|----|----|
-| `x` | required | A supported analytical/builder result to render as `gt` |
-| `title`, `subtitle` | `NULL` | Optional table heading |
-| `bold_labels`, `show_footnotes` | `TRUE`, `TRUE` | Variable-label emphasis and explanatory footnotes |
-| `digits`, `pvalue_style` | `NULL`; `"default"`/`"scientific"` | Reserved compatibility controls; set precision in the analysis function |
-
-[`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md)
-remains the compatibility name for explicit `gt` rendering. New code may
-use the clearer alias
-[`to_gt()`](https://gtstats.thinkdenominator.com/reference/to_gt.md)
-with the same arguments.
-
 #### `customise_table()`
+
+Before styling a table of values calculated elsewhere, wrap it with
+[`as_stats_table()`](https://gtstats.thinkdenominator.com/reference/as_stats_table.md).
+This preserves every supplied row and value; it does not recalculate
+statistics.
+
+| [`as_stats_table()`](https://gtstats.thinkdenominator.com/reference/as_stats_table.md) option | Default / available choices | What it changes |
+|----|----|----|
+| `data` | required data frame/tibble | Uses the already calculated rows and columns as the table body |
+| `notes` | `NULL`; character vector | Adds concise explanatory notes below the table |
+
+``` r
+
+calculated <- mtcars |>
+  dplyr::summarise(N = dplyr::n(), `Mean mpg` = mean(mpg))
+
+as_stats_table(calculated) |>
+  customise_table(title = "Calculated vehicle summary")
+```
+
+For aggregate data,
+[`add_ci()`](https://gtstats.thinkdenominator.com/reference/add_ci.md)
+requires explicit ingredients. It never infers whether a denominator
+means participants, person-time, or something else.
+
+| [`add_ci()`](https://gtstats.thinkdenominator.com/reference/add_ci.md) aggregate option | Required columns | Method |
+|----|----|----|
+| `type = "proportion"` | `numerator`, `denominator` | Wilson score by default; `method = "exact"` is available |
+| `type = "rate"` | `numerator`, `denominator` | Exact Poisson; use `multiplier` for rates per 100, 1,000, etc. |
+| `type = "mean"` | `estimate`, `sd`, `n` | t-based interval for a mean |
+| `type = "normal"` | `estimate`, `se` | Normal-approximation interval |
+
+``` r
+
+rates <- data.frame(
+  Group = c("Treatment", "Control"),
+  Events = c(12, 18),
+  PersonYears = c(840, 910)
+)
+
+as_stats_table(rates) |>
+  add_ci(
+    type = "rate",
+    numerator = Events,
+    denominator = PersonYears,
+    multiplier = 1000
+  )
+```
 
 | Option | Default / available choices | What it changes |
 |----|----|----|

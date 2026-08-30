@@ -1,11 +1,15 @@
 # Launch the gtstats graphical interface
 
 Open a guided Shiny interface for the most common gtstats workflows:
-inspecting a dataset, assessing continuous-variable distributions,
-building a summary table, comparing groups, producing correlation
-tables, and producing a cross-tabulation. Distribution diagnostics,
-group comparisons, and correlations can all be plotted and downloaded.
-It accepts CSV uploads; Excel uploads are also available when the
+inspecting and preparing a dataset, assessing continuous-variable
+distributions and spread, building a summary table, creating outbreak or
+surveillance tables, comparing groups, producing correlation tables, and
+producing a cross-tabulation. Data can be selected from the current R
+environment, loaded from a teaching dataset, or uploaded. Results,
+plots, and generated R code can be downloaded. The table customiser can
+also wrap an already calculated results data frame with
+[`as_stats_table()`](https://gtstats.thinkdenominator.com/reference/as_stats_table.md)
+without recalculating its values. Excel uploads are available when the
 suggested rio package is installed.
 
 ## Usage

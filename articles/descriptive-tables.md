@@ -71,12 +71,19 @@ categorical workflows.
 | Continuous summary | `statistic` | `"recommended"`, `"mean_sd"`, `"mean_ci"`, `"median_iqr"`, or `"both"` |
 | Categorical display | `categorical` | `"n_percent"`, `"n_over_N_percent"`, `"n"`, or `"percent"` |
 | Categorical columns | `categorical_layout` | `"combined"` (default) or `"separate"` for categorical-only tables without CIs |
+| Overall categorical cells | `overall_categorical` | `"auto"` (default), `"n_percent"`, `"n_over_N_percent"`, `"n"`, or `"percent"` |
 | Binary rows | `show_dichotomous` | `"all_levels"` (default) or `"single_row"` |
 | Binary event | `value` | Named choices such as `c(smoke = "Yes")`; otherwise the second level is used |
 | Percentage denominator | `percent` | `"column"`, `"row"`, `"overall"`, or `"none"` |
 | Precision | `digits` | `c(continuous = 1, percent = 0, ci = 1)` |
-| Missing-value rows | `missing` | `"ifany"`, `"always"`, or `"no"` |
+| Missing-value handling | `missing` | `"ifany"`, `"always"`, `"no"`, or `"as_category"` |
 | CI layout | `layout` | `"compact"` (default) or `"separate"` |
+
+For a row-percentage table, `overall_categorical = "auto"` deliberately
+shows Overall categorical counts. A percentage of the entire sample is
+usually not the same estimand as the grouped row percentages. Override
+this with `overall_categorical = "n_percent"` only when that is the
+intended display.
 
 ### How global choices and variable exceptions work
 
@@ -314,6 +321,27 @@ summary_table(
 [TABLE]
 
 Use `"always"` to show zero-missing rows or `"no"` to suppress them.
+With these settings, observed-category percentages use non-missing
+values. Use `missing = "as_category"` to display Missing as a category
+and include it when calculating categorical percentages.
+
+``` r
+
+missing_example <- data.frame(
+  catheter = factor(
+    c(rep("Yes", 32), rep(NA_character_, 68)),
+    levels = c("No", "Yes")
+  )
+)
+
+summary_table(
+  missing_example,
+  include = catheter,
+  missing = "as_category"
+)
+```
+
+[TABLE]
 
 ### Showing the denominator in every categorical cell
 
@@ -393,7 +421,7 @@ summary_table(
 
 summary_table(mtcars, by = am, include = c(mpg, wt, cyl), overall = TRUE) |>
   add_proportion(var = vs) |>
-  tbl_stats()
+  to_gt()
 ```
 
 [TABLE]
@@ -404,7 +432,7 @@ To display confidence intervals and pin the row to a specific level:
 
 summary_table(mtcars, by = am, include = c(mpg, wt, cyl), overall = TRUE) |>
   add_proportion(var = vs, level = "1", ci = TRUE) |>
-  tbl_stats()
+  to_gt()
 ```
 
 [TABLE]
@@ -421,7 +449,7 @@ appends a row at the bottom showing the total N per group.
 summary_table(mtcars, by = am, include = c(mpg, wt, cyl), overall = TRUE) |>
   add_proportion(var = vs) |>
   add_total() |>
-  tbl_stats()
+  to_gt()
 ```
 
 [TABLE]
@@ -471,7 +499,7 @@ summary_table(birthwt, by = low, include = c(age, bwt, smoke)) |>
 [TABLE]
 
 For independent ordered factors, Auto compares the complete distribution
-of levels using chi-square/Fisher. Specify `method = "wilcox"` or
+of levels using chi-square/Fisher. Specify `test = "wilcox"` or
 `"kruskal"` only when the planned estimand is an ordered rank shift.
 Paired and repeated outcomes use their design-specific routes: paired
 t/Wilcoxon signed-rank, repeated-measures ANOVA/Friedman, McNemar, or
@@ -482,7 +510,7 @@ Cochran’s Q.
 summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>
   add_proportion(var = vs) |>
   add_p() |>
-  tbl_stats()
+  to_gt()
 ```
 
 [TABLE]
@@ -569,14 +597,14 @@ the observations contributing to every variable and group.
 
 ### Specifying tests manually
 
-Pass a named character vector to `method` to override the automatic
+Pass a named character vector to `test` to override the automatic
 selection for specific variables:
 
 ``` r
 
 summary_table(mtcars, by = am, include = c(mpg, wt, cyl)) |>
-  add_p(method = c(mpg = "welch_t", wt = "wilcox", cyl = "chisq")) |>
-  tbl_stats()
+  add_p(test = c(mpg = "welch_t", wt = "wilcox", cyl = "chisq")) |>
+  to_gt()
 ```
 
 [TABLE]
@@ -599,8 +627,8 @@ dat <- data.frame(
 )
 
 summary_table(dat, by = period, include = score) |>
-  add_p(paired = TRUE, id = id, method = "wilcox") |>
-  tbl_stats()
+  add_p(paired = TRUE, id = id, test = "wilcox") |>
+  to_gt()
 ```
 
 [TABLE]
@@ -623,7 +651,7 @@ summary_table(mtcars, by = am, overall = TRUE) |>
     label      = "Carburettor rate",
     multiplier = 1000
   ) |>
-  tbl_stats()
+  to_gt()
 ```
 
 [TABLE]
@@ -644,7 +672,7 @@ summary_table(mtcars, by = am, include = c(mpg, wt, cyl), overall = TRUE) |>
     overall = "2020–2024",
     values  = c("am = 1" = "2020–2024", "am = 0" = "2020–2024")
   ) |>
-  tbl_stats()
+  to_gt()
 ```
 
 [TABLE]
@@ -662,7 +690,7 @@ summary_table(mtcars, by = am, include = c(mpg, wt, cyl), overall = TRUE) |>
   add_proportion(var = vs, level = "1", ci = TRUE) |>
   add_total() |>
   add_p() |>
-  tbl_stats()
+  to_gt()
 ```
 
 [TABLE]

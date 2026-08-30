@@ -19,7 +19,16 @@ add_ci(
   vars = NULL,
   conf.level = 0.95,
   method = c("wilson", "exact"),
-  digits = NULL
+  digits = NULL,
+  type = NULL,
+  estimate = NULL,
+  numerator = NULL,
+  denominator = NULL,
+  sd = NULL,
+  n = NULL,
+  se = NULL,
+  multiplier = 1,
+  ci_name = NULL
 )
 ```
 
@@ -28,7 +37,9 @@ add_ci(
 - x:
 
   A table created by
-  [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md).
+  [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md)
+  or
+  [`as_stats_table()`](https://gtstats.thinkdenominator.com/reference/as_stats_table.md).
 
 - vars:
 
@@ -52,9 +63,32 @@ add_ci(
   Decimal places for confidence limits. `NULL` inherits the
   confidence-interval precision from the table.
 
+- type:
+
+  For
+  [`as_stats_table()`](https://gtstats.thinkdenominator.com/reference/as_stats_table.md)
+  input, the explicit aggregate-data calculation: `"proportion"`,
+  `"rate"`, `"mean"`, or `"normal"`.
+
+- estimate, numerator, denominator, sd, n, se:
+
+  Columns containing the required aggregate inputs. Supply bare column
+  names or single character names. Proportions and rates require
+  `numerator` and `denominator`; means require `estimate`, `sd`, and
+  `n`; normal intervals require `estimate` and `se`.
+
+- multiplier:
+
+  Positive rate multiplier, such as `1000` person-years.
+
+- ci_name:
+
+  Optional name for the added interval column. The default is the
+  confidence-level label, for example `"95% CI"`.
+
 ## Value
 
-The updated `gt_desc_table` object.
+The updated `gtstats_summary` object.
 
 ## Examples
 
@@ -64,4 +98,11 @@ summary_table(mtcars, by = am, include = c(mpg, cyl), layout = "separate") |>
 
 summary_table(mtcars, by = am, include = c(mpg, cyl, vs)) |>
   add_ci(vars = c(mpg, vs), conf.level = 0.90)
+
+aggregate_rates <- data.frame(
+  Group = c("A", "B"), Events = c(8, 14), PersonYears = c(420, 510)
+)
+as_stats_table(aggregate_rates) |>
+  add_ci(type = "rate", numerator = Events, denominator = PersonYears,
+         multiplier = 1000)
 ```

@@ -9,7 +9,6 @@ interpretations retained by a `gtstats` result.
 diagnostics_stats(
   x,
   format = c("table", "tibble"),
-  output = NULL,
   title = "Diagnostics",
   subtitle = NULL,
   view = c("readable", "audit")
@@ -25,10 +24,6 @@ diagnostics_stats(
 - format:
 
   Output format: `"table"` (default) or `"tibble"`.
-
-- output:
-
-  Compatibility alias accepting `"gt"`, `"table"`, or `"tibble"`.
 
 - title, subtitle:
 

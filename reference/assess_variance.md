@@ -15,8 +15,7 @@ assess_variance(
   by,
   digits = 2,
   test = c("levene", "none", "bartlett"),
-  format = c("table", "tibble"),
-  output = NULL
+  format = c("table", "tibble")
 )
 ```
 
@@ -53,10 +52,6 @@ assess_variance(
 - format:
 
   Output format: `"table"` (default) or `"tibble"`.
-
-- output:
-
-  Compatibility alias for `format`.
 
 ## Value
 

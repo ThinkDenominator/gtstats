@@ -24,7 +24,7 @@ add_proportion(
 
 - x:
 
-  A `gt_desc_table` object created with
+  A `gtstats_summary` object created with
   [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md).
 
 - var:
@@ -74,7 +74,7 @@ add_proportion(
 
 ## Value
 
-An updated `gt_desc_table` object with a proportion row appended.
+An updated `gtstats_summary` object with a proportion row appended.
 
 ## Details
 

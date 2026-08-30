@@ -8,18 +8,15 @@ Add summary statistics to a `gtstats` descriptive table builder.
 add_summary(
   x,
   vars,
-  continuous_format = c("recommended", "mean_sd", "mean_ci", "median_iqr", "both"),
-  statistic = NULL,
+  statistic = "recommended",
   percent = c("column", "row", "overall", "none"),
   categorical = c("n_percent", "n_over_N_percent", "n", "percent"),
   categorical_layout = c("combined", "separate"),
+  overall_categorical = c("auto", "n_percent", "n_over_N_percent", "n", "percent"),
   show_dichotomous = c("all_levels", "single_row"),
   value = NULL,
-  ci = FALSE,
-  conf.level = 0.95,
-  ci_method = c("wilson", "exact"),
   layout = NULL,
-  missing = c("ifany", "always", "no"),
+  missing = c("ifany", "always", "no", "as_category"),
   digits = 1
 )
 ```
@@ -28,7 +25,7 @@ add_summary(
 
 - x:
 
-  A `gt_desc_table` object created with
+  A `gtstats_summary` object created with
   [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md).
 
 - vars:
@@ -36,16 +33,11 @@ add_summary(
   Variables to summarise. Can be supplied as bare names or as a
   character vector.
 
-- continuous_format:
-
-  Format to use for continuous variables. One of `"recommended"`,
-  `"mean_sd"`, `"mean_ci"`, `"median_iqr"`, or `"both"`.
-
 - statistic:
 
-  Optional continuous summary selection. A single value applies to all
-  selected continuous variables. A named character vector can select a
-  different summary for each variable, for example
+  Continuous summary selection. A single value applies to all selected
+  continuous variables. A named character vector can select a different
+  summary for each variable, for example
   `c(age = "mean_sd", bmi = "median_iqr")`. `"auto"` is accepted as an
   alias for `"recommended"`.
 
@@ -67,6 +59,13 @@ add_summary(
   `"separate"` creates distinct n and % child columns and is available
   for categorical-only tables without confidence intervals.
 
+- overall_categorical:
+
+  Categorical display used only in the Overall column. `"auto"` uses
+  counts only when `percent = "row"` and otherwise follows
+  `categorical`. Other choices are `"n_percent"`, `"n_over_N_percent"`,
+  `"n"`, and `"percent"`.
+
 - show_dichotomous:
 
   How binary variables are displayed. `"all_levels"` (default) shows
@@ -80,19 +79,6 @@ add_summary(
   `c(smoke = "Yes", hypertension = "Yes")`. When omitted, the second
   declared factor level (or the second sorted observed value) is used.
 
-- ci:
-
-  Logical; append confidence intervals to categorical proportions.
-
-- conf.level:
-
-  Confidence level for categorical proportion intervals.
-
-- ci_method:
-
-  Binomial confidence-interval method: `"wilson"` (default) or
-  `"exact"`.
-
 - layout:
 
   Table layout. `"compact"` keeps each summary in one cell; `"separate"`
@@ -104,8 +90,11 @@ add_summary(
 
 - missing:
 
-  Whether explicit missing-value rows are shown: `"ifany"`, `"always"`,
-  or `"no"`.
+  Missing-value display and percentage handling. `"ifany"` shows a
+  missing row only when needed, `"always"` always shows it, and `"no"`
+  hides it; these three use non-missing categorical denominators.
+  `"as_category"` displays missing values as a category and includes
+  them when calculating categorical percentages.
 
 - digits:
 
@@ -114,7 +103,7 @@ add_summary(
 
 ## Value
 
-An updated `gt_desc_table` object with summary rows added.
+An updated `gtstats_summary` object with summary rows added.
 
 ## Details
 
@@ -128,6 +117,8 @@ Continuous variables can be displayed in one of four formats:
 - `"recommended"`: mean (SD) or median (IQR) as appropriate
 
 - `"mean_sd"`: mean (SD)
+
+- `"mean_se"`: mean (standard error)
 
 - `"mean_ci"`: mean with a t confidence interval
 
@@ -149,5 +140,10 @@ summary_table(mtcars, by = am, overall = TRUE) |>
   add_summary(vars = c("mpg", "wt", "cyl"))
 
 summary_table(mtcars) |>
-  add_summary(vars = c(mpg, wt), continuous_format = "mean_sd")
+  add_summary(vars = c(mpg, wt), statistic = "mean_sd")
+
+missing_example <- mtcars
+missing_example$vs[1:3] <- NA
+summary_table(missing_example) |>
+  add_summary(vars = vs, missing = "as_category")
 ```

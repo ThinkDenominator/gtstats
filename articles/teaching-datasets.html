@@ -15,7 +15,7 @@
 <meta name="description" content="Built-in clinical and simulated datasets for reproducible gtstats examples.">
 <meta property="og:description" content="Built-in clinical and simulated datasets for reproducible gtstats examples.">
 <link rel="stylesheet" href="https://thinkdenominator.com/analytics-consent.css">
-<script>window.TD_GA_MEASUREMENT_ID = "G-EW7RP69914";</script><script defer src="https://thinkdenominator.com/analytics-consent.js"></script>
+<script>window.TD_GA_MEASUREMENT_ID = "G-79N51G5HW4";</script><script defer src="https://thinkdenominator.com/analytics-consent.js"></script>
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -45,6 +45,7 @@
     <li><a class="dropdown-item" href="../articles/overview.html">Function map</a></li>
     <li><a class="dropdown-item" href="../articles/function-options.html">Function options</a></li>
     <li><a class="dropdown-item" href="../articles/teaching-datasets.html">Teaching datasets</a></li>
+    <li><a class="dropdown-item" href="../articles/citation.html">Citing gtstats</a></li>
     <li><a class="dropdown-item" href="../articles/missing-data-denominators.html">Missing data and denominators</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/descriptive-tables.html">Summary tables and customisation</a></li>
@@ -52,6 +53,7 @@
     <li><a class="dropdown-item" href="../articles/inferential-tests.html#default-selection-policy">Automatic test algorithm</a></li>
     <li><a class="dropdown-item" href="../articles/epi-helpers.html">Epidemiology helpers</a></li>
     <li><a class="dropdown-item" href="../articles/styling-export.html">Styling and exporting tables</a></li>
+    <li><a class="dropdown-item" href="../articles/styling-export.html#format-statistics-calculated-elsewhere">Already calculated result tables</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
@@ -86,12 +88,15 @@
 <div class="section level2">
 <h2 id="built-in-teaching-datasets">Built-in teaching datasets<a class="anchor" aria-label="anchor" href="#built-in-teaching-datasets"></a>
 </h2>
-<p>gtstats includes three labelled datasets. They make tutorials,
+<p>gtstats includes five labelled datasets. They make tutorials,
 classroom material, peer feedback, and reproducible examples work
 without another package. They are examples for learning, not data for
 clinical decision-making.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"birthwt"</span>, <span class="st">"trial_data"</span>, <span class="st">"paired_data"</span>, package <span class="op">=</span> <span class="st">"gtstats"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span></span>
+<span>  <span class="st">"birthwt"</span>, <span class="st">"trial_data"</span>, <span class="st">"paired_data"</span>, <span class="st">"outbreak_data"</span>,</span>
+<span>  <span class="st">"surveillance_data"</span>, package <span class="op">=</span> <span class="st">"gtstats"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="25%">
@@ -124,6 +129,20 @@ data, 2x2 epidemiology</td>
 <td>Synthetic long-format follow-up; 90 complete pairs</td>
 <td>Before/after or matched analysis</td>
 <td>paired t-test, Wilcoxon signed-rank, McNemar</td>
+</tr>
+<tr class="even">
+<td><code>outbreak_data</code></td>
+<td>Real CDC Oswego foodborne-outbreak line list; 75 interviews</td>
+<td>Attack rates from individual-level exposure and illness data</td>
+<td>line-list <code><a href="../reference/epi_table.html">epi_table()</a></code> route, Fisher/chi-square,
+RR/OR/RD</td>
+</tr>
+<tr class="odd">
+<td><code>surveillance_data</code></td>
+<td>Real archived CDC weekly hospital surveillance; 808 health service
+areas</td>
+<td>Rates from aggregate counts and population denominators</td>
+<td>aggregate <code><a href="../reference/epi_table.html">epi_table()</a></code> route and exact Poisson CIs</td>
 </tr>
 </tbody>
 </table>
@@ -201,6 +220,65 @@ demonstrates McNemar’s test.</p>
 <span>  <span class="va">paired_data</span>, variable <span class="op">=</span> <span class="va">symptom_present</span>, group <span class="op">=</span> <span class="va">visit</span>,</span>
 <span>  paired <span class="op">=</span> <span class="cn">TRUE</span>, id <span class="op">=</span> <span class="va">id</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="outbreak_data-line-list-outbreak-analysis">
+<code>outbreak_data</code>: line-list outbreak analysis<a class="anchor" aria-label="anchor" href="#outbreak_data-line-list-outbreak-analysis"></a>
+</h3>
+<p><code>outbreak_data</code> contains the 75 interview records from
+CDC’s classic Oswego church-supper investigation. The observations are
+unchanged; gtstats only uses beginner-friendly variable names,
+<code>Yes</code>/<code>No</code> factors, and labels. This example
+estimates illness attack rates among people who did and did not eat
+vanilla ice cream, with an association test and 2x2 effect
+estimates.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/epi_table.html">epi_table</a></span><span class="op">(</span></span>
+<span>  <span class="va">outbreak_data</span>,</span>
+<span>  outcomes <span class="op">=</span> <span class="va">ill</span>,</span>
+<span>  by <span class="op">=</span> <span class="va">vanilla_ice_cream</span>,</span>
+<span>  event <span class="op">=</span> <span class="st">"Yes"</span>,</span>
+<span>  measure <span class="op">=</span> <span class="st">"attack_rate"</span>,</span>
+<span>  p_value <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  effects <span class="op">=</span> <span class="st">"all"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="surveillance_data-aggregate-surveillance-rates">
+<code>surveillance_data</code>: aggregate surveillance rates<a class="anchor" aria-label="anchor" href="#surveillance_data-aggregate-surveillance-rates"></a>
+</h3>
+<p><code>surveillance_data</code> is an archived CDC extract for the
+report dated 12 January 2024. Each row is one health service area with
+an admission count and population denominator. Two areas have
+insufficient admission data; remove those rows explicitly before
+calculating rates. Because <code>admission_level</code> is derived from
+the published rate, this teaching example is descriptive and does not
+request a p-value.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">complete_surveillance</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">surveillance_data</span>, <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">admissions</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/epi_table.html">epi_table</a></span><span class="op">(</span></span>
+<span>  <span class="va">complete_surveillance</span>,</span>
+<span>  numerator <span class="op">=</span> <span class="va">admissions</span>,</span>
+<span>  denominator <span class="op">=</span> <span class="va">population</span>,</span>
+<span>  label <span class="op">=</span> <span class="va">admission_level</span>,</span>
+<span>  measure <span class="op">=</span> <span class="st">"incidence_rate"</span>,</span>
+<span>  multiplier <span class="op">=</span> <span class="fl">100000</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>The result is a weekly hospital-admission rate per 100,000
+population. These archived provisional data demonstrate the workflow;
+they must not be presented as current surveillance.</p>
+</div>
+<div class="section level3">
+<h3 id="provenance-and-reuse">Provenance and reuse<a class="anchor" aria-label="anchor" href="#provenance-and-reuse"></a>
+</h3>
+<p>Both real epidemiology datasets are traceable to CDC. The
+surveillance metadata identifies the source as a US Government work. CDC
+states that most agency material is public domain, while requiring
+attribution and a non-endorsement statement. CDC supplied the source
+material and does not endorse gtstats; the original material is
+available without charge from CDC. See the package dataset help pages
+for source links and the exact transformations.</p>
 </div>
 <div class="section level3">
 <h3 id="transparency-note">Transparency note<a class="anchor" aria-label="anchor" href="#transparency-note"></a>

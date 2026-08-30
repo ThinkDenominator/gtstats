@@ -15,7 +15,7 @@
 <meta name="description" content="Choose the gtstats function that fits your analytical task.">
 <meta property="og:description" content="Choose the gtstats function that fits your analytical task.">
 <link rel="stylesheet" href="https://thinkdenominator.com/analytics-consent.css">
-<script>window.TD_GA_MEASUREMENT_ID = "G-EW7RP69914";</script><script defer src="https://thinkdenominator.com/analytics-consent.js"></script>
+<script>window.TD_GA_MEASUREMENT_ID = "G-79N51G5HW4";</script><script defer src="https://thinkdenominator.com/analytics-consent.js"></script>
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -45,6 +45,7 @@
     <li><a class="dropdown-item" href="../articles/overview.html">Function map</a></li>
     <li><a class="dropdown-item" href="../articles/function-options.html">Function options</a></li>
     <li><a class="dropdown-item" href="../articles/teaching-datasets.html">Teaching datasets</a></li>
+    <li><a class="dropdown-item" href="../articles/citation.html">Citing gtstats</a></li>
     <li><a class="dropdown-item" href="../articles/missing-data-denominators.html">Missing data and denominators</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/descriptive-tables.html">Summary tables and customisation</a></li>
@@ -52,6 +53,7 @@
     <li><a class="dropdown-item" href="../articles/inferential-tests.html#default-selection-policy">Automatic test algorithm</a></li>
     <li><a class="dropdown-item" href="../articles/epi-helpers.html">Epidemiology helpers</a></li>
     <li><a class="dropdown-item" href="../articles/styling-export.html">Styling and exporting tables</a></li>
+    <li><a class="dropdown-item" href="../articles/styling-export.html#format-statistics-calculated-elsewhere">Already calculated result tables</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
@@ -113,6 +115,18 @@
 <code><a href="../reference/add_proportion.html">add_proportion()</a></code> only when justified</td>
 </tr>
 <tr class="odd">
+<td>How do I report outbreak or surveillance measures?</td>
+<td><code><a href="../reference/epi_table.html">epi_table()</a></code></td>
+<td>Review its denominator and effect-measure components</td>
+</tr>
+<tr class="even">
+<td>How do I format final results calculated elsewhere?</td>
+<td><code><a href="../reference/as_stats_table.html">as_stats_table()</a></code></td>
+<td>
+<code><a href="../reference/customise_table.html">customise_table()</a></code> and <code><a href="../reference/save_output.html">save_output()</a></code>
+</td>
+</tr>
+<tr class="odd">
 <td>Do groups differ for one variable?</td>
 <td><code><a href="../reference/compare_groups.html">compare_groups()</a></code></td>
 <td>
@@ -138,7 +152,7 @@ review</td>
 </tr>
 <tr class="odd">
 <td>How do I change the finished table?</td>
-<td><code><a href="../reference/tbl_stats.html">tbl_stats()</a></code></td>
+<td><code><a href="../reference/to_gt.html">to_gt()</a></code></td>
 <td>
 <code><a href="../reference/customise_table.html">customise_table()</a></code>, <code><a href="../reference/to_flextable.html">to_flextable()</a></code>,
 <code><a href="../reference/save_output.html">save_output()</a></code>
@@ -177,12 +191,18 @@ use.</p>
 <div class="section level3">
 <h3 id="a-minimal-decision-tree">A minimal decision tree<a class="anchor" aria-label="anchor" href="#a-minimal-decision-tree"></a>
 </h3>
-<pre class="text"><code>Raw dataset
+<pre class="text"><code>Participant-level data
   └─ describe_data()
       ├─ assess_distribution()  → how to present selected continuous variables
       ├─ assess_variance()      → how observed spread differs across groups
       ├─ summary_table()        → Table 1 / participant characteristics
-      └─ compare_groups()       → one inferential question</code></pre>
+      └─ compare_groups()       → one inferential question
+
+Outbreak or surveillance data
+  └─ epi_table()                → events, denominators, risks, or rates
+
+Already calculated results
+  └─ as_stats_table()           → preserve values; style and export only</code></pre>
 <p>The <a href="getting-started.html">Start here</a> article explains
 the minimal workflow; the <a href="birthweight-case-study.html">birth-weight case study</a> applies
 it end to end. <a href="missing-data-denominators.html">Missing data and

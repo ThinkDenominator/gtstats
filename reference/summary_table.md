@@ -19,7 +19,6 @@ summary_table(
   data,
   by = NULL,
   include = NULL,
-  mode = c("summary", "rate"),
   overall = FALSE,
   statistic = "recommended",
   categorical = c("n_percent", "n_over_N_percent", "n", "percent"),
@@ -27,12 +26,13 @@ summary_table(
   show_dichotomous = c("all_levels", "single_row"),
   value = NULL,
   percent = c("column", "row", "overall"),
+  overall_categorical = c("auto", "n_percent", "n_over_N_percent", "n", "percent"),
   digits = 1,
-  missing = c("ifany", "always", "no"),
+  missing = c("ifany", "always", "no", "as_category"),
   layout = c("compact", "separate"),
   label = NULL,
-  format = c("table", "tibble"),
-  ...
+  conf.level = 0.95,
+  format = c("table", "tibble")
 )
 ```
 
@@ -55,11 +55,6 @@ summary_table(
   be selected together. When omitted, an empty advanced builder is
   returned.
 
-- mode:
-
-  Table mode. `"summary"` is the normal route. `"rate"` is retained for
-  compatibility with earlier rate-only builders.
-
 - overall:
 
   Overall-column setting. Use `FALSE` to omit it, `"first"` to place it
@@ -68,11 +63,12 @@ summary_table(
 
 - statistic:
 
-  Continuous summary format: `"recommended"`, `"mean_sd"`, `"mean_ci"`,
-  `"median_iqr"`, or `"both"`. A single value applies to all continuous
-  variables. In a named vector, `continuous` supplies a fallback for
-  every continuous variable and variable names supply exceptions, for
-  example `c(continuous = "mean_sd", lwt = "median_iqr")`. Without a
+  Continuous summary format: `"recommended"`, `"mean_sd"`, `"mean_se"`,
+  `"mean_ci"`, `"median_iqr"`, or `"both"`. A single value applies to
+  all continuous variables. In a named vector, `continuous` supplies a
+  fallback for every continuous variable and variable names supply
+  exceptions, for example
+  `c(continuous = "mean_sd", lwt = "median_iqr")`. Without a
   `continuous` fallback, unnamed variables use the recommended summary.
 
 - categorical:
@@ -101,6 +97,13 @@ summary_table(
 
   Percentage denominator: `"column"`, `"row"`, or `"overall"`.
 
+- overall_categorical:
+
+  Categorical display in the Overall column. `"auto"` (default) uses
+  counts only with row percentages, because the Overall percentage would
+  be redundant, and otherwise follows `categorical`. Explicit choices
+  are `"n_percent"`, `"n_over_N_percent"`, `"n"`, or `"percent"`.
+
 - digits:
 
   One number applied throughout, or a named numeric vector using
@@ -108,7 +111,11 @@ summary_table(
 
 - missing:
 
-  Missing-row display: `"ifany"`, `"always"`, or `"no"`.
+  Missing-value display and percentage handling. `"ifany"` shows a
+  missing row only when needed, `"always"` always shows it, and `"no"`
+  hides it; these three calculate observed-category percentages from
+  non-missing values. `"as_category"` displays missing values as a
+  category and includes them when calculating categorical percentages.
 
 - layout:
 
@@ -121,22 +128,19 @@ summary_table(
 
   Optional named character vector overriding variable labels.
 
+- conf.level:
+
+  Confidence level used when `statistic = "mean_ci"`.
+
 - format:
 
   Display format: `"table"` (default) or `"tibble"`. The builder remains
   composable; this option changes how the completed object prints
   without discarding its audit components.
 
-- ...:
-
-  Compatibility arguments `ci`, `conf.level`, and `ci_method` from
-  earlier development versions. New code should use
-  [`add_ci()`](https://gtstats.thinkdenominator.com/reference/add_ci.md).
-  Unknown arguments are rejected.
-
 ## Value
 
-A `gt_desc_table` object containing the source data, structural
+A `gtstats_summary` object containing the source data, structural
 settings, and placeholders for table components.
 
 ## Details
@@ -148,14 +152,9 @@ is no need to add continuous and categorical variables separately.
 
 When `include = NULL`, an empty builder is returned for specialist
 row-only workflows. Printing a completed object automatically displays a
-publication-ready `gt` table; call
-[`tbl_stats()`](https://gtstats.thinkdenominator.com/reference/tbl_stats.md)
-only when explicit rendering control is required.
-
-`mode = "rate"` remains available for compatibility, but is not needed
-in new code: create the foundation normally and add
-[`add_rate()`](https://gtstats.thinkdenominator.com/reference/add_rate.md)
-as a layer.
+publication-ready `flextable`; call
+[`to_gt()`](https://gtstats.thinkdenominator.com/reference/to_gt.md)
+when an HTML-oriented `gt` table is required.
 
 A grouping variable may be supplied to create one column per group. An
 optional `overall` column can also be requested for later use.
@@ -202,5 +201,14 @@ summary_table(
   include = c(mpg, vs, am),
   show_dichotomous = "single_row",
   value = c(vs = "1", am = "1")
+)
+
+# Include Missing in a categorical percentage denominator
+missing_example <- mtcars
+missing_example$vs[1:3] <- NA
+summary_table(
+  missing_example,
+  include = vs,
+  missing = "as_category"
 )
 ```

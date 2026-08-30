@@ -1,6 +1,6 @@
 # Add an event-rate row
 
-Add an event rate to a rate-mode table created with
+Add an event rate to a table created with
 [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md).
 Event counts and accumulated time are calculated from complete
 event-time pairs only. Event counts and time values must be finite.
@@ -29,7 +29,7 @@ add_rate(
 
 - x:
 
-  A rate-mode `gt_desc_table` created with
+  A `gtstats_summary` created with
   [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md).
 
 - event:
@@ -74,12 +74,12 @@ add_rate(
 
 ## Value
 
-The updated `gt_desc_table`.
+The updated `gtstats_summary`.
 
 ## Details
 
-`add_rate()` cannot be combined with summary-style components in the
-same builder because rate denominators have a different meaning.
+Rate denominators are tracked separately from ordinary descriptive rows
+and are stated in the table audit and footnote.
 
 ## Examples
 

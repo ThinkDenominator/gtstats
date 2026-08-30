@@ -17,7 +17,7 @@ distribution-free median interval is not implied by the displayed IQR.
 Compact tables show the interval after the estimate without repeating the
 confidence level in every cell. Separate tables use concise CI child
 columns. The confidence level and interval method are stated once in the
-publication footnote."><link rel="stylesheet" href="https://thinkdenominator.com/analytics-consent.css"><script>window.TD_GA_MEASUREMENT_ID = "G-EW7RP69914";</script><script defer src="https://thinkdenominator.com/analytics-consent.js"></script></head><body>
+publication footnote."><link rel="stylesheet" href="https://thinkdenominator.com/analytics-consent.css"><script>window.TD_GA_MEASUREMENT_ID = "G-79N51G5HW4";</script><script defer src="https://thinkdenominator.com/analytics-consent.js"></script></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -43,6 +43,7 @@ publication footnote."><link rel="stylesheet" href="https://thinkdenominator.com
     <li><a class="dropdown-item" href="../articles/overview.html">Function map</a></li>
     <li><a class="dropdown-item" href="../articles/function-options.html">Function options</a></li>
     <li><a class="dropdown-item" href="../articles/teaching-datasets.html">Teaching datasets</a></li>
+    <li><a class="dropdown-item" href="../articles/citation.html">Citing gtstats</a></li>
     <li><a class="dropdown-item" href="../articles/missing-data-denominators.html">Missing data and denominators</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/descriptive-tables.html">Summary tables and customisation</a></li>
@@ -50,6 +51,7 @@ publication footnote."><link rel="stylesheet" href="https://thinkdenominator.com
     <li><a class="dropdown-item" href="../articles/inferential-tests.html#default-selection-policy">Automatic test algorithm</a></li>
     <li><a class="dropdown-item" href="../articles/epi-helpers.html">Epidemiology helpers</a></li>
     <li><a class="dropdown-item" href="../articles/styling-export.html">Styling and exporting tables</a></li>
+    <li><a class="dropdown-item" href="../articles/styling-export.html#format-statistics-calculated-elsewhere">Already calculated result tables</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -88,7 +90,16 @@ publication footnote.</p>
 <span>  vars <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  conf.level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wilson"</span>, <span class="st">"exact"</span><span class="op">)</span>,</span>
-<span>  digits <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  digits <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  type <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  estimate <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  numerator <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  denominator <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sd <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  se <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  multiplier <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  ci_name <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -97,7 +108,7 @@ publication footnote.</p>
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>A table created by <code><a href="summary_table.html">summary_table()</a></code>.</p></dd>
+<dd><p>A table created by <code><a href="summary_table.html">summary_table()</a></code> or <code><a href="as_stats_table.html">as_stats_table()</a></code>.</p></dd>
 
 
 <dt id="arg-vars">vars<a class="anchor" aria-label="anchor" href="#arg-vars"></a></dt>
@@ -121,10 +132,31 @@ usual t interval.</p></dd>
 <dd><p>Decimal places for confidence limits. <code>NULL</code> inherits the
 confidence-interval precision from the table.</p></dd>
 
+
+<dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
+<dd><p>For <code><a href="as_stats_table.html">as_stats_table()</a></code> input, the explicit aggregate-data
+calculation: <code>"proportion"</code>, <code>"rate"</code>, <code>"mean"</code>, or <code>"normal"</code>.</p></dd>
+
+
+<dt id="arg-estimate-numerator-denominator-sd-n-se">estimate, numerator, denominator, sd, n, se<a class="anchor" aria-label="anchor" href="#arg-estimate-numerator-denominator-sd-n-se"></a></dt>
+<dd><p>Columns containing the required
+aggregate inputs. Supply bare column names or single character names.
+Proportions and rates require <code>numerator</code> and <code>denominator</code>; means require
+<code>estimate</code>, <code>sd</code>, and <code>n</code>; normal intervals require <code>estimate</code> and <code>se</code>.</p></dd>
+
+
+<dt id="arg-multiplier">multiplier<a class="anchor" aria-label="anchor" href="#arg-multiplier"></a></dt>
+<dd><p>Positive rate multiplier, such as <code>1000</code> person-years.</p></dd>
+
+
+<dt id="arg-ci-name">ci_name<a class="anchor" aria-label="anchor" href="#arg-ci-name"></a></dt>
+<dd><p>Optional name for the added interval column. The default is
+the confidence-level label, for example <code>"95% CI"</code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The updated <code>gt_desc_table</code> object.</p>
+    <p>The updated <code>gtstats_summary</code> object.</p>
     </div>
 
     <div class="section level2">
@@ -134,6 +166,13 @@ confidence-interval precision from the table.</p></dd>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="summary_table.html">summary_table</a></span><span class="op">(</span><span class="va">mtcars</span>, by <span class="op">=</span> <span class="va">am</span>, include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">mpg</span>, <span class="va">cyl</span>, <span class="va">vs</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">add_ci</span><span class="op">(</span>vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">mpg</span>, <span class="va">vs</span><span class="op">)</span>, conf.level <span class="op">=</span> <span class="fl">0.90</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">aggregate_rates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  Group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span>, Events <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">8</span>, <span class="fl">14</span><span class="op">)</span>, PersonYears <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">420</span>, <span class="fl">510</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="as_stats_table.html">as_stats_table</a></span><span class="op">(</span><span class="va">aggregate_rates</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">add_ci</span><span class="op">(</span>type <span class="op">=</span> <span class="st">"rate"</span>, numerator <span class="op">=</span> <span class="va">Events</span>, denominator <span class="op">=</span> <span class="va">PersonYears</span>,</span></span>
+<span class="r-in"><span>         multiplier <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

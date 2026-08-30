@@ -10,7 +10,6 @@ and result codes retained by the analysis object.
 assumptions_stats(
   x,
   format = c("table", "tibble"),
-  output = NULL,
   title = "Checks before reporting",
   subtitle = NULL,
   view = c("checklist", "audit")
@@ -26,10 +25,6 @@ assumptions_stats(
 - format:
 
   Output format: `"table"` (default) or `"tibble"`.
-
-- output:
-
-  Compatibility alias accepting `"gt"`, `"table"`, or `"tibble"`.
 
 - title, subtitle:
 

@@ -19,8 +19,7 @@ compare_groups(
   digits = 2,
   var_equal = FALSE,
   fisher_seed = 1049L,
-  format = c("table", "tibble"),
-  ...
+  format = c("table", "tibble")
 )
 ```
 
@@ -89,10 +88,6 @@ compare_groups(
 - format:
 
   Output format: `"table"` (default) or a plain console `"tibble"`.
-
-- ...:
-
-  Reserved for internal package use.
 
 ## Value
 
@@ -267,7 +262,7 @@ compare_groups(
 
 compare_groups(mtcars, variable = mpg, group = am, var_equal = TRUE)
 
-tbl_stats(compare_groups(mtcars, variable = mpg, group = am))
+to_gt(compare_groups(mtcars, variable = mpg, group = am))
 
 
   

@@ -5,7 +5,7 @@ statistical comparisons, and specialist helpers such as add_proportion(),
 add_rate(), add_total(), and add_row()."><meta property="og:description" content="Create the descriptive foundation of a publication-ready table. Add further
 layers only when needed: add_ci() for confidence intervals, add_p() for
 statistical comparisons, and specialist helpers such as add_proportion(),
-add_rate(), add_total(), and add_row()."><link rel="stylesheet" href="https://thinkdenominator.com/analytics-consent.css"><script>window.TD_GA_MEASUREMENT_ID = "G-EW7RP69914";</script><script defer src="https://thinkdenominator.com/analytics-consent.js"></script></head><body>
+add_rate(), add_total(), and add_row()."><link rel="stylesheet" href="https://thinkdenominator.com/analytics-consent.css"><script>window.TD_GA_MEASUREMENT_ID = "G-79N51G5HW4";</script><script defer src="https://thinkdenominator.com/analytics-consent.js"></script></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -31,6 +31,7 @@ add_rate(), add_total(), and add_row()."><link rel="stylesheet" href="https://th
     <li><a class="dropdown-item" href="../articles/overview.html">Function map</a></li>
     <li><a class="dropdown-item" href="../articles/function-options.html">Function options</a></li>
     <li><a class="dropdown-item" href="../articles/teaching-datasets.html">Teaching datasets</a></li>
+    <li><a class="dropdown-item" href="../articles/citation.html">Citing gtstats</a></li>
     <li><a class="dropdown-item" href="../articles/missing-data-denominators.html">Missing data and denominators</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/descriptive-tables.html">Summary tables and customisation</a></li>
@@ -38,6 +39,7 @@ add_rate(), add_total(), and add_row()."><link rel="stylesheet" href="https://th
     <li><a class="dropdown-item" href="../articles/inferential-tests.html#default-selection-policy">Automatic test algorithm</a></li>
     <li><a class="dropdown-item" href="../articles/epi-helpers.html">Epidemiology helpers</a></li>
     <li><a class="dropdown-item" href="../articles/styling-export.html">Styling and exporting tables</a></li>
+    <li><a class="dropdown-item" href="../articles/styling-export.html#format-statistics-calculated-elsewhere">Already calculated result tables</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -69,7 +71,6 @@ statistical comparisons, and specialist helpers such as <code><a href="add_propo
 <span>  <span class="va">data</span>,</span>
 <span>  by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  include <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"summary"</span>, <span class="st">"rate"</span><span class="op">)</span>,</span>
 <span>  overall <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  statistic <span class="op">=</span> <span class="st">"recommended"</span>,</span>
 <span>  categorical <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"n_percent"</span>, <span class="st">"n_over_N_percent"</span>, <span class="st">"n"</span>, <span class="st">"percent"</span><span class="op">)</span>,</span>
@@ -77,12 +78,13 @@ statistical comparisons, and specialist helpers such as <code><a href="add_propo
 <span>  show_dichotomous <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all_levels"</span>, <span class="st">"single_row"</span><span class="op">)</span>,</span>
 <span>  value <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  percent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"column"</span>, <span class="st">"row"</span>, <span class="st">"overall"</span><span class="op">)</span>,</span>
+<span>  overall_categorical <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"n_percent"</span>, <span class="st">"n_over_N_percent"</span>, <span class="st">"n"</span>, <span class="st">"percent"</span><span class="op">)</span>,</span>
 <span>  digits <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  missing <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ifany"</span>, <span class="st">"always"</span>, <span class="st">"no"</span><span class="op">)</span>,</span>
+<span>  missing <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ifany"</span>, <span class="st">"always"</span>, <span class="st">"no"</span>, <span class="st">"as_category"</span><span class="op">)</span>,</span>
 <span>  layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"compact"</span>, <span class="st">"separate"</span><span class="op">)</span>,</span>
 <span>  label <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"table"</span>, <span class="st">"tibble"</span><span class="op">)</span>,</span>
-<span>  <span class="va">...</span></span>
+<span>  conf.level <span class="op">=</span> <span class="fl">0.95</span>,</span>
+<span>  format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"table"</span>, <span class="st">"tibble"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -107,11 +109,6 @@ types can be selected together. When omitted, an empty advanced builder is
 returned.</p></dd>
 
 
-<dt id="arg-mode">mode<a class="anchor" aria-label="anchor" href="#arg-mode"></a></dt>
-<dd><p>Table mode. <code>"summary"</code> is the normal route. <code>"rate"</code> is retained
-for compatibility with earlier rate-only builders.</p></dd>
-
-
 <dt id="arg-overall">overall<a class="anchor" aria-label="anchor" href="#arg-overall"></a></dt>
 <dd><p>Overall-column setting. Use <code>FALSE</code> to omit it, <code>"first"</code> to
 place it before the grouped columns, or <code>"last"</code> to place it after them.
@@ -120,7 +117,7 @@ place it before the grouped columns, or <code>"last"</code> to place it after th
 
 <dt id="arg-statistic">statistic<a class="anchor" aria-label="anchor" href="#arg-statistic"></a></dt>
 <dd><p>Continuous summary format: <code>"recommended"</code>, <code>"mean_sd"</code>,
-<code>"mean_ci"</code>, <code>"median_iqr"</code>, or <code>"both"</code>. A single value applies to all
+<code>"mean_se"</code>, <code>"mean_ci"</code>, <code>"median_iqr"</code>, or <code>"both"</code>. A single value applies to all
 continuous variables. In a named vector, <code>continuous</code> supplies a fallback
 for every continuous variable and variable names supply exceptions, for
 example <code>c(continuous = "mean_sd", lwt = "median_iqr")</code>. Without a
@@ -154,13 +151,25 @@ binary variables use their second declared or sorted level.</p></dd>
 <dd><p>Percentage denominator: <code>"column"</code>, <code>"row"</code>, or <code>"overall"</code>.</p></dd>
 
 
+<dt id="arg-overall-categorical">overall_categorical<a class="anchor" aria-label="anchor" href="#arg-overall-categorical"></a></dt>
+<dd><p>Categorical display in the Overall column.
+<code>"auto"</code> (default) uses counts only with row percentages, because the
+Overall percentage would be redundant, and otherwise follows
+<code>categorical</code>. Explicit choices are <code>"n_percent"</code>,
+<code>"n_over_N_percent"</code>, <code>"n"</code>, or <code>"percent"</code>.</p></dd>
+
+
 <dt id="arg-digits">digits<a class="anchor" aria-label="anchor" href="#arg-digits"></a></dt>
 <dd><p>One number applied throughout, or a named numeric vector using
 <code>continuous</code>, <code>percent</code>, and <code>ci</code>.</p></dd>
 
 
 <dt id="arg-missing">missing<a class="anchor" aria-label="anchor" href="#arg-missing"></a></dt>
-<dd><p>Missing-row display: <code>"ifany"</code>, <code>"always"</code>, or <code>"no"</code>.</p></dd>
+<dd><p>Missing-value display and percentage handling. <code>"ifany"</code>
+shows a missing row only when needed, <code>"always"</code> always shows it, and
+<code>"no"</code> hides it; these three calculate observed-category percentages
+from non-missing values. <code>"as_category"</code> displays missing values as a
+category and includes them when calculating categorical percentages.</p></dd>
 
 
 <dt id="arg-layout">layout<a class="anchor" aria-label="anchor" href="#arg-layout"></a></dt>
@@ -174,21 +183,19 @@ added; choosing the layout alone does not create empty CI columns.</p></dd>
 <dd><p>Optional named character vector overriding variable labels.</p></dd>
 
 
+<dt id="arg-conf-level">conf.level<a class="anchor" aria-label="anchor" href="#arg-conf-level"></a></dt>
+<dd><p>Confidence level used when <code>statistic = "mean_ci"</code>.</p></dd>
+
+
 <dt id="arg-format">format<a class="anchor" aria-label="anchor" href="#arg-format"></a></dt>
 <dd><p>Display format: <code>"table"</code> (default) or <code>"tibble"</code>. The
 builder remains composable; this option changes how the completed object
 prints without discarding its audit components.</p></dd>
 
-
-<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Compatibility arguments <code>ci</code>, <code>conf.level</code>, and <code>ci_method</code> from
-earlier development versions. New code should use <code><a href="add_ci.html">add_ci()</a></code>. Unknown
-arguments are rejected.</p></dd>
-
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>gt_desc_table</code> object containing the source data,
+    <p>A <code>gtstats_summary</code> object containing the source data,
 structural settings, and placeholders for table components.</p>
     </div>
     <div class="section level2">
@@ -198,10 +205,9 @@ structural settings, and placeholders for table components.</p>
 detected automatically and added using beginner-friendly defaults. There is
 no need to add continuous and categorical variables separately.</p>
 <p>When <code>include = NULL</code>, an empty builder is returned for specialist row-only
-workflows. Printing a completed object automatically displays a publication-ready <code>gt</code> table;
-call <code><a href="tbl_stats.html">tbl_stats()</a></code> only when explicit rendering control is required.</p>
-<p><code>mode = "rate"</code> remains available for compatibility, but is not needed in
-new code: create the foundation normally and add <code><a href="add_rate.html">add_rate()</a></code> as a layer.</p>
+workflows. Printing a completed object automatically displays a
+publication-ready <code>flextable</code>; call <code><a href="to_gt.html">to_gt()</a></code> when an HTML-oriented <code>gt</code>
+table is required.</p>
 <p>A grouping variable may be supplied to create one column per group.
 An optional <code>overall</code> column can also be requested for later use.</p>
     </div>
@@ -247,6 +253,15 @@ An optional <code>overall</code> column can also be requested for later use.</p>
 <span class="r-in"><span>  include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">mpg</span>, <span class="va">vs</span>, <span class="va">am</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  show_dichotomous <span class="op">=</span> <span class="st">"single_row"</span>,</span></span>
 <span class="r-in"><span>  value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>vs <span class="op">=</span> <span class="st">"1"</span>, am <span class="op">=</span> <span class="st">"1"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Include Missing in a categorical percentage denominator</span></span></span>
+<span class="r-in"><span><span class="va">missing_example</span> <span class="op">&lt;-</span> <span class="va">mtcars</span></span></span>
+<span class="r-in"><span><span class="va">missing_example</span><span class="op">$</span><span class="va">vs</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span></span>
+<span class="r-in"><span><span class="fu">summary_table</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">missing_example</span>,</span></span>
+<span class="r-in"><span>  include <span class="op">=</span> <span class="va">vs</span>,</span></span>
+<span class="r-in"><span>  missing <span class="op">=</span> <span class="st">"as_category"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

@@ -15,7 +15,7 @@ add_row(x, label, overall = NULL, values = NULL, level = "")
 
 - x:
 
-  A `gt_desc_table` object created with
+  A `gtstats_summary` object created with
   [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md).
 
 - label:
@@ -42,7 +42,7 @@ add_row(x, label, overall = NULL, values = NULL, level = "")
 
 ## Value
 
-An updated `gt_desc_table` object with the custom row appended.
+An updated `gtstats_summary` object with the custom row appended.
 
 ## Details
 
