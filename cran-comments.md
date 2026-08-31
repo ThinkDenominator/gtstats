@@ -1,3 +1,13 @@
+## Resubmission
+
+This is a resubmission. In response to CRAN's review:
+
+* The relative `LICENSE.md` link in `README.md` was replaced with a stable public
+  MIT licence URL, so the README no longer refers to a file excluded from the
+  source package.
+* References for the principal statistical methods were added to the
+  `Description` field in `Authors (year) <doi:...>` format.
+
 ## Test environments
 
 * Local: R 4.6.0, aarch64-apple-darwin23, macOS Tahoe 26.5.2
@@ -19,7 +29,8 @@ The second note is local-environment specific:
 
 ## Submission notes
 
-This is the first CRAN submission of gtstats.
+This is the first CRAN submission of gtstats and a resubmission following CRAN
+review.
 
 The package provides beginner-friendly descriptive and inferential statistical
 workflows and publication-ready tables. Automatic test selection is documented

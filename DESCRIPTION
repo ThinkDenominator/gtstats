@@ -25,6 +25,11 @@ Description: Provides beginner-friendly functions for common descriptive and
     statistics, distribution assessment, group comparisons, effect sizes,
     correlations, proportions and rates with confidence intervals, crosstabs for
     epidemiological measures, plots, and modular table-building workflows.
+    Statistical methods include unequal-variance comparisons described by Welch
+    (1947) <doi:10.1093/biomet/34.1-2.28>, score confidence intervals described
+    by Wilson (1927) <doi:10.1080/01621459.1927.10502953>, and robust variance
+    assessment described by Brown and Forsythe (1974)
+    <doi:10.1080/01621459.1974.10482955>.
 URL: https://gtstats.thinkdenominator.com/, https://github.com/ThinkDenominator/gtstats
 BugReports: https://github.com/thinkdenominator/gtstats/issues
 License: MIT + file LICENSE
