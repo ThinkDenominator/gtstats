@@ -17,6 +17,8 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
 
 <!-- badges: start -->
 
+[![CRAN version](https://www.r-pkg.org/badges/version/gtstats)](https://cran.r-project.org/package=gtstats)
+[![CRAN downloads per month](https://cranlogs.r-pkg.org/badges/last-month/gtstats)](https://cranlogs.r-pkg.org/downloads/total/last-month/gtstats)
 [![R-CMD-check](https://github.com/ThinkDenominator/gtstats/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ThinkDenominator/gtstats/actions/workflows/R-CMD-check.yaml)
 [![pkgdown](https://github.com/ThinkDenominator/gtstats/actions/workflows/pkgdown.yaml/badge.svg)](https://gtstats.thinkdenominator.com/)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
@@ -79,10 +81,12 @@ workflow around them.
 ## Install
 
 ```r
-# Development version until gtstats is available on CRAN
-remotes::install_github("ThinkDenominator/gtstats")
+install.packages("gtstats")
 library(gtstats)
 ```
+
+For the latest development changes, use
+`remotes::install_github("ThinkDenominator/gtstats")`.
 
 ## Built-in teaching data
 
@@ -205,7 +209,7 @@ table_one |>
     borders = "horizontal",
     pvalue_style = "threshold"
   ) |>
-  save_output("table-1.docx")
+  save_output("table-1.docx", path = tempdir())
 
 # Explicit HTML/gt route
 to_gt(table_one, title = "Table 1. Maternal characteristics")
