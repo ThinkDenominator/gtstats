@@ -2,6 +2,8 @@
 
 ## gtstats 1.0.0
 
+CRAN release: 2026-09-21
+
 - Added `missing = "as_category"` to
   [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md)
   and

@@ -82,10 +82,12 @@ teaching and reporting workflow around them.
 
 ``` r
 
-# Development version until gtstats is available on CRAN
-remotes::install_github("ThinkDenominator/gtstats")
+install.packages("gtstats")
 library(gtstats)
 ```
+
+For the latest development changes, use
+`remotes::install_github("ThinkDenominator/gtstats")`.
 
 ## Built-in teaching data
 
@@ -216,7 +218,7 @@ table_one |>
     borders = "horizontal",
     pvalue_style = "threshold"
   ) |>
-  save_output("table-1.docx")
+  save_output("table-1.docx", path = tempdir())
 
 # Explicit HTML/gt route
 to_gt(table_one, title = "Table 1. Maternal characteristics")
