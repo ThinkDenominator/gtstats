@@ -237,23 +237,26 @@ finished <- customise_table(
   title = "Table 1. Vehicle characteristics"
 )
 
-save_output(finished, "table-1.docx")
-save_output(finished, "table-1.pptx")
-save_output(finished, "table-1.rtf")
+save_output(finished, "table-1.docx", path = tempdir())
+save_output(finished, "table-1.pptx", path = tempdir())
+save_output(finished, "table-1.rtf", path = tempdir())
 
 html_table <- customise_table(res, engine = "gt")
-save_output(html_table, "table-1.html")
+save_output(html_table, "table-1.html", path = tempdir())
 ```
 
 Table extensions include `.docx`, `.pptx`, `.rtf`, `.html`, `.png`, `.pdf`,
-and `.tex`. A filename without a directory writes to the current working
-directory; a relative or full path writes elsewhere.
+and `.tex`. A bare filename requires an explicit output directory. Use
+`path = tempdir()` for disposable output, or provide the intended directory.
 
 Plots use the same helper:
 
 ```{r plot-save, eval=FALSE}
 p <- plot_compare(mtcars, variable = mpg, group = am, show_p = TRUE)
-save_output(p, "mpg-by-transmission.png", width = 7, height = 5, dpi = 300)
+save_output(
+  p, "mpg-by-transmission.png", path = tempdir(),
+  width = 7, height = 5, dpi = 300
+)
 ```
 
 Several tables and plots can be written to one Word report without calling
@@ -270,6 +273,7 @@ save_output(
     "Fuel economy by transmission" = p
   ),
   "complete-report.docx",
+  path = tempdir(),
   title = "Vehicle analysis",
   page_break = TRUE
 )

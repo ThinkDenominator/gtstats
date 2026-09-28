@@ -2,6 +2,13 @@
 
 This is a resubmission. In response to CRAN's review:
 
+* All `\\dontrun{}` example blocks were removed. Examples that execute quickly
+  are now run normally; the export example that may require external browser
+  software uses `\\donttest{}`.
+* Writing examples and vignettes now use `tempdir()`. `save_output()` no longer
+  falls back to the current working directory: a bare filename requires an
+  explicit `path`, while a filename containing its destination remains
+  supported.
 * The relative `LICENSE.md` link in `README.md` was replaced with a stable public
   MIT licence URL, so the README no longer refers to a file excluded from the
   source package.

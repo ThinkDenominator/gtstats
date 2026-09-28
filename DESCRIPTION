@@ -1,7 +1,7 @@
 Package: gtstats
 Type: Package
 Title: Beginner-Friendly Statistics and Publication-Ready Tables
-Version: 1.0.0
+Version: 1.0.0.9000
 Authors@R: c(
     person(given = "Rubeshkumar", family = "Polani",
     email = "rubesh@thinkdenominator.com",

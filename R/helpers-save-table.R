@@ -3,16 +3,15 @@
 #' Save a `gtstats` object, rendered `flextable`, or rendered `gt_tbl` to disk.
 #'
 #' If a `gtstats` object is supplied, it is rendered using the output engine
-#' appropriate to the requested extension. If `path = NULL`, the file is saved
-#' in the current working directory and the full path is reported in a message.
+#' appropriate to the requested extension. Internal callers must supply `path`;
+#' temporary examples use `tempdir()`.
 #'
 #' Word, PowerPoint, HTML, RTF, and flextable image exports use `flextable`;
 #' PDF and LaTeX exports use `gt`.
 #'
 #' @param x A `gtstats` object, `flextable`, or `gt_tbl`.
 #' @param filename Output file name, including extension.
-#' @param path Optional directory to save into. Defaults to
-#'   the current working directory.
+#' @param path Directory to save into.
 #' @param title Optional title passed to [to_gt()] when `x` is a
 #'   `gtstats` object.
 #' @param subtitle Optional subtitle passed to [to_gt()].
@@ -39,15 +38,11 @@
 #'   add_total() |>
 #'   add_p()
 #'
-#' \donttest{
-#' .save_table(res, filename = "table1.html")
-#' }
+#' .save_table(res, filename = "table1.html", path = tempdir())
 #'
 #' gt_obj <- to_gt(res)
 #'
-#' \donttest{
-#' .save_table(gt_obj, filename = "table2.html")
-#' }
+#' .save_table(gt_obj, filename = "table2.html", path = tempdir())
 #'
 .save_table <- function(
     x,
@@ -83,11 +78,10 @@
     }
   }
 
-  save_dir <- if (is.null(path)) {
-    getwd()
-  } else {
-    path
+  if (is.null(path)) {
+    stop("`path` must be supplied for file output.", call. = FALSE)
   }
+  save_dir <- path
 
   if (!dir.exists(save_dir)) {
     dir.create(save_dir, recursive = TRUE, showWarnings = FALSE)
@@ -234,7 +228,10 @@
     )
   }
 
-  save_dir <- path %||% getwd()
+  if (is.null(path)) {
+    stop("`path` must be supplied for file output.", call. = FALSE)
+  }
+  save_dir <- path
   if (!dir.exists(save_dir)) {
     dir.create(save_dir, recursive = TRUE, showWarnings = FALSE)
   }

@@ -2,16 +2,14 @@
 #'
 #' Save a `ggplot` object to disk using `ggplot2::ggsave()`.
 #'
-#' If `path = NULL`, the file is saved in the current working directory and the full
-#' path is reported in a message.
+#' Internal callers must supply `path`; temporary examples use `tempdir()`.
 #'
 #' Supported formats include PNG, PDF, TIFF, JPEG, and SVG,
 #' depending on the graphics device available.
 #'
 #' @param plot A `ggplot` object.
 #' @param filename Output file name, including extension.
-#' @param path Optional directory to save into. Defaults to the current working
-#'   directory.
+#' @param path Directory to save into.
 #' @param width Width of the plot.
 #' @param height Height of the plot.
 #' @param units Units for width and height. One of `"in"`,
@@ -32,10 +30,9 @@
 #'   geom_point()
 #'
 #' # Save to temporary directory
-#' .save_plot(p, filename = "example_plot.png")
+#' .save_plot(p, filename = "example_plot.png", path = tempdir())
 #'
-#' # Save to a specific folder
-#' \donttest{
+#' # Save another format to the temporary directory
 #' .save_plot(
 #'   p,
 #'   filename = "example_plot.pdf",
@@ -43,7 +40,6 @@
 #'   width = 6,
 #'   height = 4
 #' )
-#' }
 #'
 .save_plot <- function(
     plot,
@@ -96,11 +92,10 @@
     stop("`dpi` must be a single positive number.", call. = FALSE)
   }
 
-  save_dir <- if (is.null(path)) {
-    getwd()
-  } else {
-    path
+  if (is.null(path)) {
+    stop("`path` must be supplied for file output.", call. = FALSE)
   }
+  save_dir <- path
 
   if (!dir.exists(save_dir)) {
     dir.create(save_dir, recursive = TRUE, showWarnings = FALSE)

@@ -371,8 +371,9 @@ crosstabs <- function(
 #'   `ggplot2` plot, or a named list of tables and plots for a combined Word
 #'   report.
 #' @param filename Output filename including a supported extension.
-#' @param path Optional output directory. When omitted, `filename` is used as
-#'   supplied, so a simple filename saves in the current working directory.
+#' @param path Optional output directory. A bare `filename` requires an explicit
+#'   `path`; use `tempdir()` for temporary output. Alternatively, supply a full
+#'   or relative path in `filename`.
 #' @param title,subtitle Optional table title and subtitle.
 #' @param bold_labels Logical; bold variable labels in tables.
 #' @param show_footnotes Logical; include explanatory table footnotes.
@@ -388,16 +389,17 @@ crosstabs <- function(
 #' @param ... Additional arguments passed to the relevant underlying save method.
 #' @return The normalized saved path, invisibly.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' table <- summary_table(mtcars) |> add_summary(vars = c(mpg, wt))
-#' save_output(table, "summary.html")
+#' save_output(table, "summary.html", path = tempdir())
 #'
 #' plot <- plot_compare(mtcars, variable = mpg, group = am)
-#' save_output(plot, "comparison.png")
+#' save_output(plot, "comparison.png", path = tempdir())
 #'
 #' save_output(
 #'   list("Table 1" = table, "Comparison plot" = plot),
-#'   "statistical-report.docx"
+#'   "statistical-report.docx",
+#'   path = tempdir()
 #' )
 #' }
 #' @export
@@ -424,7 +426,14 @@ save_output <- function(
 ) {
   if (is.null(path) && is.character(filename) &&
       length(filename) == 1L && !is.na(filename) && nzchar(filename)) {
-    path <- dirname(filename)
+    supplied_dir <- dirname(filename)
+    if (identical(supplied_dir, ".")) {
+      stop(
+        "A bare `filename` requires an explicit `path`. Use `path = tempdir()` for temporary output.",
+        call. = FALSE
+      )
+    }
+    path <- supplied_dir
     filename <- basename(filename)
   }
   if (!is.logical(page_break) || length(page_break) != 1L || is.na(page_break)) {

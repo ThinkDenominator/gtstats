@@ -33,8 +33,9 @@ report.}
 
 \item{filename}{Output filename including a supported extension.}
 
-\item{path}{Optional output directory. When omitted, \code{filename} is used as
-supplied, so a simple filename saves in the current working directory.}
+\item{path}{Optional output directory. A bare \code{filename} requires an explicit
+\code{path}; use \code{tempdir()} for temporary output. Alternatively, supply a full
+or relative path in \code{filename}.}
 
 \item{title, subtitle}{Optional table title and subtitle.}
 
@@ -71,16 +72,17 @@ combined into one Word document. The object determines the export route
 automatically. The file type is inferred from \code{filename}.
 }
 \examples{
-\dontrun{
+\donttest{
 table <- summary_table(mtcars) |> add_summary(vars = c(mpg, wt))
-save_output(table, "summary.html")
+save_output(table, "summary.html", path = tempdir())
 
 plot <- plot_compare(mtcars, variable = mpg, group = am)
-save_output(plot, "comparison.png")
+save_output(plot, "comparison.png", path = tempdir())
 
 save_output(
   list("Table 1" = table, "Comparison plot" = plot),
-  "statistical-report.docx"
+  "statistical-report.docx",
+  path = tempdir()
 )
 }
 }

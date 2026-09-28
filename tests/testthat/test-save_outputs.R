@@ -45,24 +45,16 @@ test_that("save_output() saves html from a gt_tbl object", {
                    normalizePath(out_file, winslash = "/", mustWork = FALSE))
 })
 
-test_that("save_output() uses the working directory for a bare filename", {
+test_that("save_output() rejects a bare filename without an explicit path", {
   skip_if_not_installed("gt")
 
   res <- summary_table(mtcars, by = am) |>
     add_summary(vars = mpg)
-  working_dir <- tempfile("gtstats-working-directory-")
-  dir.create(working_dir)
-  old_dir <- getwd()
-  on.exit(setwd(old_dir), add = TRUE)
-  setwd(working_dir)
-
-  out <- save_output(res, filename = "table.html", quiet = TRUE)
-
-  expect_identical(
-    out,
-    normalizePath(file.path(working_dir, "table.html"), winslash = "/")
+  expect_error(
+    save_output(res, filename = "table.html", quiet = TRUE),
+    "requires an explicit `path`",
+    fixed = TRUE
   )
-  expect_true(file.exists(out))
 })
 
 test_that("save_output() supports variance assessment results", {
@@ -201,14 +193,14 @@ test_that("save_output() errors for unsupported extension", {
     add_summary(vars = c(mpg, wt))
 
   expect_error(
-    save_output(res, filename = "x.csv", quiet = TRUE),
+    save_output(res, filename = "x.csv", path = tempdir(), quiet = TRUE),
     "Unsupported table file extension"
   )
 })
 
 test_that("save_output() errors for unsupported input", {
   expect_error(
-    save_output(mtcars, filename = "x.html", quiet = TRUE),
+    save_output(mtcars, filename = "x.html", path = tempdir(), quiet = TRUE),
     regexp = "must be a supported gtstats object, flextable, or gt table",
     fixed = TRUE
   )
@@ -312,7 +304,7 @@ test_that("save_output() creates nested directory if needed", {
 
 test_that("save_output() errors for non-ggplot input", {
   expect_error(
-    save_output(x = mtcars, filename = "x.png", quiet = TRUE),
+    save_output(x = mtcars, filename = "x.png", path = tempdir(), quiet = TRUE),
     regexp = "must be a supported gtstats object, flextable, or gt table",
     fixed = TRUE
   )
@@ -326,7 +318,7 @@ test_that("save_output() errors for invalid filename", {
   )
 
   expect_error(
-    save_output(x = p, filename = "", quiet = TRUE),
+    save_output(x = p, filename = "", path = tempdir(), quiet = TRUE),
     "`filename` must be a single non-empty character string."
   )
 })
@@ -352,17 +344,17 @@ test_that("save_output() errors for invalid width, height, and dpi", {
   )
 
   expect_error(
-    save_output(x = p, filename = "x.png", width = 0, quiet = TRUE),
+    save_output(x = p, filename = "x.png", path = tempdir(), width = 0, quiet = TRUE),
     "`width` must be a single positive number."
   )
 
   expect_error(
-    save_output(x = p, filename = "x.png", height = -1, quiet = TRUE),
+    save_output(x = p, filename = "x.png", path = tempdir(), height = -1, quiet = TRUE),
     "`height` must be a single positive number."
   )
 
   expect_error(
-    save_output(x = p, filename = "x.png", dpi = 0, quiet = TRUE),
+    save_output(x = p, filename = "x.png", path = tempdir(), dpi = 0, quiet = TRUE),
     "`dpi` must be a single positive number."
   )
 })

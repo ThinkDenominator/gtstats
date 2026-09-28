@@ -1,4 +1,19 @@
+# gtstats 1.0.0.9000
+
+## Planned
+
+* Add confidence intervals for medians. This will extend `add_ci()` to
+  continuous variables displayed with median-based summaries. The interval
+  method will be explicit in result metadata and table notes; a t-based mean
+  interval will not be repurposed for medians. Implementation and validation
+  are tracked in `NEXT-VERSION.md`.
+
 # gtstats 1.0.0
+
+* `save_output()` no longer writes a bare filename implicitly to the current
+  working directory. Supply `path` explicitly (use `tempdir()` for temporary
+  output) or provide a filename that includes its destination directory. This
+  prevents accidental writes to a user's working or package directory.
 
 * Added `missing = "as_category"` to `summary_table()` and `add_summary()`.
   For categorical variables, missing values are displayed as a category and
