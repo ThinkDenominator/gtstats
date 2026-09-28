@@ -44,8 +44,10 @@ save_output(
 
 - path:
 
-  Optional output directory. When omitted, `filename` is used as
-  supplied, so a simple filename saves in the current working directory.
+  Optional output directory. A bare `filename` requires an explicit
+  `path`; use [`tempdir()`](https://rdrr.io/r/base/tempfile.html) for
+  temporary output. Alternatively, supply a full or relative path in
+  `filename`.
 
 - title, subtitle:
 
@@ -105,16 +107,20 @@ The normalized saved path, invisibly.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 table <- summary_table(mtcars) |> add_summary(vars = c(mpg, wt))
-save_output(table, "summary.html")
+save_output(table, "summary.html", path = tempdir())
+#> Table saved to: /tmp/RtmpkjOJ8m/summary.html
 
 plot <- plot_compare(mtcars, variable = mpg, group = am)
-save_output(plot, "comparison.png")
+save_output(plot, "comparison.png", path = tempdir())
+#> Plot saved to: /tmp/RtmpkjOJ8m/comparison.png
 
 save_output(
   list("Table 1" = table, "Comparison plot" = plot),
-  "statistical-report.docx"
+  "statistical-report.docx",
+  path = tempdir()
 )
-} # }
+#> Report saved to: /tmp/RtmpkjOJ8m/statistical-report.docx
+# }
 ```

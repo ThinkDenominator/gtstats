@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">gtstats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,8 +52,16 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.0.0.9000" id="gtstats-1009000">gtstats 1.0.0.9000<a class="anchor" aria-label="anchor" href="#gtstats-1009000"></a></h2>
+<div class="section level3">
+<h3 id="planned-1-0-0-9000">Planned<a class="anchor" aria-label="anchor" href="#planned-1-0-0-9000"></a></h3>
+<ul><li>Add confidence intervals for medians. This will extend <code><a href="../reference/add_ci.html">add_ci()</a></code> to continuous variables displayed with median-based summaries. The interval method will be explicit in result metadata and table notes; a t-based mean interval will not be repurposed for medians. Implementation and validation are tracked in <code>NEXT-VERSION.md</code>.</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.0" id="gtstats-100">gtstats 1.0.0<a class="anchor" aria-label="anchor" href="#gtstats-100"></a></h2><p class="text-muted">CRAN release: 2026-09-21</p>
-<ul><li><p>Added <code>missing = "as_category"</code> to <code><a href="../reference/summary_table.html">summary_table()</a></code> and <code><a href="../reference/add_summary.html">add_summary()</a></code>. For categorical variables, missing values are displayed as a category and included in percentage denominators. The existing <code>"ifany"</code>, <code>"always"</code>, and <code>"no"</code> settings retain non-missing denominators. Continuous missingness remains a separate row, and missing values are never silently recoded as a non-event.</p></li>
+<ul><li><p><code><a href="../reference/save_output.html">save_output()</a></code> no longer writes a bare filename implicitly to the current working directory. Supply <code>path</code> explicitly (use <code><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir()</a></code> for temporary output) or provide a filename that includes its destination directory. This prevents accidental writes to a user’s working or package directory.</p></li>
+<li><p>Added <code>missing = "as_category"</code> to <code><a href="../reference/summary_table.html">summary_table()</a></code> and <code><a href="../reference/add_summary.html">add_summary()</a></code>. For categorical variables, missing values are displayed as a category and included in percentage denominators. The existing <code>"ifany"</code>, <code>"always"</code>, and <code>"no"</code> settings retain non-missing denominators. Continuous missingness remains a separate row, and missing values are never silently recoded as a non-event.</p></li>
 <li><p>Synchronised the README, app manual, function-options material, styling and export guide, GUI wording, and pkgdown navigation around the three distinct table routes: <code><a href="../reference/summary_table.html">summary_table()</a></code> for participant-level data, <code><a href="../reference/epi_table.html">epi_table()</a></code> for outbreak/surveillance calculations, and value-preserving <code><a href="../reference/as_stats_table.html">as_stats_table()</a></code> for final results calculated elsewhere.</p></li>
 <li><p>Finalised the pre-CRAN presentation API. <code><a href="../reference/add_summary.html">add_summary()</a></code> now uses one <code>statistic</code> argument and leaves confidence intervals exclusively to <code><a href="../reference/add_ci.html">add_ci()</a></code>. Removed development-only no-op <code>digits</code> and <code>pvalue_style</code> controls from <code><a href="../reference/to_gt.html">to_gt()</a></code> and <code><a href="../reference/save_output.html">save_output()</a></code>; working p-value styling remains available through <code><a href="../reference/customise_table.html">customise_table()</a></code>.</p></li>
 <li><p>Removed the hidden internal <code>...</code> interface from <code><a href="../reference/compare_groups.html">compare_groups()</a></code>. Package layers now call a private comparison engine while the public function has a fully explicit, documented signature.</p></li>
@@ -110,7 +118,8 @@
 <li><p>Made Summary-table variable selection explicitly reversible: the app shows selected and available-variable counts, provides an Add variables button, and reopens the searchable list after an item is removed. Ribbon menus now render beyond their cards instead of being clipped.</p></li>
 <li><p>Added <code><a href="../reference/epi_table.html">epi_table()</a></code> for publication-ready outbreak and surveillance tables from either individual line-list data or aggregate numerator/denominator data. The function makes events, denominators, scale and confidence-interval methods explicit; optional p-values and two-group epidemiological effects are separate reporting layers.</p></li>
 </ul></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

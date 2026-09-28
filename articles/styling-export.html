@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">gtstats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -1476,21 +1476,24 @@ customised flextable, a gt table, or a ggplot.</p>
 <span>  title <span class="op">=</span> <span class="st">"Table 1. Vehicle characteristics"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/save_output.html">save_output</a></span><span class="op">(</span><span class="va">finished</span>, <span class="st">"table-1.docx"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/save_output.html">save_output</a></span><span class="op">(</span><span class="va">finished</span>, <span class="st">"table-1.pptx"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/save_output.html">save_output</a></span><span class="op">(</span><span class="va">finished</span>, <span class="st">"table-1.rtf"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/save_output.html">save_output</a></span><span class="op">(</span><span class="va">finished</span>, <span class="st">"table-1.docx"</span>, path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/save_output.html">save_output</a></span><span class="op">(</span><span class="va">finished</span>, <span class="st">"table-1.pptx"</span>, path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/save_output.html">save_output</a></span><span class="op">(</span><span class="va">finished</span>, <span class="st">"table-1.rtf"</span>, path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">html_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/customise_table.html">customise_table</a></span><span class="op">(</span><span class="va">res</span>, engine <span class="op">=</span> <span class="st">"gt"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/save_output.html">save_output</a></span><span class="op">(</span><span class="va">html_table</span>, <span class="st">"table-1.html"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/save_output.html">save_output</a></span><span class="op">(</span><span class="va">html_table</span>, <span class="st">"table-1.html"</span>, path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Table extensions include <code>.docx</code>, <code>.pptx</code>,
 <code>.rtf</code>, <code>.html</code>, <code>.png</code>,
-<code>.pdf</code>, and <code>.tex</code>. A filename without a directory
-writes to the current working directory; a relative or full path writes
-elsewhere.</p>
+<code>.pdf</code>, and <code>.tex</code>. A bare filename requires an
+explicit output directory. Use <code>path = tempdir()</code> for
+disposable output, or provide the intended directory.</p>
 <p>Plots use the same helper:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_compare.html">plot_compare</a></span><span class="op">(</span><span class="va">mtcars</span>, variable <span class="op">=</span> <span class="va">mpg</span>, group <span class="op">=</span> <span class="va">am</span>, show_p <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/save_output.html">save_output</a></span><span class="op">(</span><span class="va">p</span>, <span class="st">"mpg-by-transmission.png"</span>, width <span class="op">=</span> <span class="fl">7</span>, height <span class="op">=</span> <span class="fl">5</span>, dpi <span class="op">=</span> <span class="fl">300</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/save_output.html">save_output</a></span><span class="op">(</span></span>
+<span>  <span class="va">p</span>, <span class="st">"mpg-by-transmission.png"</span>, path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  width <span class="op">=</span> <span class="fl">7</span>, height <span class="op">=</span> <span class="fl">5</span>, dpi <span class="op">=</span> <span class="fl">300</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>Several tables and plots can be written to one Word report without
 calling <code>officer</code> directly. Supply a named list; its names
 become section headings:</p>
@@ -1505,6 +1508,7 @@ become section headings:</p>
 <span>    <span class="st">"Fuel economy by transmission"</span> <span class="op">=</span> <span class="va">p</span></span>
 <span>  <span class="op">)</span>,</span>
 <span>  <span class="st">"complete-report.docx"</span>,</span>
+<span>  path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  title <span class="op">=</span> <span class="st">"Vehicle analysis"</span>,</span>
 <span>  page_break <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>

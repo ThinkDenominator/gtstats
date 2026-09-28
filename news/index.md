@@ -1,8 +1,27 @@
 # Changelog
 
+## gtstats 1.0.0.9000
+
+### Planned
+
+- Add confidence intervals for medians. This will extend
+  [`add_ci()`](https://gtstats.thinkdenominator.com/reference/add_ci.md)
+  to continuous variables displayed with median-based summaries. The
+  interval method will be explicit in result metadata and table notes; a
+  t-based mean interval will not be repurposed for medians.
+  Implementation and validation are tracked in `NEXT-VERSION.md`.
+
 ## gtstats 1.0.0
 
 CRAN release: 2026-09-21
+
+- [`save_output()`](https://gtstats.thinkdenominator.com/reference/save_output.md)
+  no longer writes a bare filename implicitly to the current working
+  directory. Supply `path` explicitly (use
+  [`tempdir()`](https://rdrr.io/r/base/tempfile.html) for temporary
+  output) or provide a filename that includes its destination directory.
+  This prevents accidental writes to a user’s working or package
+  directory.
 
 - Added `missing = "as_category"` to
   [`summary_table()`](https://gtstats.thinkdenominator.com/reference/summary_table.md)

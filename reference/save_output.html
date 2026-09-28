@@ -13,7 +13,7 @@ automatically. The file type is inferred from filename."><link rel="stylesheet" 
 
     <a class="navbar-brand me-2" href="../index.html">gtstats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -105,8 +105,9 @@ report.</p></dd>
 
 
 <dt id="arg-path">path<a class="anchor" aria-label="anchor" href="#arg-path"></a></dt>
-<dd><p>Optional output directory. When omitted, <code>filename</code> is used as
-supplied, so a simple filename saves in the current working directory.</p></dd>
+<dd><p>Optional output directory. A bare <code>filename</code> requires an explicit
+<code>path</code>; use <code><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir()</a></code> for temporary output. Alternatively, supply a full
+or relative path in <code>filename</code>.</p></dd>
 
 
 <dt id="arg-title-subtitle">title, subtitle<a class="anchor" aria-label="anchor" href="#arg-title-subtitle"></a></dt>
@@ -165,18 +166,22 @@ after the first on a new page.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">table</span> <span class="op">&lt;-</span> <span class="fu"><a href="summary_table.html">summary_table</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="add_summary.html">add_summary</a></span><span class="op">(</span>vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">mpg</span>, <span class="va">wt</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">save_output</span><span class="op">(</span><span class="va">table</span>, <span class="st">"summary.html"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">save_output</span><span class="op">(</span><span class="va">table</span>, <span class="st">"summary.html"</span>, path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Table saved to: /tmp/RtmpkjOJ8m/summary.html</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="plot_compare.html">plot_compare</a></span><span class="op">(</span><span class="va">mtcars</span>, variable <span class="op">=</span> <span class="va">mpg</span>, group <span class="op">=</span> <span class="va">am</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">save_output</span><span class="op">(</span><span class="va">plot</span>, <span class="st">"comparison.png"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">save_output</span><span class="op">(</span><span class="va">plot</span>, <span class="st">"comparison.png"</span>, path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Plot saved to: /tmp/RtmpkjOJ8m/comparison.png</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">save_output</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Table 1"</span> <span class="op">=</span> <span class="va">table</span>, <span class="st">"Comparison plot"</span> <span class="op">=</span> <span class="va">plot</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"statistical-report.docx"</span></span></span>
+<span class="r-in"><span>  <span class="st">"statistical-report.docx"</span>,</span></span>
+<span class="r-in"><span>  path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Report saved to: /tmp/RtmpkjOJ8m/statistical-report.docx</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -613,7 +613,7 @@ as_stats_table(rates) |>
 | Option | Default / available choices | What it changes |
 |----|----|----|
 | `x`, `filename` | required | One result, or a named list of tables and plots for one Word report, plus filename with extension |
-| `path` | `NULL`: current working directory | Destination directory; relative/full filenames also work |
+| `path` | `NULL`; required with a bare filename | Explicit destination directory; use [`tempdir()`](https://rdrr.io/r/base/tempfile.html) for disposable output |
 | `title`, `subtitle`, `bold_labels`, `show_footnotes` | `NULL`, `NULL`, `TRUE`, `TRUE` | Rendering controls for raw table results |
 | `zoom`, `expand`, `vwidth`, `vheight` | `2`, `5`, `992`, `744` | PNG table-export browser sizing |
 | `width`, `height`, `units`, `dpi`, `bg` | `8`, `6`, `"in"`, `300`, `"white"` | Plot export size/resolution/background |
@@ -638,6 +638,7 @@ save_output(
     )
   ),
   "gtstats-report.docx",
+  path = tempdir(),
   title = "Birth-weight study",
   page_break = TRUE
 )
@@ -648,7 +649,7 @@ save_output(
 summary_table(birthwt_data, by = low, include = c(age, smoke)) |>
   add_p() |>
   customise_table(title = "Baseline characteristics") |>
-  save_output("table-1.html")
+  save_output("table-1.html", path = tempdir())
 ```
 
 ### The shortest useful workflow

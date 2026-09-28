@@ -310,7 +310,7 @@ table_one |>
     title = "Table 1. Vehicle characteristics",
     theme = "journal"
   ) |>
-  save_output("table-1.docx")
+  save_output("table-1.docx", path = tempdir())
 ```
 
 Before reporting any percentage or inference, read [Missing data and

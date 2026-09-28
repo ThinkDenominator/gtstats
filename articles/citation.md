@@ -66,7 +66,7 @@ Report the package version used in the analysis. It can be checked with:
 ``` r
 
 packageVersion("gtstats")
-#> [1] '1.0.0'
+#> [1] '1.0.0.9000'
 ```
 
 For a full reproducibility record, include the output of

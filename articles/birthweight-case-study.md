@@ -150,7 +150,7 @@ table_one |>
     title = "Participant characteristics by birth-weight outcome",
     theme = "journal"
   ) |>
-  save_output("table-1.docx")
+  save_output("table-1.docx", path = tempdir())
 ```
 
 ### 5. Ask a focused inferential question
